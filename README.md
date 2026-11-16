@@ -1,31 +1,32 @@
 # APEX Simulation — Motorsport Manager
 
-Projeto de simulação e gerenciamento de escuderia, desenvolvido em **Godot 4.7.2 / GDScript**, com referência histórica inicial à temporada de **Fórmula 1 de 2012**.
+Projeto de simulação e gerenciamento de escuderia desenvolvido em **Godot 4.7.2 / GDScript**, com temporada histórica inicial de **Fórmula 1 de 2012**.
 
-> **Estado da importação:** este repositório foi inicializado com documentação e preparação para controle de versão. O **código-fonte completo do jogo ainda não foi importado**. Não tratar este repositório como uma build jogável até a chegada de `project.godot`, cenas, scripts e recursos do projeto.
+> **Estado desta branch `import/apex-v0668`:** o código-fonte da versão **v0.6.6.8 — HUD ReBroadcast 2.0** foi extraído das cinco partes do ZIP por GitHub Actions. A integridade de leitura/extração passou, mas a importação e execução do projeto no Godot **ainda não foram testadas nesta branch**. A versão é **experimental**, não homologada como nova base estável.
 
-## Referência de desenvolvimento
+## Importação verificada
 
-- Pacote de referência preservado fora do GitHub: `APEX_MOTORSPORT_MANAGER_v0.6.6.7.2.4_PITLANE_CPU_COMPLETO.zip`
-- Planejamento vigente: [Plano Mestre Unificado 2.0](docs/APEX_SIMULATION_PLANO_MESTRE_UNIFICADO_2_0_2026-11-16.md)
-- Registro histórico: [Fonte Mestra (13/11/2026)](docs/APEX_SIMULATION_FONTE_MESTRA_2026-11-13.md)
-- Procedimento: [Como importar o projeto Godot](docs/IMPORTAR_PROJETO_GODOT.md)
+- Partes de origem: `APEX_v0.6.6.8.zip.part000` até `part004` (preservadas na `main`).
+- SHA-256 do ZIP reconstruído: `7d4ff778de6e59dac01edebff9be17419ca6d90d99d5ad5e66c0777776462a5f`.
+- Arquivos extraídos: 2.746; arquivos presentes na árvore Git desta branch no primeiro commit: 1.874 (itens ignorados pelo Git não foram versionados).
+- Arquivo principal: [project.godot](project.godot); 368 scripts `.gd`, 1 cena `.tscn`.
+- [Execução do GitHub Actions (PASS)](https://github.com/Quereni/APEX-Simulation/actions/runs/43974460022).
+- [Changelog da versão](APEX_CHANGELOG_v0.6.6.8.md) e [relatório técnico do pacote](APEX_RELATORIO_TECNICO_v0.6.6.8.md).
 
-## Fluxo de trabalho proposto
+## Segurança das versões
 
-- `main`: código oficial **após** importação e validação da versão estável.
-- `feature/hud-rebroadcast`: redesenho de HUD, isolado do motor esportivo.
-- `experiment/next-engine`: motor APEX 2 e IA experimental, sem substituir o Core 2.
+A `main` não foi substituída: nela permanecem as cinco partes originais e os documentos de planejamento. Não incorporar esta branch à `main` antes de verificar os arquivos, importar no Godot 4.7.2, executar testes nativos e comparar com a base estável v0.6.6.7.2.4.
 
-As ramificações de desenvolvimento serão criadas **depois** que a base real do jogo estiver importada.
+## Documentação
 
-## Regras
+- [Plano Mestre Unificado 2.0](docs/APEX_SIMULATION_PLANO_MESTRE_UNIFICADO_2_0_2026-11-16.md)
+- [Fonte Mestra histórica](docs/APEX_SIMULATION_FONTE_MESTRA_2026-11-13.md)
+- [Guia de importação](docs/IMPORTAR_PROJETO_GODOT.md)
 
-1. Uma funcionalidade principal por versão.
-2. Testes de regressão e comparação de hashes esportivos quando aplicáveis.
-3. Preservar savegames, replay, Pit Wall e determinismo.
-4. Não declarar benchmarks ou testes como aprovados sem execução.
-5. Não incluir executáveis do Godot, instaladores, caches ou ZIPs completos no histórico Git.
-6. Arquivos binários grandes do projeto devem ser tratados separadamente, com análise de Git LFS.
+## Próximos passos
 
-**Acesso:** repositório privado, destinado ao desenvolvimento do APEX Motorsport Manager.
+1. Auditar a fonte importada e arquivos omitidos do histórico Git.
+2. Executar Godot 4.7.2 no runner para validar parser, importação e testes headless.
+3. Validar HUD ReBroadcast com testes gráficos quando possível.
+4. Homologar a versão e somente então decidir sobre integração à `main`.
+5. Criar a ramificação separada da Next Engine, sem misturar o seu desenvolvimento com o da HUD.
