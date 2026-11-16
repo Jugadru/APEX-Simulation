@@ -1,0 +1,119 @@
+{
+  "scenario": "Monza official 53-lap settings; first 3200 ticks; seed660; dry; 24 cars; Godot 4.7.2 headless; isolated sequential runs",
+  "baseline": {
+    "archive_bytes": 8744244,
+    "checkpoints": [
+      0,
+      900,
+      1200,
+      1500,
+      1800,
+      2100,
+      2400,
+      2700,
+      3000
+    ],
+    "godot_static_bytes": 62610181,
+    "hash": "f771fab5025055653075f853b4a06370097d5af74843d2deea4cc8dc17be9b90",
+    "legacy_v0662_read": true,
+    "load_seconds": 0.538574,
+    "mode": "baseline",
+    "record_s": 95.954666,
+    "replay_format": "APEX_REPLAY_0660",
+    "replay_sport_identical": true,
+    "save_seconds": 0.540702,
+    "seed": 660,
+    "seek_seconds": [
+      13.468335,
+      0.055445,
+      4.449451
+    ],
+    "seek_targets": [
+      750,
+      1500,
+      2800
+    ],
+    "ticks": 3200,
+    "track": "ITA",
+    "weather": "Seco"
+  },
+  "release_candidate": {
+    "archive_bytes": 8620872,
+    "checkpoints": [
+      0,
+      600,
+      1200,
+      1500,
+      1800,
+      2100,
+      2400,
+      2700,
+      3000
+    ],
+    "godot_static_bytes": 62589680,
+    "hash": "f771fab5025055653075f853b4a06370097d5af74843d2deea4cc8dc17be9b90",
+    "legacy_v0662_read": true,
+    "load_seconds": 0.620728,
+    "mode": "balanced",
+    "record_s": 95.053807,
+    "replay_format": "APEX_REPLAY_0660",
+    "replay_sport_identical": true,
+    "save_seconds": 0.507257,
+    "seed": 660,
+    "seek_seconds": [
+      4.007178,
+      0.046836,
+      4.086091
+    ],
+    "seek_targets": [
+      750,
+      1500,
+      2800
+    ],
+    "ticks": 3200,
+    "track": "ITA",
+    "weather": "Seco"
+  },
+  "rejected_experiment_power2": {
+    "archive_bytes": 5284360,
+    "checkpoints": [
+      0,
+      600,
+      1200,
+      1800,
+      2400,
+      3000
+    ],
+    "godot_static_bytes": 61842248,
+    "hash": "f771fab5025055653075f853b4a06370097d5af74843d2deea4cc8dc17be9b90",
+    "legacy_v0662_read": true,
+    "load_seconds": 0.330208,
+    "mode": "candidate",
+    "record_s": 99.23812,
+    "replay_format": "APEX_REPLAY_0660",
+    "replay_sport_identical": true,
+    "save_seconds": 0.315449,
+    "seed": 660,
+    "seek_seconds": [
+      4.449476,
+      12.091418,
+      14.431819
+    ],
+    "seek_targets": [
+      750,
+      1500,
+      2800
+    ],
+    "ticks": 3200,
+    "track": "ITA",
+    "weather": "Seco"
+  },
+  "early_seek_750_acceleration": 3.361,
+  "archive_size_reduction_pct": 1.411,
+  "rss_peaks_bytes": {
+    "baseline": 215216128,
+    "candidate": 225701888
+  },
+  "rss_observation": "Candidate higher; no claim of RSS reduction. Peak sampled every 250 ms.",
+  "scope": "Coverage-aware in-memory checkpoint pruning; format/sport unchanged. The rejected experiment is not shipped."
+}

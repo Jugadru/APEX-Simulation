@@ -1,0 +1,137 @@
+[
+  {
+    "test": "fast_seek_contract",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "duration_seconds": 5.795,
+    "log": "qa/replay_fast_seek_0666/logs/fast_seek_contract.log",
+    "marker": "REPLAY_FAST_SEEK_0666_CONTRACT_PASS legacy, corruption, caches, 13 seeks, Racecraft, archive",
+    "errors": []
+  },
+  {
+    "test": "replay_boundaries",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "duration_seconds": 4.227,
+    "log": "qa/replay_fast_seek_0666/logs/replay_boundaries.log",
+    "marker": "REPLAY_BOUNDARIES_PASS V21/rain V4, same-tick ordering, invalid data and checkpoint integrity",
+    "errors": []
+  },
+  {
+    "test": "replay_unit",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "duration_seconds": 13.772,
+    "log": "qa/replay_fast_seek_0666/logs/replay_unit.log",
+    "marker": "REPLAY_UNIT_PASS { \"pass\": true, \"ticks\": 200, \"speeds\": [1, 2, 5, 16, 32], \"wall_s\": 13.061024, \"checkpoint_bytes\": 220640, \"replay_bytes\": 160936 }",
+    "errors": []
+  },
+  {
+    "test": "replay_integration",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "duration_seconds": 45.749,
+    "log": "qa/replay_fast_seek_0666/logs/replay_integration.log",
+    "marker": "REPLAY_INTEGRATION_PASS renders, UI, replay seek, live restore, inventory isolation",
+    "errors": []
+  },
+  {
+    "test": "replay_watch_local_legacy",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "duration_seconds": 13.919,
+    "log": "qa/replay_fast_seek_0666/logs/replay_watch_local_legacy.log",
+    "marker": "REPLAY_WATCH_0664_PASS ticks=650; identical sport; old file; 2 seeks; live unchanged",
+    "errors": []
+  },
+  {
+    "test": "replay_weather",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "duration_seconds": 6.266,
+    "log": "qa/replay_fast_seek_0666/logs/replay_weather.log",
+    "marker": "REPLAY_WEATHER_PASS no rain/rain/no rain and restore in rain, peak=0.95",
+    "errors": []
+  },
+  {
+    "test": "racecraft_audit",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "duration_seconds": 13.614,
+    "log": "qa/replay_fast_seek_0666/logs/racecraft_audit.log",
+    "marker": "RACECRAFT_0662_UNIT_PASS { \"checks\": 1027, \"ticks\": 500, \"hash\": \"badc652329a1f0a59dbead026d08de445f3fa8342a4e9d231343ca5d30798dac\" }",
+    "errors": []
+  },
+  {
+    "test": "driver_dynamics",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "duration_seconds": 0.565,
+    "log": "qa/replay_fast_seek_0666/logs/driver_dynamics.log",
+    "marker": "DRIVER_DYNAMICS_0661_PASS { \"checks\": 17, \"seed\": 661, \"pure\": true }",
+    "errors": []
+  },
+  {
+    "test": "sim_engine",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "duration_seconds": 1.618,
+    "log": "qa/replay_fast_seek_0666/logs/sim_engine.log",
+    "marker": "SIM_ENGINE_PASS no rendering / narrow blocked / wide passed / defense / ranking / events / deterministic",
+    "errors": []
+  },
+  {
+    "test": "pit_lane",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "duration_seconds": 12.687,
+    "log": "qa/replay_fast_seek_0666/logs/pit_lane.log",
+    "marker": "APEX PIT 0.5.2.4.3 OK: team slots, forward lane, continuity and timed exit",
+    "errors": []
+  },
+  {
+    "test": "save_migration",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "duration_seconds": 0.315,
+    "log": "qa/replay_fast_seek_0666/logs/save_migration.log",
+    "marker": "APEX 0642 SAVE MIGRATION PASS: championship results, garage upgrades, budget and awards retained",
+    "errors": []
+  },
+  {
+    "test": "workshop",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "duration_seconds": 0.315,
+    "log": "qa/replay_fast_seek_0666/logs/workshop.log",
+    "marker": "WORKSHOP_PASS migration, save, costs, calendar, completion, cancellation, staff contention, auto/manual, locks",
+    "errors": []
+  },
+  {
+    "test": "inventory",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "duration_seconds": 0.666,
+    "log": "qa/replay_fast_seek_0666/logs/inventory.log",
+    "marker": "INVENTORY_0651_PASS migration / IDs / swap / status / lock / rollback / persistence",
+    "errors": []
+  },
+  {
+    "test": "strategy_sim",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "duration_seconds": 53.198,
+    "log": "qa/replay_fast_seek_0666/logs/strategy_sim.log",
+    "marker": "APEX_06499_MODEL_PASS actual 3-track telemetry, projection bounds, confirmed/potential stack, clipped horizon and pure previews",
+    "errors": []
+  },
+  {
+    "test": "staff_migration",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "duration_seconds": 0.415,
+    "log": "qa/replay_fast_seek_0666/logs/staff_migration.log",
+    "marker": "SOUL_0650_MIGRATION_PASS true 9.9 custom-dir -> 6.5.0, garage/season read-only/contract",
+    "errors": []
+  }
+]

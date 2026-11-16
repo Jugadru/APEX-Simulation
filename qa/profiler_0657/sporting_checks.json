@@ -1,0 +1,146 @@
+[
+  {
+    "file": "cpu_Chuva_intensa_off_1.json",
+    "classification_laps_valid": true,
+    "ferrari_waits": [
+      0.0,
+      2.32295168675232
+    ]
+  },
+  {
+    "file": "cpu_Seco_off_0.json",
+    "classification_laps_valid": true,
+    "ferrari_waits": [
+      0.0,
+      2.52295168675232
+    ]
+  },
+  {
+    "file": "cpu_Seco_on_0.json",
+    "classification_laps_valid": true,
+    "ferrari_waits": [
+      0.0,
+      2.52295168675232
+    ]
+  },
+  {
+    "file": "cpu_Seco_base_0.json",
+    "classification_laps_valid": true,
+    "ferrari_waits": [
+      0.0,
+      2.52295168675232
+    ]
+  },
+  {
+    "file": "cpu_Seco_off_2.json",
+    "classification_laps_valid": true,
+    "ferrari_waits": [
+      0.0,
+      2.52295168675232
+    ]
+  },
+  {
+    "file": "cpu_Seco_on_2.json",
+    "classification_laps_valid": true,
+    "ferrari_waits": [
+      0.0,
+      2.52295168675232
+    ]
+  },
+  {
+    "file": "cpu_Chuva_intensa_base_0.json",
+    "classification_laps_valid": true,
+    "ferrari_waits": [
+      0.0,
+      2.32295168675232
+    ]
+  },
+  {
+    "file": "cpu_Chuva_intensa_base_1.json",
+    "classification_laps_valid": true,
+    "ferrari_waits": [
+      0.0,
+      2.32295168675232
+    ]
+  },
+  {
+    "file": "cpu_Chuva_intensa_on_0.json",
+    "classification_laps_valid": true,
+    "ferrari_waits": [
+      0.0,
+      2.32295168675232
+    ]
+  },
+  {
+    "file": "cpu_Seco_on_1.json",
+    "classification_laps_valid": true,
+    "ferrari_waits": [
+      0.0,
+      2.52295168675232
+    ]
+  },
+  {
+    "file": "cpu_Chuva_intensa_off_0.json",
+    "classification_laps_valid": true,
+    "ferrari_waits": [
+      0.0,
+      2.32295168675232
+    ]
+  },
+  {
+    "file": "cpu_Seco_base_2.json",
+    "classification_laps_valid": true,
+    "ferrari_waits": [
+      0.0,
+      2.52295168675232
+    ]
+  },
+  {
+    "file": "cpu_Chuva_intensa_base_2.json",
+    "classification_laps_valid": true,
+    "ferrari_waits": [
+      0.0,
+      2.32295168675232
+    ]
+  },
+  {
+    "file": "cpu_Chuva_intensa_off_2.json",
+    "classification_laps_valid": true,
+    "ferrari_waits": [
+      0.0,
+      2.32295168675232
+    ]
+  },
+  {
+    "file": "cpu_Seco_off_1.json",
+    "classification_laps_valid": true,
+    "ferrari_waits": [
+      0.0,
+      2.52295168675232
+    ]
+  },
+  {
+    "file": "cpu_Chuva_intensa_on_1.json",
+    "classification_laps_valid": true,
+    "ferrari_waits": [
+      0.0,
+      2.32295168675232
+    ]
+  },
+  {
+    "file": "cpu_Chuva_intensa_on_2.json",
+    "classification_laps_valid": true,
+    "ferrari_waits": [
+      0.0,
+      2.32295168675232
+    ]
+  },
+  {
+    "file": "cpu_Seco_base_1.json",
+    "classification_laps_valid": true,
+    "ferrari_waits": [
+      0.0,
+      2.52295168675232
+    ]
+  }
+]

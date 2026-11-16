@@ -1,0 +1,34 @@
+{
+  "version": "0.6.3.8.1",
+  "base_version": "0.6.3.8",
+  "engine": "Godot 4.7.2",
+  "root_cause": "Incident penalty rewound scalar progress across an already registered lap boundary",
+  "fixes": [
+    "Use combat_hesitation_s as real-time delay, not reverse progress",
+    "Guard against duplicate lap crossings"
+  ],
+  "modified_files": [
+    "scripts/race_engine.gd",
+    "scripts/main.gd",
+    "project.godot"
+  ],
+  "new_tests": [
+    "tests/core_0638_1_timing_rootcause_test.gd",
+    "tests/core_0638_1_mini_gp_test.gd"
+  ],
+  "test_evidence": {
+    "seed_321_replay_560s_invalid_laps": 0,
+    "dry_mini_gp_finished": true,
+    "wet_mini_gp_finished": true,
+    "godot_import": true,
+    "gui_smoke": true,
+    "full_71_laps_after_fix": "not_run"
+  },
+  "sha256": {
+    "scripts/race_engine.gd": "03faf04f2697d9491ab136232f0843ccbeb6fb665c0200944014cb7ca8538b6c",
+    "scripts/main.gd": "eb86b352a2245593a46407194e802c8304ed631fea69313a9f1d35125d1db237",
+    "project.godot": "388242dea6ee39c33fc281d22a066a10eb83934fecebd2a5648cc2b90f18c754",
+    "tests/core_0638_1_timing_rootcause_test.gd": "6c48b878c3966115b40fbdce0ac7346f2514fee4a20b2baeb418600d6b49852a",
+    "tests/core_0638_1_mini_gp_test.gd": "d77b90d9d5e16b168f65ae4125a3dc00942f28f5df79ff5b12580516dd7c9778"
+  }
+}

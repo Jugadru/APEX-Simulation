@@ -1,0 +1,16 @@
+APEX 0.5.9.0 HOTFIX 2 — COMO TESTAR NO GODOT
+
+1. Extraia o ZIP completo em uma pasta nova.
+2. No Godot 4, clique em Importar e selecione project.godot.
+3. Pressione F5, escolha equipe Ferrari e circuito Spa.
+4. Confira o botão grande "INICIAR CORRIDA / ENTRAR NO GRID"
+   no rodapé do painel direito, sem necessidade de rolar para baixo.
+5. Clique e confirme que a corrida abre com a tabela dos 24 pilotos.
+6. Teste o tamanho 1600x900 e, se puder, 1280x720.
+7. Confira Manual / Automático e que suas câmeras e pits continuam funcionando.
+
+Teste estático (opcional): python3 tests/test_0590_menu_fixed_static.py
+Teste Godot (opcional): godot --headless --path . --script res://tests/menu_0590_ui_smoke_test.gd
+
+Se ainda estiver cortado, envie captura da janela completa e a escala
+(de exibição do Linux Mint) que estiver usando.

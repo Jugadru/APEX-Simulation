@@ -1,0 +1,9 @@
+{
+  "pass": true,
+  "seed": 6552,
+  "track": "GBR",
+  "laps": 52,
+  "exact_cars_events_pits_equal": true,
+  "before_sha256": "aab60f259edac18fd2694b7b8431f3d682dd3aad165eaee5fe7413f310f3254e",
+  "after_sha256": "aab60f259edac18fd2694b7b8431f3d682dd3aad165eaee5fe7413f310f3254e"
+}

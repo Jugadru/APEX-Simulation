@@ -1,0 +1,18 @@
+[
+  {
+    "test": "track_GBR",
+    "exit_code": 0
+  },
+  {
+    "test": "track_ITA",
+    "exit_code": 0
+  },
+  {
+    "test": "track_SIN",
+    "exit_code": 0
+  },
+  {
+    "test": "soul_staff_0650_season_test",
+    "exit_code": 0
+  }
+]

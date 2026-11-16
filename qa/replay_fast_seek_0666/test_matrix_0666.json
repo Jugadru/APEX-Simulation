@@ -1,0 +1,194 @@
+[
+  {
+    "test": "source_zip_crc_sha_preservation",
+    "status": "APROVADO",
+    "evidence": "qa/replay_fast_seek_0666/source_integrity_0666.json",
+    "details": "2410/2410 original files, only two intentionally modified; original CRC/SHA valid"
+  },
+  {
+    "test": "sequential_AB_18_seek",
+    "status": "APROVADO",
+    "evidence": "qa/replay_fast_seek_0666/comparison_0665_vs_0666.json",
+    "details": "114.788497s -> 35.369259s, hash and Racecraft 18/18 identical"
+  },
+  {
+    "test": "fast_seek_contract",
+    "status": "APROVADO",
+    "evidence": "qa/replay_fast_seek_0666/logs/fast_seek_contract.log",
+    "details": "REPLAY_FAST_SEEK_0666_CONTRACT_PASS legacy, corruption, caches, 13 seeks, Racecraft, archive"
+  },
+  {
+    "test": "replay_boundaries",
+    "status": "APROVADO",
+    "evidence": "qa/replay_fast_seek_0666/logs/replay_boundaries.log",
+    "details": "REPLAY_BOUNDARIES_PASS V21/rain V4, same-tick ordering, invalid data and checkpoint integrity"
+  },
+  {
+    "test": "replay_unit",
+    "status": "APROVADO",
+    "evidence": "qa/replay_fast_seek_0666/logs/replay_unit.log",
+    "details": "REPLAY_UNIT_PASS { \"pass\": true, \"ticks\": 200, \"speeds\": [1, 2, 5, 16, 32], \"wall_s\": 13.061024, \"checkpoint_bytes\": 220640, \"replay_bytes\": 160936 }"
+  },
+  {
+    "test": "replay_integration",
+    "status": "APROVADO",
+    "evidence": "qa/replay_fast_seek_0666/logs/replay_integration.log",
+    "details": "REPLAY_INTEGRATION_PASS renders, UI, replay seek, live restore, inventory isolation"
+  },
+  {
+    "test": "replay_watch_local_legacy",
+    "status": "APROVADO",
+    "evidence": "qa/replay_fast_seek_0666/logs/replay_watch_local_legacy.log",
+    "details": "REPLAY_WATCH_0664_PASS ticks=650; identical sport; old file; 2 seeks; live unchanged"
+  },
+  {
+    "test": "replay_weather",
+    "status": "APROVADO",
+    "evidence": "qa/replay_fast_seek_0666/logs/replay_weather.log",
+    "details": "REPLAY_WEATHER_PASS no rain/rain/no rain and restore in rain, peak=0.95"
+  },
+  {
+    "test": "racecraft_audit",
+    "status": "APROVADO",
+    "evidence": "qa/replay_fast_seek_0666/logs/racecraft_audit.log",
+    "details": "RACECRAFT_0662_UNIT_PASS { \"checks\": 1027, \"ticks\": 500, \"hash\": \"badc652329a1f0a59dbead026d08de445f3fa8342a4e9d231343ca5d30798dac\" }"
+  },
+  {
+    "test": "driver_dynamics",
+    "status": "APROVADO",
+    "evidence": "qa/replay_fast_seek_0666/logs/driver_dynamics.log",
+    "details": "DRIVER_DYNAMICS_0661_PASS { \"checks\": 17, \"seed\": 661, \"pure\": true }"
+  },
+  {
+    "test": "sim_engine",
+    "status": "APROVADO",
+    "evidence": "qa/replay_fast_seek_0666/logs/sim_engine.log",
+    "details": "SIM_ENGINE_PASS no rendering / narrow blocked / wide passed / defense / ranking / events / deterministic"
+  },
+  {
+    "test": "pit_lane",
+    "status": "APROVADO",
+    "evidence": "qa/replay_fast_seek_0666/logs/pit_lane.log",
+    "details": "APEX PIT 0.5.2.4.3 OK: team slots, forward lane, continuity and timed exit"
+  },
+  {
+    "test": "save_migration",
+    "status": "APROVADO",
+    "evidence": "qa/replay_fast_seek_0666/logs/save_migration.log",
+    "details": "APEX 0642 SAVE MIGRATION PASS: championship results, garage upgrades, budget and awards retained"
+  },
+  {
+    "test": "workshop",
+    "status": "APROVADO",
+    "evidence": "qa/replay_fast_seek_0666/logs/workshop.log",
+    "details": "WORKSHOP_PASS migration, save, costs, calendar, completion, cancellation, staff contention, auto/manual, locks"
+  },
+  {
+    "test": "inventory",
+    "status": "APROVADO",
+    "evidence": "qa/replay_fast_seek_0666/logs/inventory.log",
+    "details": "INVENTORY_0651_PASS migration / IDs / swap / status / lock / rollback / persistence"
+  },
+  {
+    "test": "strategy_sim",
+    "status": "APROVADO",
+    "evidence": "qa/replay_fast_seek_0666/logs/strategy_sim.log",
+    "details": "APEX_06499_MODEL_PASS actual 3-track telemetry, projection bounds, confirmed/potential stack, clipped horizon and pure previews"
+  },
+  {
+    "test": "staff_migration",
+    "status": "APROVADO",
+    "evidence": "qa/replay_fast_seek_0666/logs/staff_migration.log",
+    "details": "SOUL_0650_MIGRATION_PASS true 9.9 custom-dir -> 6.5.0, garage/season read-only/contract"
+  },
+  {
+    "test": "fast_seek_contract_final_recheck",
+    "status": "APROVADO",
+    "evidence": "qa/replay_fast_seek_0666/logs/fast_seek_contract_final.log",
+    "details": "Source-invalidation tick 0 regression included"
+  },
+  {
+    "test": "monza_53_old_archive_seek",
+    "status": "APROVADO",
+    "evidence": "qa/replay_fast_seek_0666/monza53_0665_archive_0666_seek.json",
+    "details": "24431 ticks, 9 seeks, all match; prior archive, not newly rerun full GP"
+  },
+  {
+    "test": "GP_GBR_Seco",
+    "status": "APROVADO",
+    "evidence": "qa/replay_fast_seek_0666/logs/gp_GBR_0666.log",
+    "details": "RACECRAFT_0666_GP_PASS { \"track\": \"GBR\", \"laps\": 3, \"ticks\": 1668, \"hash\": \"7bca12f99088048b747f7ac3626b635133628cb0ae57de15db4fdf072be64837\", \"live_ms\": 13512, \"replay_ms\": 15105, \"counts\": { \"approa"
+  },
+  {
+    "test": "GP_BEL_Chuva intensa",
+    "status": "APROVADO",
+    "evidence": "qa/replay_fast_seek_0666/logs/gp_BEL_0666.log",
+    "details": "RACECRAFT_0666_GP_PASS { \"track\": \"BEL\", \"laps\": 3, \"ticks\": 2067, \"hash\": \"33c7c2d71e34779fb7e74f359f2663e0bea34074aaf4c655dc678f3b97fd8c0e\", \"live_ms\": 16460, \"replay_ms\": 16369, \"counts\": { \"approa"
+  },
+  {
+    "test": "GP_ITA_Seco",
+    "status": "APROVADO",
+    "evidence": "qa/replay_fast_seek_0666/logs/gp_ITA_0666.log",
+    "details": "RACECRAFT_0666_GP_PASS { \"track\": \"ITA\", \"laps\": 3, \"ticks\": 1553, \"hash\": \"5d4c508a64dce8d1c481a3661f56c6bdf97a2a7a7bab37a5e290be5e54188592\", \"live_ms\": 18640, \"replay_ms\": 20226, \"counts\": { \"approa"
+  },
+  {
+    "test": "GP_SIN_Chuva intensa",
+    "status": "APROVADO",
+    "evidence": "qa/replay_fast_seek_0666/logs/gp_SIN_0666.log",
+    "details": "RACECRAFT_0666_GP_PASS { \"track\": \"SIN\", \"laps\": 3, \"ticks\": 2050, \"hash\": \"48085a06fed3d7761a58206673c03685043645d813ea809e0b76c968e94439c9\", \"live_ms\": 22593, \"replay_ms\": 20758, \"counts\": { \"approa"
+  },
+  {
+    "test": "native_capture_1600x900",
+    "status": "APROVADO",
+    "evidence": "qa/replay_fast_seek_0666/godot_race_1600x900.png",
+    "details": "Actual Godot 4.7.2 OpenGL capture via Xvfb"
+  },
+  {
+    "test": "native_capture_1920x1080",
+    "status": "APROVADO",
+    "evidence": "qa/replay_fast_seek_0666/godot_race_1920x1080.png",
+    "details": "Actual Godot 4.7.2 OpenGL capture via Xvfb"
+  },
+  {
+    "test": "draft_zip_crc",
+    "status": "APROVADO",
+    "evidence": "qa/replay_fast_seek_0666/build_validation_0666.json",
+    "details": "2,464 entries, zip CRC valid before final QA append"
+  },
+  {
+    "test": "clean_zip_extraction",
+    "status": "APROVADO",
+    "evidence": "qa/replay_fast_seek_0666/build_validation_0666.json",
+    "details": "All original scene/script/data paths present"
+  },
+  {
+    "test": "clean_zip_godot_import",
+    "status": "APROVADO",
+    "evidence": "qa/replay_fast_seek_0666/logs/clean_import_0666.log",
+    "details": "Godot 4.7.2 parser/import successful"
+  },
+  {
+    "test": "clean_zip_cache_contract",
+    "status": "APROVADO",
+    "evidence": "qa/replay_fast_seek_0666/logs/clean_contract_0666.log",
+    "details": "Contract test passed on independently extracted project"
+  },
+  {
+    "test": "clean_zip_pit_v21_rain_v4",
+    "status": "APROVADO",
+    "evidence": "qa/replay_fast_seek_0666/logs/clean_boundaries_0666.log",
+    "details": "Manual pit lap 21 never turns into rain-related lap 4 order"
+  },
+  {
+    "test": "stress_career_20_seasons",
+    "status": "NÃO EXECUTADO",
+    "evidence": "",
+    "details": "Out of scope: this version only optimizes replay navigation."
+  },
+  {
+    "test": "monza_53_every_tick_sequential_playback",
+    "status": "NÃO EXECUTADO",
+    "evidence": "",
+    "details": "Validated the v0665 full archive via 9 verified seeks, not 24,431 sequential replay ticks."
+  }
+]

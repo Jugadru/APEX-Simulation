@@ -1,0 +1,254 @@
+{
+	"paused": {
+		"active_wall_seconds": 1.47574,
+		"context": {
+			"frames": 90,
+			"scenario": "paused same scene"
+		},
+		"counters": {
+			"race_frames": 90
+		},
+		"enabled": false,
+		"environment": {
+			"cpu": "Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz",
+			"debug_build": true,
+			"display": "X11",
+			"godot": "4.7.2-stable (official)",
+			"gpu": "NVIDIA GeForce GTX 1650",
+			"logical_cores": 4,
+			"os": "Linux",
+			"renderer": "forward_plus"
+		},
+		"inclusive_scopes": true,
+		"limitations": [
+			"CPU wall-clock inclusive scopes; nested values overlap.",
+			"No GPU time or process RSS measurement.",
+			"Godot monitors may lag one second; some unavailable in release.",
+			"Profiler overhead is included; benchmarking requires OFF/ON comparison."
+		],
+		"monitors": {
+			"fps": 60.0,
+			"frame_ms": 27.747,
+			"godot_static_bytes": 183242689,
+			"nodes": 5571.0,
+			"objects": 13932.0,
+			"orphan_nodes": 0.0
+		},
+		"schema": 1,
+		"sections": {
+			"frame.input_delta": {
+				"calls": 90,
+				"max_ms": 16.666,
+				"mean_ms": 16.666,
+				"min_ms": 16.666,
+				"total_ms": 1499.94
+			},
+			"frame.main_cpu": {
+				"calls": 90,
+				"max_ms": 11.42,
+				"mean_ms": 1.3575,
+				"min_ms": 0.701,
+				"total_ms": 122.175
+			},
+			"hud.update": {
+				"calls": 5,
+				"max_ms": 10.53,
+				"mean_ms": 10.1846,
+				"min_ms": 9.781,
+				"total_ms": 50.923
+			},
+			"route.2d_direction": {
+				"calls": 90,
+				"max_ms": 0.003,
+				"mean_ms": 0.0021,
+				"min_ms": 0.001,
+				"total_ms": 0.189
+			},
+			"route.2d_position": {
+				"calls": 180,
+				"max_ms": 0.006,
+				"mean_ms": 0.00296666666666667,
+				"min_ms": 0.001,
+				"total_ms": 0.534
+			},
+			"visual.build_states": {
+				"calls": 90,
+				"max_ms": 0.718,
+				"mean_ms": 0.616944444444444,
+				"min_ms": 0.552,
+				"total_ms": 55.525
+			},
+			"visual.maps": {
+				"calls": 90,
+				"max_ms": 0.104,
+				"mean_ms": 0.0545444444444444,
+				"min_ms": 0.047,
+				"total_ms": 4.909
+			}
+		},
+		"version": "0.6.5.7"
+	},
+	"running": {
+		"active_wall_seconds": 3.174556,
+		"context": {
+			"delta": 0.0166666666666667,
+			"frames": 180,
+			"scenario": "GBR 24 cars native 3D x1",
+			"seed": 6558,
+			"width": 1600
+		},
+		"counters": {
+			"race_frames": 180
+		},
+		"enabled": false,
+		"environment": {
+			"cpu": "Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz",
+			"debug_build": true,
+			"display": "X11",
+			"godot": "4.7.2-stable (official)",
+			"gpu": "NVIDIA GeForce GTX 1650",
+			"logical_cores": 4,
+			"os": "Linux",
+			"renderer": "forward_plus"
+		},
+		"inclusive_scopes": true,
+		"limitations": [
+			"CPU wall-clock inclusive scopes; nested values overlap.",
+			"No GPU time or process RSS measurement.",
+			"Godot monitors may lag one second; some unavailable in release.",
+			"Profiler overhead is included; benchmarking requires OFF/ON comparison."
+		],
+		"monitors": {
+			"fps": 58.0,
+			"frame_ms": 28.416,
+			"godot_static_bytes": 182833553,
+			"nodes": 5571.0,
+			"objects": 13932.0,
+			"orphan_nodes": 0.0
+		},
+		"schema": 1,
+		"sections": {
+			"ai.team_autonomy": {
+				"calls": 360,
+				"max_ms": 0.188,
+				"mean_ms": 0.0672027777777778,
+				"min_ms": 0.04,
+				"total_ms": 24.193
+			},
+			"frame.input_delta": {
+				"calls": 180,
+				"max_ms": 16.666,
+				"mean_ms": 16.666,
+				"min_ms": 16.666,
+				"total_ms": 2999.88
+			},
+			"frame.main_cpu": {
+				"calls": 180,
+				"max_ms": 22.414,
+				"mean_ms": 10.3083555555556,
+				"min_ms": 8.826,
+				"total_ms": 1855.504
+			},
+			"hud.update": {
+				"calls": 12,
+				"max_ms": 11.769,
+				"mean_ms": 9.8955,
+				"min_ms": 9.292,
+				"total_ms": 118.746
+			},
+			"race.overtaking": {
+				"calls": 180,
+				"max_ms": 3.244,
+				"mean_ms": 2.15767222222222,
+				"min_ms": 1.988,
+				"total_ms": 388.381
+			},
+			"race.pace_thermal_drs_kers": {
+				"calls": 180,
+				"max_ms": 1.804,
+				"mean_ms": 0.8412,
+				"min_ms": 0.741,
+				"total_ms": 151.416
+			},
+			"race.snapshot": {
+				"calls": 180,
+				"max_ms": 1.803,
+				"mean_ms": 0.849116666666667,
+				"min_ms": 0.764,
+				"total_ms": 152.841
+			},
+			"race.step": {
+				"calls": 180,
+				"max_ms": 6.024,
+				"mean_ms": 4.62937222222222,
+				"min_ms": 4.205,
+				"total_ms": 833.287
+			},
+			"route.2d_direction": {
+				"calls": 4500,
+				"max_ms": 0.153,
+				"mean_ms": 0.00446888888888889,
+				"min_ms": 0.003,
+				"total_ms": 20.11
+			},
+			"route.2d_position": {
+				"calls": 4680,
+				"max_ms": 0.025,
+				"mean_ms": 0.00241794871794872,
+				"min_ms": 0.001,
+				"total_ms": 11.316
+			},
+			"route.3d_direction": {
+				"calls": 8640,
+				"max_ms": 0.209,
+				"mean_ms": 0.00550219907407407,
+				"min_ms": 0.004,
+				"total_ms": 47.539
+			},
+			"route.3d_occupied_pose": {
+				"calls": 4320,
+				"max_ms": 0.345,
+				"mean_ms": 0.0162094907407407,
+				"min_ms": 0.012,
+				"total_ms": 70.025
+			},
+			"route.3d_position": {
+				"calls": 17280,
+				"max_ms": 0.055,
+				"mean_ms": 0.000724884259259259,
+				"min_ms": 0.0,
+				"total_ms": 12.526
+			},
+			"visual.build_states": {
+				"calls": 180,
+				"max_ms": 2.133,
+				"mean_ms": 0.680494444444444,
+				"min_ms": 0.606,
+				"total_ms": 122.489
+			},
+			"visual.maps": {
+				"calls": 180,
+				"max_ms": 0.142,
+				"mean_ms": 0.0445277777777778,
+				"min_ms": 0.037,
+				"total_ms": 8.015
+			},
+			"visual.occupancy": {
+				"calls": 180,
+				"max_ms": 4.063,
+				"mean_ms": 2.59144444444444,
+				"min_ms": 2.358,
+				"total_ms": 466.46
+			},
+			"visual.world_3d": {
+				"calls": 180,
+				"max_ms": 5.407,
+				"mean_ms": 3.93338888888889,
+				"min_ms": 3.588,
+				"total_ms": 708.01
+			}
+		},
+		"version": "0.6.5.7"
+	},
+	"sporting_sha256": "8ee522f1eccfb69c798da8b5509ee7f73e14688761fbaa206313ab65a8c7a7e4"
+}

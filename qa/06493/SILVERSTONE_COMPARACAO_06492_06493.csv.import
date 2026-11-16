@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://bg27opeqw7ivl"
+
+[deps]
+
+files=["res://qa/06493/SILVERSTONE_COMPARACAO_06492_06493.equipe.translation", "res://qa/06493/SILVERSTONE_COMPARACAO_06492_06493.paradas.translation", "res://qa/06493/SILVERSTONE_COMPARACAO_06492_06493.paradas.translation", "res://qa/06493/SILVERSTONE_COMPARACAO_06492_06493.diferenca.translation", "res://qa/06493/SILVERSTONE_COMPARACAO_06492_06493.posicao.translation"]
+
+source_file="res://qa/06493/SILVERSTONE_COMPARACAO_06492_06493.csv"
+dest_files=["res://qa/06493/SILVERSTONE_COMPARACAO_06492_06493.equipe.translation", "res://qa/06493/SILVERSTONE_COMPARACAO_06492_06493.paradas.translation", "res://qa/06493/SILVERSTONE_COMPARACAO_06492_06493.paradas.translation", "res://qa/06493/SILVERSTONE_COMPARACAO_06492_06493.diferenca.translation", "res://qa/06493/SILVERSTONE_COMPARACAO_06492_06493.posicao.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

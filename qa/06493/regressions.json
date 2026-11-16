@@ -1,0 +1,137 @@
+[
+  {
+    "test": "double_stack_06492_entry_test",
+    "exit": 0,
+    "duration_s": 1.57,
+    "failures": [],
+    "summary": "DOUBLESTACK_06492_PASS Silverstone safe queue avoided, risk gates, V21, manual and urgent respected"
+  },
+  {
+    "test": "double_stack_single_smoke_test",
+    "exit": 0,
+    "duration_s": 1.05,
+    "failures": [],
+    "summary": "APEX SOLO PIT OK: no extra queue time, original duration preserved"
+  },
+  {
+    "test": "pitwall_06491_stint_reset_test",
+    "exit": 0,
+    "duration_s": 0.39,
+    "failures": [],
+    "summary": "PITWALL_06491_PASS Silverstone, one hold per stint, real tyre service reset, V21"
+  },
+  {
+    "test": "pitwall_0649_strategy_test",
+    "exit": 0,
+    "duration_s": 0.7,
+    "failures": [],
+    "summary": "PITWALL_0649_STRATEGY_PASS pure scenarios, under/overcut, safe stagger, rain, V21 native"
+  },
+  {
+    "test": "pitwall_0649_ui_test",
+    "exit": 0,
+    "duration_s": 3.41,
+    "failures": [
+      "ERROR: Parameter \"t\" is null.",
+      "SCRIPT ERROR: Cannot call method 'save_png' on a null value.",
+      "ERROR: Parameter \"t\" is null.",
+      "SCRIPT ERROR: Cannot call method 'save_png' on a null value."
+    ],
+    "summary": "PITWALL_0649_UI_PASS real HUD 1600/1920, 2 cars, commands, protected bookings, engineer"
+  },
+  {
+    "test": "race_0645_intelligence_test",
+    "exit": 0,
+    "duration_s": 6.16,
+    "failures": [],
+    "summary": "APEX_0645_PASS strategy, guards, soul, RNG, native ticks, manual V21, HUD UI03"
+  },
+  {
+    "test": "race_0646_engineer_3_test",
+    "exit": 0,
+    "duration_s": 3.43,
+    "failures": [],
+    "summary": "RE3_0646_PASS: pure planning, staff horizon, rain 83, V21, double stack, 4 radios, UI, manual pit, 0.20 native"
+  },
+  {
+    "test": "race_0647_soul2_test",
+    "exit": 0,
+    "duration_s": 2.36,
+    "failures": [],
+    "summary": "SOUL2_PASS deterministic, radio requests, protected V21, team-order request, morale, engine native lap"
+  },
+  {
+    "test": "race_0647_soul2_ui_test",
+    "exit": 124,
+    "duration_s": 70.09,
+    "failures": [
+      "TIMEOUT"
+    ],
+    "summary": null
+  },
+  {
+    "test": "staff_0648_contracts_test",
+    "exit": 0,
+    "duration_s": 0.4,
+    "failures": [],
+    "summary": "STAFF_0648_PASS contracts, levels, crew, aero R&D, salary idempotency, no backcharge, expiry, release, persistence"
+  },
+  {
+    "test": "staff_0648_career_integration_test",
+    "exit": 0,
+    "duration_s": 3.11,
+    "failures": [],
+    "summary": "STAFF_CAREER_0648_PASS championship reward/payroll idempotent, autodelegation real effect, next race"
+  },
+  {
+    "test": "staff_0648_ui_test",
+    "exit": 124,
+    "duration_s": 70.07,
+    "failures": [
+      "TIMEOUT"
+    ],
+    "summary": null
+  },
+  {
+    "test": "core_0640_pitwall_intelligence_test",
+    "exit": 0,
+    "duration_s": 3.32,
+    "failures": [],
+    "summary": null
+  },
+  {
+    "test": "core_0635_soul_stint_smoke_test",
+    "exit": 0,
+    "duration_s": 2.22,
+    "failures": [],
+    "summary": null
+  },
+  {
+    "test": "core_0642_save_migration_test",
+    "exit": 0,
+    "duration_s": 0.29,
+    "failures": [],
+    "summary": null
+  },
+  {
+    "test": "core_0622_corner_hud_smoke_test",
+    "exit": 0,
+    "duration_s": 2.37,
+    "failures": [],
+    "summary": "PASS APEX 0622: native parse, corner cards, compact speed controls, upward panes and strategy"
+  },
+  {
+    "test": "track_0644_hud_integration_test",
+    "exit": 0,
+    "duration_s": 1.87,
+    "failures": [],
+    "summary": "APEX_0644_HUD_PASS: scene, PNEUS panel, thermal data, HUD, weather, 2 player cars"
+  },
+  {
+    "test": "pit_lane_regression_test",
+    "exit": 0,
+    "duration_s": 5.56,
+    "failures": [],
+    "summary": "APEX PIT 0.5.2.4.3 OK: team slots, forward lane, continuity and timed exit"
+  }
+]

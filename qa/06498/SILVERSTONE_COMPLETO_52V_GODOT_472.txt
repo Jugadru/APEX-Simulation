@@ -1,0 +1,14 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+AUDIT_START code=GBR laps=52 seed=6403 weather=Variável step=0.20 plan=[{"name":"Fernando Alonso","stints":[{"compound":"Macio","from":1,"laps":16,"to":16,"wear_end":71.7787392},{"compound":"Duro","from":17,"laps":20,"to":36,"wear_end":48.6243072},{"compound":"Macio","from":37,"laps":16,"to":52,"wear_end":71.7787392}],"valid":true},{"name":"Felipe Massa","stints":[{"compound":"Macio","from":1,"laps":17,"to":17,"wear_end":77.9066208},{"compound":"Macio","from":18,"laps":15,"to":32,"wear_end":68.741136},{"compound":"Duro","from":33,"laps":20,"to":52,"wear_end":49.6710144}],"valid":true}]true
+AUDIT_PROGRESS code=GBR lap=6/52 ticks=2500 wall_s=15.8true
+AUDIT_PROGRESS code=GBR lap=11/52 ticks=5000 wall_s=31.3true
+AUDIT_PROGRESS code=GBR lap=16/52 ticks=7500 wall_s=44.6true
+AUDIT_PROGRESS code=GBR lap=21/52 ticks=10000 wall_s=53.9true
+AUDIT_PROGRESS code=GBR lap=26/52 ticks=12500 wall_s=61.9true
+AUDIT_PROGRESS code=GBR lap=31/52 ticks=15000 wall_s=70.0true
+AUDIT_PROGRESS code=GBR lap=35/52 ticks=17500 wall_s=78.2true
+AUDIT_PROGRESS code=GBR lap=40/52 ticks=20000 wall_s=88.4true
+AUDIT_PROGRESS code=GBR lap=45/52 ticks=22500 wall_s=97.0true
+AUDIT_PROGRESS code=GBR lap=50/52 ticks=25000 wall_s=105.8true
+AUDIT_PASS code=GBR laps=52/ 52 drivers=24 stops=78 winner=Fernando Alonso errors=0 tick=26440 reviews=1145true

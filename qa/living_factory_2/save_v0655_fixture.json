@@ -1,0 +1,171 @@
+{
+  "Ferrari": {
+    "budget": 11610000,
+    "championship_awards": {},
+    "component_inventory": {
+      "parts": {
+        "00ce41c15c492d3d89cafbbd36236efd": {
+          "car": 2,
+          "category": "Asa",
+          "condition": null,
+          "history": [
+            {
+              "at": "2026-11-13T01:53:10",
+              "message": "Inventário iniciado; uso anterior indisponível",
+              "type": "migration"
+            }
+          ],
+          "id": "00ce41c15c492d3d89cafbbd36236efd",
+          "integrity": null,
+          "km": 0.0,
+          "name": "Asa",
+          "prior_km_unknown": true,
+          "specification": 0,
+          "status": "installed"
+        },
+        "178572e4dcf5ec3685413408d28facc9": {
+          "car": 2,
+          "category": "Motor",
+          "condition": null,
+          "history": [
+            {
+              "at": "2026-11-13T01:53:10",
+              "message": "Inventário iniciado; uso anterior indisponível",
+              "type": "migration"
+            }
+          ],
+          "id": "178572e4dcf5ec3685413408d28facc9",
+          "integrity": null,
+          "km": 0.0,
+          "name": "Motor",
+          "prior_km_unknown": true,
+          "specification": 0,
+          "status": "installed"
+        },
+        "57031200e28b78af68c5512ce1bb85db": {
+          "car": 1,
+          "category": "Chassi",
+          "condition": null,
+          "history": [
+            {
+              "at": "2026-11-13T01:53:10",
+              "message": "Inventário iniciado; uso anterior indisponível",
+              "type": "migration"
+            }
+          ],
+          "id": "57031200e28b78af68c5512ce1bb85db",
+          "integrity": null,
+          "km": 0.0,
+          "name": "Chassi",
+          "prior_km_unknown": true,
+          "specification": 0,
+          "status": "installed"
+        },
+        "b7f5016826b4c9dd272a514ece918153": {
+          "car": 2,
+          "category": "Chassi",
+          "condition": null,
+          "history": [
+            {
+              "at": "2026-11-13T01:53:10",
+              "message": "Inventário iniciado; uso anterior indisponível",
+              "type": "migration"
+            }
+          ],
+          "id": "b7f5016826b4c9dd272a514ece918153",
+          "integrity": null,
+          "km": 0.0,
+          "name": "Chassi",
+          "prior_km_unknown": true,
+          "specification": 0,
+          "status": "installed"
+        },
+        "bf8ad39accb26629cfe6cd48d85ac69d": {
+          "car": 1,
+          "category": "Motor",
+          "condition": null,
+          "history": [
+            {
+              "at": "2026-11-13T01:53:10",
+              "message": "Inventário iniciado; uso anterior indisponível",
+              "type": "migration"
+            }
+          ],
+          "id": "bf8ad39accb26629cfe6cd48d85ac69d",
+          "integrity": null,
+          "km": 0.0,
+          "name": "Motor",
+          "prior_km_unknown": true,
+          "specification": 0,
+          "status": "installed"
+        },
+        "c301dd6c4d689c8318b8fd83eaa3bbb7": {
+          "car": 1,
+          "category": "Asa",
+          "condition": null,
+          "history": [
+            {
+              "at": "2026-11-13T01:53:10",
+              "message": "Inventário iniciado; uso anterior indisponível",
+              "type": "migration"
+            }
+          ],
+          "id": "c301dd6c4d689c8318b8fd83eaa3bbb7",
+          "integrity": null,
+          "km": 0.0,
+          "name": "Asa",
+          "prior_km_unknown": true,
+          "specification": 0,
+          "status": "installed"
+        }
+      },
+      "schema": 1,
+      "sessions": {}
+    },
+    "crew_levels": {
+      "Agilidade": 0,
+      "Coordenação": 0,
+      "Precisão": 0
+    },
+    "development_history": [],
+    "development_project": {},
+    "levels": {
+      "Asa": 0,
+      "Chassi": 0,
+      "Motor": 0
+    },
+    "staff_levels": {
+      "Engenheiro": 0,
+      "Estrategista": 0
+    },
+    "staff_log": [
+      "Contratado(a) Júlia Barbosa (Chefe de Mecânica), 8 GP(s), bônus R$ 0.39 mi."
+    ],
+    "staff_payroll_keys": {},
+    "staff_roster": {
+      "Chefe de Mecânica": {
+        "energy": 78,
+        "hired_round": -1,
+        "hired_serial": 0,
+        "id": "mec_b",
+        "morale": 70,
+        "name": "Júlia Barbosa",
+        "personality": "Colaborativa",
+        "remaining_gps": 8,
+        "role": "Chefe de Mecânica",
+        "salary": 88000,
+        "signing": 390000,
+        "skill": 75,
+        "specialty": "Coordenação de parada",
+        "style": "Diálogo",
+        "trait": "equilibrado",
+        "trust": 65
+      }
+    },
+    "staff_soul": {
+      "action_keys": {},
+      "relations": {},
+      "round_keys": {}
+    }
+  }
+}

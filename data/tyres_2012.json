@@ -1,0 +1,202 @@
+{
+  "season": 2012,
+  "note": "Nominations sourced from Pirelli 2012. Delta, wear, ideal, cliff and severity are APEX gameplay tuning, not official telemetry. Wet tyres are selectable and wet track physics is enabled in v0.5.5.0; all coefficients remain APEX gameplay tuning.",
+  "source_links": [
+    "https://press.pirelli.com/pirelli-announces-compound-choice-for-the-first-three-races/",
+    "https://press.pirelli.com/pirelli-announces-compound-choices-up-to-hungary/",
+    "https://www.motorsinside.com/f1/actualite/14392-f1-pirelli-choisit-ses-pneus-pour-abu-dhabi-les-etats-unis-et-le-bresil",
+    "https://www.motorsport.com/f1/news/pirelli-announces-compound-choice-for-the-first-three-races/416915/"
+  ],
+  "compounds": {
+    "Supermacio": {
+      "code": "SS",
+      "color": "#f04c54",
+      "delta": -0.85,
+      "wear": 6.2,
+      "cliff": 69.0,
+      "ideal": 11
+    },
+    "Macio": {
+      "code": "S",
+      "color": "#f4d14c",
+      "delta": -0.36,
+      "wear": 4.65,
+      "cliff": 73.0,
+      "ideal": 16
+    },
+    "Médio": {
+      "code": "M",
+      "color": "#f0f0e7",
+      "delta": 0.14,
+      "wear": 3.25,
+      "cliff": 76.0,
+      "ideal": 23
+    },
+    "Duro": {
+      "code": "H",
+      "color": "#c9d0d5",
+      "delta": 0.65,
+      "wear": 2.52,
+      "cliff": 80.0,
+      "ideal": 31
+    },
+    "Intermediário": {
+      "code": "I",
+      "color": "#50b88b",
+      "delta": 2.2,
+      "wear": 3.35,
+      "cliff": 75.0,
+      "ideal": 22
+    },
+    "Chuva": {
+      "code": "W",
+      "color": "#4aa3ed",
+      "delta": 4.0,
+      "wear": 3.75,
+      "cliff": 72.0,
+      "ideal": 23
+    }
+  },
+  "tracks": {
+    "AUS": {
+      "dry": [
+        "Macio",
+        "Médio"
+      ],
+      "severity": 1.04
+    },
+    "MAL": {
+      "dry": [
+        "Médio",
+        "Duro"
+      ],
+      "severity": 1.13
+    },
+    "CHN": {
+      "dry": [
+        "Macio",
+        "Médio"
+      ],
+      "severity": 1.05
+    },
+    "BHR": {
+      "dry": [
+        "Macio",
+        "Médio"
+      ],
+      "severity": 1.17
+    },
+    "ESP": {
+      "dry": [
+        "Macio",
+        "Duro"
+      ],
+      "severity": 1.16
+    },
+    "MON": {
+      "dry": [
+        "Supermacio",
+        "Macio"
+      ],
+      "severity": 0.78
+    },
+    "CAN": {
+      "dry": [
+        "Supermacio",
+        "Macio"
+      ],
+      "severity": 0.96
+    },
+    "EUR": {
+      "dry": [
+        "Macio",
+        "Médio"
+      ],
+      "severity": 1.0
+    },
+    "GBR": {
+      "dry": [
+        "Macio",
+        "Duro"
+      ],
+      "severity": 1.18
+    },
+    "GER": {
+      "dry": [
+        "Macio",
+        "Médio"
+      ],
+      "severity": 1.08
+    },
+    "HUN": {
+      "dry": [
+        "Macio",
+        "Médio"
+      ],
+      "severity": 1.11
+    },
+    "BEL": {
+      "dry": [
+        "Médio",
+        "Duro"
+      ],
+      "severity": 1.12
+    },
+    "ITA": {
+      "dry": [
+        "Médio",
+        "Duro"
+      ],
+      "severity": 0.92
+    },
+    "SIN": {
+      "dry": [
+        "Supermacio",
+        "Macio"
+      ],
+      "severity": 1.14
+    },
+    "JPN": {
+      "dry": [
+        "Macio",
+        "Duro"
+      ],
+      "severity": 1.2
+    },
+    "KOR": {
+      "dry": [
+        "Supermacio",
+        "Macio"
+      ],
+      "severity": 1.05
+    },
+    "IND": {
+      "dry": [
+        "Macio",
+        "Duro"
+      ],
+      "severity": 1.08
+    },
+    "UAE": {
+      "dry": [
+        "Macio",
+        "Médio"
+      ],
+      "severity": 0.92
+    },
+    "USA": {
+      "dry": [
+        "Médio",
+        "Duro"
+      ],
+      "severity": 1.03
+    },
+    "BRA": {
+      "dry": [
+        "Médio",
+        "Duro"
+      ],
+      "severity": 1.12
+    }
+  }
+}

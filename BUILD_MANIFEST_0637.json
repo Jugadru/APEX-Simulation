@@ -1,0 +1,34 @@
+{
+  "version": "0.6.3.7",
+  "base": "APEX_0636_GODOT.zip",
+  "engine": "Godot 4.7.2",
+  "changed_existing_files": [
+    "project.godot",
+    "scripts/main.gd",
+    "scripts/apex_race_hud_0622.gd",
+    "scripts/apex_commentary.gd"
+  ],
+  "new_files": [
+    "scripts/core/race_soul_reactive_0637.gd",
+    "tests/core_0637_reactive_radio_smoke_test.gd",
+    "tests/native_capture_0637.gd"
+  ],
+  "unchanged_critical_sha256": {
+    "scripts/race_engine.gd": "8e01ebb2f4c7a2af8786d9251362e1f8ac8c4b059fc09434725d23499fc99df0",
+    "scripts/track_3d.gd": "37bff51dd0fa19a1ace27f04e6c0365d9de1b73d159bc4947814ef982ad2b0ce",
+    "scripts/track_map.gd": "abe10a99f0d400d2acb6a9f2ef4271be07bc1f05d41e09bcd8df17dfd0c2b520",
+    "scripts/tv_director.gd": "cae0f0698283a69adf9af1adbd57955cc9bef6c8f000c104731ebba8af20beae",
+    "scripts/core/race_strategy.gd": "78fe5e05eb89d6239606ed6c2f59172a267f14e2d0f14977133709eb81529ea4",
+    "scripts/core/race_weather.gd": "e30bc362a193e9583ac30ae92578124b5592282e1a0ce65c0932843135e9e848",
+    "data/season_2012.json": "a03843f9ac2b818bdb98a3d3417e42f40d792064b48df4334bf008e2828f94eb",
+    "data/tyres_2012.json": "4de4eda11de68126b96f518160f779da68f969aa0b47b8c659fd1bd4d9abfd38",
+    "scenes/main.tscn": "d21f59bfab3f35d807e202207cc395d9023058dd5d59fcd1579425fc8c1eaff3"
+  },
+  "tests": {
+    "new_smoke": "PASS",
+    "legacy_regressions": "9/9 PASS",
+    "native_graphical": "PASS 1600x900",
+    "full_gp": "NOT RUN"
+  },
+  "summary": "Reactive opt-in radio layer (not pit/pace controller)"
+}

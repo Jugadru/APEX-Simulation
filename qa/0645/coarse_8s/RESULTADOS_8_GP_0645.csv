@@ -1,0 +1,9 @@
+GP,voltas,tempo_simulado_s,asfalto_min_C,asfalto_max_C,aderencia_min,aderencia_max,borracha_inicial,borracha_max,molhado,paradas_grid,vencedor
+AUS,58,5320,33.3,37.2,1.075,1.110,8,42,false,48,Fernando Alonso
+MAL,56,6704,26.5,37.4,0.742,0.758,8,8,true,76,Fernando Alonso
+MON,78,6192,34.7,38.8,1.132,1.177,8,47,false,72,Sebastian Vettel
+GBR,52,5352,16.6,34.1,0.942,1.096,8,34,true,91,Fernando Alonso
+BEL,44,5824,15.4,26.3,0.818,0.849,8,8,true,70,Sebastian Vettel
+ITA,53,4720,37.8,41.7,1.027,1.062,8,37,false,24,Fernando Alonso
+SIN,59,6944,25.7,43.9,0.919,1.031,8,30,true,112,Fernando Alonso
+BRA,71,5632,35.6,40.2,1.061,1.110,8,51,false,42,Sebastian Vettel

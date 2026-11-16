@@ -1,0 +1,31 @@
+{
+  "version": "0.6.6.3",
+  "feature": "Long Race Performance 1.0",
+  "base_zip_sha256": "d6aa37f5337cb41a0f45b6a48e9ef9aa7082ff8b6c33543b9fb5ad33d87afcd5",
+  "engine": "4.7.2.stable.official.ed1daf0bf",
+  "base_entries": 2234,
+  "base_files_missing": 0,
+  "modified_existing_core": {
+    "project.godot": {
+      "sha256_before": "3c8dd26d2c400ac04d5c398f7d30bf60c00fd52065d98162d55a8049980dac84",
+      "sha256_after": "a5766fca8d8ee3e1c878d4a2dd322a77e1e1b40eb85afaf04de6682ad8724c3a"
+    },
+    "scripts/core/race_replay_0660.gd": {
+      "sha256_before": "965a1a0ac545331d430fa589d8ce009210fd6942e07408bd315c007a068c3e3a",
+      "sha256_after": "5da70c533bf470f58f631312ea041b2945be08ea97e6f2787ee48a5c3c1c91a0"
+    },
+    "scripts/core/racecraft_audit_0662.gd": {
+      "sha256_before": "453dfd1c801cc6ac94e0aa8c692203c58a4ede0cd3cfd3ed6e527e713c80c13a",
+      "sha256_after": "0b06edd3d3e18217252c8f142665b20b72437f928620bf6741f865e9a073449f"
+    }
+  },
+  "new_test_scripts": [
+    "tests/long_race_benchmark_0663.gd",
+    "tests/long_race_full_0663.gd",
+    "tests/long_race_visual_0663.gd",
+    "tests/replay_0663_legacy_fixture.gd"
+  ],
+  "historical_replay_format_unchanged": true,
+  "simulation_revision_unchanged": true,
+  "snapshot_shallow_copy_experiment_discarded": true
+}

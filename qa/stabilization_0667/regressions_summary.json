@@ -1,0 +1,98 @@
+[
+  {
+    "test": "replay_unit",
+    "script": "replay_0660_test.gd",
+    "started": "2026-11-16 00:02:56",
+    "status": "PASS",
+    "exit_code": 0,
+    "elapsed_seconds": 17.379
+  },
+  {
+    "test": "replay_boundaries",
+    "script": "replay_0660_boundaries.gd",
+    "started": "2026-11-16 00:03:13",
+    "status": "PASS",
+    "exit_code": 0,
+    "elapsed_seconds": 5.698
+  },
+  {
+    "test": "tv_highlights",
+    "script": "tv_director_highlights_0667_test.gd",
+    "started": "2026-11-16 00:03:19",
+    "status": "PASS",
+    "exit_code": 0,
+    "elapsed_seconds": 0.315
+  },
+  {
+    "test": "staff_migration",
+    "script": "soul_staff_0650_migration_test.gd",
+    "started": "2026-11-16 00:03:19",
+    "status": "PASS",
+    "exit_code": 0,
+    "elapsed_seconds": 0.316
+  },
+  {
+    "test": "racecraft_unit",
+    "script": "racecraft_0662_test.gd",
+    "started": "2026-11-16 00:03:20",
+    "status": "PASS",
+    "exit_code": 0,
+    "elapsed_seconds": 16.332
+  },
+  {
+    "test": "driver_dynamics",
+    "script": "driver_dynamics_0661_test.gd",
+    "started": "2026-11-16 00:03:36",
+    "status": "PASS",
+    "exit_code": 0,
+    "elapsed_seconds": 0.566
+  },
+  {
+    "test": "replay_integration",
+    "script": "replay_0660_integration.gd",
+    "started": "2026-11-16 00:03:36",
+    "status": "PASS",
+    "exit_code": 0,
+    "elapsed_seconds": 49.534
+  },
+  {
+    "test": "gp_GBR_dry",
+    "script": "racecraft_0662_gp.gd",
+    "started": "2026-11-16 00:04:26",
+    "status": "PASS",
+    "exit_code": 0,
+    "elapsed_seconds": 34.897
+  },
+  {
+    "test": "gp_BEL_wet",
+    "script": "racecraft_0662_gp.gd",
+    "started": "2026-11-16 00:05:01",
+    "status": "PASS",
+    "exit_code": 0,
+    "elapsed_seconds": 51.625
+  },
+  {
+    "test": "gp_ITA_dry",
+    "script": "racecraft_0662_gp.gd",
+    "started": "2026-11-16 00:05:53",
+    "status": "PASS",
+    "exit_code": 0,
+    "elapsed_seconds": 27.238
+  },
+  {
+    "test": "gp_SIN_wet",
+    "script": "racecraft_0662_gp.gd",
+    "started": "2026-11-16 00:06:20",
+    "status": "PASS",
+    "exit_code": 0,
+    "elapsed_seconds": 41.556
+  },
+  {
+    "test": "pitwall_ui",
+    "script": "pitwall_0649_ui_test.gd",
+    "started": "2026-11-16 00:07:01",
+    "status": "PASS",
+    "exit_code": 0,
+    "elapsed_seconds": 50.35
+  }
+]

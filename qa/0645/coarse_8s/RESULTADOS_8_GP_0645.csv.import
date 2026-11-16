@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://b3asji0icfuow"
+
+[deps]
+
+files=["res://qa/0645/coarse_8s/RESULTADOS_8_GP_0645.voltas.translation", "res://qa/0645/coarse_8s/RESULTADOS_8_GP_0645.tempo.translation", "res://qa/0645/coarse_8s/RESULTADOS_8_GP_0645.asfalto.translation", "res://qa/0645/coarse_8s/RESULTADOS_8_GP_0645.asfalto.translation", "res://qa/0645/coarse_8s/RESULTADOS_8_GP_0645.aderencia.translation", "res://qa/0645/coarse_8s/RESULTADOS_8_GP_0645.aderencia.translation", "res://qa/0645/coarse_8s/RESULTADOS_8_GP_0645.borracha.translation", "res://qa/0645/coarse_8s/RESULTADOS_8_GP_0645.borracha.translation", "res://qa/0645/coarse_8s/RESULTADOS_8_GP_0645.molhado.translation", "res://qa/0645/coarse_8s/RESULTADOS_8_GP_0645.paradas.translation", "res://qa/0645/coarse_8s/RESULTADOS_8_GP_0645.vencedor.translation"]
+
+source_file="res://qa/0645/coarse_8s/RESULTADOS_8_GP_0645.csv"
+dest_files=["res://qa/0645/coarse_8s/RESULTADOS_8_GP_0645.voltas.translation", "res://qa/0645/coarse_8s/RESULTADOS_8_GP_0645.tempo.translation", "res://qa/0645/coarse_8s/RESULTADOS_8_GP_0645.asfalto.translation", "res://qa/0645/coarse_8s/RESULTADOS_8_GP_0645.asfalto.translation", "res://qa/0645/coarse_8s/RESULTADOS_8_GP_0645.aderencia.translation", "res://qa/0645/coarse_8s/RESULTADOS_8_GP_0645.aderencia.translation", "res://qa/0645/coarse_8s/RESULTADOS_8_GP_0645.borracha.translation", "res://qa/0645/coarse_8s/RESULTADOS_8_GP_0645.borracha.translation", "res://qa/0645/coarse_8s/RESULTADOS_8_GP_0645.molhado.translation", "res://qa/0645/coarse_8s/RESULTADOS_8_GP_0645.paradas.translation", "res://qa/0645/coarse_8s/RESULTADOS_8_GP_0645.vencedor.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

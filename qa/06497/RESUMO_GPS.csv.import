@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://bg0uko0n3c5ex"
+
+[deps]
+
+files=["res://qa/06497/RESUMO_GPS.code.translation", "res://qa/06497/RESUMO_GPS.weather.translation", "res://qa/06497/RESUMO_GPS.laps.translation", "res://qa/06497/RESUMO_GPS.finished.translation", "res://qa/06497/RESUMO_GPS.pit.translation", "res://qa/06497/RESUMO_GPS.garage.translation", "res://qa/06497/RESUMO_GPS.max.translation", "res://qa/06497/RESUMO_GPS.auto.translation", "res://qa/06497/RESUMO_GPS.winner.translation", "res://qa/06497/RESUMO_GPS.errors.translation"]
+
+source_file="res://qa/06497/RESUMO_GPS.csv"
+dest_files=["res://qa/06497/RESUMO_GPS.code.translation", "res://qa/06497/RESUMO_GPS.weather.translation", "res://qa/06497/RESUMO_GPS.laps.translation", "res://qa/06497/RESUMO_GPS.finished.translation", "res://qa/06497/RESUMO_GPS.pit.translation", "res://qa/06497/RESUMO_GPS.garage.translation", "res://qa/06497/RESUMO_GPS.max.translation", "res://qa/06497/RESUMO_GPS.auto.translation", "res://qa/06497/RESUMO_GPS.winner.translation", "res://qa/06497/RESUMO_GPS.errors.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

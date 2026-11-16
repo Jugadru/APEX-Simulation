@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://c8ixcnh5npjqj"
+
+[deps]
+
+files=["res://qa/06491/SILVERSTONE_06491_CLASSIFICACAO.piloto.translation", "res://qa/06491/SILVERSTONE_06491_CLASSIFICACAO.equipe.translation", "res://qa/06491/SILVERSTONE_06491_CLASSIFICACAO.paradas.translation", "res://qa/06491/SILVERSTONE_06491_CLASSIFICACAO.voltas.translation", "res://qa/06491/SILVERSTONE_06491_CLASSIFICACAO.distancia.translation", "res://qa/06491/SILVERSTONE_06491_CLASSIFICACAO.pneu.translation"]
+
+source_file="res://qa/06491/SILVERSTONE_06491_CLASSIFICACAO.csv"
+dest_files=["res://qa/06491/SILVERSTONE_06491_CLASSIFICACAO.piloto.translation", "res://qa/06491/SILVERSTONE_06491_CLASSIFICACAO.equipe.translation", "res://qa/06491/SILVERSTONE_06491_CLASSIFICACAO.paradas.translation", "res://qa/06491/SILVERSTONE_06491_CLASSIFICACAO.voltas.translation", "res://qa/06491/SILVERSTONE_06491_CLASSIFICACAO.distancia.translation", "res://qa/06491/SILVERSTONE_06491_CLASSIFICACAO.pneu.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

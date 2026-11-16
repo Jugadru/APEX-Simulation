@@ -1,0 +1,55 @@
+name: Validar APEX HUD v0.6.6.8 com Godot 4.7.2
+
+on:
+  push:
+    branches:
+      - import/apex-v0668
+    paths:
+      - .github/workflows/validate-apex-godot.yml
+      - .github/scripts/validate_apex_godot.sh
+      - scripts/**
+      - scenes/**
+      - tests/**
+      - project.godot
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  godot-headless:
+    name: Godot 4.7.2 editor e testes nativos
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout da branch experimental
+        uses: actions/checkout@v4
+
+      - name: Baixar o Godot Linux 4.7.2 oficial e verificar SHA-256
+        shell: bash
+        run: |
+          set -euo pipefail
+          download="https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip"
+          curl --fail --location --retry 3 --connect-timeout 20 "$download" -o /tmp/godot-4.7.2.zip
+          echo "cadd3204e728a35d3f13adb7fd0d7902636b79f6b95c40c265eb73b6c35329e4  /tmp/godot-4.7.2.zip" | sha256sum --check
+          mkdir -p /tmp/godot-4.7.2
+          unzip -q /tmp/godot-4.7.2.zip -d /tmp/godot-4.7.2
+          editor="$(find /tmp/godot-4.7.2 -maxdepth 1 -type f -name 'Godot_v4.7.2-stable_linux.x86_64' -print -quit)"
+          test -n "$editor"
+          cp "$editor" ./godot
+          chmod 755 ./godot
+          ./godot --version
+
+      - name: Editor e testes de HUD e simulacao
+        shell: bash
+        run: |
+          bash .github/scripts/validate_apex_godot.sh
+
+      - name: Guardar logs mesmo se houver falha
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apex-v0668-headless-logs
+          path: ci-logs/
+          if-no-files-found: warn
+          retention-days: 14

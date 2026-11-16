@@ -1,0 +1,12 @@
+{
+  "base": "v0.6.5.1",
+  "changed_scripts": [
+    "scripts/apex_front_menu.gd",
+    "scripts/apex_race_ui_legacy_builder.gd",
+    "scripts/track_3d.gd",
+    "scripts/car_model_3d.gd",
+    "scripts/main.gd",
+    "scripts/apex_race_session_controller.gd"
+  ],
+  "race_engine_core_and_garage_unchanged": true
+}

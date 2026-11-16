@@ -1,0 +1,10 @@
+{
+  "source_archive_sha256": "29b4035960884dc8fa3b6afc0834dca7226be0841482dfa2953d74cb24be8ff9",
+  "file_hashes": {
+    "project.godot": "cda93a630d17ed1f38b7484d99f11f281175cb99d9c3061c603970693fd1cee0",
+    "scripts/core/race_replay_0660.gd": "7d3ed27108e32ab2aab506b162936be8a959403ace6c2dfafc7e5960ed5e4c1c",
+    "scripts/race_engine.gd": "522327cc1bf06d0bcbe7e54d0eebf7c7026fdb0b0d8247e7d32f2d754e0aac7a",
+    "scripts/tv_director.gd": "0a779afe3ebc08c43c28e484e387d3543e6ab722b31e6d1308190502795dedbd",
+    "scripts/core/race_state_codec_0660.gd": "db9ef6868fa270bb64a4cef79746cbc11ef9fd609916a9cea4bb6c01a547d7fb"
+  }
+}

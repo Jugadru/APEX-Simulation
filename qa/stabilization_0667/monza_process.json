@@ -1,0 +1,17 @@
+{
+  "test": "monza_full_53_laps_live_and_replay",
+  "started": "2026-11-15 23:59:17",
+  "project": "/mnt/data/APEX_STABILIZACAO_0667/project",
+  "cmd": [
+    "/mnt/data/apex_v0664_work/godot/Godot_v4.7.2-stable_linux.x86_64",
+    "--headless",
+    "--path",
+    "/mnt/data/APEX_STABILIZACAO_0667/project",
+    "-s",
+    "res://tests/long_race_full_fork_0664.gd"
+  ],
+  "status": "pass",
+  "exit_code": 0,
+  "elapsed_seconds": 1165.775,
+  "ended": "2026-11-16 00:18:43"
+}

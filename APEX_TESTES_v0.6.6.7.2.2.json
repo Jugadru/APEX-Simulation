@@ -1,0 +1,137 @@
+{
+  "version": "0.6.6.7.2.2",
+  "name": "Strategic 2D Performance",
+  "baseline": "0.6.6.7.2.1",
+  "status": "tested; no performance guarantee on target GPU",
+  "godot": "4.7.2 stable Linux",
+  "tests": [
+    {
+      "check": "Auto 3D em 1x/2x/5x",
+      "status": "PASS"
+    },
+    {
+      "check": "Auto 2D em 10x/16x/32x",
+      "status": "PASS"
+    },
+    {
+      "check": "Câmera manual 3D e 2D preservada",
+      "status": "PASS"
+    },
+    {
+      "check": "Retorno ao modo AUTO pelo menu CORRIDA",
+      "status": "PASS"
+    },
+    {
+      "check": "Cache 2D: pontos móveis sem redesenhar pista",
+      "status": "PASS"
+    },
+    {
+      "check": "Troca de pista e de modo invalida cache",
+      "status": "PASS"
+    },
+    {
+      "check": "32x avança ticks esportivos sem skip",
+      "status": "PASS"
+    },
+    {
+      "check": "HUD: 10x/32x com capturas 1600x900 e 1920x1080",
+      "status": "PASS"
+    },
+    {
+      "check": "Replay: teste de unidade legado",
+      "status": "PASS"
+    },
+    {
+      "check": "Pit Wall: duas ordens conflitantes",
+      "status": "PASS"
+    },
+    {
+      "check": "Diretor TV: isolamento de RNG/telemetria",
+      "status": "PASS"
+    },
+    {
+      "check": "Tempo real 1x/5x e interpolação visual",
+      "status": "PASS"
+    },
+    {
+      "check": "GBR seco: GP curto e replay integral",
+      "status": "PASS"
+    },
+    {
+      "check": "BEL chuva: GP curto e replay integral",
+      "status": "PASS"
+    },
+    {
+      "check": "ITA seco: GP curto e replay integral",
+      "status": "PASS"
+    },
+    {
+      "check": "SIN chuva: GP curto e replay integral",
+      "status": "PASS"
+    },
+    {
+      "check": "Carreira jogável de 20 temporadas",
+      "status": "NOT_RUN"
+    },
+    {
+      "check": "Monza 53 voltas com replay integral",
+      "status": "NOT_RUN"
+    },
+    {
+      "check": "FPS em PC do usuário / Godot X11 integrado",
+      "status": "NOT_RUN"
+    }
+  ],
+  "pass": 16,
+  "fail": 0,
+  "not_run": 3,
+  "sporting_hashes": {
+    "GBR": {
+      "condition": "Seco",
+      "ticks": 1668,
+      "sha256": "7bca12f99088048b747f7ac3626b635133628cb0ae57de15db4fdf072be64837"
+    },
+    "BEL": {
+      "condition": "Chuva intensa",
+      "ticks": 2067,
+      "sha256": "33c7c2d71e34779fb7e74f359f2663e0bea34074aaf4c655dc678f3b97fd8c0e"
+    },
+    "ITA": {
+      "condition": "Seco",
+      "ticks": 1553,
+      "sha256": "5d4c508a64dce8d1c481a3661f56c6bdf97a2a7a7bab37a5e290be5e54188592"
+    },
+    "SIN": {
+      "condition": "Chuva intensa",
+      "ticks": 2050,
+      "sha256": "48085a06fed3d7761a58206673c03685043645d813ea809e0b76c968e94439c9"
+    }
+  },
+  "real_ui_capture": [
+    "1600x900 / 10x",
+    "1920x1080 / 32x"
+  ],
+  "performance": {
+    "baseline": {
+      "frames": 180,
+      "total_wall_ms": 1242.437,
+      "static_route_redraws_estimated": 180,
+      "source": "Godot 4.7.2 original track_map.gd redraws static circuit as part of every cars-only _draw()"
+    },
+    "optimized": {
+      "frames": 180,
+      "total_wall_ms": 1241.948,
+      "static_route_redraws_measured": 1,
+      "dynamic_car_redraws_measured": 181,
+      "route_points": 737,
+      "source": "Godot 4.7.2 script instrumentation in headless mode"
+    },
+    "observed_frame_wall_difference_ms": 0.489,
+    "conclusion": "static redraw count improved; total wall time not meaningfully improved by this limited test"
+  },
+  "known_limits": [
+    "High-speed tick simulation remains CPU-bound; no fixed 60fps claim",
+    "No changes to sporting physics, AI, saves or replay format",
+    "No validation of X11 embedded window BadWindow error on end-user system"
+  ]
+}

@@ -1,0 +1,139 @@
+{
+  "checkpoints": 9,
+  "duration_seconds": 137.690688,
+  "events": 140,
+  "finished": false,
+  "full_distance": true,
+  "hashes": 4500,
+  "laps": 53.0,
+  "last_hash": "fdd9d237338d9faf45de857f7be225f119440ea60891b1caa4a2fb7b6fdfcb91",
+  "mode": "Seco",
+  "performance": {
+    "active_wall_seconds": 0.0,
+    "context": {},
+    "counters": {},
+    "enabled": false,
+    "environment": {
+      "cpu": "INTEL(R) XEON(R) PLATINUM 8573C",
+      "debug_build": true,
+      "display": "headless",
+      "godot": "4.7.2-stable (official)",
+      "gpu": "unavailable/headless",
+      "logical_cores": 5,
+      "os": "Linux",
+      "renderer": "forward_plus"
+    },
+    "inclusive_scopes": true,
+    "limitations": [
+      "CPU wall-clock inclusive scopes; nested values overlap.",
+      "No GPU time or process RSS measurement.",
+      "Godot monitors may lag one second; some unavailable in release.",
+      "Profiler overhead is included; benchmarking requires OFF/ON comparison."
+    ],
+    "monitors": {
+      "fps": null,
+      "frame_ms": null,
+      "godot_static_bytes": 39157885,
+      "nodes": 1.0,
+      "objects": 1530.0,
+      "orphan_nodes": 0.0
+    },
+    "schema": 1,
+    "sections": {},
+    "version": "0.6.5.7"
+  },
+  "samples": [
+    {
+      "checkpoint_count": 2,
+      "clock": 100.000000000001,
+      "events": 51,
+      "laps": 2,
+      "seconds": 5.967259,
+      "telemetry_positions": 240,
+      "tick": 500
+    },
+    {
+      "checkpoint_count": 4,
+      "clock": 199.999999999997,
+      "events": 89,
+      "laps": 3,
+      "seconds": 21.817682,
+      "telemetry_positions": 480,
+      "tick": 1000
+    },
+    {
+      "checkpoint_count": 6,
+      "clock": 299.999999999992,
+      "events": 122,
+      "laps": 4,
+      "seconds": 38.404206,
+      "telemetry_positions": 720,
+      "tick": 1500
+    },
+    {
+      "checkpoint_count": 7,
+      "clock": 399.999999999986,
+      "events": 140,
+      "laps": 5,
+      "seconds": 61.972365,
+      "telemetry_positions": 960,
+      "tick": 2000
+    },
+    {
+      "checkpoint_count": 9,
+      "clock": 499.99999999998,
+      "events": 140,
+      "laps": 6,
+      "seconds": 78.162101,
+      "telemetry_positions": 1200,
+      "tick": 2500
+    },
+    {
+      "checkpoint_count": 9,
+      "clock": 599.999999999999,
+      "events": 140,
+      "laps": 7,
+      "seconds": 92.865309,
+      "telemetry_positions": 1440,
+      "tick": 3000
+    },
+    {
+      "checkpoint_count": 9,
+      "clock": 700.000000000022,
+      "events": 140,
+      "laps": 8,
+      "seconds": 106.700407,
+      "telemetry_positions": 1680,
+      "tick": 3500
+    },
+    {
+      "checkpoint_count": 9,
+      "clock": 800.000000000045,
+      "events": 140,
+      "laps": 10,
+      "seconds": 123.500917,
+      "telemetry_positions": 1920,
+      "tick": 4000
+    },
+    {
+      "checkpoint_count": 9,
+      "clock": 900.000000000068,
+      "events": 140,
+      "laps": 11,
+      "seconds": 137.69061,
+      "telemetry_positions": 2160,
+      "tick": 4500
+    }
+  ],
+  "seed": 660,
+  "telemetry": {
+    "events": 359,
+    "laps": 229,
+    "pits": 2,
+    "position_samples": 2160,
+    "sectors": 709,
+    "weather_samples": 90
+  },
+  "ticks": 4500,
+  "track": "ITA"
+}

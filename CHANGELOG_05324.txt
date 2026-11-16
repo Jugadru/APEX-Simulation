@@ -1,0 +1,8 @@
+v0.5.3.2.4
+- Corrigida duplicacao de comandos do Pit Wall.
+- Devolvida a chamada aos boxes aos cartoes dos pilotos (incluindo recolhidos).
+- Pit Wall estrategico, timeline por stints de corridas reais.
+- Radio local por eventos: narrador, analista, reporter e engenheiro.
+- Aba Carro com diagnostico de verdade; sem dano/fuel/ERS ficticios.
+- Condicoes e minimapa reunidos em Pista.
+- Motor de corrida preservado.

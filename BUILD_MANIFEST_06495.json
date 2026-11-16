@@ -1,0 +1,54 @@
+{
+  "version": "0.6.4.9.5",
+  "base": "0.6.4.9.4",
+  "focus": "Planejamento estratégico antes da largada (única funcionalidade)",
+  "godot": "4.7.2",
+  "modified_base_files": [
+    "project.godot",
+    "scripts/main.gd",
+    "scripts/apex_menu_screen.gd",
+    "scripts/apex_race_session_controller.gd"
+  ],
+  "added_files": [
+    "CHANGELOG_06495.md",
+    "LEIA_PRIMEIRO_06495.md",
+    "RELATORIO_TESTES_06495.md",
+    "docs/APEX_06495_PLANEJAMENTO_REAL.png",
+    "qa/06495/core_0622_corner_hud_smoke_test.log",
+    "qa/06495/double_stack_06492_entry_test.log",
+    "qa/06495/import.log",
+    "qa/06495/pit_balance_06493_threshold_test.log",
+    "qa/06495/pitwall_06491_stint_reset_test.log",
+    "qa/06495/pitwall_06494_confidence_test.log",
+    "qa/06495/pitwall_0649_strategy_test.log",
+    "qa/06495/pre_race_06495_first_laps_test.log",
+    "qa/06495/pre_race_06495_planner_test.log",
+    "qa/06495/pre_race_06495_real_first_pits_test.log",
+    "qa/06495/pre_race_06495_scene_ui_test.log",
+    "qa/06495/race_0645_intelligence_test.log",
+    "qa/06495/race_0647_soul2_test.log",
+    "qa/06495/staff_0648_career_integration_test.log",
+    "qa/06495/staff_0648_contracts_test.log",
+    "qa/06495/track_0644_native_tick_smoke_test.log",
+    "scripts/apex_pre_race_screen_06495.gd",
+    "scripts/apex_pre_race_screen_06495.gd.uid",
+    "scripts/apex_pre_race_tyre_chart_06495.gd",
+    "scripts/apex_pre_race_tyre_chart_06495.gd.uid",
+    "scripts/core/race_pre_race_strategy_06495.gd",
+    "scripts/core/race_pre_race_strategy_06495.gd.uid",
+    "tests/pre_race_06495_first_laps_test.gd",
+    "tests/pre_race_06495_planner_test.gd",
+    "tests/pre_race_06495_real_first_pits_test.gd",
+    "tests/pre_race_06495_scene_ui_test.gd"
+  ],
+  "qa": {
+    "new_tests_exit_zero": 3,
+    "regressions_exit_zero": 11,
+    "long_native_pit_test": "PASS no log; runner timeout at exit",
+    "full_gp": "not executed"
+  },
+  "preserved_sha256": {
+    "race_engine": "8103dd5911f44ee48f527a0380fcc86bd228471649531ac5ff6f0b0fd82c2fb7",
+    "pitwall_strategy": "e87fda5852a4b366068ebbae8ea71448234ee8506992d972a4f5d745813fc646"
+  }
+}

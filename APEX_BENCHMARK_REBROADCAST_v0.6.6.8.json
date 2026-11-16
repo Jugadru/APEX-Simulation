@@ -1,0 +1,31 @@
+{
+  "scenario": "Silverstone GBR / Dry / seed 1208 / 1600x900 / 200 unchanged race-state HUD refreshes",
+  "engine": "Godot 4.7.2 stable Linux x86_64, headless",
+  "baseline": {
+    "flavor": "before",
+    "hud_refreshes": 200,
+    "memory_static_bytes": 103897972,
+    "microseconds_per_refresh": 2158.605,
+    "microseconds_total": 431721,
+    "resolution": "1600x900",
+    "seed": 1208,
+    "sporting_unchanged": true,
+    "track": "GBR",
+    "weather": "dry"
+  },
+  "rebroadcast": {
+    "flavor": "after-final",
+    "hud_refreshes": 200,
+    "memory_static_bytes": 105149775,
+    "microseconds_per_refresh": 1184.375,
+    "microseconds_total": 236875,
+    "resolution": "1600x900",
+    "seed": 1208,
+    "sporting_unchanged": true,
+    "track": "GBR",
+    "weather": "dry"
+  },
+  "reduction_percent": 45.13,
+  "static_memory_delta_bytes": 1251803,
+  "limitations": "One A/B run, synthetic stationary HUD workload. Not a whole GP benchmark, not an FPS measurement, not a RSS measurement."
+}

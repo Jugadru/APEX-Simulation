@@ -1,0 +1,30 @@
+{
+  "Ferrari": {
+    "budget": 9300000,
+    "championship_awards": {
+      "2012_c1_r01": 1200000.0
+    },
+    "crew_levels": {
+      "Agilidade": 1,
+      "Coordenação": 0,
+      "Precisão": 0
+    },
+    "development_history": [],
+    "development_project": {
+      "cost": 1360000.0,
+      "part": "Asa",
+      "ready_round": 2.0,
+      "season_serial": 1.0,
+      "started_round": 0.0
+    },
+    "levels": {
+      "Asa": 0,
+      "Chassi": 0,
+      "Motor": 1
+    },
+    "staff_levels": {
+      "Engenheiro": 1,
+      "Estrategista": 0
+    }
+  }
+}
