@@ -1,0 +1,66 @@
+name: Importar fonte Godot do APEX (ZIP dividido)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/import-apex-source.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apex-source-import
+  cancel-in-progress: false
+
+jobs:
+  import-apex:
+    name: Juntar, verificar e importar fonte na branch isolada
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Baixar repositorio e as cinco partes
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: true
+
+      - name: Conferir entradas e extrair sem executar o conteudo
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/import_apex_archive.py
+
+      - name: Criar ramificacao de importacao sem modificar main
+        shell: bash
+        env:
+          TARGET_BRANCH: import/apex-v0668
+        run: |
+          set -euo pipefail
+          if git ls-remote --exit-code --heads origin "$TARGET_BRANCH" >/dev/null; then
+            echo "::error::A branch $TARGET_BRANCH ja existe. Verifique-a antes de repetir."
+            exit 1
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$TARGET_BRANCH"
+          git rm -q -- APEX_v0.6.6.8.zip.part000 \
+                       APEX_v0.6.6.8.zip.part001 \
+                       APEX_v0.6.6.8.zip.part002 \
+                       APEX_v0.6.6.8.zip.part003 \
+                       APEX_v0.6.6.8.zip.part004
+          git add -A
+          if git diff --cached --quiet; then
+            echo "::error::Nao ha alteracoes para importar."
+            exit 1
+          fi
+          echo "Alteracoes selecionadas:"
+          git diff --cached --stat | tail -n 30
+          git commit -m "Import: fontes do APEX v0.6.6.8 em branch isolada"
+          git push --set-upstream origin "$TARGET_BRANCH"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### Resultado" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Branch criada: \`$TARGET_BRANCH\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Os cinco arquivos .part permanecem intactos na \`main\`." >> "$GITHUB_STEP_SUMMARY"
+          echo "- O projeto ainda precisa passar por importacao e testes reais no Godot 4.7.2." >> "$GITHUB_STEP_SUMMARY"
