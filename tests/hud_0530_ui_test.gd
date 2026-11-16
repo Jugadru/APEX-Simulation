@@ -1,0 +1,45 @@
+extends SceneTree
+## Run from project root: godot --headless --path . --script res://tests/hud_0530_ui_test.gd
+
+func _initialize() -> void:
+	call_deferred("_run")
+
+func _run() -> void:
+	var packed: PackedScene = load("res://scenes/main.tscn")
+	assert(packed != null, "Main scene must load")
+	var app = packed.instantiate()
+	root.add_child(app)
+	await process_frame
+	assert(app.race_progress != null, "Missing race progress bar")
+	assert(app.telemetry_panel != null, "Missing driver telemetry panel")
+	assert(app.hud_layout_picker != null, "Missing HUD layout selector")
+	assert(app.main_rows.size() == 24, "All 24 live timing rows must exist")
+	app._change_hud_layout(0)
+	app._start_race()
+	assert(app.race.cars.size() == 24, "Season 2012 grid must remain unchanged")
+	app._update_game_ui()
+	assert(app.telemetry_name.text.contains(str(app.race.player_cars()[0]["name"])))
+	assert(app.race_progress.max_value == 44.0)
+	app._cycle_info_mode()
+	assert(app.table_mode == 1, "Timing column must change")
+	app._change_hud_layout(3)
+	assert(not app.left_panel.visible and not app.right_panel.visible, "Cinema must hide sidebars")
+	app._change_hud_layout(2)
+	assert(app.left_panel.visible and app.right_panel.visible, "Compact must restore sidebars")
+	app._toggle_left_panel()
+	assert(not app.left_panel.visible, "Positions toggle did not hide its panel")
+	app._toggle_left_panel()
+	assert(app.left_panel.visible, "Positions toggle did not restore its panel")
+	app._open_pit_analytics()
+	assert(app.tabs.current_tab == 4, "Analytics tab must remain available")
+	app._change_speed(0)
+	assert(app.render_mode == 1, "1x must still switch to 3D")
+	app._change_speed(2)
+	assert(app.render_mode == 0, "5x must still switch to strategic map")
+	app.race.running = true
+	app.race.step(2.0)
+	app._update_game_ui()
+	assert(app.race.clock > 0.0, "Race engine cannot stop")
+	assert(app.race_progress.value >= 0.0)
+	print("APEX HUD 0.5.3.0 OK: responsive controls, telemetry, live timing, analytics, 2D/3D")
+	quit(0)

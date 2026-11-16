@@ -1,0 +1,13 @@
+{
+  "scripts/race_engine.gd": "69ea19752ad93aa4c13cd3b761e8ade9ae4ddd487fc0ac0dd9163a5bc3abe6c5",
+  "scripts/tv_director.gd": "cae0f0698283a69adf9af1adbd57955cc9bef6c8f000c104731ebba8af20beae",
+  "scripts/apex_race_view_controller.gd": "7752bf7836c9bb3897ea0b73c31a13d916d76ed42d168cfaf877a5f76b1bca73",
+  "scripts/apex_race_hud_0622.gd": "b01af4174c590726c3680628f972b0e41b850e6dbc2300878ac8def789859f09",
+  "scripts/apex_circuit_scenery_0628.gd": "69d5e7f894e898d0ee283f10645fa3dedee499023acd26b89df76a4fb78b2aa9",
+  "scripts/track_map.gd": "abe10a99f0d400d2acb6a9f2ef4271be07bc1f05d41e09bcd8df17dfd0c2b520",
+  "scripts/apex_race_commands.gd": "055cc2654676256aeb031a9e18682941aff86a94301c9563f4016b117c61e4e3",
+  "scripts/core/race_tyres_2012.gd": "bf92f508404f24394c650b009a466570f138a8b35cb0348b171f9652b52f1bf5",
+  "scripts/core/race_strategy.gd": "78fe5e05eb89d6239606ed6c2f59172a267f14e2d0f14977133709eb81529ea4",
+  "scripts/core/race_ai_director.gd": "60e5e3c7d291e1936cf90cee95d1db17452a9e40ef24f740b19ce5ba4de11a57",
+  "data/season_2012.json": "a03843f9ac2b818bdb98a3d3417e42f40d792064b48df4334bf008e2828f94eb"
+}

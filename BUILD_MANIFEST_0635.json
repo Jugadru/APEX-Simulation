@@ -1,0 +1,25 @@
+{
+  "version": "0.6.3.5",
+  "base": "0.6.3.4",
+  "changed_or_added": [
+    "CHANGELOG_0635.md",
+    "LEIA_PRIMEIRO_0635.md",
+    "RELATORIO_NATIVO_0635.md",
+    "project.godot",
+    "scripts/apex_commentary.gd",
+    "scripts/apex_race_hud_0622.gd",
+    "scripts/core/race_stint_dialogue_0635.gd",
+    "scripts/core/race_stint_dialogue_0635.gd.uid",
+    "tests/core_0634_radio_memory_smoke_test.gd.uid",
+    "tests/core_0635_soul_stint_smoke_test.gd",
+    "tests/native_capture_0634.gd.uid",
+    "tests/native_capture_0635.gd"
+  ],
+  "preserved_sha256": {
+    "scripts/apex_race_view_controller.gd": "7752bf7836c9bb3897ea0b73c31a13d916d76ed42d168cfaf877a5f76b1bca73",
+    "scripts/race_engine.gd": "8e01ebb2f4c7a2af8786d9251362e1f8ac8c4b059fc09434725d23499fc99df0",
+    "scripts/track_3d.gd": "37bff51dd0fa19a1ace27f04e6c0365d9de1b73d159bc4947814ef982ad2b0ce",
+    "scripts/tv_director.gd": "cae0f0698283a69adf9af1adbd57955cc9bef6c8f000c104731ebba8af20beae"
+  },
+  "test_coverage": "core_0635 + regressions + parity 9 laps"
+}

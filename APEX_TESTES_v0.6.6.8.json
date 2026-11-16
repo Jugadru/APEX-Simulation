@@ -1,0 +1,141 @@
+{
+  "version": "0.6.6.8",
+  "godot": "4.7.2",
+  "tests": [
+    {
+      "id": "CRC_ZIP_BASE",
+      "status": "PASS",
+      "evidence": "ZipFile.testzip() returns None; 2710 original entries"
+    },
+    {
+      "id": "GODOT_EDITOR_ORIGINAL",
+      "status": "PASS",
+      "evidence": "Godot 4.7.2 headless editor import; exit 0"
+    },
+    {
+      "id": "HUD_UNIT",
+      "status": "PASS",
+      "evidence": "tests/hud_rebroadcast_0668_unit.gd"
+    },
+    {
+      "id": "HUD_SCENE_INTEGRATION",
+      "status": "PASS",
+      "evidence": "tests/hud_rebroadcast_0668_integration.gd; 34 checks; sporting cars unmodified"
+    },
+    {
+      "id": "SILVERSTONE_DRY_12_TICKS",
+      "status": "PASS",
+      "evidence": "tests/hud_rebroadcast_0668_scenarios.gd; short smoke only"
+    },
+    {
+      "id": "SPA_HEAVY_RAIN_12_TICKS",
+      "status": "PASS",
+      "evidence": "tests/hud_rebroadcast_0668_scenarios.gd; short smoke only"
+    },
+    {
+      "id": "MONZA_DRY_12_TICKS",
+      "status": "PASS",
+      "evidence": "tests/hud_rebroadcast_0668_scenarios.gd; short smoke only"
+    },
+    {
+      "id": "SINGAPORE_HEAVY_RAIN_12_TICKS",
+      "status": "PASS",
+      "evidence": "tests/hud_rebroadcast_0668_scenarios.gd; short smoke only"
+    },
+    {
+      "id": "MODES_AND_PREFERENCES",
+      "status": "PASS",
+      "evidence": "integration: mode change, visibility, ConfigFile roundtrip (no restart)"
+    },
+    {
+      "id": "LEADERBOARD_24_ROWS_INCREMENTAL",
+      "status": "PASS",
+      "evidence": "integration: 24 reusable nodes, repeat unchanged state causes zero new writes"
+    },
+    {
+      "id": "MANUAL_PIT_V21_RAIN_V4",
+      "status": "PASS",
+      "evidence": "tests/replay_0660_boundaries.gd and race_0645_intelligence_test.gd"
+    },
+    {
+      "id": "DOUBLE_STACK_SAME_TICK_GUARD",
+      "status": "PASS",
+      "evidence": "tests/pitwall_0667_same_tick_regression.gd"
+    },
+    {
+      "id": "SPEED_1X_5X",
+      "status": "PASS",
+      "evidence": "tests/speed_control_066721.gd: 10 ticks at 1x, 50 at 5x"
+    },
+    {
+      "id": "REPLAY_200_TICKS_SPEEDS_1_2_5_16_32",
+      "status": "PASS",
+      "evidence": "tests/replay_0660_test.gd: determinism across speeds, save/load, seek and checkpoint"
+    },
+    {
+      "id": "LEGACY_HUD_CORNER_TEST",
+      "status": "PASS",
+      "evidence": "tests/core_0622_corner_hud_smoke_test.gd"
+    },
+    {
+      "id": "GRAPHIC_1600X900_2D",
+      "status": "PASS",
+      "evidence": "qa/hud_rebroadcast_0668/*_1600x900.png; Xvfb llvmpipe"
+    },
+    {
+      "id": "GRAPHIC_1920X1080_2D",
+      "status": "PASS",
+      "evidence": "qa/hud_rebroadcast_0668/*_1920x1080.png; Xvfb llvmpipe"
+    },
+    {
+      "id": "GRAPHIC_1600X900_3D",
+      "status": "PASS",
+      "evidence": "qa/hud_rebroadcast_0668/compact_3d_1600x900.png; Xvfb llvmpipe"
+    },
+    {
+      "id": "GRAPHIC_EXACT_1366X768",
+      "status": "INCONCLUSIVE",
+      "evidence": "X11 returns 1365x768; native 1365x768 captures saved"
+    },
+    {
+      "id": "GRAPHIC_REAL_HARDWARE_LINUX_MINT",
+      "status": "NOT_RUN",
+      "evidence": "only Xvfb/llvmpipe virtual graphics available"
+    },
+    {
+      "id": "DIRECTOR_TV_FULL_REGRESSION",
+      "status": "NOT_RUN",
+      "evidence": "engine scripts untouched, no full visual director test"
+    },
+    {
+      "id": "REPLAY_FULL_MONZA_53_LAPS",
+      "status": "NOT_RUN",
+      "evidence": "200-tick replay test executed, full 53-lap GP not executed"
+    },
+    {
+      "id": "LONG_RACE_PIT_DOUBLE_STACK",
+      "status": "NOT_RUN",
+      "evidence": "same-tick command guard checked; full-pit long race not executed"
+    },
+    {
+      "id": "FULL_GP_SILVERSTONE_SPA_MONZA_SINGAPORE",
+      "status": "NOT_RUN",
+      "evidence": "only 12-tick smoke tests per scenario"
+    },
+    {
+      "id": "SAVE_LEGACY_RESTART_MIGRATION",
+      "status": "NOT_RUN",
+      "evidence": "legacy saves not modified; no full save migration test"
+    },
+    {
+      "id": "GPU_FPS_BEFORE_AFTER",
+      "status": "NOT_RUN",
+      "evidence": "CPU per-refresh headless only; no comparable full frame benchmark"
+    },
+    {
+      "id": "RSS_EXTERNAL_PROCESS",
+      "status": "NOT_RUN",
+      "evidence": "Godot MEMORY_STATIC is reported separately, not RSS"
+    }
+  ]
+}

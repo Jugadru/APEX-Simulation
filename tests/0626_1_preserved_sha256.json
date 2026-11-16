@@ -1,0 +1,16 @@
+{
+  "scripts/track_3d.gd": "a65360343626dd439f8c8c760a7f600de7bd7fac6cc7a1b1a50341e1779ced76",
+  "scripts/tv_director.gd": "2d133050b49efb937a41cf9ebb519be0859c0306457c1cc5b37732521f8eebb8",
+  "scripts/race_engine.gd": "69ea19752ad93aa4c13cd3b761e8ade9ae4ddd487fc0ac0dd9163a5bc3abe6c5",
+  "scripts/core/race_ai_director.gd": "60e5e3c7d291e1936cf90cee95d1db17452a9e40ef24f740b19ce5ba4de11a57",
+  "scripts/core/race_stint_optimizer.gd": "e26482c46430782f95d3f6fdd7fc38f27541b01a3ce6b73b4808b309d22b190a",
+  "scripts/core/race_tyre_regulations_2012.gd": "2f1ad89ca1076099c3e8bd5458cae640fdf9ae7b5d342628a5ca4bfdaba3728b",
+  "scripts/core/race_strategy.gd": "78fe5e05eb89d6239606ed6c2f59172a267f14e2d0f14977133709eb81529ea4",
+  "scripts/core/race_weather.gd": "e30bc362a193e9583ac30ae92578124b5592282e1a0ce65c0932843135e9e848",
+  "scripts/core/race_team_autonomy.gd": "1f522df4960b845f96052d41ffdb44456240f235e8e2048295eab33a0805fba8",
+  "scripts/apex_race_hud_0622.gd": "b01af4174c590726c3680628f972b0e41b850e6dbc2300878ac8def789859f09",
+  "scripts/track_map.gd": "abe10a99f0d400d2acb6a9f2ef4271be07bc1f05d41e09bcd8df17dfd0c2b520",
+  "data/season_2012.json": "a03843f9ac2b818bdb98a3d3417e42f40d792064b48df4334bf008e2828f94eb",
+  "data/tyres_2012.json": "4de4eda11de68126b96f518160f779da68f969aa0b47b8c659fd1bd4d9abfd38",
+  "scenes/main.tscn": "d21f59bfab3f35d807e202207cc395d9023058dd5d59fcd1579425fc8c1eaff3"
+}

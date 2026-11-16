@@ -1,0 +1,9 @@
+{
+  "operating_system": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "cpu_model": "INTEL(R) XEON(R) PLATINUM 8573C",
+  "cpus_visible": 5,
+  "godot_version": "4.7.2.stable.official.ed1daf0bf",
+  "godot_binary_sha256": "8d106cbe6144c2dc7e881d61d2429c1a8a76e6b22ef48bd5e48dcf934953f71e",
+  "source_zip_sha256": "d6aa37f5337cb41a0f45b6a48e9ef9aa7082ff8b6c33543b9fb5ad33d87afcd5",
+  "rendering_test": "Xvfb / Mesa llvmpipe / OpenGL Compatibility (not hardware GPU)"
+}

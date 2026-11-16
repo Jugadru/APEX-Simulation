@@ -1,0 +1,69 @@
+{
+  "version": "0.6.4.4",
+  "base": "0.6.4.3 Dynamic Track Weather",
+  "engine": "Godot 4.7.2",
+  "source_input_sha256": "cc1d2ff5f13177e2ecd57a5c7693887beca1760d13e04f7b5730b738243f2f96",
+  "source_validation": "baseline 0643 hydrology regression passed before merge",
+  "unchanged_critical_sources_sha256": {
+    "scripts/garage.gd": "3aa9486debc024d41bb2fffade34b42d8c25872b8150421d1e2d9b8fa4647731",
+    "scripts/core/rival_development_0642.gd": "9ef70ed60ab181cbf8ca1af92d176cf16b4802d76ab3db465b75aae20ce5c87e",
+    "scripts/championship_2012.gd": "804828ae5947e980367317441e6dafce5d7bb6dd4fe687ac95add64127d36d52",
+    "scripts/core/race_weather.gd": "558a4b7373a14f10baaa112463b9b5273b82e1c1946740afb546303fe770bd72",
+    "scripts/core/race_rain_hysteresis_0642.gd": "0cf26c9baaf42ec4f3217aedfafe42a45cbb025ce8e9ecc63567d16315f40882",
+    "scripts/core/race_ai_director.gd": "91b307f4e264cabc9b6ae6d1ebb1c9f07740943b648700721eb7bf970ff75c45",
+    "scripts/core/race_engineer_0639.gd": "34f11f5c8377f3d63e95b3671dccc48f43c1b485e738bdff088c328cbbdad26c",
+    "scripts/core/race_engineer_interactive.gd": "24802314d3f4dd9b70fe40b2b1297917067b6112044062e869f6e1dc70207e55",
+    "scripts/core/race_pit_lane.gd": "13526f7863021755534c1fc5f6831359fe5bd8634e156752210b4d316488a487",
+    "scripts/core/race_pitwall_intelligence_0640.gd": "adea1d1697b94f0aa33a13c9314840bb39fa95e38ccdcd75140a3ba1c0cf0406",
+    "scripts/core/race_combat.gd": "6ae05386a338144a98fb800a7c3aa5093311d3180f1aae110a15390287e0fd55",
+    "scripts/core/race_kers_2012.gd": "d983fc5c788cfa7671b6fdb4de2094c7cf1b66e487826a8b0d4042972ec5fa2b",
+    "scripts/core/race_drs_2012.gd": "a00e4a6bf132543f1c6b2ffad340141c85e9fa809cb8e9d8bd34d80bdd3b1f59",
+    "data/season_2012.json": "a03843f9ac2b818bdb98a3d3417e42f40d792064b48df4334bf008e2828f94eb",
+    "data/tyres_2012.json": "a4511548cc529a1b85045253449714596c445d919d93854aa49e0715eb431c27"
+  },
+  "edited_files": [
+    "project.godot",
+    "scripts/race_engine.gd",
+    "scripts/core/race_performance.gd",
+    "scripts/apex_race_hud_0622.gd",
+    "scripts/apex_race_ui_presenter.gd"
+  ],
+  "new_physics_files": [
+    "data/track_physics_2012.json",
+    "scripts/core/race_track_dynamics.gd",
+    "scripts/core/race_tyre_thermal.gd"
+  ],
+  "test_entrypoints": [
+    "tests/track_0644_unit_test.gd",
+    "tests/track_0644_native_tick_smoke_test.gd",
+    "tests/track_0644_hud_integration_test.gd",
+    "tests/track_0644_eight_gp_test.gd"
+  ],
+  "qa": {
+    "full_gp_count": 8,
+    "native_tick_seconds": 0.2,
+    "batch_gp_tick_seconds": 8.0,
+    "godot_version": "4.7.2.stable.official.ed1daf0bf",
+    "tests_ok": [
+      "track_0644_unit_test",
+      "track_0644_native_tick_smoke_test",
+      "track_0644_hud_integration_test",
+      "core_0643_dynamic_track_weather_test",
+      "core_0642_rival_workshop_weather_test",
+      "core_0638_1_timing_rootcause_test",
+      "core_0631_radio_engineer_smoke_test"
+    ],
+    "editor_import_clean": true,
+    "gpu_manual_validation": false,
+    "gp_log_files": [
+      "qa/AUS.log",
+      "qa/MAL.log",
+      "qa/MON.log",
+      "qa/GBR.log",
+      "qa/BEL.log",
+      "qa/ITA.log",
+      "qa/SIN.log",
+      "qa/BRA.log"
+    ]
+  }
+}

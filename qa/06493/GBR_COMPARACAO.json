@@ -1,0 +1,247 @@
+{
+  "scenario": {
+    "circuit": "Silverstone GBR",
+    "laps": 52,
+    "grid": 24,
+    "seed": 6403,
+    "weather": "Variável",
+    "step_seconds": 0.2
+  },
+  "base_06492": {
+    "stops": 90,
+    "wet_to_wet": 12,
+    "clock": 5319.99999999735,
+    "finished": true,
+    "valid": true
+  },
+  "new_06493": {
+    "stops": 78,
+    "wet_to_wet": 0,
+    "clock": 5287.19999999738,
+    "finished": true,
+    "valid": true
+  },
+  "difference_stops": -12,
+  "old_stop_distribution": {
+    "4": 18,
+    "3": 6
+  },
+  "new_stop_distribution": {
+    "3": 18,
+    "4": 6
+  },
+  "per_driver": [
+    {
+      "piloto": "Fernando Alonso",
+      "equipe": "Ferrari",
+      "paradas_06492": 4,
+      "paradas_06493": 3,
+      "diferenca": -1,
+      "posicao_06493": 1
+    },
+    {
+      "piloto": "Lewis Hamilton",
+      "equipe": "McLaren Mercedes",
+      "paradas_06492": 4,
+      "paradas_06493": 3,
+      "diferenca": -1,
+      "posicao_06493": 2
+    },
+    {
+      "piloto": "Mark Webber",
+      "equipe": "Red Bull Racing Renault",
+      "paradas_06492": 4,
+      "paradas_06493": 3,
+      "diferenca": -1,
+      "posicao_06493": 3
+    },
+    {
+      "piloto": "Kimi Räikkönen",
+      "equipe": "Lotus Renault",
+      "paradas_06492": 4,
+      "paradas_06493": 3,
+      "diferenca": -1,
+      "posicao_06493": 4
+    },
+    {
+      "piloto": "Michael Schumacher",
+      "equipe": "Mercedes",
+      "paradas_06492": 4,
+      "paradas_06493": 3,
+      "diferenca": -1,
+      "posicao_06493": 5
+    },
+    {
+      "piloto": "Sergio Perez",
+      "equipe": "Sauber Ferrari",
+      "paradas_06492": 4,
+      "paradas_06493": 3,
+      "diferenca": -1,
+      "posicao_06493": 6
+    },
+    {
+      "piloto": "Nico Hulkenberg",
+      "equipe": "Force India Mercedes",
+      "paradas_06492": 4,
+      "paradas_06493": 3,
+      "diferenca": -1,
+      "posicao_06493": 7
+    },
+    {
+      "piloto": "Sebastian Vettel",
+      "equipe": "Red Bull Racing Renault",
+      "paradas_06492": 4,
+      "paradas_06493": 4,
+      "diferenca": 0,
+      "posicao_06493": 8
+    },
+    {
+      "piloto": "Jenson Button",
+      "equipe": "McLaren Mercedes",
+      "paradas_06492": 3,
+      "paradas_06493": 3,
+      "diferenca": 0,
+      "posicao_06493": 9
+    },
+    {
+      "piloto": "Felipe Massa",
+      "equipe": "Ferrari",
+      "paradas_06492": 3,
+      "paradas_06493": 3,
+      "diferenca": 0,
+      "posicao_06493": 10
+    },
+    {
+      "piloto": "Bruno Senna",
+      "equipe": "Williams Renault",
+      "paradas_06492": 4,
+      "paradas_06493": 3,
+      "diferenca": -1,
+      "posicao_06493": 11
+    },
+    {
+      "piloto": "Jean-Eric Vergne",
+      "equipe": "Toro Rosso Ferrari",
+      "paradas_06492": 4,
+      "paradas_06493": 3,
+      "diferenca": -1,
+      "posicao_06493": 12
+    },
+    {
+      "piloto": "Romain Grosjean",
+      "equipe": "Lotus Renault",
+      "paradas_06492": 4,
+      "paradas_06493": 4,
+      "diferenca": 0,
+      "posicao_06493": 13
+    },
+    {
+      "piloto": "Nico Rosberg",
+      "equipe": "Mercedes",
+      "paradas_06492": 4,
+      "paradas_06493": 4,
+      "diferenca": 0,
+      "posicao_06493": 14
+    },
+    {
+      "piloto": "Vitaly Petrov",
+      "equipe": "Caterham Renault",
+      "paradas_06492": 4,
+      "paradas_06493": 3,
+      "diferenca": -1,
+      "posicao_06493": 15
+    },
+    {
+      "piloto": "Daniel Ricciardo",
+      "equipe": "Toro Rosso Ferrari",
+      "paradas_06492": 3,
+      "paradas_06493": 3,
+      "diferenca": 0,
+      "posicao_06493": 16
+    },
+    {
+      "piloto": "Paul di Resta",
+      "equipe": "Force India Mercedes",
+      "paradas_06492": 3,
+      "paradas_06493": 3,
+      "diferenca": 0,
+      "posicao_06493": 17
+    },
+    {
+      "piloto": "Kamui Kobayashi",
+      "equipe": "Sauber Ferrari",
+      "paradas_06492": 3,
+      "paradas_06493": 3,
+      "diferenca": 0,
+      "posicao_06493": 18
+    },
+    {
+      "piloto": "Pastor Maldonado",
+      "equipe": "Williams Renault",
+      "paradas_06492": 4,
+      "paradas_06493": 4,
+      "diferenca": 0,
+      "posicao_06493": 19
+    },
+    {
+      "piloto": "Timo Glock",
+      "equipe": "Marussia Cosworth",
+      "paradas_06492": 4,
+      "paradas_06493": 3,
+      "diferenca": -1,
+      "posicao_06493": 20
+    },
+    {
+      "piloto": "Heikki Kovalainen",
+      "equipe": "Caterham Renault",
+      "paradas_06492": 3,
+      "paradas_06493": 3,
+      "diferenca": 0,
+      "posicao_06493": 21
+    },
+    {
+      "piloto": "Narain Karthikeyan",
+      "equipe": "HRT Cosworth",
+      "paradas_06492": 4,
+      "paradas_06493": 3,
+      "diferenca": -1,
+      "posicao_06493": 22
+    },
+    {
+      "piloto": "Charles Pic",
+      "equipe": "Marussia Cosworth",
+      "paradas_06492": 4,
+      "paradas_06493": 4,
+      "diferenca": 0,
+      "posicao_06493": 23
+    },
+    {
+      "piloto": "Pedro de la Rosa",
+      "equipe": "HRT Cosworth",
+      "paradas_06492": 4,
+      "paradas_06493": 4,
+      "diferenca": 0,
+      "posicao_06493": 24
+    }
+  ],
+  "old_max_lap_wear": 75.0431873814803,
+  "new_max_lap_wear": 77.5615685625004,
+  "new_queue_waits": [
+    {
+      "pilot": "Felipe Massa",
+      "wait_s": 1.11403303302574,
+      "lap": 14
+    },
+    {
+      "pilot": "Kamui Kobayashi",
+      "wait_s": 6.64157515085984,
+      "lap": 14
+    },
+    {
+      "pilot": "Jean-Eric Vergne",
+      "wait_s": 7.27160125531006,
+      "lap": 14
+    }
+  ],
+  "notes": "Same seed/weather, 0.20s native steps. Single AI decision gate changed. Gameplay tuning not historical Pirelli measurements."
+}

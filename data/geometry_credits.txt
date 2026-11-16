@@ -1,0 +1,20 @@
+Apex Motorsport Manager v0.5.1.27 — third-party geometry attributions
+
+17 normalized track polylines are modified versions of data from:
+Tomislav Bacinger — f1-circuits, https://github.com/bacinger/f1-circuits
+MIT License (c) 2019–2025 Tomislav Bacinger.
+The full MIT license text is included in data/LICENSE-f1-circuits-MIT.txt.
+
+Resampling: original LineStrings converted to an equal-distance 96-sample
+closed loop, normalized to a 2D frame. This is a stylized geographic outline,
+not surveyed centerline telemetry and not necessarily the exact 2012 layout.
+
+Tracks without licensed geometry and still schematic:
+EUR (Valencia), KOR (Korea), IND (Buddh).
+They remain playable using Apex placeholder curves but will be replaced later.
+
+2012 lap baselines: https://www.formula1.com/en/results/2012/awards/fastest-laps
+Official best race lap times are used as references; gameplay adds 0.5 seconds
+and still varies cars, pilots, tyres, strategy, weather not yet simulated.
+
+Render update: closed Chaikin smoothing rounds licensed reference coordinates; original 2012 race data is unchanged. 3D meshes are procedurally generated and original to Apex.

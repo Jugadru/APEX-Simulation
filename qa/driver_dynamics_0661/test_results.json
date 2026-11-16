@@ -1,0 +1,100 @@
+{
+  "version": "0.6.6.1",
+  "godot": "4.7.2-stable",
+  "source_zip_sha256": "5276fc8f887fb51f57b5ad3eec098740cef268405eabb2a74fb52ea5c2d4d5f1",
+  "passed_tracks": {
+    "GBR": {
+      "track": "GBR",
+      "weather": "Seco",
+      "laps": 3,
+      "ticks": 1668,
+      "live_ms": 15385.779,
+      "replay_ms": 14543.511,
+      "bytes": 3305400,
+      "pit_phases": [
+        "approach",
+        "dock",
+        "service",
+        "queue",
+        "repair",
+        "safety_hold",
+        "exit"
+      ],
+      "pit_checkpoint_count": 7,
+      "hash": "7bca12f99088048b747f7ac3626b635133628cb0ae57de15db4fdf072be64837",
+      "pass": true
+    },
+    "BEL": {
+      "track": "BEL",
+      "weather": "Chuva intensa",
+      "laps": 3,
+      "ticks": 2067,
+      "live_ms": 35436.704,
+      "replay_ms": 16358.789,
+      "bytes": 3872712,
+      "pit_phases": [
+        "approach",
+        "dock",
+        "service",
+        "queue",
+        "repair",
+        "safety_hold",
+        "exit"
+      ],
+      "pit_checkpoint_count": 7,
+      "hash": "33c7c2d71e34779fb7e74f359f2663e0bea34074aaf4c655dc678f3b97fd8c0e",
+      "pass": true
+    },
+    "ITA": {
+      "track": "ITA",
+      "weather": "Seco",
+      "laps": 3,
+      "ticks": 1553,
+      "live_ms": 25215.506,
+      "replay_ms": 13789.801,
+      "bytes": 3324804,
+      "pit_phases": [
+        "approach",
+        "dock",
+        "service",
+        "queue",
+        "repair",
+        "safety_hold",
+        "exit"
+      ],
+      "pit_checkpoint_count": 7,
+      "hash": "5d4c508a64dce8d1c481a3661f56c6bdf97a2a7a7bab37a5e290be5e54188592",
+      "pass": true
+    },
+    "SIN": {
+      "track": "SIN",
+      "weather": "Chuva intensa",
+      "laps": 3,
+      "ticks": 2050,
+      "live_ms": 34864.061,
+      "replay_ms": 13711.429,
+      "bytes": 3875224,
+      "pit_phases": [
+        "approach",
+        "dock",
+        "service",
+        "queue",
+        "repair",
+        "safety_hold",
+        "exit"
+      ],
+      "pit_checkpoint_count": 7,
+      "hash": "48085a06fed3d7761a58206673c03685043645d813ea809e0b76c968e94439c9",
+      "pass": true
+    }
+  },
+  "visual_captures": [
+    "race_1920x1080.png",
+    "race_1600x900.png"
+  ],
+  "risk": "No 52-lap full GP or long-season regression run in 0661",
+  "qa_note": "Legacy Soul Staff 0650 migration fixture failed (unrelated old save path); see logs. Not marked passing.",
+  "replay_integration": "PASS",
+  "workshop_legacy_save": "PASS",
+  "tactical_checks": 17
+}

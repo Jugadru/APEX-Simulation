@@ -1,0 +1,15 @@
+{
+  "zip": "/mnt/data/APEX_MOTORSPORT_MANAGER_v0.6.6.7.2.3_HIGH_SPEED_CPU_COMPLETO.zip",
+  "zip_files": 2685,
+  "size_bytes": 109019438,
+  "sha256": "71a5d66d42b83bb8660580a3c4ebf929dc33c6c5f1b9db368c830509445f382f",
+  "original_input_files_preserved": 2653,
+  "only_modified_existing_files": [
+    "project.godot",
+    "scripts/apex_race_hud_0622.gd",
+    "scripts/core/race_replay_0660.gd",
+    "scripts/core/race_stint_optimizer.gd",
+    "scripts/main.gd",
+    "tests/strategic_2d_066722.gd"
+  ]
+}

@@ -1,0 +1,56 @@
+[
+  {
+    "name": "core_0550_weather_smoke_test.gd",
+    "exit": 0,
+    "seconds": 65.7,
+    "tail": [
+      "Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org",
+      "",
+      "APEX v0.5.5.0 WEATHER SMOKE OK: deterministic, rain tyres, AI, lap times, logs"
+    ]
+  },
+  {
+    "name": "core_0641_weather_strategy_test.gd",
+    "exit": 0,
+    "seconds": 0.4,
+    "tail": [
+      "",
+      "APEX 0641 WEATHER GP MAL max_water=0.893",
+      "APEX 0641 WEATHER GP CHN max_water=0.228",
+      "APEX 0641 WEATHER GP ESP max_water=0.088",
+      "APEX 0641 WEATHER / AI PASS: climate, forecast, unsafe crossover, emergency wear"
+    ]
+  },
+  {
+    "name": "core_0642_rival_workshop_weather_test.gd",
+    "exit": 0,
+    "seconds": 1.5,
+    "tail": [
+      "Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org",
+      "",
+      "APEX 0642 PASS: rival investment, speed, save/load, no duplicates, P&D budgets, delivery, cancel, UI, weather safety"
+    ]
+  },
+  {
+    "name": "core_0600_championship_smoke_test.gd",
+    "exit": 0,
+    "seconds": 0.4,
+    "tail": [
+      "Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org",
+      "",
+      "PASS 0600: 20 etapas, 24 pilotos, pontos 2012, retomada do save, sem GP duplicado"
+    ]
+  },
+  {
+    "name": "core_0638_1_timing_rootcause_test.gd",
+    "exit": 0,
+    "seconds": 18.7,
+    "tail": [
+      "Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org",
+      "",
+      "APEX 0638.1 TARGETED | failures=0",
+      "APEX 0638.1 REPLAY progress=80.0000000000005",
+      "APEX 0638.1 ROOT-CAUSE PASS | forced incident, delayed time, monotonic crossing, seed321 560s, invalid=0"
+    ]
+  }
+]

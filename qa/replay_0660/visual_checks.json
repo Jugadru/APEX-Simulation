@@ -1,0 +1,37 @@
+[
+  {
+    "name": "visuals",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "compatibility",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "release_replay_0660_weather",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "release_replay_0660_integration",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "release_workshop_0656_legacy",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "release_replay_0660_test",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "shadow_diagnostic",
+    "exit": 0,
+    "pass": true
+  }
+]

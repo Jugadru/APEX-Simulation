@@ -1,0 +1,18 @@
+{
+  "scenario": "Monza 53 lap setup / 3200 ticks / seed 660 / dry / 24 cars / headless Godot 4.7.2",
+  "baseline_format": "load_data(recorder.export_data())",
+  "candidate_format": "load_live_session(recorder)",
+  "baseline_open_seconds": 0.809015,
+  "candidate_open_seconds": 0.013333,
+  "baseline_peak_rss_bytes": 195633152,
+  "candidate_peak_rss_bytes": 133398528,
+  "peak_rss_reduction_percent": 31.81,
+  "open_acceleration": 60.68,
+  "hashes_equal": true,
+  "baseline_hash": "f771fab5025055653075f853b4a06370097d5af74843d2deea4cc8dc17be9b90",
+  "candidate_hash": "f771fab5025055653075f853b4a06370097d5af74843d2deea4cc8dc17be9b90",
+  "baseline_record_seconds": 108.702288,
+  "candidate_record_seconds": 105.183163,
+  "monitor_sampling_interval_seconds": 0.12,
+  "notes": "Peak RSS covers whole recording+opening+seek process; host-level timing may fluctuate. Open duration excludes benchmark race."
+}

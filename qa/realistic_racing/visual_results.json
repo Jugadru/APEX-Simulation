@@ -1,0 +1,20 @@
+[
+  {
+    "renderer": "gl_compatibility",
+    "test": "graphics_0653_compatibility_capture",
+    "passed": true,
+    "exit_code": 0
+  },
+  {
+    "renderer": "forward_plus",
+    "test": "graphics_0653_hud_capture",
+    "passed": true,
+    "exit_code": 0
+  },
+  {
+    "renderer": "forward_plus",
+    "test": "graphics_0653_capture",
+    "passed": true,
+    "exit_code": 0
+  }
+]

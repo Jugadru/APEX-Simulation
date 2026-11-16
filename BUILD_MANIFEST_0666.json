@@ -1,0 +1,24 @@
+{
+  "build": "APEX_MOTORSPORT_MANAGER_v0.6.6.6_REPLAY_FAST_SEEK_COMPLETO",
+  "source_archive": "APEX_MOTORSPORT_MANAGER_v0.6.6.5_REPLAY_CHECKPOINTS_COMPLETO.zip",
+  "source_sha256": "f450345304324f89f6a21bc91c207ef6288fe9bf25b93793b826ed3762d4180d",
+  "source_files_compared": 2410,
+  "preexisting_files_changed": [
+    "project.godot",
+    "scripts/core/race_replay_0660.gd"
+  ],
+  "race_engine_sha256": "522327cc1bf06d0bcbe7e54d0eebf7c7026fdb0b0d8247e7d32f2d754e0aac7a",
+  "godot": "4.7.2.stable.official.ed1daf0bf",
+  "sporting_rules_revision": "0661_driver_dynamics",
+  "archive_replay_format": "APEX_REPLAY_0660",
+  "main_feature": "Bounded RAM-only hot seek anchor cache with Racecraft observer snapshot",
+  "test_matrix": "qa/replay_fast_seek_0666/test_matrix_0666.json",
+  "performance": "qa/replay_fast_seek_0666/comparison_0665_vs_0666.json",
+  "full_monza_archive": "qa/replay_fast_seek_0666/monza53_0665_archive_0666_seek.json",
+  "new_qa_root": "qa/replay_fast_seek_0666",
+  "qa_approved": 30,
+  "qa_not_executed": 2,
+  "qa_failed": 0,
+  "draft_entries_before_logs": 2464,
+  "status": "Release candidate completed, final ZIP SHA separately audited"
+}

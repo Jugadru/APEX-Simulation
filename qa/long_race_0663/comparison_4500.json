@@ -1,0 +1,21 @@
+{
+  "test": "Monza ITA seed=660 dry 53 lap setup, 4500 ticks, headless Godot 4.7.2 stable",
+  "baseline_0662": {
+    "elapsed_seconds": 136.088529,
+    "godot_static_bytes": 80612430,
+    "sport_hash": "fdd9d237338d9faf45de857f7be225f119440ea60891b1caa4a2fb7b6fdfcb91"
+  },
+  "candidate_0663": {
+    "elapsed_seconds": 131.631526,
+    "godot_static_bytes": 39157289,
+    "sport_hash": "fdd9d237338d9faf45de857f7be225f119440ea60891b1caa4a2fb7b6fdfcb91"
+  },
+  "wall_reduction_percent": 3.28,
+  "godot_static_memory_reduction_percent": 51.43,
+  "sport_hash_equal": true,
+  "discarded_experiment": {
+    "elapsed_seconds": 137.690688,
+    "sport_hash_equal": true,
+    "applied_to_release": false
+  }
+}

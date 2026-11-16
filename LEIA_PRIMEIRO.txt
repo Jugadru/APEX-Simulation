@@ -1,0 +1,11 @@
+APEX MOTORSPORT MANAGER v0.5.8.0
+
+1. Abra o project.godot no Godot 4.x.
+2. No início da corrida, os cartões dos pilotos ficam disponíveis com a simulação PAUSADA.
+3. CONTROLE DE BOX: Manual (padrão) ou IA, separadamente para cada piloto.
+4. Para agendar uma parada: selecione o pneu, informe VOLTA (ex.: 21) e clique AGENDAR BOX.
+5. A ordem V21 NUNCA autoriza pit em V4. Uma mudança exige CHAMAR BOX ou reagendar.
+6. CANCELAR remove o agendamento. O Pit Wall mostra o estado da ordem.
+7. Para validar: bash linux/validar_core_0580.sh (requer Godot executável).
+8. Esta versão modifica o código de jogo, mas ainda precisa de teste real no Godot.
+9. Mantenha seu ZIP anterior como backup. Veja CHANGELOG_0580.md.

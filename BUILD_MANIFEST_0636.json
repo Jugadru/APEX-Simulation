@@ -1,0 +1,43 @@
+{
+  "version": "0.6.3.6",
+  "engine": "Godot 4.7.2",
+  "base": "Apex_0635_SoulDriver_DiscussaoStint_Godot472(2).zip",
+  "base_sha256": "33e16ca881bdc60b247551d025cf93f8e787e4c19f80b47ffaa9924921fac6c4",
+  "changed_existing_files": [
+    "project.godot",
+    "scripts/apex_race_hud_0622.gd",
+    "scripts/apex_commentary.gd",
+    "scripts/core/race_stint_dialogue_0635.gd"
+  ],
+  "new_engine_files": [
+    "scripts/core/race_soul_driver_0636.gd"
+  ],
+  "untouched_critical_files_sha256": {
+    "scripts/race_engine.gd": "8e01ebb2f4c7a2af8786d9251362e1f8ac8c4b059fc09434725d23499fc99df0",
+    "scripts/track_3d.gd": "37bff51dd0fa19a1ace27f04e6c0365d9de1b73d159bc4947814ef982ad2b0ce",
+    "scripts/track_map.gd": "abe10a99f0d400d2acb6a9f2ef4271be07bc1f05d41e09bcd8df17dfd0c2b520",
+    "scripts/tv_director.gd": "cae0f0698283a69adf9af1adbd57955cc9bef6c8f000c104731ebba8af20beae",
+    "scripts/core/race_strategy.gd": "78fe5e05eb89d6239606ed6c2f59172a267f14e2d0f14977133709eb81529ea4",
+    "scripts/core/race_weather.gd": "e30bc362a193e9583ac30ae92578124b5592282e1a0ce65c0932843135e9e848",
+    "data/season_2012.json": "a03843f9ac2b818bdb98a3d3417e42f40d792064b48df4334bf008e2828f94eb",
+    "data/tyres_2012.json": "4de4eda11de68126b96f518160f779da68f969aa0b47b8c659fd1bd4d9abfd38",
+    "scenes/main.tscn": "d21f59bfab3f35d807e202207cc395d9023058dd5d59fcd1579425fc8c1eaff3"
+  },
+  "tests_run": [
+    "core_0636_soul_personality_smoke_test.gd",
+    "core_0635_soul_stint_smoke_test.gd",
+    "core_0634_radio_memory_smoke_test.gd",
+    "core_0633_radio_categories_soul_smoke_test.gd",
+    "core_0632_engineer_interactive_smoke_test.gd",
+    "core_0631_radio_engineer_smoke_test.gd",
+    "core_0630_driver_radio_smoke_test.gd",
+    "core_0625_dry_strategy_smoke_test.gd",
+    "core_0627_tv_director_smoke_test.gd",
+    "native_capture_0636.gd"
+  ],
+  "known_limits": [
+    "Apex Soul only within GP; no physics changes",
+    "Full GP not revalidated",
+    "Layout warnings pre-existing"
+  ]
+}

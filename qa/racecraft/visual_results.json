@@ -1,0 +1,12 @@
+[
+  {
+    "test": "racecraft_0654_hud",
+    "passed": true,
+    "exit_code": 0
+  },
+  {
+    "test": "racecraft_0654_capture",
+    "passed": true,
+    "exit_code": 0
+  }
+]

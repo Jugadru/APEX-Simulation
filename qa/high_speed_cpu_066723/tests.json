@@ -1,0 +1,74 @@
+{
+  "version": "0.6.6.7.2.3",
+  "baseline": "0.6.6.7.2.2",
+  "checks": [
+    {
+      "test": "GBR: corrida curta + replay integral",
+      "status": "PASS",
+      "hash": "7bca12f99088048b747f7ac3626b635133628cb0ae57de15db4fdf072be64837"
+    },
+    {
+      "test": "BEL: corrida curta + replay integral",
+      "status": "PASS",
+      "hash": "33c7c2d71e34779fb7e74f359f2663e0bea34074aaf4c655dc678f3b97fd8c0e"
+    },
+    {
+      "test": "ITA: corrida curta + replay integral",
+      "status": "PASS",
+      "hash": "5d4c508a64dce8d1c481a3661f56c6bdf97a2a7a7bab37a5e290be5e54188592"
+    },
+    {
+      "test": "SIN: corrida curta + replay integral",
+      "status": "PASS",
+      "hash": "48085a06fed3d7761a58206673c03685043645d813ea809e0b76c968e94439c9"
+    },
+    {
+      "test": "optimizer 24 casos",
+      "status": "PASS"
+    },
+    {
+      "test": "replay unidade",
+      "status": "PASS"
+    },
+    {
+      "test": "politica Auto2D",
+      "status": "PASS"
+    },
+    {
+      "test": "estratégia seca",
+      "status": "PASS"
+    },
+    {
+      "test": "Racecraft auditoria",
+      "status": "PASS"
+    },
+    {
+      "test": "benchmark controlado Monza 750 ticks",
+      "status": "PASS"
+    },
+    {
+      "test": "UI 10x/16x/32x 60 quadros",
+      "status": "PASS"
+    },
+    {
+      "test": "carga pós-1200 ticks 10x / 16x",
+      "status": "PASS_WITH_SPIKES"
+    },
+    {
+      "test": "Monza 53 voltas completa",
+      "status": "NOT_RUN"
+    },
+    {
+      "test": "20 temporadas jogáveis",
+      "status": "NOT_RUN"
+    },
+    {
+      "test": "FPS em hardware real do jogador",
+      "status": "NOT_RUN"
+    }
+  ],
+  "pass": 11,
+  "pass_with_spikes": 1,
+  "fail": 0,
+  "not_run": 3
+}

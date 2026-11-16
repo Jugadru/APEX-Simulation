@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://stb4eeaakpyb"
+
+[deps]
+
+files=["res://tests/results_0642/3GP_COMPARATIVO.Circuito.translation", "res://tests/results_0642/3GP_COMPARATIVO.Voltas.translation", "res://tests/results_0642/3GP_COMPARATIVO.Vencedor.translation", "res://tests/results_0642/3GP_COMPARATIVO.Pits v0641.translation", "res://tests/results_0642/3GP_COMPARATIVO.Pits v0642.translation", "res://tests/results_0642/3GP_COMPARATIVO.Mudança.translation", "res://tests/results_0642/3GP_COMPARATIVO.Voltas inválidas.translation", "res://tests/results_0642/3GP_COMPARATIVO.Etapa salva.translation"]
+
+source_file="res://tests/results_0642/3GP_COMPARATIVO.csv"
+dest_files=["res://tests/results_0642/3GP_COMPARATIVO.Circuito.translation", "res://tests/results_0642/3GP_COMPARATIVO.Voltas.translation", "res://tests/results_0642/3GP_COMPARATIVO.Vencedor.translation", "res://tests/results_0642/3GP_COMPARATIVO.Pits v0641.translation", "res://tests/results_0642/3GP_COMPARATIVO.Pits v0642.translation", "res://tests/results_0642/3GP_COMPARATIVO.Mudança.translation", "res://tests/results_0642/3GP_COMPARATIVO.Voltas inválidas.translation", "res://tests/results_0642/3GP_COMPARATIVO.Etapa salva.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

@@ -1,0 +1,36 @@
+{
+  "all_pit_services": 24,
+  "counts": {
+    "garage_alerts": 15,
+    "matched": 2,
+    "real_stops": 2,
+    "scenarios": 604,
+    "weather_alerts": 0
+  },
+  "drivers": 24,
+  "interpretation": "Absolute difference uses a single cached pre-pit estimate versus observed position at service. Not guaranteed and affected by other pit stops, weather and traffic. No invented race events.",
+  "laps": 53,
+  "matched_actual_pits": [
+    {
+      "absolute_position_error": 1,
+      "confidence": "BAIXA",
+      "driver": "Felipe Massa",
+      "observed_position_at_service": 11,
+      "pit_lap": 34,
+      "projected_position": 12
+    },
+    {
+      "absolute_position_error": 3,
+      "confidence": "BAIXA",
+      "driver": "Fernando Alonso",
+      "observed_position_at_service": 5,
+      "pit_lap": 35,
+      "projected_position": 8
+    }
+  ],
+  "matched_pit_position_mae": 2.0,
+  "native_step_seconds": 4.0,
+  "ticks": 1178,
+  "total_laps": 53,
+  "track": "ITA"
+}

@@ -1,0 +1,178 @@
+[
+  {
+    "test": "source_zip_0664_crc_sha256",
+    "status": "APROVADO",
+    "evidence": "qa/replay_checkpoints_0665/build_validation_0665.json",
+    "exit_code": 0,
+    "details": "2.351 entradas, CRC íntegro, SHA-256 coincide com o arquivo fornecido"
+  },
+  {
+    "test": "monza_checkpoint_3200_comparison",
+    "status": "APROVADO",
+    "evidence": "qa/replay_checkpoints_0665/comparison_0664_vs_0665.json",
+    "exit_code": 0,
+    "details": "hash histórico; buscas 750/1500/2800; save/load e 0662 legado"
+  },
+  {
+    "test": "replay_watch_local_and_legacy",
+    "status": "APROVADO",
+    "evidence": "qa/replay_checkpoints_0665/logs/replay_watch_0665.log",
+    "exit_code": 0
+  },
+  {
+    "test": "gp_GBR_3_laps",
+    "status": "APROVADO",
+    "evidence": "qa/replay_checkpoints_0665/gp_GBR_Seco_0665.json",
+    "exit_code": 0
+  },
+  {
+    "test": "gp_BEL_3_laps",
+    "status": "APROVADO",
+    "evidence": "qa/replay_checkpoints_0665/gp_BEL_Chuva_intensa_0665.json",
+    "exit_code": 0
+  },
+  {
+    "test": "gp_ITA_3_laps",
+    "status": "APROVADO",
+    "evidence": "qa/replay_checkpoints_0665/gp_ITA_Seco_0665.json",
+    "exit_code": 0
+  },
+  {
+    "test": "gp_SIN_3_laps",
+    "status": "APROVADO",
+    "evidence": "qa/replay_checkpoints_0665/gp_SIN_Chuva_intensa_0665.json",
+    "exit_code": 0
+  },
+  {
+    "test": "replay_boundaries",
+    "status": "APROVADO",
+    "evidence": "qa/replay_checkpoints_0665/logs/qa_replay_boundaries_0665.log",
+    "exit_code": 0
+  },
+  {
+    "test": "replay_unit",
+    "status": "APROVADO",
+    "evidence": "qa/replay_checkpoints_0665/logs/qa_replay_unit_0665.log",
+    "exit_code": 0
+  },
+  {
+    "test": "replay_integration",
+    "status": "APROVADO",
+    "evidence": "qa/replay_checkpoints_0665/logs/qa_replay_integration_0665.log",
+    "exit_code": 0
+  },
+  {
+    "test": "replay_weather",
+    "status": "APROVADO",
+    "evidence": "qa/replay_checkpoints_0665/logs/qa_replay_weather_0665.log",
+    "exit_code": 0
+  },
+  {
+    "test": "racecraft_audit",
+    "status": "APROVADO",
+    "evidence": "qa/replay_checkpoints_0665/logs/qa_racecraft_audit_0665.log",
+    "exit_code": 0
+  },
+  {
+    "test": "driver_dynamics",
+    "status": "APROVADO",
+    "evidence": "qa/replay_checkpoints_0665/logs/qa_driver_dynamics_0665.log",
+    "exit_code": 0
+  },
+  {
+    "test": "sim_engine",
+    "status": "APROVADO",
+    "evidence": "qa/replay_checkpoints_0665/logs/qa_sim_engine_0665.log",
+    "exit_code": 0
+  },
+  {
+    "test": "pit_lane",
+    "status": "APROVADO",
+    "evidence": "qa/replay_checkpoints_0665/logs/qa_pit_lane_0665.log",
+    "exit_code": 0
+  },
+  {
+    "test": "save_migration",
+    "status": "APROVADO",
+    "evidence": "qa/replay_checkpoints_0665/logs/qa_save_migration_0665.log",
+    "exit_code": 0
+  },
+  {
+    "test": "workshop",
+    "status": "APROVADO",
+    "evidence": "qa/replay_checkpoints_0665/logs/qa_workshop_0665.log",
+    "exit_code": 0
+  },
+  {
+    "test": "inventory",
+    "status": "APROVADO",
+    "evidence": "qa/replay_checkpoints_0665/logs/qa_inventory_0665.log",
+    "exit_code": 0
+  },
+  {
+    "test": "staff_migration",
+    "status": "APROVADO",
+    "evidence": "qa/replay_checkpoints_0665/logs/qa_staff_migration_clean_0665.log",
+    "exit_code": 0,
+    "details": "XDG_DATA_HOME explícito após tentativa inicial de fixture sem ambiente"
+  },
+  {
+    "test": "strategy_sim",
+    "status": "APROVADO",
+    "evidence": "qa/replay_checkpoints_0665/logs/qa_strategy_sim_0665.log",
+    "exit_code": 0
+  },
+  {
+    "test": "native_godot_visual_1600x900",
+    "status": "APROVADO",
+    "evidence": "qa/replay_checkpoints_0665/godot_race_1600x900.png",
+    "exit_code": 0,
+    "details": "Captura real de GBR, seed 661, Godot Compatibility com Xvfb; sem mockup"
+  },
+  {
+    "test": "native_godot_visual_1920x1080",
+    "status": "APROVADO",
+    "evidence": "qa/replay_checkpoints_0665/godot_race_1920x1080.png",
+    "exit_code": 0,
+    "details": "Captura real de GBR, seed 661, Godot Compatibility com Xvfb; sem mockup"
+  },
+  {
+    "test": "monza_53_laps_seek_save_load",
+    "status": "APROVADO",
+    "evidence": "qa/replay_checkpoints_0665/monza_53_validation.json",
+    "exit_code": 0
+  },
+  {
+    "test": "career_stress_20_seasons",
+    "status": "NÃO EXECUTADO",
+    "evidence": "",
+    "details": "Fora do escopo deste release"
+  },
+  {
+    "test": "monza_53_replay_every_tick",
+    "status": "NÃO EXECUTADO",
+    "evidence": "",
+    "details": "Em vez disso, foram verificados os estados dos ticks 10.000, 20.000 e 24.431 e reaberto arquivo completo"
+  },
+  {
+    "test": "clean_extracted_zip_import",
+    "status": "APROVADO",
+    "evidence": "qa/replay_checkpoints_0665/logs/import_clean_draft_0665.log",
+    "exit_code": 0,
+    "details": "ZIP draft extracted into a new directory and imported in Godot 4.7.2 without parser errors"
+  },
+  {
+    "test": "clean_extracted_zip_smoke",
+    "status": "APROVADO",
+    "evidence": "qa/replay_checkpoints_0665/logs/clean_zip_smoke_0665.log",
+    "exit_code": 0,
+    "details": "Pit V21 heavy rain V4 and replay boundaries"
+  },
+  {
+    "test": "clean_extracted_zip_replay_watch",
+    "status": "APROVADO",
+    "evidence": "qa/replay_checkpoints_0665/logs/clean_zip_watch_0665.log",
+    "exit_code": 0,
+    "details": "650 ticks deterministic fork/legacy load; clean extracted copy"
+  }
+]

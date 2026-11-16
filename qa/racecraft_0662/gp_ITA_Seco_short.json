@@ -1,0 +1,1619 @@
+{
+  "audit": {
+    "counts": {
+      "approaches": 181,
+      "attack_signals": 84,
+      "blocked_ticks": 7143,
+      "confirmed_passes": 5,
+      "contacts": 0,
+      "defense_signals": 9,
+      "driving_errors": 0,
+      "duel_entries": 8,
+      "position_gains_other": 63,
+      "yield_signals": 4
+    },
+    "coverage": "from_start",
+    "drivers": {
+      "0": {
+        "counts": {
+          "approaches": 10,
+          "attack_signals": 4,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 1,
+          "yield_signals": 1
+        },
+        "driver_id": 0,
+        "name": "Sebastian Vettel",
+        "risk_group": "balanced"
+      },
+      "10": {
+        "counts": {
+          "approaches": 4,
+          "attack_signals": 1,
+          "blocked_ticks": 293,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 1,
+          "position_gains_other": 2,
+          "yield_signals": 0
+        },
+        "driver_id": 10,
+        "name": "Sergio Perez",
+        "risk_group": "balanced"
+      },
+      "11": {
+        "counts": {
+          "approaches": 11,
+          "attack_signals": 9,
+          "blocked_ticks": 770,
+          "confirmed_passes": 1,
+          "contacts": 0,
+          "defense_signals": 1,
+          "driving_errors": 0,
+          "duel_entries": 1,
+          "position_gains_other": 3,
+          "yield_signals": 0
+        },
+        "driver_id": 11,
+        "name": "Kamui Kobayashi",
+        "risk_group": "balanced"
+      },
+      "12": {
+        "counts": {
+          "approaches": 13,
+          "attack_signals": 3,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 1,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 2,
+          "yield_signals": 1
+        },
+        "driver_id": 12,
+        "name": "Paul di Resta",
+        "risk_group": "balanced"
+      },
+      "13": {
+        "counts": {
+          "approaches": 13,
+          "attack_signals": 10,
+          "blocked_ticks": 737,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 3,
+          "yield_signals": 1
+        },
+        "driver_id": 13,
+        "name": "Nico Hulkenberg",
+        "risk_group": "balanced"
+      },
+      "14": {
+        "counts": {
+          "approaches": 6,
+          "attack_signals": 0,
+          "blocked_ticks": 527,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 4,
+          "yield_signals": 0
+        },
+        "driver_id": 14,
+        "name": "Pastor Maldonado",
+        "risk_group": "balanced"
+      },
+      "15": {
+        "counts": {
+          "approaches": 12,
+          "attack_signals": 10,
+          "blocked_ticks": 1122,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 1,
+          "driving_errors": 0,
+          "duel_entries": 1,
+          "position_gains_other": 4,
+          "yield_signals": 0
+        },
+        "driver_id": 15,
+        "name": "Bruno Senna",
+        "risk_group": "balanced"
+      },
+      "16": {
+        "counts": {
+          "approaches": 10,
+          "attack_signals": 0,
+          "blocked_ticks": 4,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 1,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 3,
+          "yield_signals": 0
+        },
+        "driver_id": 16,
+        "name": "Daniel Ricciardo",
+        "risk_group": "balanced"
+      },
+      "17": {
+        "counts": {
+          "approaches": 9,
+          "attack_signals": 6,
+          "blocked_ticks": 779,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 3,
+          "yield_signals": 0
+        },
+        "driver_id": 17,
+        "name": "Jean-Eric Vergne",
+        "risk_group": "balanced"
+      },
+      "18": {
+        "counts": {
+          "approaches": 5,
+          "attack_signals": 0,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 1,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 3,
+          "yield_signals": 0
+        },
+        "driver_id": 18,
+        "name": "Heikki Kovalainen",
+        "risk_group": "balanced"
+      },
+      "19": {
+        "counts": {
+          "approaches": 4,
+          "attack_signals": 1,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 1,
+          "position_gains_other": 2,
+          "yield_signals": 0
+        },
+        "driver_id": 19,
+        "name": "Vitaly Petrov",
+        "risk_group": "balanced"
+      },
+      "2": {
+        "counts": {
+          "approaches": 11,
+          "attack_signals": 6,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 2,
+          "yield_signals": 0
+        },
+        "driver_id": 2,
+        "name": "Lewis Hamilton",
+        "risk_group": "aggressive"
+      },
+      "20": {
+        "counts": {
+          "approaches": 5,
+          "attack_signals": 2,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 3,
+          "yield_signals": 0
+        },
+        "driver_id": 20,
+        "name": "Timo Glock",
+        "risk_group": "balanced"
+      },
+      "21": {
+        "counts": {
+          "approaches": 2,
+          "attack_signals": 0,
+          "blocked_ticks": 598,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 2,
+          "yield_signals": 0
+        },
+        "driver_id": 21,
+        "name": "Charles Pic",
+        "risk_group": "balanced"
+      },
+      "22": {
+        "counts": {
+          "approaches": 7,
+          "attack_signals": 0,
+          "blocked_ticks": 1,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 3,
+          "yield_signals": 0
+        },
+        "driver_id": 22,
+        "name": "Pedro de la Rosa",
+        "risk_group": "balanced"
+      },
+      "23": {
+        "counts": {
+          "approaches": 1,
+          "attack_signals": 0,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 1,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 3,
+          "yield_signals": 0
+        },
+        "driver_id": 23,
+        "name": "Narain Karthikeyan",
+        "risk_group": "balanced"
+      },
+      "3": {
+        "counts": {
+          "approaches": 10,
+          "attack_signals": 8,
+          "blocked_ticks": 720,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 3,
+          "yield_signals": 0
+        },
+        "driver_id": 3,
+        "name": "Jenson Button",
+        "risk_group": "balanced"
+      },
+      "4": {
+        "counts": {
+          "approaches": 4,
+          "attack_signals": 1,
+          "blocked_ticks": 59,
+          "confirmed_passes": 1,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 1,
+          "position_gains_other": 2,
+          "yield_signals": 0
+        },
+        "driver_id": 4,
+        "name": "Fernando Alonso",
+        "risk_group": "aggressive"
+      },
+      "5": {
+        "counts": {
+          "approaches": 9,
+          "attack_signals": 7,
+          "blocked_ticks": 428,
+          "confirmed_passes": 3,
+          "contacts": 0,
+          "defense_signals": 1,
+          "driving_errors": 0,
+          "duel_entries": 3,
+          "position_gains_other": 2,
+          "yield_signals": 0
+        },
+        "driver_id": 5,
+        "name": "Felipe Massa",
+        "risk_group": "balanced"
+      },
+      "6": {
+        "counts": {
+          "approaches": 5,
+          "attack_signals": 3,
+          "blocked_ticks": 358,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 3,
+          "yield_signals": 0
+        },
+        "driver_id": 6,
+        "name": "Kimi Räikkönen",
+        "risk_group": "balanced"
+      },
+      "7": {
+        "counts": {
+          "approaches": 11,
+          "attack_signals": 2,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 1,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 4,
+          "yield_signals": 0
+        },
+        "driver_id": 7,
+        "name": "Romain Grosjean",
+        "risk_group": "balanced"
+      },
+      "8": {
+        "counts": {
+          "approaches": 6,
+          "attack_signals": 0,
+          "blocked_ticks": 13,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 1,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 3,
+          "yield_signals": 0
+        },
+        "driver_id": 8,
+        "name": "Nico Rosberg",
+        "risk_group": "balanced"
+      },
+      "9": {
+        "counts": {
+          "approaches": 13,
+          "attack_signals": 11,
+          "blocked_ticks": 734,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 3,
+          "yield_signals": 1
+        },
+        "driver_id": 9,
+        "name": "Michael Schumacher",
+        "risk_group": "balanced"
+      }
+    },
+    "end_tick": 1553,
+    "note": "Signals only. Position gains outside combat are not overtakes; blocked_ticks are 0.2s observations. No FIA calibration.",
+    "sample_count": 165,
+    "samples": [
+      {
+        "condition": "dry",
+        "driver_id": 3,
+        "event_id": 5,
+        "tick": 60,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 5,
+        "event_id": 6,
+        "tick": 71,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 9,
+        "event_id": 7,
+        "tick": 82,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 11,
+        "event_id": 8,
+        "tick": 82,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 13,
+        "event_id": 9,
+        "tick": 92,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 15,
+        "event_id": 10,
+        "tick": 92,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 20,
+        "event_id": 11,
+        "tick": 104,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 3,
+        "event_id": 12,
+        "tick": 202,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 5,
+        "event_id": 13,
+        "tick": 214,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 6,
+        "event_id": 14,
+        "tick": 217,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 11,
+        "event_id": 15,
+        "tick": 225,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 9,
+        "event_id": 16,
+        "tick": 228,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 15,
+        "event_id": 17,
+        "tick": 236,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 13,
+        "event_id": 18,
+        "tick": 239,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 17,
+        "event_id": 19,
+        "tick": 251,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 3,
+        "event_id": 20,
+        "tick": 352,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 5,
+        "event_id": 21,
+        "tick": 365,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 6,
+        "event_id": 22,
+        "tick": 367,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 11,
+        "event_id": 23,
+        "tick": 377,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 9,
+        "event_id": 24,
+        "tick": 379,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 15,
+        "event_id": 25,
+        "tick": 388,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 13,
+        "event_id": 26,
+        "tick": 391,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 2,
+        "event_id": 28,
+        "tick": 429,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 3,
+        "event_id": 29,
+        "tick": 433,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 6,
+        "event_id": 30,
+        "tick": 436,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 8,
+        "event_id": 32,
+        "tick": 441,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 7,
+        "event_id": 35,
+        "tick": 445,
+        "type": "defense_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 7,
+        "event_id": 36,
+        "tick": 447,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 9,
+        "event_id": 37,
+        "tick": 447,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 10,
+        "event_id": 39,
+        "tick": 450,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 12,
+        "event_id": 42,
+        "tick": 456,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 11,
+        "event_id": 44,
+        "tick": 460,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 13,
+        "event_id": 46,
+        "tick": 463,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 14,
+        "event_id": 47,
+        "tick": 467,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 16,
+        "event_id": 50,
+        "tick": 473,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 15,
+        "event_id": 52,
+        "tick": 476,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 17,
+        "event_id": 54,
+        "tick": 480,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 18,
+        "event_id": 57,
+        "tick": 484,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 19,
+        "event_id": 60,
+        "tick": 489,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 20,
+        "event_id": 63,
+        "tick": 493,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 22,
+        "event_id": 66,
+        "tick": 497,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 21,
+        "event_id": 67,
+        "tick": 499,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 2,
+        "event_id": 68,
+        "tick": 500,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 3,
+        "event_id": 70,
+        "tick": 502,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 23,
+        "event_id": 72,
+        "tick": 505,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 9,
+        "event_id": 73,
+        "tick": 509,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 9,
+        "event_id": 76,
+        "tick": 513,
+        "type": "yield_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 9,
+        "event_id": 77,
+        "tick": 515,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 11,
+        "event_id": 81,
+        "tick": 528,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 13,
+        "event_id": 82,
+        "tick": 539,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 15,
+        "event_id": 84,
+        "tick": 540,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 2,
+        "event_id": 90,
+        "tick": 652,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 3,
+        "event_id": 91,
+        "tick": 652,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 9,
+        "event_id": 92,
+        "tick": 659,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 11,
+        "event_id": 93,
+        "tick": 670,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 15,
+        "event_id": 94,
+        "tick": 683,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 13,
+        "event_id": 95,
+        "tick": 684,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 17,
+        "event_id": 96,
+        "tick": 698,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 2,
+        "event_id": 97,
+        "tick": 800,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 3,
+        "event_id": 98,
+        "tick": 800,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 9,
+        "event_id": 99,
+        "tick": 808,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 11,
+        "event_id": 100,
+        "tick": 821,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 15,
+        "event_id": 101,
+        "tick": 834,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 13,
+        "event_id": 102,
+        "tick": 835,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 17,
+        "event_id": 103,
+        "tick": 849,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 2,
+        "event_id": 118,
+        "tick": 909,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 6,
+        "event_id": 121,
+        "tick": 912,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 8,
+        "event_id": 124,
+        "tick": 918,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 10,
+        "event_id": 131,
+        "tick": 930,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 12,
+        "event_id": 134,
+        "tick": 937,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 11,
+        "event_id": 137,
+        "tick": 941,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 9,
+        "event_id": 138,
+        "tick": 941,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 3,
+        "event_id": 142,
+        "tick": 943,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 13,
+        "event_id": 143,
+        "tick": 943,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 7,
+        "event_id": 147,
+        "tick": 946,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 14,
+        "event_id": 148,
+        "tick": 946,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 16,
+        "event_id": 151,
+        "tick": 953,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 15,
+        "event_id": 153,
+        "tick": 954,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 17,
+        "event_id": 155,
+        "tick": 958,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 18,
+        "event_id": 156,
+        "tick": 961,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 20,
+        "event_id": 163,
+        "tick": 973,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 22,
+        "event_id": 165,
+        "tick": 977,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 4,
+        "event_id": 184,
+        "tick": 1007,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 14,
+        "event_id": 188,
+        "tick": 1013,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 8,
+        "event_id": 190,
+        "tick": 1018,
+        "type": "defense_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 7,
+        "event_id": 202,
+        "tick": 1036,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 23,
+        "event_id": 205,
+        "tick": 1043,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 0,
+        "event_id": 208,
+        "tick": 1047,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 6,
+        "event_id": 209,
+        "tick": 1049,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 0,
+        "event_id": 211,
+        "tick": 1051,
+        "type": "yield_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 16,
+        "event_id": 212,
+        "tick": 1051,
+        "type": "defense_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 5,
+        "event_id": 214,
+        "tick": 1052,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 0,
+        "event_id": 215,
+        "tick": 1053,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 11,
+        "event_id": 216,
+        "tick": 1054,
+        "type": "defense_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 12,
+        "event_id": 221,
+        "tick": 1056,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 12,
+        "event_id": 223,
+        "tick": 1060,
+        "type": "yield_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 2,
+        "event_id": 225,
+        "tick": 1061,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 12,
+        "event_id": 226,
+        "tick": 1062,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 10,
+        "event_id": 228,
+        "tick": 1065,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 15,
+        "event_id": 230,
+        "tick": 1067,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 4,
+        "event_id": 231,
+        "tick": 1068,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 5,
+        "event_id": 234,
+        "tick": 1079,
+        "type": "defense_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 9,
+        "event_id": 235,
+        "tick": 1080,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 9,
+        "event_id": 237,
+        "tick": 1084,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 13,
+        "event_id": 238,
+        "tick": 1091,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 11,
+        "event_id": 239,
+        "tick": 1092,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 13,
+        "event_id": 240,
+        "tick": 1094,
+        "type": "yield_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 13,
+        "event_id": 241,
+        "tick": 1095,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 15,
+        "event_id": 243,
+        "tick": 1109,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 5,
+        "event_id": 244,
+        "tick": 1112,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 15,
+        "event_id": 245,
+        "tick": 1113,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 20,
+        "event_id": 246,
+        "tick": 1114,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 17,
+        "event_id": 247,
+        "tick": 1115,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 5,
+        "event_id": 249,
+        "tick": 1116,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 23,
+        "event_id": 250,
+        "tick": 1116,
+        "type": "defense_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 4,
+        "event_id": 251,
+        "tick": 1123,
+        "type": "confirmed_passes"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 12,
+        "event_id": 252,
+        "tick": 1124,
+        "type": "defense_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 19,
+        "event_id": 253,
+        "tick": 1127,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 11,
+        "event_id": 254,
+        "tick": 1162,
+        "type": "confirmed_passes"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 18,
+        "event_id": 255,
+        "tick": 1163,
+        "type": "defense_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 2,
+        "event_id": 256,
+        "tick": 1183,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 0,
+        "event_id": 257,
+        "tick": 1195,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 5,
+        "event_id": 258,
+        "tick": 1206,
+        "type": "confirmed_passes"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 15,
+        "event_id": 259,
+        "tick": 1207,
+        "type": "defense_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 3,
+        "event_id": 260,
+        "tick": 1209,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 9,
+        "event_id": 261,
+        "tick": 1219,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 7,
+        "event_id": 262,
+        "tick": 1224,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 11,
+        "event_id": 263,
+        "tick": 1231,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 13,
+        "event_id": 264,
+        "tick": 1240,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 5,
+        "event_id": 265,
+        "tick": 1249,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 5,
+        "event_id": 266,
+        "tick": 1260,
+        "type": "confirmed_passes"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 5,
+        "event_id": 267,
+        "tick": 1263,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 17,
+        "event_id": 268,
+        "tick": 1264,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 15,
+        "event_id": 269,
+        "tick": 1266,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 2,
+        "event_id": 270,
+        "tick": 1326,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 0,
+        "event_id": 271,
+        "tick": 1343,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 3,
+        "event_id": 272,
+        "tick": 1358,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 12,
+        "event_id": 273,
+        "tick": 1364,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 9,
+        "event_id": 274,
+        "tick": 1369,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 7,
+        "event_id": 275,
+        "tick": 1373,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 11,
+        "event_id": 276,
+        "tick": 1381,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 13,
+        "event_id": 277,
+        "tick": 1390,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 5,
+        "event_id": 278,
+        "tick": 1392,
+        "type": "confirmed_passes"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 15,
+        "event_id": 279,
+        "tick": 1403,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 17,
+        "event_id": 280,
+        "tick": 1410,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 6,
+        "event_id": 282,
+        "tick": 1431,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 8,
+        "event_id": 284,
+        "tick": 1434,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 0,
+        "event_id": 285,
+        "tick": 1443,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 4,
+        "event_id": 287,
+        "tick": 1450,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 3,
+        "event_id": 288,
+        "tick": 1458,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 7,
+        "event_id": 289,
+        "tick": 1461,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 14,
+        "event_id": 290,
+        "tick": 1468,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 9,
+        "event_id": 291,
+        "tick": 1470,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 16,
+        "event_id": 292,
+        "tick": 1473,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 11,
+        "event_id": 293,
+        "tick": 1481,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 18,
+        "event_id": 294,
+        "tick": 1485,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 13,
+        "event_id": 295,
+        "tick": 1491,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 5,
+        "event_id": 297,
+        "tick": 1496,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 20,
+        "event_id": 298,
+        "tick": 1500,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 22,
+        "event_id": 299,
+        "tick": 1503,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 15,
+        "event_id": 300,
+        "tick": 1505,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 17,
+        "event_id": 301,
+        "tick": 1511,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 19,
+        "event_id": 302,
+        "tick": 1513,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 23,
+        "event_id": 303,
+        "tick": 1538,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "dry",
+        "driver_id": 21,
+        "event_id": 304,
+        "tick": 1553,
+        "type": "position_gains_other"
+      }
+    ],
+    "schema": "APEX_RACECRAFT_AUDIT_0662",
+    "start_tick": 0,
+    "track_code": "ITA",
+    "weather_and_risk": {
+      "dry/aggressive": {
+        "approaches": 15,
+        "attack_signals": 7,
+        "blocked_ticks": 59,
+        "confirmed_passes": 1,
+        "contacts": 0,
+        "defense_signals": 0,
+        "driving_errors": 0,
+        "duel_entries": 1,
+        "position_gains_other": 4,
+        "yield_signals": 0
+      },
+      "dry/balanced": {
+        "approaches": 166,
+        "attack_signals": 77,
+        "blocked_ticks": 7084,
+        "confirmed_passes": 4,
+        "contacts": 0,
+        "defense_signals": 9,
+        "driving_errors": 0,
+        "duel_entries": 7,
+        "position_gains_other": 59,
+        "yield_signals": 4
+      }
+    }
+  },
+  "full_distance": false,
+  "hash": "5d4c508a64dce8d1c481a3661f56c6bdf97a2a7a7bab37a5e290be5e54188592",
+  "laps": 3,
+  "live_ms": 16236,
+  "matches_0661_short_baseline": true,
+  "passed": true,
+  "pit_phases": [
+    "approach",
+    "dock",
+    "service",
+    "queue",
+    "repair",
+    "safety_hold",
+    "exit"
+  ],
+  "pit_stops": 24,
+  "replay_ms": 14139,
+  "ticks": 1553,
+  "track": "ITA",
+  "weather": "Seco"
+}

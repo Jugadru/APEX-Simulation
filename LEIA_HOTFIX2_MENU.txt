@@ -1,0 +1,21 @@
+APEX MOTORSPORT MANAGER 0.5.9.0 — HOTFIX 2 (MENU)
+================================================
+Correção pontual: o botão INICIAR CORRIDA era criado dentro do formulário
+rolável, abaixo de notas e opções. Com a altura fixa da janela, ele não
+aparecia inicialmente; a janela não era necessariamente capaz de mostrar
+os controles e o usuário não conseguia iniciar.
+
+MUDANÇAS:
+- Botão "INICIAR CORRIDA / ENTRAR NO GRID" movido para um rodapé fixo,
+  fora da ScrollContainer, sempre visível quando o menu estiver aberto.
+- Card principal mais largo e adaptável à resolução; painel decorativo
+  oculto automaticamente em janelas estreitas.
+- Os OptionButton não exigem mais largura da opção mais longa.
+- Equipes, clima, seeds, controles de STAFF, física, câmeras, dados
+  de 2012 e salvamentos NÃO foram alterados.
+
+ABRIR: extrair o ZIP inteiro e importar project.godot no Godot 4.
+Não misture com a pasta antiga; guarde-a como backup.
+
+VALIDAÇÃO: testes Python + inspeção do projeto. A execução e a
+renderização no Godot devem ser confirmadas no computador do usuário.

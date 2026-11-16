@@ -1,0 +1,3 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+APEX_06498_DATA_PASS pure read-only snapshots, missing laps, actual engine rate, initial plan and garage conflicts

@@ -1,0 +1,36 @@
+extends SceneTree
+func _initialize() -> void: call_deferred("run")
+func run() -> void:
+	var host = load("res://scenes/main.tscn").instantiate()
+	root.add_child(host)
+	await process_frame
+	host.set_process(false)
+	host._start_race()
+	assert(host.race != null)
+	assert(is_equal_approx(host.sim_speed,1.0))
+	assert(host.speed_picker.selected == 0)
+	assert(host.race_hud_0620.speed_label is OptionButton)
+	assert(host.race_hud_0620.speed_label.selected == 0)
+	assert(host.race_hud_0620.speed_label.get_item_count() == 6)
+	assert(host.render_mode == 1)
+	host._change_speed(2)
+	assert(host.speed_picker.selected == 2)
+	host.race_hud_0620.refresh_hud()
+	assert(host.race_hud_0620.speed_label.selected == 2)
+	assert(is_equal_approx(host.sim_speed,5.0))
+	assert(host.render_mode == 1)
+	host._change_speed(0)
+	assert(host.render_mode == 1)
+	assert(host.speed_picker.selected == 0)
+	host.race.running = true
+	for frame in range(120): host._process(1.0/60.0)
+	var at_1x: int = host.replay_session.tick
+	assert(at_1x >= 9 and at_1x <= 11, "1x real-time sim tick rate")
+	host._change_speed(2)
+	for frame in range(120): host._process(1.0/60.0)
+	var ticks_at_5x: int = host.replay_session.tick - at_1x
+	assert(ticks_at_5x >= 49 and ticks_at_5x <= 51, "5x actual progression")
+	assert(host.render_mode == 1)
+	assert(host.presentation.frames.size()==24)
+	print("SPEED_CONTROL_066721_PASS 1x_ticks=",at_1x," 5x_ticks=",ticks_at_5x," camera=3D picker=",host.speed_picker.selected)
+	quit(0)

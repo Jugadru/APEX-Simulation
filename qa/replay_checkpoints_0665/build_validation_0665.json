@@ -1,0 +1,21 @@
+{
+  "base_zip": "APEX_MOTORSPORT_MANAGER_v0.6.6.4_REPLAY_MEMORY_COMPLETO.zip",
+  "base_sha256": "ff13779c6b734af42fe7c00110870c9c89a3025ef2c0933d8d382bb9cc446ee1",
+  "base_members": 2351,
+  "base_crc_pass": true,
+  "missing_original_members": [],
+  "intentionally_changed_members": [
+    "project.godot",
+    "scripts/core/race_replay_0660.gd"
+  ],
+  "expected_changed_members": [
+    "project.godot",
+    "scripts/core/race_replay_0660.gd"
+  ],
+  "sporting_engine_file_untouched": true,
+  "code_parser_import_stable_initial": true,
+  "fresh_extraction_import": "APROVADO (Godot editor headless --import; 0 parser errors)",
+  "godot_version": "4.7.2 stable linux x86_64",
+  "clean_zip_smoke": "APROVADO (replay boundaries, pit V21/rain V4)",
+  "zip_draft_crc_pass": true
+}

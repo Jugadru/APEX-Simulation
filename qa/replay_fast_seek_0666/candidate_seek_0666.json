@@ -1,0 +1,4926 @@
+{
+  "file_format": "APEX_REPLAY_0660",
+  "godot_static_bytes": 45412744,
+  "hashes": [
+    "8b26707344fbb7d80a8f6057ec79dafba57e2e9c4450e8e0afc07589b366ce2c",
+    "a1a5e477c60b4eaf8912d44bbabfa5563e24cae70061f4bda1b95f944624ae56",
+    "81b9440aa7437fe75651bb4b35f28400f0438143aa39c6d2f2894aa2cd465b47",
+    "af640cb54f5df2358c5ff26f87cfb9066bcd4fbe14a3bbd85980e7a3c8ac5464",
+    "8b26707344fbb7d80a8f6057ec79dafba57e2e9c4450e8e0afc07589b366ce2c",
+    "7bc6f235fc226e2fde87ba775bca2b0983cdc77fa86f961ebb76e9f9bef27430",
+    "a1a5e477c60b4eaf8912d44bbabfa5563e24cae70061f4bda1b95f944624ae56",
+    "8b26707344fbb7d80a8f6057ec79dafba57e2e9c4450e8e0afc07589b366ce2c",
+    "80741e92fc0f3eb71aa28433da3ac1b04822e4ab32360f3cdb4e9d6e41e82d17",
+    "08f18788ef4cec72e61e75425d188da6c6f7fbf3cbdd8837b3105158048ad5e0",
+    "80741e92fc0f3eb71aa28433da3ac1b04822e4ab32360f3cdb4e9d6e41e82d17",
+    "7c29ac944dee924856d024401cf5f53b2896e2434ccded1f81e4d7a620da9814",
+    "75c4a9a297fd6dbd387d58feae6b74fe92004b80cd0ced1c9b9dac1d57e757ff",
+    "7c29ac944dee924856d024401cf5f53b2896e2434ccded1f81e4d7a620da9814",
+    "eeb5f6d31b84fb943d2662680899118c07d82b44077fa28fd52d9718220e1343",
+    "b80e120e85283af513a95f06af1d1310fafd9b868f017b6560d195f36b27a325",
+    "eeb5f6d31b84fb943d2662680899118c07d82b44077fa28fd52d9718220e1343",
+    "f771fab5025055653075f853b4a06370097d5af74843d2deea4cc8dc17be9b90"
+  ],
+  "hot_anchors": 4,
+  "hot_bytes": 374049,
+  "legacy_replay_0662_ok": true,
+  "racecraft_audits": [
+    {
+      "counts": {
+        "approaches": 11,
+        "attack_signals": 7,
+        "blocked_ticks": 938,
+        "confirmed_passes": 0,
+        "contacts": 0,
+        "defense_signals": 0,
+        "driving_errors": 0,
+        "duel_entries": 0,
+        "position_gains_other": 0,
+        "yield_signals": 0
+      },
+      "drivers": {
+        "0": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 0,
+          "name": "Sebastian Vettel",
+          "risk_group": "balanced"
+        },
+        "11": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 132,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 11,
+          "name": "Kamui Kobayashi",
+          "risk_group": "balanced"
+        },
+        "12": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 12,
+          "name": "Paul di Resta",
+          "risk_group": "balanced"
+        },
+        "13": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 134,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 13,
+          "name": "Nico Hulkenberg",
+          "risk_group": "balanced"
+        },
+        "14": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 127,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 14,
+          "name": "Pastor Maldonado",
+          "risk_group": "balanced"
+        },
+        "15": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 132,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 15,
+          "name": "Bruno Senna",
+          "risk_group": "balanced"
+        },
+        "16": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 16,
+          "name": "Daniel Ricciardo",
+          "risk_group": "balanced"
+        },
+        "17": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 130,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 17,
+          "name": "Jean-Eric Vergne",
+          "risk_group": "balanced"
+        },
+        "2": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 2,
+          "name": "Lewis Hamilton",
+          "risk_group": "aggressive"
+        },
+        "21": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 150,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 21,
+          "name": "Charles Pic",
+          "risk_group": "balanced"
+        },
+        "3": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 132,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 3,
+          "name": "Jenson Button",
+          "risk_group": "balanced"
+        },
+        "5": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 1,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 5,
+          "name": "Felipe Massa",
+          "risk_group": "balanced"
+        },
+        "7": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 7,
+          "name": "Romain Grosjean",
+          "risk_group": "balanced"
+        },
+        "9": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 9,
+          "name": "Michael Schumacher",
+          "risk_group": "balanced"
+        }
+      },
+      "end_tick": 750,
+      "start_tick": 600,
+      "weather_and_risk": {
+        "dry/aggressive": {
+          "approaches": 1,
+          "attack_signals": 1,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 0,
+          "yield_signals": 0
+        },
+        "dry/balanced": {
+          "approaches": 10,
+          "attack_signals": 6,
+          "blocked_ticks": 938,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 0,
+          "yield_signals": 0
+        }
+      }
+    },
+    {
+      "counts": {
+        "approaches": 11,
+        "attack_signals": 7,
+        "blocked_ticks": 1148,
+        "confirmed_passes": 0,
+        "contacts": 0,
+        "defense_signals": 0,
+        "driving_errors": 0,
+        "duel_entries": 0,
+        "position_gains_other": 0,
+        "yield_signals": 0
+      },
+      "drivers": {
+        "0": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 0,
+          "name": "Sebastian Vettel",
+          "risk_group": "balanced"
+        },
+        "11": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 162,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 11,
+          "name": "Kamui Kobayashi",
+          "risk_group": "balanced"
+        },
+        "12": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 12,
+          "name": "Paul di Resta",
+          "risk_group": "balanced"
+        },
+        "13": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 164,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 13,
+          "name": "Nico Hulkenberg",
+          "risk_group": "balanced"
+        },
+        "14": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 157,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 14,
+          "name": "Pastor Maldonado",
+          "risk_group": "balanced"
+        },
+        "15": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 162,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 15,
+          "name": "Bruno Senna",
+          "risk_group": "balanced"
+        },
+        "16": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 16,
+          "name": "Daniel Ricciardo",
+          "risk_group": "balanced"
+        },
+        "17": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 160,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 17,
+          "name": "Jean-Eric Vergne",
+          "risk_group": "balanced"
+        },
+        "2": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 2,
+          "name": "Lewis Hamilton",
+          "risk_group": "aggressive"
+        },
+        "21": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 180,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 21,
+          "name": "Charles Pic",
+          "risk_group": "balanced"
+        },
+        "3": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 162,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 3,
+          "name": "Jenson Button",
+          "risk_group": "balanced"
+        },
+        "5": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 1,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 5,
+          "name": "Felipe Massa",
+          "risk_group": "balanced"
+        },
+        "7": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 7,
+          "name": "Romain Grosjean",
+          "risk_group": "balanced"
+        },
+        "9": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 9,
+          "name": "Michael Schumacher",
+          "risk_group": "balanced"
+        }
+      },
+      "end_tick": 780,
+      "start_tick": 600,
+      "weather_and_risk": {
+        "dry/aggressive": {
+          "approaches": 1,
+          "attack_signals": 1,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 0,
+          "yield_signals": 0
+        },
+        "dry/balanced": {
+          "approaches": 10,
+          "attack_signals": 6,
+          "blocked_ticks": 1148,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 0,
+          "yield_signals": 0
+        }
+      }
+    },
+    {
+      "counts": {
+        "approaches": 11,
+        "attack_signals": 7,
+        "blocked_ticks": 1008,
+        "confirmed_passes": 0,
+        "contacts": 0,
+        "defense_signals": 0,
+        "driving_errors": 0,
+        "duel_entries": 0,
+        "position_gains_other": 0,
+        "yield_signals": 0
+      },
+      "drivers": {
+        "0": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 0,
+          "name": "Sebastian Vettel",
+          "risk_group": "balanced"
+        },
+        "11": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 142,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 11,
+          "name": "Kamui Kobayashi",
+          "risk_group": "balanced"
+        },
+        "12": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 12,
+          "name": "Paul di Resta",
+          "risk_group": "balanced"
+        },
+        "13": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 144,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 13,
+          "name": "Nico Hulkenberg",
+          "risk_group": "balanced"
+        },
+        "14": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 137,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 14,
+          "name": "Pastor Maldonado",
+          "risk_group": "balanced"
+        },
+        "15": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 142,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 15,
+          "name": "Bruno Senna",
+          "risk_group": "balanced"
+        },
+        "16": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 16,
+          "name": "Daniel Ricciardo",
+          "risk_group": "balanced"
+        },
+        "17": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 140,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 17,
+          "name": "Jean-Eric Vergne",
+          "risk_group": "balanced"
+        },
+        "2": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 2,
+          "name": "Lewis Hamilton",
+          "risk_group": "aggressive"
+        },
+        "21": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 160,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 21,
+          "name": "Charles Pic",
+          "risk_group": "balanced"
+        },
+        "3": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 142,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 3,
+          "name": "Jenson Button",
+          "risk_group": "balanced"
+        },
+        "5": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 1,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 5,
+          "name": "Felipe Massa",
+          "risk_group": "balanced"
+        },
+        "7": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 7,
+          "name": "Romain Grosjean",
+          "risk_group": "balanced"
+        },
+        "9": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 9,
+          "name": "Michael Schumacher",
+          "risk_group": "balanced"
+        }
+      },
+      "end_tick": 760,
+      "start_tick": 600,
+      "weather_and_risk": {
+        "dry/aggressive": {
+          "approaches": 1,
+          "attack_signals": 1,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 0,
+          "yield_signals": 0
+        },
+        "dry/balanced": {
+          "approaches": 10,
+          "attack_signals": 6,
+          "blocked_ticks": 1008,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 0,
+          "yield_signals": 0
+        }
+      }
+    },
+    {
+      "counts": {
+        "approaches": 11,
+        "attack_signals": 7,
+        "blocked_ticks": 1113,
+        "confirmed_passes": 0,
+        "contacts": 0,
+        "defense_signals": 0,
+        "driving_errors": 0,
+        "duel_entries": 0,
+        "position_gains_other": 0,
+        "yield_signals": 0
+      },
+      "drivers": {
+        "0": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 0,
+          "name": "Sebastian Vettel",
+          "risk_group": "balanced"
+        },
+        "11": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 157,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 11,
+          "name": "Kamui Kobayashi",
+          "risk_group": "balanced"
+        },
+        "12": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 12,
+          "name": "Paul di Resta",
+          "risk_group": "balanced"
+        },
+        "13": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 159,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 13,
+          "name": "Nico Hulkenberg",
+          "risk_group": "balanced"
+        },
+        "14": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 152,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 14,
+          "name": "Pastor Maldonado",
+          "risk_group": "balanced"
+        },
+        "15": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 157,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 15,
+          "name": "Bruno Senna",
+          "risk_group": "balanced"
+        },
+        "16": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 16,
+          "name": "Daniel Ricciardo",
+          "risk_group": "balanced"
+        },
+        "17": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 155,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 17,
+          "name": "Jean-Eric Vergne",
+          "risk_group": "balanced"
+        },
+        "2": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 2,
+          "name": "Lewis Hamilton",
+          "risk_group": "aggressive"
+        },
+        "21": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 175,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 21,
+          "name": "Charles Pic",
+          "risk_group": "balanced"
+        },
+        "3": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 157,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 3,
+          "name": "Jenson Button",
+          "risk_group": "balanced"
+        },
+        "5": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 1,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 5,
+          "name": "Felipe Massa",
+          "risk_group": "balanced"
+        },
+        "7": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 7,
+          "name": "Romain Grosjean",
+          "risk_group": "balanced"
+        },
+        "9": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 9,
+          "name": "Michael Schumacher",
+          "risk_group": "balanced"
+        }
+      },
+      "end_tick": 775,
+      "start_tick": 600,
+      "weather_and_risk": {
+        "dry/aggressive": {
+          "approaches": 1,
+          "attack_signals": 1,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 0,
+          "yield_signals": 0
+        },
+        "dry/balanced": {
+          "approaches": 10,
+          "attack_signals": 6,
+          "blocked_ticks": 1113,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 0,
+          "yield_signals": 0
+        }
+      }
+    },
+    {
+      "counts": {
+        "approaches": 11,
+        "attack_signals": 7,
+        "blocked_ticks": 938,
+        "confirmed_passes": 0,
+        "contacts": 0,
+        "defense_signals": 0,
+        "driving_errors": 0,
+        "duel_entries": 0,
+        "position_gains_other": 0,
+        "yield_signals": 0
+      },
+      "drivers": {
+        "0": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 0,
+          "name": "Sebastian Vettel",
+          "risk_group": "balanced"
+        },
+        "11": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 132,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 11,
+          "name": "Kamui Kobayashi",
+          "risk_group": "balanced"
+        },
+        "12": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 12,
+          "name": "Paul di Resta",
+          "risk_group": "balanced"
+        },
+        "13": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 134,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 13,
+          "name": "Nico Hulkenberg",
+          "risk_group": "balanced"
+        },
+        "14": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 127,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 14,
+          "name": "Pastor Maldonado",
+          "risk_group": "balanced"
+        },
+        "15": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 132,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 15,
+          "name": "Bruno Senna",
+          "risk_group": "balanced"
+        },
+        "16": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 16,
+          "name": "Daniel Ricciardo",
+          "risk_group": "balanced"
+        },
+        "17": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 130,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 17,
+          "name": "Jean-Eric Vergne",
+          "risk_group": "balanced"
+        },
+        "2": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 2,
+          "name": "Lewis Hamilton",
+          "risk_group": "aggressive"
+        },
+        "21": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 150,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 21,
+          "name": "Charles Pic",
+          "risk_group": "balanced"
+        },
+        "3": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 132,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 3,
+          "name": "Jenson Button",
+          "risk_group": "balanced"
+        },
+        "5": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 1,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 5,
+          "name": "Felipe Massa",
+          "risk_group": "balanced"
+        },
+        "7": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 7,
+          "name": "Romain Grosjean",
+          "risk_group": "balanced"
+        },
+        "9": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 9,
+          "name": "Michael Schumacher",
+          "risk_group": "balanced"
+        }
+      },
+      "end_tick": 750,
+      "start_tick": 600,
+      "weather_and_risk": {
+        "dry/aggressive": {
+          "approaches": 1,
+          "attack_signals": 1,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 0,
+          "yield_signals": 0
+        },
+        "dry/balanced": {
+          "approaches": 10,
+          "attack_signals": 6,
+          "blocked_ticks": 938,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 0,
+          "yield_signals": 0
+        }
+      }
+    },
+    {
+      "counts": {
+        "approaches": 11,
+        "attack_signals": 7,
+        "blocked_ticks": 1275,
+        "confirmed_passes": 0,
+        "contacts": 0,
+        "defense_signals": 0,
+        "driving_errors": 0,
+        "duel_entries": 0,
+        "position_gains_other": 0,
+        "yield_signals": 0
+      },
+      "drivers": {
+        "0": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 0,
+          "name": "Sebastian Vettel",
+          "risk_group": "balanced"
+        },
+        "11": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 182,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 11,
+          "name": "Kamui Kobayashi",
+          "risk_group": "balanced"
+        },
+        "12": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 12,
+          "name": "Paul di Resta",
+          "risk_group": "balanced"
+        },
+        "13": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 184,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 13,
+          "name": "Nico Hulkenberg",
+          "risk_group": "balanced"
+        },
+        "14": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 177,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 14,
+          "name": "Pastor Maldonado",
+          "risk_group": "balanced"
+        },
+        "15": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 182,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 15,
+          "name": "Bruno Senna",
+          "risk_group": "balanced"
+        },
+        "16": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 16,
+          "name": "Daniel Ricciardo",
+          "risk_group": "balanced"
+        },
+        "17": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 180,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 17,
+          "name": "Jean-Eric Vergne",
+          "risk_group": "balanced"
+        },
+        "2": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 2,
+          "name": "Lewis Hamilton",
+          "risk_group": "aggressive"
+        },
+        "21": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 200,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 21,
+          "name": "Charles Pic",
+          "risk_group": "balanced"
+        },
+        "3": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 169,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 3,
+          "name": "Jenson Button",
+          "risk_group": "balanced"
+        },
+        "5": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 1,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 5,
+          "name": "Felipe Massa",
+          "risk_group": "balanced"
+        },
+        "7": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 7,
+          "name": "Romain Grosjean",
+          "risk_group": "balanced"
+        },
+        "9": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 9,
+          "name": "Michael Schumacher",
+          "risk_group": "balanced"
+        }
+      },
+      "end_tick": 800,
+      "start_tick": 600,
+      "weather_and_risk": {
+        "dry/aggressive": {
+          "approaches": 1,
+          "attack_signals": 1,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 0,
+          "yield_signals": 0
+        },
+        "dry/balanced": {
+          "approaches": 10,
+          "attack_signals": 6,
+          "blocked_ticks": 1275,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 0,
+          "yield_signals": 0
+        }
+      }
+    },
+    {
+      "counts": {
+        "approaches": 11,
+        "attack_signals": 7,
+        "blocked_ticks": 1148,
+        "confirmed_passes": 0,
+        "contacts": 0,
+        "defense_signals": 0,
+        "driving_errors": 0,
+        "duel_entries": 0,
+        "position_gains_other": 0,
+        "yield_signals": 0
+      },
+      "drivers": {
+        "0": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 0,
+          "name": "Sebastian Vettel",
+          "risk_group": "balanced"
+        },
+        "11": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 162,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 11,
+          "name": "Kamui Kobayashi",
+          "risk_group": "balanced"
+        },
+        "12": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 12,
+          "name": "Paul di Resta",
+          "risk_group": "balanced"
+        },
+        "13": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 164,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 13,
+          "name": "Nico Hulkenberg",
+          "risk_group": "balanced"
+        },
+        "14": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 157,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 14,
+          "name": "Pastor Maldonado",
+          "risk_group": "balanced"
+        },
+        "15": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 162,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 15,
+          "name": "Bruno Senna",
+          "risk_group": "balanced"
+        },
+        "16": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 16,
+          "name": "Daniel Ricciardo",
+          "risk_group": "balanced"
+        },
+        "17": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 160,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 17,
+          "name": "Jean-Eric Vergne",
+          "risk_group": "balanced"
+        },
+        "2": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 2,
+          "name": "Lewis Hamilton",
+          "risk_group": "aggressive"
+        },
+        "21": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 180,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 21,
+          "name": "Charles Pic",
+          "risk_group": "balanced"
+        },
+        "3": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 162,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 3,
+          "name": "Jenson Button",
+          "risk_group": "balanced"
+        },
+        "5": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 1,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 5,
+          "name": "Felipe Massa",
+          "risk_group": "balanced"
+        },
+        "7": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 7,
+          "name": "Romain Grosjean",
+          "risk_group": "balanced"
+        },
+        "9": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 9,
+          "name": "Michael Schumacher",
+          "risk_group": "balanced"
+        }
+      },
+      "end_tick": 780,
+      "start_tick": 600,
+      "weather_and_risk": {
+        "dry/aggressive": {
+          "approaches": 1,
+          "attack_signals": 1,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 0,
+          "yield_signals": 0
+        },
+        "dry/balanced": {
+          "approaches": 10,
+          "attack_signals": 6,
+          "blocked_ticks": 1148,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 0,
+          "yield_signals": 0
+        }
+      }
+    },
+    {
+      "counts": {
+        "approaches": 11,
+        "attack_signals": 7,
+        "blocked_ticks": 938,
+        "confirmed_passes": 0,
+        "contacts": 0,
+        "defense_signals": 0,
+        "driving_errors": 0,
+        "duel_entries": 0,
+        "position_gains_other": 0,
+        "yield_signals": 0
+      },
+      "drivers": {
+        "0": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 0,
+          "name": "Sebastian Vettel",
+          "risk_group": "balanced"
+        },
+        "11": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 132,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 11,
+          "name": "Kamui Kobayashi",
+          "risk_group": "balanced"
+        },
+        "12": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 12,
+          "name": "Paul di Resta",
+          "risk_group": "balanced"
+        },
+        "13": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 134,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 13,
+          "name": "Nico Hulkenberg",
+          "risk_group": "balanced"
+        },
+        "14": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 127,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 14,
+          "name": "Pastor Maldonado",
+          "risk_group": "balanced"
+        },
+        "15": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 132,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 15,
+          "name": "Bruno Senna",
+          "risk_group": "balanced"
+        },
+        "16": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 16,
+          "name": "Daniel Ricciardo",
+          "risk_group": "balanced"
+        },
+        "17": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 130,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 17,
+          "name": "Jean-Eric Vergne",
+          "risk_group": "balanced"
+        },
+        "2": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 2,
+          "name": "Lewis Hamilton",
+          "risk_group": "aggressive"
+        },
+        "21": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 150,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 21,
+          "name": "Charles Pic",
+          "risk_group": "balanced"
+        },
+        "3": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 132,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 3,
+          "name": "Jenson Button",
+          "risk_group": "balanced"
+        },
+        "5": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 1,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 5,
+          "name": "Felipe Massa",
+          "risk_group": "balanced"
+        },
+        "7": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 7,
+          "name": "Romain Grosjean",
+          "risk_group": "balanced"
+        },
+        "9": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 9,
+          "name": "Michael Schumacher",
+          "risk_group": "balanced"
+        }
+      },
+      "end_tick": 750,
+      "start_tick": 600,
+      "weather_and_risk": {
+        "dry/aggressive": {
+          "approaches": 1,
+          "attack_signals": 1,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 0,
+          "yield_signals": 0
+        },
+        "dry/balanced": {
+          "approaches": 10,
+          "attack_signals": 6,
+          "blocked_ticks": 938,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 0,
+          "yield_signals": 0
+        }
+      }
+    },
+    {
+      "counts": {
+        "approaches": 39,
+        "attack_signals": 24,
+        "blocked_ticks": 2678,
+        "confirmed_passes": 0,
+        "contacts": 0,
+        "defense_signals": 0,
+        "driving_errors": 0,
+        "duel_entries": 1,
+        "position_gains_other": 0,
+        "yield_signals": 1
+      },
+      "drivers": {
+        "0": {
+          "counts": {
+            "approaches": 3,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 1,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 0,
+          "name": "Sebastian Vettel",
+          "risk_group": "balanced"
+        },
+        "10": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 17,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 10,
+          "name": "Sergio Perez",
+          "risk_group": "balanced"
+        },
+        "11": {
+          "counts": {
+            "approaches": 3,
+            "attack_signals": 3,
+            "blocked_ticks": 397,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 11,
+          "name": "Kamui Kobayashi",
+          "risk_group": "balanced"
+        },
+        "12": {
+          "counts": {
+            "approaches": 3,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 12,
+          "name": "Paul di Resta",
+          "risk_group": "balanced"
+        },
+        "13": {
+          "counts": {
+            "approaches": 3,
+            "attack_signals": 3,
+            "blocked_ticks": 398,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 13,
+          "name": "Nico Hulkenberg",
+          "risk_group": "balanced"
+        },
+        "14": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 381,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 14,
+          "name": "Pastor Maldonado",
+          "risk_group": "balanced"
+        },
+        "15": {
+          "counts": {
+            "approaches": 3,
+            "attack_signals": 3,
+            "blocked_ticks": 396,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 15,
+          "name": "Bruno Senna",
+          "risk_group": "balanced"
+        },
+        "16": {
+          "counts": {
+            "approaches": 3,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 16,
+          "name": "Daniel Ricciardo",
+          "risk_group": "balanced"
+        },
+        "17": {
+          "counts": {
+            "approaches": 2,
+            "attack_signals": 2,
+            "blocked_ticks": 389,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 17,
+          "name": "Jean-Eric Vergne",
+          "risk_group": "balanced"
+        },
+        "18": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 11,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 18,
+          "name": "Heikki Kovalainen",
+          "risk_group": "balanced"
+        },
+        "19": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 19,
+          "name": "Vitaly Petrov",
+          "risk_group": "balanced"
+        },
+        "2": {
+          "counts": {
+            "approaches": 4,
+            "attack_signals": 2,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 2,
+          "name": "Lewis Hamilton",
+          "risk_group": "aggressive"
+        },
+        "20": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 20,
+          "name": "Timo Glock",
+          "risk_group": "balanced"
+        },
+        "21": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 211,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 21,
+          "name": "Charles Pic",
+          "risk_group": "balanced"
+        },
+        "3": {
+          "counts": {
+            "approaches": 4,
+            "attack_signals": 4,
+            "blocked_ticks": 355,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 3,
+          "name": "Jenson Button",
+          "risk_group": "balanced"
+        },
+        "5": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 1,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 5,
+          "name": "Felipe Massa",
+          "risk_group": "balanced"
+        },
+        "6": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 57,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 6,
+          "name": "Kimi Räikkönen",
+          "risk_group": "balanced"
+        },
+        "7": {
+          "counts": {
+            "approaches": 4,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 7,
+          "name": "Romain Grosjean",
+          "risk_group": "balanced"
+        },
+        "9": {
+          "counts": {
+            "approaches": 4,
+            "attack_signals": 4,
+            "blocked_ticks": 65,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 1
+          },
+          "driver_id": 9,
+          "name": "Michael Schumacher",
+          "risk_group": "balanced"
+        }
+      },
+      "end_tick": 1050,
+      "start_tick": 600,
+      "weather_and_risk": {
+        "dry/aggressive": {
+          "approaches": 4,
+          "attack_signals": 2,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 0,
+          "yield_signals": 0
+        },
+        "dry/balanced": {
+          "approaches": 35,
+          "attack_signals": 22,
+          "blocked_ticks": 2678,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 1,
+          "position_gains_other": 0,
+          "yield_signals": 1
+        }
+      }
+    },
+    {
+      "counts": {
+        "approaches": 39,
+        "attack_signals": 24,
+        "blocked_ticks": 2833,
+        "confirmed_passes": 0,
+        "contacts": 0,
+        "defense_signals": 0,
+        "driving_errors": 0,
+        "duel_entries": 1,
+        "position_gains_other": 0,
+        "yield_signals": 1
+      },
+      "drivers": {
+        "0": {
+          "counts": {
+            "approaches": 3,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 1,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 0,
+          "name": "Sebastian Vettel",
+          "risk_group": "balanced"
+        },
+        "10": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 17,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 10,
+          "name": "Sergio Perez",
+          "risk_group": "balanced"
+        },
+        "11": {
+          "counts": {
+            "approaches": 3,
+            "attack_signals": 3,
+            "blocked_ticks": 422,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 11,
+          "name": "Kamui Kobayashi",
+          "risk_group": "balanced"
+        },
+        "12": {
+          "counts": {
+            "approaches": 3,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 12,
+          "name": "Paul di Resta",
+          "risk_group": "balanced"
+        },
+        "13": {
+          "counts": {
+            "approaches": 3,
+            "attack_signals": 3,
+            "blocked_ticks": 423,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 13,
+          "name": "Nico Hulkenberg",
+          "risk_group": "balanced"
+        },
+        "14": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 389,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 14,
+          "name": "Pastor Maldonado",
+          "risk_group": "balanced"
+        },
+        "15": {
+          "counts": {
+            "approaches": 3,
+            "attack_signals": 3,
+            "blocked_ticks": 421,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 15,
+          "name": "Bruno Senna",
+          "risk_group": "balanced"
+        },
+        "16": {
+          "counts": {
+            "approaches": 3,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 16,
+          "name": "Daniel Ricciardo",
+          "risk_group": "balanced"
+        },
+        "17": {
+          "counts": {
+            "approaches": 2,
+            "attack_signals": 2,
+            "blocked_ticks": 414,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 17,
+          "name": "Jean-Eric Vergne",
+          "risk_group": "balanced"
+        },
+        "18": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 33,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 18,
+          "name": "Heikki Kovalainen",
+          "risk_group": "balanced"
+        },
+        "19": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 19,
+          "name": "Vitaly Petrov",
+          "risk_group": "balanced"
+        },
+        "2": {
+          "counts": {
+            "approaches": 4,
+            "attack_signals": 2,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 2,
+          "name": "Lewis Hamilton",
+          "risk_group": "aggressive"
+        },
+        "20": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 20,
+          "name": "Timo Glock",
+          "risk_group": "balanced"
+        },
+        "21": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 211,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 21,
+          "name": "Charles Pic",
+          "risk_group": "balanced"
+        },
+        "3": {
+          "counts": {
+            "approaches": 4,
+            "attack_signals": 4,
+            "blocked_ticks": 355,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 3,
+          "name": "Jenson Button",
+          "risk_group": "balanced"
+        },
+        "5": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 1,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 5,
+          "name": "Felipe Massa",
+          "risk_group": "balanced"
+        },
+        "6": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 57,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 6,
+          "name": "Kimi Räikkönen",
+          "risk_group": "balanced"
+        },
+        "7": {
+          "counts": {
+            "approaches": 4,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 7,
+          "name": "Romain Grosjean",
+          "risk_group": "balanced"
+        },
+        "9": {
+          "counts": {
+            "approaches": 4,
+            "attack_signals": 4,
+            "blocked_ticks": 90,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 1
+          },
+          "driver_id": 9,
+          "name": "Michael Schumacher",
+          "risk_group": "balanced"
+        }
+      },
+      "end_tick": 1075,
+      "start_tick": 600,
+      "weather_and_risk": {
+        "dry/aggressive": {
+          "approaches": 4,
+          "attack_signals": 2,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 0,
+          "yield_signals": 0
+        },
+        "dry/balanced": {
+          "approaches": 35,
+          "attack_signals": 22,
+          "blocked_ticks": 2833,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 1,
+          "position_gains_other": 0,
+          "yield_signals": 1
+        }
+      }
+    },
+    {
+      "counts": {
+        "approaches": 39,
+        "attack_signals": 24,
+        "blocked_ticks": 2678,
+        "confirmed_passes": 0,
+        "contacts": 0,
+        "defense_signals": 0,
+        "driving_errors": 0,
+        "duel_entries": 1,
+        "position_gains_other": 0,
+        "yield_signals": 1
+      },
+      "drivers": {
+        "0": {
+          "counts": {
+            "approaches": 3,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 1,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 0,
+          "name": "Sebastian Vettel",
+          "risk_group": "balanced"
+        },
+        "10": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 17,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 10,
+          "name": "Sergio Perez",
+          "risk_group": "balanced"
+        },
+        "11": {
+          "counts": {
+            "approaches": 3,
+            "attack_signals": 3,
+            "blocked_ticks": 397,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 11,
+          "name": "Kamui Kobayashi",
+          "risk_group": "balanced"
+        },
+        "12": {
+          "counts": {
+            "approaches": 3,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 12,
+          "name": "Paul di Resta",
+          "risk_group": "balanced"
+        },
+        "13": {
+          "counts": {
+            "approaches": 3,
+            "attack_signals": 3,
+            "blocked_ticks": 398,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 13,
+          "name": "Nico Hulkenberg",
+          "risk_group": "balanced"
+        },
+        "14": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 381,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 14,
+          "name": "Pastor Maldonado",
+          "risk_group": "balanced"
+        },
+        "15": {
+          "counts": {
+            "approaches": 3,
+            "attack_signals": 3,
+            "blocked_ticks": 396,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 15,
+          "name": "Bruno Senna",
+          "risk_group": "balanced"
+        },
+        "16": {
+          "counts": {
+            "approaches": 3,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 16,
+          "name": "Daniel Ricciardo",
+          "risk_group": "balanced"
+        },
+        "17": {
+          "counts": {
+            "approaches": 2,
+            "attack_signals": 2,
+            "blocked_ticks": 389,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 17,
+          "name": "Jean-Eric Vergne",
+          "risk_group": "balanced"
+        },
+        "18": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 11,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 18,
+          "name": "Heikki Kovalainen",
+          "risk_group": "balanced"
+        },
+        "19": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 19,
+          "name": "Vitaly Petrov",
+          "risk_group": "balanced"
+        },
+        "2": {
+          "counts": {
+            "approaches": 4,
+            "attack_signals": 2,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 2,
+          "name": "Lewis Hamilton",
+          "risk_group": "aggressive"
+        },
+        "20": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 20,
+          "name": "Timo Glock",
+          "risk_group": "balanced"
+        },
+        "21": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 211,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 21,
+          "name": "Charles Pic",
+          "risk_group": "balanced"
+        },
+        "3": {
+          "counts": {
+            "approaches": 4,
+            "attack_signals": 4,
+            "blocked_ticks": 355,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 3,
+          "name": "Jenson Button",
+          "risk_group": "balanced"
+        },
+        "5": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 1,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 5,
+          "name": "Felipe Massa",
+          "risk_group": "balanced"
+        },
+        "6": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 57,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 6,
+          "name": "Kimi Räikkönen",
+          "risk_group": "balanced"
+        },
+        "7": {
+          "counts": {
+            "approaches": 4,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 7,
+          "name": "Romain Grosjean",
+          "risk_group": "balanced"
+        },
+        "9": {
+          "counts": {
+            "approaches": 4,
+            "attack_signals": 4,
+            "blocked_ticks": 65,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 1
+          },
+          "driver_id": 9,
+          "name": "Michael Schumacher",
+          "risk_group": "balanced"
+        }
+      },
+      "end_tick": 1050,
+      "start_tick": 600,
+      "weather_and_risk": {
+        "dry/aggressive": {
+          "approaches": 4,
+          "attack_signals": 2,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 0,
+          "yield_signals": 0
+        },
+        "dry/balanced": {
+          "approaches": 35,
+          "attack_signals": 22,
+          "blocked_ticks": 2678,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 1,
+          "position_gains_other": 0,
+          "yield_signals": 1
+        }
+      }
+    },
+    {
+      "counts": {
+        "approaches": 0,
+        "attack_signals": 0,
+        "blocked_ticks": 0,
+        "confirmed_passes": 0,
+        "contacts": 0,
+        "defense_signals": 0,
+        "driving_errors": 0,
+        "duel_entries": 0,
+        "position_gains_other": 0,
+        "yield_signals": 0
+      },
+      "drivers": {},
+      "end_tick": 1500,
+      "start_tick": 1500,
+      "weather_and_risk": {}
+    },
+    {
+      "counts": {
+        "approaches": 0,
+        "attack_signals": 1,
+        "blocked_ticks": 223,
+        "confirmed_passes": 0,
+        "contacts": 0,
+        "defense_signals": 0,
+        "driving_errors": 0,
+        "duel_entries": 0,
+        "position_gains_other": 0,
+        "yield_signals": 0
+      },
+      "drivers": {
+        "11": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 30,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 11,
+          "name": "Kamui Kobayashi",
+          "risk_group": "balanced"
+        },
+        "13": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 30,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 13,
+          "name": "Nico Hulkenberg",
+          "risk_group": "balanced"
+        },
+        "14": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 2,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 14,
+          "name": "Pastor Maldonado",
+          "risk_group": "balanced"
+        },
+        "15": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 30,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 15,
+          "name": "Bruno Senna",
+          "risk_group": "balanced"
+        },
+        "17": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 30,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 17,
+          "name": "Jean-Eric Vergne",
+          "risk_group": "balanced"
+        },
+        "18": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 19,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 18,
+          "name": "Heikki Kovalainen",
+          "risk_group": "balanced"
+        },
+        "2": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 2,
+          "name": "Lewis Hamilton",
+          "risk_group": "aggressive"
+        },
+        "21": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 25,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 21,
+          "name": "Charles Pic",
+          "risk_group": "balanced"
+        },
+        "22": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 27,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 22,
+          "name": "Pedro de la Rosa",
+          "risk_group": "balanced"
+        },
+        "9": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 30,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 9,
+          "name": "Michael Schumacher",
+          "risk_group": "balanced"
+        }
+      },
+      "end_tick": 1530,
+      "start_tick": 1500,
+      "weather_and_risk": {
+        "dry/aggressive": {
+          "approaches": 0,
+          "attack_signals": 1,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 0,
+          "yield_signals": 0
+        },
+        "dry/balanced": {
+          "approaches": 0,
+          "attack_signals": 0,
+          "blocked_ticks": 223,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 0,
+          "yield_signals": 0
+        }
+      }
+    },
+    {
+      "counts": {
+        "approaches": 0,
+        "attack_signals": 0,
+        "blocked_ticks": 0,
+        "confirmed_passes": 0,
+        "contacts": 0,
+        "defense_signals": 0,
+        "driving_errors": 0,
+        "duel_entries": 0,
+        "position_gains_other": 0,
+        "yield_signals": 0
+      },
+      "drivers": {},
+      "end_tick": 1500,
+      "start_tick": 1500,
+      "weather_and_risk": {}
+    },
+    {
+      "counts": {
+        "approaches": 11,
+        "attack_signals": 9,
+        "blocked_ticks": 734,
+        "confirmed_passes": 0,
+        "contacts": 0,
+        "defense_signals": 0,
+        "driving_errors": 0,
+        "duel_entries": 0,
+        "position_gains_other": 0,
+        "yield_signals": 1
+      },
+      "drivers": {
+        "0": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 0,
+          "name": "Sebastian Vettel",
+          "risk_group": "balanced"
+        },
+        "10": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 52,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 10,
+          "name": "Sergio Perez",
+          "risk_group": "balanced"
+        },
+        "11": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 1,
+            "blocked_ticks": 82,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 11,
+          "name": "Kamui Kobayashi",
+          "risk_group": "balanced"
+        },
+        "13": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 1,
+            "blocked_ticks": 81,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 13,
+          "name": "Nico Hulkenberg",
+          "risk_group": "balanced"
+        },
+        "14": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 77,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 14,
+          "name": "Pastor Maldonado",
+          "risk_group": "balanced"
+        },
+        "15": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 1,
+            "blocked_ticks": 81,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 15,
+          "name": "Bruno Senna",
+          "risk_group": "balanced"
+        },
+        "16": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 16,
+          "name": "Daniel Ricciardo",
+          "risk_group": "balanced"
+        },
+        "17": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 79,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 17,
+          "name": "Jean-Eric Vergne",
+          "risk_group": "balanced"
+        },
+        "18": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 18,
+          "name": "Heikki Kovalainen",
+          "risk_group": "balanced"
+        },
+        "20": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 20,
+          "name": "Timo Glock",
+          "risk_group": "balanced"
+        },
+        "21": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 21,
+          "name": "Charles Pic",
+          "risk_group": "balanced"
+        },
+        "3": {
+          "counts": {
+            "approaches": 2,
+            "attack_signals": 2,
+            "blocked_ticks": 97,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 3,
+          "name": "Jenson Button",
+          "risk_group": "balanced"
+        },
+        "4": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 4,
+          "name": "Fernando Alonso",
+          "risk_group": "aggressive"
+        },
+        "6": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 65,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 6,
+          "name": "Kimi Räikkönen",
+          "risk_group": "balanced"
+        },
+        "8": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 39,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 8,
+          "name": "Nico Rosberg",
+          "risk_group": "balanced"
+        },
+        "9": {
+          "counts": {
+            "approaches": 2,
+            "attack_signals": 2,
+            "blocked_ticks": 81,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 1
+          },
+          "driver_id": 9,
+          "name": "Michael Schumacher",
+          "risk_group": "balanced"
+        }
+      },
+      "end_tick": 2800,
+      "start_tick": 2700,
+      "weather_and_risk": {
+        "dry/aggressive": {
+          "approaches": 1,
+          "attack_signals": 0,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 0,
+          "yield_signals": 0
+        },
+        "dry/balanced": {
+          "approaches": 10,
+          "attack_signals": 9,
+          "blocked_ticks": 734,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 0,
+          "yield_signals": 1
+        }
+      }
+    },
+    {
+      "counts": {
+        "approaches": 15,
+        "attack_signals": 11,
+        "blocked_ticks": 949,
+        "confirmed_passes": 0,
+        "contacts": 0,
+        "defense_signals": 0,
+        "driving_errors": 0,
+        "duel_entries": 1,
+        "position_gains_other": 0,
+        "yield_signals": 1
+      },
+      "drivers": {
+        "0": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 0,
+          "name": "Sebastian Vettel",
+          "risk_group": "balanced"
+        },
+        "10": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 52,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 10,
+          "name": "Sergio Perez",
+          "risk_group": "balanced"
+        },
+        "11": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 112,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 11,
+          "name": "Kamui Kobayashi",
+          "risk_group": "balanced"
+        },
+        "13": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 111,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 13,
+          "name": "Nico Hulkenberg",
+          "risk_group": "balanced"
+        },
+        "14": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 107,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 14,
+          "name": "Pastor Maldonado",
+          "risk_group": "balanced"
+        },
+        "15": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 111,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 15,
+          "name": "Bruno Senna",
+          "risk_group": "balanced"
+        },
+        "16": {
+          "counts": {
+            "approaches": 2,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 16,
+          "name": "Daniel Ricciardo",
+          "risk_group": "balanced"
+        },
+        "17": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 109,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 17,
+          "name": "Jean-Eric Vergne",
+          "risk_group": "balanced"
+        },
+        "18": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 5,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 18,
+          "name": "Heikki Kovalainen",
+          "risk_group": "balanced"
+        },
+        "20": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 20,
+          "name": "Timo Glock",
+          "risk_group": "balanced"
+        },
+        "21": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 1,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 21,
+          "name": "Charles Pic",
+          "risk_group": "balanced"
+        },
+        "22": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 22,
+          "name": "Pedro de la Rosa",
+          "risk_group": "balanced"
+        },
+        "3": {
+          "counts": {
+            "approaches": 2,
+            "attack_signals": 2,
+            "blocked_ticks": 127,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 3,
+          "name": "Jenson Button",
+          "risk_group": "balanced"
+        },
+        "4": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 4,
+          "name": "Fernando Alonso",
+          "risk_group": "aggressive"
+        },
+        "6": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 65,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 6,
+          "name": "Kimi Räikkönen",
+          "risk_group": "balanced"
+        },
+        "8": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 39,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 8,
+          "name": "Nico Rosberg",
+          "risk_group": "balanced"
+        },
+        "9": {
+          "counts": {
+            "approaches": 2,
+            "attack_signals": 2,
+            "blocked_ticks": 111,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 1
+          },
+          "driver_id": 9,
+          "name": "Michael Schumacher",
+          "risk_group": "balanced"
+        }
+      },
+      "end_tick": 2830,
+      "start_tick": 2700,
+      "weather_and_risk": {
+        "dry/aggressive": {
+          "approaches": 1,
+          "attack_signals": 0,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 0,
+          "yield_signals": 0
+        },
+        "dry/balanced": {
+          "approaches": 14,
+          "attack_signals": 11,
+          "blocked_ticks": 949,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 1,
+          "position_gains_other": 0,
+          "yield_signals": 1
+        }
+      }
+    },
+    {
+      "counts": {
+        "approaches": 11,
+        "attack_signals": 9,
+        "blocked_ticks": 734,
+        "confirmed_passes": 0,
+        "contacts": 0,
+        "defense_signals": 0,
+        "driving_errors": 0,
+        "duel_entries": 0,
+        "position_gains_other": 0,
+        "yield_signals": 1
+      },
+      "drivers": {
+        "0": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 0,
+          "name": "Sebastian Vettel",
+          "risk_group": "balanced"
+        },
+        "10": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 52,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 10,
+          "name": "Sergio Perez",
+          "risk_group": "balanced"
+        },
+        "11": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 1,
+            "blocked_ticks": 82,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 11,
+          "name": "Kamui Kobayashi",
+          "risk_group": "balanced"
+        },
+        "13": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 1,
+            "blocked_ticks": 81,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 13,
+          "name": "Nico Hulkenberg",
+          "risk_group": "balanced"
+        },
+        "14": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 77,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 14,
+          "name": "Pastor Maldonado",
+          "risk_group": "balanced"
+        },
+        "15": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 1,
+            "blocked_ticks": 81,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 15,
+          "name": "Bruno Senna",
+          "risk_group": "balanced"
+        },
+        "16": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 16,
+          "name": "Daniel Ricciardo",
+          "risk_group": "balanced"
+        },
+        "17": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 79,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 17,
+          "name": "Jean-Eric Vergne",
+          "risk_group": "balanced"
+        },
+        "18": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 18,
+          "name": "Heikki Kovalainen",
+          "risk_group": "balanced"
+        },
+        "20": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 20,
+          "name": "Timo Glock",
+          "risk_group": "balanced"
+        },
+        "21": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 21,
+          "name": "Charles Pic",
+          "risk_group": "balanced"
+        },
+        "3": {
+          "counts": {
+            "approaches": 2,
+            "attack_signals": 2,
+            "blocked_ticks": 97,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 3,
+          "name": "Jenson Button",
+          "risk_group": "balanced"
+        },
+        "4": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 4,
+          "name": "Fernando Alonso",
+          "risk_group": "aggressive"
+        },
+        "6": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 65,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 6,
+          "name": "Kimi Räikkönen",
+          "risk_group": "balanced"
+        },
+        "8": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 39,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 8,
+          "name": "Nico Rosberg",
+          "risk_group": "balanced"
+        },
+        "9": {
+          "counts": {
+            "approaches": 2,
+            "attack_signals": 2,
+            "blocked_ticks": 81,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 1
+          },
+          "driver_id": 9,
+          "name": "Michael Schumacher",
+          "risk_group": "balanced"
+        }
+      },
+      "end_tick": 2800,
+      "start_tick": 2700,
+      "weather_and_risk": {
+        "dry/aggressive": {
+          "approaches": 1,
+          "attack_signals": 0,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 0,
+          "yield_signals": 0
+        },
+        "dry/balanced": {
+          "approaches": 10,
+          "attack_signals": 9,
+          "blocked_ticks": 734,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 0,
+          "yield_signals": 1
+        }
+      }
+    },
+    {
+      "counts": {
+        "approaches": 19,
+        "attack_signals": 15,
+        "blocked_ticks": 1299,
+        "confirmed_passes": 0,
+        "contacts": 0,
+        "defense_signals": 0,
+        "driving_errors": 0,
+        "duel_entries": 2,
+        "position_gains_other": 0,
+        "yield_signals": 1
+      },
+      "drivers": {
+        "0": {
+          "counts": {
+            "approaches": 2,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 1,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 0,
+          "name": "Sebastian Vettel",
+          "risk_group": "balanced"
+        },
+        "10": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 67,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 10,
+          "name": "Sergio Perez",
+          "risk_group": "balanced"
+        },
+        "11": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 2,
+            "blocked_ticks": 163,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 11,
+          "name": "Kamui Kobayashi",
+          "risk_group": "balanced"
+        },
+        "13": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 166,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 13,
+          "name": "Nico Hulkenberg",
+          "risk_group": "balanced"
+        },
+        "14": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 0,
+            "blocked_ticks": 154,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 14,
+          "name": "Pastor Maldonado",
+          "risk_group": "balanced"
+        },
+        "15": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 182,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 15,
+          "name": "Bruno Senna",
+          "risk_group": "balanced"
+        },
+        "16": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 16,
+          "name": "Daniel Ricciardo",
+          "risk_group": "balanced"
+        },
+        "17": {
+          "counts": {
+            "approaches": 1,
+            "attack_signals": 1,
+            "blocked_ticks": 180,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 17,
+          "name": "Jean-Eric Vergne",
+          "risk_group": "balanced"
+        },
+        "20": {
+          "counts": {
+            "approaches": 2,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 20,
+          "name": "Timo Glock",
+          "risk_group": "balanced"
+        },
+        "21": {
+          "counts": {
+            "approaches": 2,
+            "attack_signals": 0,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 21,
+          "name": "Charles Pic",
+          "risk_group": "balanced"
+        },
+        "3": {
+          "counts": {
+            "approaches": 3,
+            "attack_signals": 3,
+            "blocked_ticks": 177,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 3,
+          "name": "Jenson Button",
+          "risk_group": "balanced"
+        },
+        "4": {
+          "counts": {
+            "approaches": 2,
+            "attack_signals": 1,
+            "blocked_ticks": 0,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 1,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 4,
+          "name": "Fernando Alonso",
+          "risk_group": "aggressive"
+        },
+        "6": {
+          "counts": {
+            "approaches": 0,
+            "attack_signals": 0,
+            "blocked_ticks": 45,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 0
+          },
+          "driver_id": 6,
+          "name": "Kimi Räikkönen",
+          "risk_group": "balanced"
+        },
+        "9": {
+          "counts": {
+            "approaches": 2,
+            "attack_signals": 3,
+            "blocked_ticks": 165,
+            "confirmed_passes": 0,
+            "contacts": 0,
+            "defense_signals": 0,
+            "driving_errors": 0,
+            "duel_entries": 0,
+            "position_gains_other": 0,
+            "yield_signals": 1
+          },
+          "driver_id": 9,
+          "name": "Michael Schumacher",
+          "risk_group": "balanced"
+        }
+      },
+      "end_tick": 3200,
+      "start_tick": 3000,
+      "weather_and_risk": {
+        "dry/aggressive": {
+          "approaches": 2,
+          "attack_signals": 1,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 1,
+          "position_gains_other": 0,
+          "yield_signals": 0
+        },
+        "dry/balanced": {
+          "approaches": 17,
+          "attack_signals": 14,
+          "blocked_ticks": 1299,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 1,
+          "position_gains_other": 0,
+          "yield_signals": 1
+        }
+      }
+    }
+  ],
+  "seconds": [
+    4.638308,
+    0.979608,
+    0.339878,
+    0.487286,
+    0.029851,
+    0.649697,
+    0.212843,
+    0.024154,
+    11.112777,
+    0.854339,
+    0.027272,
+    0.032405,
+    1.013961,
+    0.03719,
+    5.853588,
+    1.009018,
+    0.076786,
+    7.990298
+  ],
+  "sporting_hash_3200": "f771fab5025055653075f853b4a06370097d5af74843d2deea4cc8dc17be9b90",
+  "targets": [
+    750,
+    780,
+    760,
+    775,
+    750,
+    800,
+    780,
+    750,
+    1050,
+    1075,
+    1050,
+    1500,
+    1530,
+    1500,
+    2800,
+    2830,
+    2800,
+    3200
+  ],
+  "total_seek_seconds": 35.369259,
+  "version": "candidate"
+}

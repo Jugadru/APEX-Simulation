@@ -1,0 +1,112 @@
+extends SceneTree
+## Real v0.6.4.0 SceneTree regression. Test individual authority, read-only
+## evidence, protected V21, actual HUD controls, and same existing RaceEngine.
+const RaceEngine = preload("res://scripts/race_engine.gd")
+const PitWall = preload("res://scripts/core/race_pitwall_intelligence_0640.gd")
+const RaceEngineer = preload("res://scripts/core/race_engineer_0639.gd")
+var failures: Array[String] = []
+
+func _initialize() -> void:
+	call_deferred("_run")
+
+func check(condition: bool, description: String) -> void:
+	if not condition:
+		failures.append(description)
+		printerr("APEX 0640 FAIL: ", description)
+
+func _run() -> void:
+	var season: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/season_2012.json"))
+	var track: Dictionary = {}
+	for candidate in season["tracks"]:
+		if str(candidate.get("code", "")) == "BRA":
+			track = candidate
+	check(int(track.get("laps", 0)) == 71, "Interlagos 71 laps")
+	var dry = RaceEngine.new(season["teams"], "Ferrari", 321, {}, track, {})
+	dry.configure_weather("Seco")
+	var cars: Array = dry.player_cars()
+	var first: Dictionary = cars[0]
+	var second: Dictionary = cars[1]
+	var id: int = int(first["id"])
+	var tire: String = str(dry.available_pit_compounds()[1])
+	check(dry.schedule_pit(id, tire, 21), "scheduled V21")
+	check(dry.schedule_pit(int(second["id"]), tire, 21), "teammate same-lap schedule")
+	var before: String = JSON.stringify(dry.get_state_snapshot())
+	var conditions: Dictionary = dry.weather_snapshot()
+	var advice: Dictionary = dry.get_engineer_advice(id)
+	var existing: Dictionary = RaceEngineer.evaluate(first, advice, conditions, {}, dry.lap_count)
+	var evaluation: Dictionary = PitWall.enrich(first, existing, advice, conditions, second, dry.pit_loss)
+	check(str(evaluation.get("tradeoff", "")).contains("V21"), "protected pit appears in recommendation")
+	check(str(evaluation.get("teammate_note", "")).contains("double stack"), "double stack warning present")
+	check(str(evaluation.get("evidence", "")).contains("KERS"), "real KERS energy in evidence")
+	check(str(evaluation.get("evidence", "")).contains("desgaste"), "real tyre wear in evidence")
+	check(not bool(evaluation.get("can_call_pit", true)), "engineer cannot silently replace V21")
+	check(JSON.stringify(dry.get_state_snapshot()) == before, "read-only Pit Wall evidence")
+	var rain_car: Dictionary = first.duplicate(true)
+	rain_car["tire"] = "Médio"
+	rain_car["wear"] = 90.0
+	rain_car["pit_scheduled_lap"] = 0
+	var rain_weather: Dictionary = {"wetness_factor": 0.65}
+	var rain_advice: Dictionary = {"forecast_3": 0.80, "pit_now": false, "compound": "Chuva"}
+	var rain_report: Dictionary = RaceEngineer.evaluate(rain_car, rain_advice, rain_weather, {}, 71)
+	var rain_eval: Dictionary = PitWall.enrich(rain_car, rain_report, rain_advice, rain_weather, {}, dry.pit_loss)
+	check(str(rain_eval.get("risk", "")) == "ATENÇÃO", "wet slick tyre alert")
+	check(str(rain_eval.get("forecast_note", "")).contains("mais água"), "trend grounded in forecast")
+
+	# Run the native scene rather than a dummy UI.
+	var scene: PackedScene = load("res://scenes/main.tscn")
+	var game = scene.instantiate()
+	root.add_child(game)
+	await process_frame
+	for i in range(game.season_tracks.size()):
+		if str(game.season_tracks[i].get("code", "")) == "BRA":
+			game.selected_track_index = i
+			break
+	game._start_race()
+	await process_frame
+	check(game.race != null and game.race.lap_count == 71, "native session in Interlagos")
+	var in_game: Array = game.race.player_cars()
+	var id1: int = int(in_game[0]["id"])
+	var id2: int = int(in_game[1]["id"])
+	check(game._engineer_mode_for(id1) == "Manual", "default car 1 manual")
+	check(game._engineer_mode_for(id2) == "Manual", "default car 2 manual")
+	game._set_engineer_driver_mode(id1, "Assistido")
+	check(game._engineer_mode_for(id1) == "Assistido", "car 1 delegated pace/KERS")
+	check(game._engineer_mode_for(id2) == "Manual", "car 2 unchanged")
+	check(str(in_game[0]["pit_control_mode"]) == "Manual", "assisted mode does not enable automatic pit")
+	check(game.autonomy_fingerprints.has(id1), "assisted STAFF tick independent of global mode")
+	check(not game.autonomy_fingerprints.has(id2), "manual second driver not touched")
+	game._set_engineer_driver_mode(id2, "Automático")
+	check(game._engineer_mode_for(id2) == "Automático", "car 2 full delegation")
+	check(str(in_game[1]["pit_control_mode"]) == "IA", "automatic pit only for car 2")
+	check(str(in_game[0]["pit_control_mode"]) == "Manual", "car 1 stays manual pit")
+	var hud = game.race_hud_0620
+	check(hud != null and hud.visible, "native HUD is visible")
+	hud._open_window("engineer")
+	check(hud.engineer_cards.size() == 2, "two real driver cards")
+	check(int((hud.engineer_cards[0]["driver_mode"] as OptionButton).selected) == 1, "HUD assisted selector")
+	check(int((hud.engineer_cards[1]["driver_mode"] as OptionButton).selected) == 2, "HUD auto selector")
+	check(str((hud.engineer_cards[0]["evidence"] as Label).text).contains("KERS"), "HUD renders measured KERS")
+	check(bool((hud.engineer_cards[1]["pace"] as Button).disabled), "auto driver's manual pace button disabled")
+	hud._engineer_driver_control(0, id2)
+	check(game._engineer_mode_for(id2) == "Manual", "HUD can restore individual manual")
+	check(game._engineer_mode_for(id1) == "Assistido", "HUD switch does not alter teammate")
+	var pit_tire: String = str(game.race.available_pit_compounds()[1])
+	check(game.race.schedule_pit(id1, pit_tire, 21), "V21 preserved while in assisted mode")
+	hud.engineer_reports[id1] = {"can_call_pit": true, "compound": pit_tire}
+	hud._engineer_accept_pit(id1)
+	check(int(in_game[0]["pit_scheduled_lap"]) == 21 and not bool(in_game[0]["pit_request"]), "stale recommendation cannot override V21")
+	hud._engineer_ask(id1)
+	check(hud.engineer_history_by_driver.has(id1), "consultation logged")
+	hud._engineer_change_mode(1)
+	check(game._engineer_mode_for(id1) == "Automático" and game._engineer_mode_for(id2) == "Automático", "global AUTO resets both")
+	check(int(in_game[0]["pit_scheduled_lap"]) == 21, "global AUTO keeps manual reservation")
+	hud._engineer_change_mode(0)
+	check(game._engineer_mode_for(id1) == "Manual" and game._engineer_mode_for(id2) == "Manual", "global MANUAL resets both")
+	check(int(in_game[0]["pit_scheduled_lap"]) == 21, "global MANUAL keeps V21")
+	hud._close_window()
+	if failures.is_empty():
+		print("APEX 0640 PIT WALL PASS: true BRA/71; individual MANUAL/ASSISTIDO/AUTO; V21; evidence; wet; double-stack; HUD; radio")
+		quit(0)
+	else:
+		print("APEX 0640 PIT WALL FAILURES: ", failures)
+		quit(1)

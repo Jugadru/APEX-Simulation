@@ -1,0 +1,22 @@
+[
+  {
+    "test": "battle_motion_0652_test",
+    "exit_code": 0
+  },
+  {
+    "test": "component_inventory_0651_test",
+    "exit_code": 0
+  },
+  {
+    "test": "component_inventory_0651_ui",
+    "exit_code": 0
+  },
+  {
+    "test": "unified_hud_test",
+    "exit_code": 0
+  },
+  {
+    "test": "team_pit_06497_unit_test",
+    "exit_code": 0
+  }
+]

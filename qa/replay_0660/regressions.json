@@ -1,0 +1,67 @@
+[
+  {
+    "name": "import2",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "replay_0660_test",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "view_0658_integration",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "view_0658_motion",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "view_0658_lifecycle",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "geometry_0659_test",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "sim_engine_0655_test",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "pit_incidents_double_stack_test",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "workshop_0656_legacy",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "workshop_0656_integration",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "unified_hud_test",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "perf_0657_rng",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "soul_staff_0650_migration_test",
+    "exit": 0,
+    "pass": true
+  }
+]

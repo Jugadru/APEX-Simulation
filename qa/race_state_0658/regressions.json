@@ -1,0 +1,132 @@
+[
+  {
+    "name": "view_0658_unit",
+    "exit": 1,
+    "pass": false
+  },
+  {
+    "name": "view_0658_integration",
+    "exit": 124,
+    "pass": false
+  },
+  {
+    "name": "perf_0657_unit",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "perf_0657_panel_smoke",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "perf_0657_rng",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "pit_incidents_double_stack_test",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "workshop_0656_test",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "workshop_0656_edges",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "workshop_0656_integration",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "workshop_0656_legacy",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "component_inventory_0651_test",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "component_inventory_0651_ui",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "unified_hud_test",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "sim_space_0655_test",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "sim_engine_0655_test",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "sim_gp_0655_test",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "team_pit_06497_unit_test",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "team_pit_06497_integration_test",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "soul_staff_0650_model_test",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "soul_staff_0650_migration_test",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "staff_0648_contracts_test",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "strategy_simulator_06499_model_test",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "core_0639_race_engineer_test",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "core_0643_dynamic_track_weather_test",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "core_0560_kers_drs_smoke_test",
+    "exit": 124,
+    "pass": false
+  },
+  {
+    "name": "race_0647_soul2_test",
+    "exit": 0,
+    "pass": true
+  }
+]

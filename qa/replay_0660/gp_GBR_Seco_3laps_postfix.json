@@ -1,0 +1,21 @@
+{
+  "bytes": 3385272,
+  "hash": "aea8a24d1c7746c57cdb18bf3c85ae01f5ec64e7f64480077e7f9c9227456f30",
+  "laps": 3,
+  "live_ms": 13224.452,
+  "pass": true,
+  "pit_checkpoint_count": 7,
+  "pit_phases": [
+    "approach",
+    "dock",
+    "service",
+    "queue",
+    "repair",
+    "safety_hold",
+    "exit"
+  ],
+  "replay_ms": 13445.58,
+  "ticks": 1669,
+  "track": "GBR",
+  "weather": "Seco"
+}

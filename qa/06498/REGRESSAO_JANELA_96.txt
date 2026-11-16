@@ -1,0 +1,3 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+AUTO_GATE_06496_PASS real strategy window V18 -> V17, AI only, Manual and V21 guarded

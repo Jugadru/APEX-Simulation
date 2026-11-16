@@ -1,0 +1,1098 @@
+{
+  "runs": [
+    {
+      "cars": 24,
+      "cpu": "Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz",
+      "godot": "4.7.2-stable (official)",
+      "laps": 3,
+      "profile": {},
+      "profiler_on": false,
+      "seed": 6557,
+      "sim_per_wall": 50.1321073866859,
+      "sim_seconds": 323.99999999999,
+      "state_sha256": "0618280f76d1ea1f1580ccf1381c02521a6900fc651e7da82e9dc6b9212d99ff",
+      "wall_seconds": 6.462924,
+      "weather": "Seco",
+      "mode": "base",
+      "repeat": 0
+    },
+    {
+      "cars": 24,
+      "cpu": "Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz",
+      "godot": "4.7.2-stable (official)",
+      "laps": 3,
+      "profile": {
+        "active_wall_seconds": 0.0,
+        "context": {
+          "cars": 24,
+          "laps": 3,
+          "seed": 6557,
+          "track": "GBR",
+          "warmup_sim_seconds": 8,
+          "weather": "Seco"
+        },
+        "counters": {},
+        "enabled": false,
+        "environment": {
+          "cpu": "Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz",
+          "debug_build": true,
+          "display": "headless",
+          "godot": "4.7.2-stable (official)",
+          "gpu": "unavailable/headless",
+          "logical_cores": 4,
+          "os": "Linux",
+          "renderer": "forward_plus"
+        },
+        "inclusive_scopes": true,
+        "limitations": [
+          "CPU wall-clock inclusive scopes; nested values overlap.",
+          "No GPU time or process RSS measurement.",
+          "Godot monitors may lag one second; some unavailable in release.",
+          "Profiler overhead is included; benchmarking requires OFF/ON comparison."
+        ],
+        "monitors": {
+          "fps": null,
+          "frame_ms": null,
+          "godot_static_bytes": 32281086,
+          "nodes": 1.0,
+          "objects": 1518.0,
+          "orphan_nodes": 0.0
+        },
+        "schema": 1,
+        "sections": {},
+        "version": "0.6.5.7"
+      },
+      "profiler_on": false,
+      "seed": 6557,
+      "sim_per_wall": 49.9010526811866,
+      "sim_seconds": 323.99999999999,
+      "state_sha256": "0618280f76d1ea1f1580ccf1381c02521a6900fc651e7da82e9dc6b9212d99ff",
+      "wall_seconds": 6.492849,
+      "weather": "Seco",
+      "mode": "off",
+      "repeat": 0
+    },
+    {
+      "cars": 24,
+      "cpu": "Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz",
+      "godot": "4.7.2-stable (official)",
+      "laps": 3,
+      "profile": {
+        "active_wall_seconds": 6.484214,
+        "context": {
+          "cars": 24,
+          "laps": 3,
+          "seed": 6557,
+          "track": "GBR",
+          "warmup_sim_seconds": 8,
+          "weather": "Seco"
+        },
+        "counters": {},
+        "enabled": false,
+        "environment": {
+          "cpu": "Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz",
+          "debug_build": true,
+          "display": "headless",
+          "godot": "4.7.2-stable (official)",
+          "gpu": "unavailable/headless",
+          "logical_cores": 4,
+          "os": "Linux",
+          "renderer": "forward_plus"
+        },
+        "inclusive_scopes": true,
+        "limitations": [
+          "CPU wall-clock inclusive scopes; nested values overlap.",
+          "No GPU time or process RSS measurement.",
+          "Godot monitors may lag one second; some unavailable in release.",
+          "Profiler overhead is included; benchmarking requires OFF/ON comparison."
+        ],
+        "monitors": {
+          "fps": null,
+          "frame_ms": null,
+          "godot_static_bytes": 32292218,
+          "nodes": 1.0,
+          "objects": 1518.0,
+          "orphan_nodes": 0.0
+        },
+        "schema": 1,
+        "sections": {
+          "ai.pit_decision": {
+            "calls": 22,
+            "max_ms": 1.24,
+            "mean_ms": 1.134,
+            "min_ms": 1.051,
+            "total_ms": 24.948
+          },
+          "pit.advance": {
+            "calls": 3771,
+            "max_ms": 0.188,
+            "mean_ms": 0.007559533280297,
+            "min_ms": 0.004,
+            "total_ms": 28.507
+          },
+          "race.overtaking": {
+            "calls": 1620,
+            "max_ms": 6.568,
+            "mean_ms": 1.64732901234568,
+            "min_ms": 0.014,
+            "total_ms": 2668.673
+          },
+          "race.pace_thermal_drs_kers": {
+            "calls": 1620,
+            "max_ms": 1.277,
+            "mean_ms": 0.67967962962963,
+            "min_ms": 0.005,
+            "total_ms": 1101.081
+          },
+          "race.snapshot": {
+            "calls": 1620,
+            "max_ms": 4.092,
+            "mean_ms": 0.946394444444444,
+            "min_ms": 0.555,
+            "total_ms": 1533.159
+          },
+          "race.step": {
+            "calls": 81,
+            "max_ms": 142.224,
+            "mean_ms": 80.0282592592593,
+            "min_ms": 33.321,
+            "total_ms": 6482.289
+          },
+          "strategy.plan": {
+            "calls": 70,
+            "max_ms": 0.605,
+            "mean_ms": 0.475585714285714,
+            "min_ms": 0.41,
+            "total_ms": 33.291
+          }
+        },
+        "version": "0.6.5.7"
+      },
+      "profiler_on": true,
+      "seed": 6557,
+      "sim_per_wall": 49.9687001614251,
+      "sim_seconds": 323.99999999999,
+      "state_sha256": "0618280f76d1ea1f1580ccf1381c02521a6900fc651e7da82e9dc6b9212d99ff",
+      "wall_seconds": 6.484059,
+      "weather": "Seco",
+      "mode": "on",
+      "repeat": 0
+    },
+    {
+      "cars": 24,
+      "cpu": "Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz",
+      "godot": "4.7.2-stable (official)",
+      "laps": 3,
+      "profile": {
+        "active_wall_seconds": 0.0,
+        "context": {
+          "cars": 24,
+          "laps": 3,
+          "seed": 6557,
+          "track": "GBR",
+          "warmup_sim_seconds": 8,
+          "weather": "Seco"
+        },
+        "counters": {},
+        "enabled": false,
+        "environment": {
+          "cpu": "Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz",
+          "debug_build": true,
+          "display": "headless",
+          "godot": "4.7.2-stable (official)",
+          "gpu": "unavailable/headless",
+          "logical_cores": 4,
+          "os": "Linux",
+          "renderer": "forward_plus"
+        },
+        "inclusive_scopes": true,
+        "limitations": [
+          "CPU wall-clock inclusive scopes; nested values overlap.",
+          "No GPU time or process RSS measurement.",
+          "Godot monitors may lag one second; some unavailable in release.",
+          "Profiler overhead is included; benchmarking requires OFF/ON comparison."
+        ],
+        "monitors": {
+          "fps": null,
+          "frame_ms": null,
+          "godot_static_bytes": 32281086,
+          "nodes": 1.0,
+          "objects": 1518.0,
+          "orphan_nodes": 0.0
+        },
+        "schema": 1,
+        "sections": {},
+        "version": "0.6.5.7"
+      },
+      "profiler_on": false,
+      "seed": 6557,
+      "sim_per_wall": 48.9905971318711,
+      "sim_seconds": 323.99999999999,
+      "state_sha256": "0618280f76d1ea1f1580ccf1381c02521a6900fc651e7da82e9dc6b9212d99ff",
+      "wall_seconds": 6.613514,
+      "weather": "Seco",
+      "mode": "off",
+      "repeat": 1
+    },
+    {
+      "cars": 24,
+      "cpu": "Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz",
+      "godot": "4.7.2-stable (official)",
+      "laps": 3,
+      "profile": {
+        "active_wall_seconds": 6.505824,
+        "context": {
+          "cars": 24,
+          "laps": 3,
+          "seed": 6557,
+          "track": "GBR",
+          "warmup_sim_seconds": 8,
+          "weather": "Seco"
+        },
+        "counters": {},
+        "enabled": false,
+        "environment": {
+          "cpu": "Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz",
+          "debug_build": true,
+          "display": "headless",
+          "godot": "4.7.2-stable (official)",
+          "gpu": "unavailable/headless",
+          "logical_cores": 4,
+          "os": "Linux",
+          "renderer": "forward_plus"
+        },
+        "inclusive_scopes": true,
+        "limitations": [
+          "CPU wall-clock inclusive scopes; nested values overlap.",
+          "No GPU time or process RSS measurement.",
+          "Godot monitors may lag one second; some unavailable in release.",
+          "Profiler overhead is included; benchmarking requires OFF/ON comparison."
+        ],
+        "monitors": {
+          "fps": null,
+          "frame_ms": null,
+          "godot_static_bytes": 32292218,
+          "nodes": 1.0,
+          "objects": 1518.0,
+          "orphan_nodes": 0.0
+        },
+        "schema": 1,
+        "sections": {
+          "ai.pit_decision": {
+            "calls": 22,
+            "max_ms": 1.267,
+            "mean_ms": 1.14104545454545,
+            "min_ms": 1.054,
+            "total_ms": 25.103
+          },
+          "pit.advance": {
+            "calls": 3771,
+            "max_ms": 0.101,
+            "mean_ms": 0.00736276849642005,
+            "min_ms": 0.004,
+            "total_ms": 27.765
+          },
+          "race.overtaking": {
+            "calls": 1620,
+            "max_ms": 3.926,
+            "mean_ms": 1.66468456790123,
+            "min_ms": 0.015,
+            "total_ms": 2696.789
+          },
+          "race.pace_thermal_drs_kers": {
+            "calls": 1620,
+            "max_ms": 1.289,
+            "mean_ms": 0.679759259259259,
+            "min_ms": 0.006,
+            "total_ms": 1101.21
+          },
+          "race.snapshot": {
+            "calls": 1620,
+            "max_ms": 2.129,
+            "mean_ms": 0.944443209876543,
+            "min_ms": 0.566,
+            "total_ms": 1529.998
+          },
+          "race.step": {
+            "calls": 81,
+            "max_ms": 98.919,
+            "mean_ms": 80.2913950617284,
+            "min_ms": 34.191,
+            "total_ms": 6503.603
+          },
+          "strategy.plan": {
+            "calls": 70,
+            "max_ms": 0.572,
+            "mean_ms": 0.473242857142857,
+            "min_ms": 0.404,
+            "total_ms": 33.127
+          }
+        },
+        "version": "0.6.5.7"
+      },
+      "profiler_on": true,
+      "seed": 6557,
+      "sim_per_wall": 49.8026340059747,
+      "sim_seconds": 323.99999999999,
+      "state_sha256": "0618280f76d1ea1f1580ccf1381c02521a6900fc651e7da82e9dc6b9212d99ff",
+      "wall_seconds": 6.50568,
+      "weather": "Seco",
+      "mode": "on",
+      "repeat": 1
+    },
+    {
+      "cars": 24,
+      "cpu": "Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz",
+      "godot": "4.7.2-stable (official)",
+      "laps": 3,
+      "profile": {},
+      "profiler_on": false,
+      "seed": 6557,
+      "sim_per_wall": 50.6382450659735,
+      "sim_seconds": 323.99999999999,
+      "state_sha256": "0618280f76d1ea1f1580ccf1381c02521a6900fc651e7da82e9dc6b9212d99ff",
+      "wall_seconds": 6.398326,
+      "weather": "Seco",
+      "mode": "base",
+      "repeat": 1
+    },
+    {
+      "cars": 24,
+      "cpu": "Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz",
+      "godot": "4.7.2-stable (official)",
+      "laps": 3,
+      "profile": {
+        "active_wall_seconds": 6.602131,
+        "context": {
+          "cars": 24,
+          "laps": 3,
+          "seed": 6557,
+          "track": "GBR",
+          "warmup_sim_seconds": 8,
+          "weather": "Seco"
+        },
+        "counters": {},
+        "enabled": false,
+        "environment": {
+          "cpu": "Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz",
+          "debug_build": true,
+          "display": "headless",
+          "godot": "4.7.2-stable (official)",
+          "gpu": "unavailable/headless",
+          "logical_cores": 4,
+          "os": "Linux",
+          "renderer": "forward_plus"
+        },
+        "inclusive_scopes": true,
+        "limitations": [
+          "CPU wall-clock inclusive scopes; nested values overlap.",
+          "No GPU time or process RSS measurement.",
+          "Godot monitors may lag one second; some unavailable in release.",
+          "Profiler overhead is included; benchmarking requires OFF/ON comparison."
+        ],
+        "monitors": {
+          "fps": null,
+          "frame_ms": null,
+          "godot_static_bytes": 32292218,
+          "nodes": 1.0,
+          "objects": 1518.0,
+          "orphan_nodes": 0.0
+        },
+        "schema": 1,
+        "sections": {
+          "ai.pit_decision": {
+            "calls": 22,
+            "max_ms": 1.294,
+            "mean_ms": 1.15377272727273,
+            "min_ms": 1.055,
+            "total_ms": 25.383
+          },
+          "pit.advance": {
+            "calls": 3771,
+            "max_ms": 0.106,
+            "mean_ms": 0.00752426412092283,
+            "min_ms": 0.004,
+            "total_ms": 28.374
+          },
+          "race.overtaking": {
+            "calls": 1620,
+            "max_ms": 6.608,
+            "mean_ms": 1.7046487654321,
+            "min_ms": 0.014,
+            "total_ms": 2761.531
+          },
+          "race.pace_thermal_drs_kers": {
+            "calls": 1620,
+            "max_ms": 6.698,
+            "mean_ms": 0.684799382716049,
+            "min_ms": 0.005,
+            "total_ms": 1109.375
+          },
+          "race.snapshot": {
+            "calls": 1620,
+            "max_ms": 3.187,
+            "mean_ms": 0.953758024691358,
+            "min_ms": 0.55,
+            "total_ms": 1545.088
+          },
+          "race.step": {
+            "calls": 81,
+            "max_ms": 122.953,
+            "mean_ms": 81.4834938271605,
+            "min_ms": 33.985,
+            "total_ms": 6600.163
+          },
+          "strategy.plan": {
+            "calls": 70,
+            "max_ms": 0.595,
+            "mean_ms": 0.479442857142857,
+            "min_ms": 0.405,
+            "total_ms": 33.561
+          }
+        },
+        "version": "0.6.5.7"
+      },
+      "profiler_on": true,
+      "seed": 6557,
+      "sim_per_wall": 49.0764241099732,
+      "sim_seconds": 323.99999999999,
+      "state_sha256": "0618280f76d1ea1f1580ccf1381c02521a6900fc651e7da82e9dc6b9212d99ff",
+      "wall_seconds": 6.601948,
+      "weather": "Seco",
+      "mode": "on",
+      "repeat": 2
+    },
+    {
+      "cars": 24,
+      "cpu": "Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz",
+      "godot": "4.7.2-stable (official)",
+      "laps": 3,
+      "profile": {},
+      "profiler_on": false,
+      "seed": 6557,
+      "sim_per_wall": 51.1058420917794,
+      "sim_seconds": 323.99999999999,
+      "state_sha256": "0618280f76d1ea1f1580ccf1381c02521a6900fc651e7da82e9dc6b9212d99ff",
+      "wall_seconds": 6.339784,
+      "weather": "Seco",
+      "mode": "base",
+      "repeat": 2
+    },
+    {
+      "cars": 24,
+      "cpu": "Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz",
+      "godot": "4.7.2-stable (official)",
+      "laps": 3,
+      "profile": {
+        "active_wall_seconds": 0.0,
+        "context": {
+          "cars": 24,
+          "laps": 3,
+          "seed": 6557,
+          "track": "GBR",
+          "warmup_sim_seconds": 8,
+          "weather": "Seco"
+        },
+        "counters": {},
+        "enabled": false,
+        "environment": {
+          "cpu": "Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz",
+          "debug_build": true,
+          "display": "headless",
+          "godot": "4.7.2-stable (official)",
+          "gpu": "unavailable/headless",
+          "logical_cores": 4,
+          "os": "Linux",
+          "renderer": "forward_plus"
+        },
+        "inclusive_scopes": true,
+        "limitations": [
+          "CPU wall-clock inclusive scopes; nested values overlap.",
+          "No GPU time or process RSS measurement.",
+          "Godot monitors may lag one second; some unavailable in release.",
+          "Profiler overhead is included; benchmarking requires OFF/ON comparison."
+        ],
+        "monitors": {
+          "fps": null,
+          "frame_ms": null,
+          "godot_static_bytes": 32281086,
+          "nodes": 1.0,
+          "objects": 1518.0,
+          "orphan_nodes": 0.0
+        },
+        "schema": 1,
+        "sections": {},
+        "version": "0.6.5.7"
+      },
+      "profiler_on": false,
+      "seed": 6557,
+      "sim_per_wall": 50.0363535729338,
+      "sim_seconds": 323.99999999999,
+      "state_sha256": "0618280f76d1ea1f1580ccf1381c02521a6900fc651e7da82e9dc6b9212d99ff",
+      "wall_seconds": 6.475292,
+      "weather": "Seco",
+      "mode": "off",
+      "repeat": 2
+    },
+    {
+      "cars": 24,
+      "cpu": "Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz",
+      "godot": "4.7.2-stable (official)",
+      "laps": 3,
+      "profile": {},
+      "profiler_on": false,
+      "seed": 6557,
+      "sim_per_wall": 48.4564483418615,
+      "sim_seconds": 339.999999999989,
+      "state_sha256": "fe69acc40c277e05accab0bcc35b73dc14cbd4ed77be94487e634addce58d4a3",
+      "wall_seconds": 7.01661,
+      "weather": "Chuva intensa",
+      "mode": "base",
+      "repeat": 0
+    },
+    {
+      "cars": 24,
+      "cpu": "Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz",
+      "godot": "4.7.2-stable (official)",
+      "laps": 3,
+      "profile": {
+        "active_wall_seconds": 0.0,
+        "context": {
+          "cars": 24,
+          "laps": 3,
+          "seed": 6557,
+          "track": "GBR",
+          "warmup_sim_seconds": 8,
+          "weather": "Chuva intensa"
+        },
+        "counters": {},
+        "enabled": false,
+        "environment": {
+          "cpu": "Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz",
+          "debug_build": true,
+          "display": "headless",
+          "godot": "4.7.2-stable (official)",
+          "gpu": "unavailable/headless",
+          "logical_cores": 4,
+          "os": "Linux",
+          "renderer": "forward_plus"
+        },
+        "inclusive_scopes": true,
+        "limitations": [
+          "CPU wall-clock inclusive scopes; nested values overlap.",
+          "No GPU time or process RSS measurement.",
+          "Godot monitors may lag one second; some unavailable in release.",
+          "Profiler overhead is included; benchmarking requires OFF/ON comparison."
+        ],
+        "monitors": {
+          "fps": null,
+          "frame_ms": null,
+          "godot_static_bytes": 31954514,
+          "nodes": 1.0,
+          "objects": 1518.0,
+          "orphan_nodes": 0.0
+        },
+        "schema": 1,
+        "sections": {},
+        "version": "0.6.5.7"
+      },
+      "profiler_on": false,
+      "seed": 6557,
+      "sim_per_wall": 47.4781160795237,
+      "sim_seconds": 339.999999999989,
+      "state_sha256": "fe69acc40c277e05accab0bcc35b73dc14cbd4ed77be94487e634addce58d4a3",
+      "wall_seconds": 7.161194,
+      "weather": "Chuva intensa",
+      "mode": "off",
+      "repeat": 0
+    },
+    {
+      "cars": 24,
+      "cpu": "Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz",
+      "godot": "4.7.2-stable (official)",
+      "laps": 3,
+      "profile": {
+        "active_wall_seconds": 7.085507,
+        "context": {
+          "cars": 24,
+          "laps": 3,
+          "seed": 6557,
+          "track": "GBR",
+          "warmup_sim_seconds": 8,
+          "weather": "Chuva intensa"
+        },
+        "counters": {},
+        "enabled": false,
+        "environment": {
+          "cpu": "Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz",
+          "debug_build": true,
+          "display": "headless",
+          "godot": "4.7.2-stable (official)",
+          "gpu": "unavailable/headless",
+          "logical_cores": 4,
+          "os": "Linux",
+          "renderer": "forward_plus"
+        },
+        "inclusive_scopes": true,
+        "limitations": [
+          "CPU wall-clock inclusive scopes; nested values overlap.",
+          "No GPU time or process RSS measurement.",
+          "Godot monitors may lag one second; some unavailable in release.",
+          "Profiler overhead is included; benchmarking requires OFF/ON comparison."
+        ],
+        "monitors": {
+          "fps": null,
+          "frame_ms": null,
+          "godot_static_bytes": 31965646,
+          "nodes": 1.0,
+          "objects": 1518.0,
+          "orphan_nodes": 0.0
+        },
+        "schema": 1,
+        "sections": {
+          "ai.pit_decision": {
+            "calls": 44,
+            "max_ms": 1.103,
+            "mean_ms": 0.912272727272727,
+            "min_ms": 0.843,
+            "total_ms": 40.14
+          },
+          "pit.advance": {
+            "calls": 296,
+            "max_ms": 0.08,
+            "mean_ms": 0.0109797297297297,
+            "min_ms": 0.006,
+            "total_ms": 3.25
+          },
+          "race.overtaking": {
+            "calls": 1700,
+            "max_ms": 3.354,
+            "mean_ms": 1.83033529411765,
+            "min_ms": 0.038,
+            "total_ms": 3111.57
+          },
+          "race.pace_thermal_drs_kers": {
+            "calls": 1700,
+            "max_ms": 1.752,
+            "mean_ms": 0.694335294117647,
+            "min_ms": 0.043,
+            "total_ms": 1180.37
+          },
+          "race.snapshot": {
+            "calls": 1700,
+            "max_ms": 2.025,
+            "mean_ms": 0.922187647058824,
+            "min_ms": 0.559,
+            "total_ms": 1567.719
+          },
+          "race.step": {
+            "calls": 85,
+            "max_ms": 101.776,
+            "mean_ms": 83.3358705882353,
+            "min_ms": 29.608,
+            "total_ms": 7083.549
+          },
+          "strategy.plan": {
+            "calls": 136,
+            "max_ms": 0.594,
+            "mean_ms": 0.428125,
+            "min_ms": 0.388,
+            "total_ms": 58.225
+          }
+        },
+        "version": "0.6.5.7"
+      },
+      "profiler_on": true,
+      "seed": 6557,
+      "sim_per_wall": 47.9855253074233,
+      "sim_seconds": 339.999999999989,
+      "state_sha256": "fe69acc40c277e05accab0bcc35b73dc14cbd4ed77be94487e634addce58d4a3",
+      "wall_seconds": 7.08547,
+      "weather": "Chuva intensa",
+      "mode": "on",
+      "repeat": 0
+    },
+    {
+      "cars": 24,
+      "cpu": "Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz",
+      "godot": "4.7.2-stable (official)",
+      "laps": 3,
+      "profile": {
+        "active_wall_seconds": 0.0,
+        "context": {
+          "cars": 24,
+          "laps": 3,
+          "seed": 6557,
+          "track": "GBR",
+          "warmup_sim_seconds": 8,
+          "weather": "Chuva intensa"
+        },
+        "counters": {},
+        "enabled": false,
+        "environment": {
+          "cpu": "Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz",
+          "debug_build": true,
+          "display": "headless",
+          "godot": "4.7.2-stable (official)",
+          "gpu": "unavailable/headless",
+          "logical_cores": 4,
+          "os": "Linux",
+          "renderer": "forward_plus"
+        },
+        "inclusive_scopes": true,
+        "limitations": [
+          "CPU wall-clock inclusive scopes; nested values overlap.",
+          "No GPU time or process RSS measurement.",
+          "Godot monitors may lag one second; some unavailable in release.",
+          "Profiler overhead is included; benchmarking requires OFF/ON comparison."
+        ],
+        "monitors": {
+          "fps": null,
+          "frame_ms": null,
+          "godot_static_bytes": 31954514,
+          "nodes": 1.0,
+          "objects": 1518.0,
+          "orphan_nodes": 0.0
+        },
+        "schema": 1,
+        "sections": {},
+        "version": "0.6.5.7"
+      },
+      "profiler_on": false,
+      "seed": 6557,
+      "sim_per_wall": 47.7473368220705,
+      "sim_seconds": 339.999999999989,
+      "state_sha256": "fe69acc40c277e05accab0bcc35b73dc14cbd4ed77be94487e634addce58d4a3",
+      "wall_seconds": 7.120816,
+      "weather": "Chuva intensa",
+      "mode": "off",
+      "repeat": 1
+    },
+    {
+      "cars": 24,
+      "cpu": "Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz",
+      "godot": "4.7.2-stable (official)",
+      "laps": 3,
+      "profile": {
+        "active_wall_seconds": 7.220639,
+        "context": {
+          "cars": 24,
+          "laps": 3,
+          "seed": 6557,
+          "track": "GBR",
+          "warmup_sim_seconds": 8,
+          "weather": "Chuva intensa"
+        },
+        "counters": {},
+        "enabled": false,
+        "environment": {
+          "cpu": "Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz",
+          "debug_build": true,
+          "display": "headless",
+          "godot": "4.7.2-stable (official)",
+          "gpu": "unavailable/headless",
+          "logical_cores": 4,
+          "os": "Linux",
+          "renderer": "forward_plus"
+        },
+        "inclusive_scopes": true,
+        "limitations": [
+          "CPU wall-clock inclusive scopes; nested values overlap.",
+          "No GPU time or process RSS measurement.",
+          "Godot monitors may lag one second; some unavailable in release.",
+          "Profiler overhead is included; benchmarking requires OFF/ON comparison."
+        ],
+        "monitors": {
+          "fps": null,
+          "frame_ms": null,
+          "godot_static_bytes": 31965646,
+          "nodes": 1.0,
+          "objects": 1518.0,
+          "orphan_nodes": 0.0
+        },
+        "schema": 1,
+        "sections": {
+          "ai.pit_decision": {
+            "calls": 44,
+            "max_ms": 1.018,
+            "mean_ms": 0.904454545454546,
+            "min_ms": 0.839,
+            "total_ms": 39.796
+          },
+          "pit.advance": {
+            "calls": 296,
+            "max_ms": 0.106,
+            "mean_ms": 0.0110067567567568,
+            "min_ms": 0.006,
+            "total_ms": 3.258
+          },
+          "race.overtaking": {
+            "calls": 1700,
+            "max_ms": 9.003,
+            "mean_ms": 1.86738882352941,
+            "min_ms": 0.038,
+            "total_ms": 3174.561
+          },
+          "race.pace_thermal_drs_kers": {
+            "calls": 1700,
+            "max_ms": 6.841,
+            "mean_ms": 0.708434117647059,
+            "min_ms": 0.044,
+            "total_ms": 1204.338
+          },
+          "race.snapshot": {
+            "calls": 1700,
+            "max_ms": 8.51,
+            "mean_ms": 0.936422941176471,
+            "min_ms": 0.557,
+            "total_ms": 1591.919
+          },
+          "race.step": {
+            "calls": 85,
+            "max_ms": 189.047,
+            "mean_ms": 84.9264705882353,
+            "min_ms": 31.164,
+            "total_ms": 7218.75
+          },
+          "strategy.plan": {
+            "calls": 136,
+            "max_ms": 0.511,
+            "mean_ms": 0.427411764705882,
+            "min_ms": 0.387,
+            "total_ms": 58.128
+          }
+        },
+        "version": "0.6.5.7"
+      },
+      "profiler_on": true,
+      "seed": 6557,
+      "sim_per_wall": 47.0874605261648,
+      "sim_seconds": 339.999999999989,
+      "state_sha256": "fe69acc40c277e05accab0bcc35b73dc14cbd4ed77be94487e634addce58d4a3",
+      "wall_seconds": 7.220606,
+      "weather": "Chuva intensa",
+      "mode": "on",
+      "repeat": 1
+    },
+    {
+      "cars": 24,
+      "cpu": "Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz",
+      "godot": "4.7.2-stable (official)",
+      "laps": 3,
+      "profile": {},
+      "profiler_on": false,
+      "seed": 6557,
+      "sim_per_wall": 47.7472496530936,
+      "sim_seconds": 339.999999999989,
+      "state_sha256": "fe69acc40c277e05accab0bcc35b73dc14cbd4ed77be94487e634addce58d4a3",
+      "wall_seconds": 7.120829,
+      "weather": "Chuva intensa",
+      "mode": "base",
+      "repeat": 1
+    },
+    {
+      "cars": 24,
+      "cpu": "Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz",
+      "godot": "4.7.2-stable (official)",
+      "laps": 3,
+      "profile": {
+        "active_wall_seconds": 7.227731,
+        "context": {
+          "cars": 24,
+          "laps": 3,
+          "seed": 6557,
+          "track": "GBR",
+          "warmup_sim_seconds": 8,
+          "weather": "Chuva intensa"
+        },
+        "counters": {},
+        "enabled": false,
+        "environment": {
+          "cpu": "Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz",
+          "debug_build": true,
+          "display": "headless",
+          "godot": "4.7.2-stable (official)",
+          "gpu": "unavailable/headless",
+          "logical_cores": 4,
+          "os": "Linux",
+          "renderer": "forward_plus"
+        },
+        "inclusive_scopes": true,
+        "limitations": [
+          "CPU wall-clock inclusive scopes; nested values overlap.",
+          "No GPU time or process RSS measurement.",
+          "Godot monitors may lag one second; some unavailable in release.",
+          "Profiler overhead is included; benchmarking requires OFF/ON comparison."
+        ],
+        "monitors": {
+          "fps": null,
+          "frame_ms": null,
+          "godot_static_bytes": 31966162,
+          "nodes": 1.0,
+          "objects": 1518.0,
+          "orphan_nodes": 0.0
+        },
+        "schema": 1,
+        "sections": {
+          "ai.pit_decision": {
+            "calls": 44,
+            "max_ms": 1.21,
+            "mean_ms": 0.925045454545455,
+            "min_ms": 0.837,
+            "total_ms": 40.702
+          },
+          "pit.advance": {
+            "calls": 296,
+            "max_ms": 0.107,
+            "mean_ms": 0.0113074324324324,
+            "min_ms": 0.006,
+            "total_ms": 3.347
+          },
+          "race.overtaking": {
+            "calls": 1700,
+            "max_ms": 2.86,
+            "mean_ms": 1.85467352941176,
+            "min_ms": 0.038,
+            "total_ms": 3152.945
+          },
+          "race.pace_thermal_drs_kers": {
+            "calls": 1700,
+            "max_ms": 1.865,
+            "mean_ms": 0.708379411764706,
+            "min_ms": 0.043,
+            "total_ms": 1204.245
+          },
+          "race.snapshot": {
+            "calls": 1700,
+            "max_ms": 2.44,
+            "mean_ms": 0.945908235294118,
+            "min_ms": 0.556,
+            "total_ms": 1608.044
+          },
+          "race.step": {
+            "calls": 85,
+            "max_ms": 100.358,
+            "mean_ms": 85.0086823529412,
+            "min_ms": 31.403,
+            "total_ms": 7225.738
+          },
+          "strategy.plan": {
+            "calls": 136,
+            "max_ms": 0.611,
+            "mean_ms": 0.435669117647059,
+            "min_ms": 0.386,
+            "total_ms": 59.251
+          }
+        },
+        "version": "0.6.5.7"
+      },
+      "profiler_on": true,
+      "seed": 6557,
+      "sim_per_wall": 47.04131569579,
+      "sim_seconds": 339.999999999989,
+      "state_sha256": "fe69acc40c277e05accab0bcc35b73dc14cbd4ed77be94487e634addce58d4a3",
+      "wall_seconds": 7.227689,
+      "weather": "Chuva intensa",
+      "mode": "on",
+      "repeat": 2
+    },
+    {
+      "cars": 24,
+      "cpu": "Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz",
+      "godot": "4.7.2-stable (official)",
+      "laps": 3,
+      "profile": {},
+      "profiler_on": false,
+      "seed": 6557,
+      "sim_per_wall": 46.9387642403912,
+      "sim_seconds": 339.999999999989,
+      "state_sha256": "fe69acc40c277e05accab0bcc35b73dc14cbd4ed77be94487e634addce58d4a3",
+      "wall_seconds": 7.24348,
+      "weather": "Chuva intensa",
+      "mode": "base",
+      "repeat": 2
+    },
+    {
+      "cars": 24,
+      "cpu": "Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz",
+      "godot": "4.7.2-stable (official)",
+      "laps": 3,
+      "profile": {
+        "active_wall_seconds": 0.0,
+        "context": {
+          "cars": 24,
+          "laps": 3,
+          "seed": 6557,
+          "track": "GBR",
+          "warmup_sim_seconds": 8,
+          "weather": "Chuva intensa"
+        },
+        "counters": {},
+        "enabled": false,
+        "environment": {
+          "cpu": "Intel(R) Core(TM) i5-7500 CPU @ 3.40GHz",
+          "debug_build": true,
+          "display": "headless",
+          "godot": "4.7.2-stable (official)",
+          "gpu": "unavailable/headless",
+          "logical_cores": 4,
+          "os": "Linux",
+          "renderer": "forward_plus"
+        },
+        "inclusive_scopes": true,
+        "limitations": [
+          "CPU wall-clock inclusive scopes; nested values overlap.",
+          "No GPU time or process RSS measurement.",
+          "Godot monitors may lag one second; some unavailable in release.",
+          "Profiler overhead is included; benchmarking requires OFF/ON comparison."
+        ],
+        "monitors": {
+          "fps": null,
+          "frame_ms": null,
+          "godot_static_bytes": 31955030,
+          "nodes": 1.0,
+          "objects": 1518.0,
+          "orphan_nodes": 0.0
+        },
+        "schema": 1,
+        "sections": {},
+        "version": "0.6.5.7"
+      },
+      "profiler_on": false,
+      "seed": 6557,
+      "sim_per_wall": 46.8702138963552,
+      "sim_seconds": 339.999999999989,
+      "state_sha256": "fe69acc40c277e05accab0bcc35b73dc14cbd4ed77be94487e634addce58d4a3",
+      "wall_seconds": 7.254074,
+      "weather": "Chuva intensa",
+      "mode": "off",
+      "repeat": 2
+    }
+  ],
+  "summary": [
+    {
+      "weather": "Seco",
+      "all_hashes_equal": true,
+      "state_sha256": "0618280f76d1ea1f1580ccf1381c02521a6900fc651e7da82e9dc6b9212d99ff",
+      "median_wall_seconds": {
+        "base": 6.398326,
+        "off": 6.492849,
+        "on": 6.50568
+      },
+      "off_vs_base_percent": 1.4773082834478757,
+      "on_vs_off_percent": 0.19761740955319684
+    },
+    {
+      "weather": "Chuva intensa",
+      "all_hashes_equal": true,
+      "state_sha256": "fe69acc40c277e05accab0bcc35b73dc14cbd4ed77be94487e634addce58d4a3",
+      "median_wall_seconds": {
+        "base": 7.120829,
+        "off": 7.161194,
+        "on": 7.220606
+      },
+      "off_vs_base_percent": 0.5668581565432929,
+      "on_vs_off_percent": 0.8296381860343427
+    }
+  ]
+}
