@@ -1,0 +1,34 @@
+# Godot 4.x — cache gerado pelo editor
+.godot/
+.import/
+
+# Builds, exportações e distribuições
+/build/
+/builds/
+/dist/
+/exports/
+*.pck
+*.exe
+*.app/
+*.apk
+*.aab
+
+# Pacotes temporários e ferramentas (não são o projeto-fonte)
+*.zip
+*.tar.xz
+*.7z
+*.rar
+*.iso
+*.AppImage
+
+# Logs e arquivos temporários
+*.log
+*.tmp
+*~
+.DS_Store
+Thumbs.db
+__pycache__/
+*.pyc
+.venv/
+.vscode/
+.idea/
