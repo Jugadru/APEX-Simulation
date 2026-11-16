@@ -1,0 +1,21 @@
+
+name: APEX Godot Setup
+
+on:
+  workflow_dispatch:
+
+jobs:
+  godot-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar arquivos do projeto
+        uses: actions/checkout@v4
+
+      - name: Preparar Godot
+        uses: lihop/godot-setup@v3.0.1
+        with:
+          version: 4.7.2-stable
+
+      - name: Verificar Godot
+        run: godot --version
