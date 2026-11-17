@@ -147,9 +147,13 @@ def run_once(godot: str, project: Path, label: str, index: int,
         directory.mkdir(parents=True, exist_ok=True)
         env[key] = str(directory)
     env["APEX_TICKS"] = str(ticks)
+    # The Godot setup action exposes a shell-launchable shim. Invoke it
+    # through Bash so executable wrappers without a shebang work as in CI.
     command = [
-        godot, "--headless", "--path", str(project),
-        "--script", "res://" + BENCHMARK.as_posix(),
+        "bash", "-c",
+        '"$1" --headless --path "$2" --script "$3"',
+        "apex-benchmark", godot, str(project),
+        "res://" + BENCHMARK.as_posix(),
     ]
     try:
         proc = subprocess.run(command, env=env, capture_output=True,
