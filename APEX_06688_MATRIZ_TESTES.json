@@ -1,0 +1,57 @@
+[
+  {
+    "test": "Godot 4.7.2 import",
+    "status": "PASS",
+    "evidence": "Godot headless --import exit 0, no SCRIPT ERROR / Parse Error"
+  },
+  {
+    "test": "Grip-aware early defense, deterministic, lane lock",
+    "status": "PASS",
+    "evidence": "27 checks, 200 ticks, preserved V21, replay revision"
+  },
+  {
+    "test": "Driver Dynamics 0661/06687 & HUD",
+    "status": "PASS",
+    "evidence": "17 + 23 + 12 checks"
+  },
+  {
+    "test": "Racecraft 0662",
+    "status": "PASS",
+    "evidence": "1027 checks, 500 ticks"
+  },
+  {
+    "test": "Replay 0660 & double stack, car model",
+    "status": "PASS",
+    "evidence": "200 ticks / 5 speeds, double stack, car 3D"
+  },
+  {
+    "test": "Sorted Core 2 corridor inputs",
+    "status": "PASS",
+    "evidence": "4 checks"
+  },
+  {
+    "test": "Silverstone, Monza dry 750-tick baseline parity",
+    "status": "PASS",
+    "evidence": "Identical hashes and classification at 1,80,250,500,750"
+  },
+  {
+    "test": "Spa, Singapore heavy rain 750-tick expected divergence",
+    "status": "PASS",
+    "evidence": "Hashes diverge at tick 500; same 24-car order, event and checkpoint counts at tick 750"
+  },
+  {
+    "test": "Monza 53-lap complete race + full replay",
+    "status": "IN_PROGRESS",
+    "evidence": "Being run before PR merge"
+  },
+  {
+    "test": "GPU FPS on player's PC",
+    "status": "NOT_RUN",
+    "evidence": "Requires physical GPU test"
+  },
+  {
+    "test": "Multi-season save compatibility",
+    "status": "NOT_RUN",
+    "evidence": "No save schema changes, but extended career not run"
+  }
+]
