@@ -72,7 +72,7 @@ def markdown(report: dict) -> str:
         f"- Achados: **{report['finding_count']}** "
         f"(alta: {levels.get('HIGH', 0)}, média: {levels.get('MEDIUM', 0)}, "
         f"baixa: {levels.get('LOW', 0)}).",
-        "- Escopo: scripts Python próprios em tests/, tools/ e .github/scripts/.",
+        "- Escopo: ferramentas Python em tools/ e .github/scripts/ (exclui tools/tests/).",
         "- O relatório não modifica arquivos, nem cobre GDScript.",
         "",
         "| Regra Bandit | Ocorrências |",
