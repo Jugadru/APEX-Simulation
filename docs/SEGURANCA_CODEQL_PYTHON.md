@@ -6,7 +6,7 @@ Este repositório é **privado**. A automação `.github/workflows/apex-seguranc
 foi desenhada para não presumir uma licença do GitHub Code Security.
 
 - **Bandit 1.9.4:** executa no GitHub Actions sem habilitar CodeQL; varre
-  `.github/scripts/`, `tools/` e `tests/` e salva um JSON, logs e resumo.
+  `.github/scripts/` e `tools/` (excluindo `tools/tests/`, onde há assertivas de teste), e salva JSON, logs e resumo.
 - **CodeQL (Python):** configurado, porém o job é **omitido por padrão**.
   Só executa se `APEX_ENABLE_CODEQL=true` estiver definido nas variáveis de
   repositório **e** o GitHub Code Security estiver disponível e ativado.
