@@ -54,7 +54,8 @@ func _run() -> void:
 		if not ordered and race.lap >= 20:
 			var compound: String = "Chuva" if weather == "Chuva intensa" else "Duro"
 			for player in race.player_cars():
-				if race.order_pit(int(player.id), compound):
+				race.order_pit(int(player.id), compound)
+				if bool(player.get("pit_request", false)) and str(player.get("pit_target", "")) == compound:
 					player_pit_orders += 1
 			ordered = true
 		race.step(STEP_SECONDS)
