@@ -1,0 +1,89 @@
+name: APEX - Testes de Longa Duracao
+
+on:
+  workflow_dispatch:
+    inputs:
+      growth_ticks:
+        description: 'Ticks de stress Monza (2 repeticoes; multiplos de 250)'
+        required: true
+        type: choice
+        options:
+          - '6000'
+          - '10000'
+        default: '6000'
+  pull_request:
+    paths:
+      - 'scripts/**'
+      - 'data/**'
+      - 'tests/high_speed_growth_066723_benchmark.gd'
+      - 'tests/long_race_benchmark_0663.gd'
+      - 'tests/career_0667_20_season_data_stress.gd'
+      - 'tools/apex_endurance_ci.py'
+      - 'tools/tests/test_apex_endurance_ci.py'
+      - '.github/workflows/apex-endurance-ci.yml'
+  schedule:
+    # Domingo 12h UTC / 9h no Tocantins, ao integrar na branch padrao.
+    - cron: '0 12 * * 0'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: apex-endurance-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  endurance:
+    name: Determinismo, GPs, memoria e 20 temporadas de dados
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Baixar APEX
+        uses: actions/checkout@v4
+
+      - name: Instalar Godot 4.7.2
+        uses: lihop/godot-setup@v3.0.1
+        with:
+          version: 4.7.2-stable
+
+      - name: Verificar contratos de teste Python
+        run: |
+          python3 -m unittest discover -s tools/tests \
+            -p 'test_apex_endurance_ci.py' -v
+
+      - name: Importar projeto Godot
+        run: godot --headless --path . --import
+
+      - name: Executar provas de longa duracao
+        env:
+          APEX_GROWTH_TICKS: ${{ inputs.growth_ticks || '6000' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/apex_endurance_ci.py \
+            --project . \
+            --godot godot \
+            --growth-ticks "$APEX_GROWTH_TICKS" \
+            --per-run-timeout 300 \
+            --output ci_artifacts/endurance
+
+      - name: Resumir resultados
+        if: always()
+        shell: bash
+        run: |
+          if [ -f ci_artifacts/endurance/report.md ]; then
+            cat ci_artifacts/endurance/report.md >> "$GITHUB_STEP_SUMMARY"
+          elif [ -f ci_artifacts/endurance/error.txt ]; then
+            echo '### APEX Endurance: FAIL ou INCONCLUSIVE' >> "$GITHUB_STEP_SUMMARY"
+            cat ci_artifacts/endurance/error.txt >> "$GITHUB_STEP_SUMMARY"
+          fi
+          echo 'Os logs permitem inspecionar cada repeticao e falha.' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Guardar logs, hashes, snapshots e relatorios
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apex-endurance-relatorio
+          path: ci_artifacts/endurance/
+          retention-days: 14
+          if-no-files-found: warn
