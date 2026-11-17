@@ -1,17 +1,48 @@
-# APEX Motorsport Manager v0.6.6.0 — Deterministic Simulation & Replay
+# APEX Motorsport Manager — Core 2 v0.6.6.8.6
 
-Abra `project.godot` no **Godot 4.7.2** e pressione F5. No Linux, `linux/run_apex.sh` aceita `GODOT_BIN`. Os saves continuam no diretório estável das versões anteriores.
+Simulador de gestão de automobilismo criado em **Godot 4.7.2**. A branch `main` usa o **Core 2** como motor esportivo oficial. A **APEX 2 Next Engine** é uma experiência separada e **não está ativada**.
 
-A corrida usa ticks fixos e grava comandos/estados. **F9 abre o replay:** assistir, pausar, buscar um tick, exportar/importar e retornar à corrida original. **F8** continua abrindo o profiler. Replay é isolado do inventário e do campeonato.
+## Abrir o jogo
 
-O cenário ganhou áreas de apoio e estacionamento, terreno com variações, consoles e engenheiros nos boxes, detalhes da equipe de pit e zebras. HUD e câmeras existentes foram preservadas.
+1. Instale o Godot **4.7.2**.
+2. Abra `project.godot` no editor Godot e aguarde a importação dos recursos.
+3. Execute a cena principal (F5). No Linux, `linux/run_apex.sh` aceita a variável `GODOT_BIN`.
+4. Faça backup dos saves antes de mudar de versão. O diretório estável de usuário continua em `APEX_0650_SOUL_STAFF`.
 
-- [Como usar o replay e seus limites](docs/REPLAY_0660_USO.md)
-- [Relatório técnico](RELATORIO_TECNICO_APEX_v0.6.6.0.md)
-- [Benchmark](docs/BENCHMARK_0660.md)
-- [Contratos](docs/CONTRATOS_0660.md)
-- [Pesquisa](docs/PESQUISA_TECNICA_0660.md)
-- [Diário](docs/DIARIO_ENGENHARIA_0660.md)
-- [Próxima versão: IA de disputas](docs/PLANO_ENGENHARIA_0661.md)
+O projeto inclui corrida com 24 carros, 3D, HUD ReBroadcast, Pit Wall, replay determinístico e gerenciamento de equipe. As verificações esportivas possuem limitações descritas nos relatórios, e desempenho de FPS deve ser testado no hardware do jogador.
 
-Resultados são específicos ao runtime testado. Seek longo pode demorar, aceleração pode acumular backlog e não se promete identidade entre plataformas. O passo fixo muda a sequência numérica em relação à versão anterior. Consulte as evidências e limitações do relatório antes de comparar resultados esportivos entre versões.
+## Versão completa e histórico
+
+- [Release oficial do Core 2 v0.6.6.8.6 (ZIP completo)](https://github.com/Quereni/APEX-Simulation/releases/tag/Versions)
+- [Relatório técnico v0.6.6.8.6](APEX_06686_RELATORIO_TECNICO.md)
+- [Matriz histórica de testes](APEX_06686_MATRIZ_TESTES.json)
+- [Changelog da versão](APEX_06686_CHANGELOG.md)
+- [Referência histórica: replay v0.6.6.0](docs/REPLAY_0660_USO.md)
+
+As capturas, replays e outros arquivos grandes estão no pacote completo da Release; a árvore Git contém o código-fonte e testes leves.
+
+## Validação automatizada (GitHub Actions)
+
+O workflow [APEX Core 2 - Godot 4.7.2 CI](.github/workflows/godot-setup.yml) roda em push para `main` e em Pull Requests para `main`. Ele:
+
+1. Instala o Godot 4.7.2 e **importa realmente o projeto**, em modo headless;
+2. Executa seis testes de regressão reais em `tests/` (ordenação Core 2, Driver Dynamics, Racecraft, double stack, replay e modelo 3D);
+3. Verifica o código de saída, o marcador de sucesso e erros reportados; publica logs de diagnóstico.
+
+Para executar localmente no Linux, substitua `godot` pelo caminho do seu executável caso necessário:
+
+```bash
+godot --headless --single-threaded-scene --path . --import
+godot --headless --single-threaded-scene --path . --script res://tests/core2_06686_sort_contract.gd
+godot --headless --single-threaded-scene --path . --script res://tests/driver_dynamics_0661_test.gd
+godot --headless --single-threaded-scene --path . --script res://tests/racecraft_0662_test.gd
+godot --headless --single-threaded-scene --path . --script res://tests/pit_incidents_double_stack_test.gd
+godot --headless --single-threaded-scene --path . --script res://tests/replay_0660_test.gd
+godot --headless --single-threaded-scene --path . --script res://tests/car_model_smoke_test.gd
+```
+
+**Limite:** a bateria automática é um smoke test de engenharia, não substitui corridas completas de quatro pistas, testes de FPS 3D real ou saves de múltiplas temporadas. Mais testes direcionados devem ser adicionados gradualmente.
+
+## Documentação histórica
+
+Os relatórios e planos das versões anteriores continuam disponíveis na pasta `docs/`. O APEX 2 experimental não deve substituir o Core 2 sem aprovação e regressões específicas.

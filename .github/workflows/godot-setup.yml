@@ -1,25 +1,88 @@
-
-name: APEX Godot Setup
-
+name: APEX Core 2 - Godot 4.7.2 CI
 
 on:
   push:
+    branches: [main]
   pull_request:
+    branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: apex-core2-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  godot-check:
+  core2-smoke:
+    name: Import and Core 2 regression tests
     runs-on: ubuntu-latest
-
+    timeout-minutes: 20
     steps:
-      - name: Baixar arquivos do projeto
+      - name: Checkout Godot project
         uses: actions/checkout@v4
 
-      - name: Preparar Godot
+      - name: Install Godot 4.7.2
         uses: lihop/godot-setup@v3.0.1
         with:
           version: 4.7.2-stable
 
-      - name: Verificar Godot
-        run: godot --version
+      - name: Verify Godot executable and project
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f project.godot
+          test -f scripts/race_engine.gd
+          godot --version
+
+      - name: Import project (real editor check)
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 240s godot --headless --single-threaded-scene --path . --import 2>&1 | tee godot-import.log
+          if grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' godot-import.log; then
+            echo 'Godot reported import/parse errors'
+            exit 1
+          fi
+
+      - name: Run deterministic Core 2 smoke tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ci-results
+          tests=(
+            'core2_06686_sort_contract.gd|CORE2_06686_SORT_CONTRACT_PASS'
+            'driver_dynamics_0661_test.gd|DRIVER_DYNAMICS_0661_PASS'
+            'racecraft_0662_test.gd|RACECRAFT_0662_UNIT_PASS'
+            'pit_incidents_double_stack_test.gd|APEX INCIDENT DOUBLE STACK OK'
+            'replay_0660_test.gd|REPLAY_UNIT_PASS'
+            'car_model_smoke_test.gd|APEX CAR MODEL TEST OK'
+          )
+          for entry in "${tests[@]}"; do
+            script="${entry%%|*}"
+            marker="${entry#*|}"
+            log="ci-results/${script%.gd}.log"
+            echo "::group::${script}"
+            timeout 240s godot --headless --single-threaded-scene --path . --script "res://tests/${script}" 2>&1 | tee "${log}"
+            if ! grep -Fq "${marker}" "${log}"; then
+              echo "::error::Missing success marker ${marker} from ${script}"
+              exit 1
+            fi
+            if grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' "${log}"; then
+              echo "::error::Godot reported an error in ${script}"
+              exit 1
+            fi
+            echo "::endgroup::"
+          done
+
+      - name: Publish logs for diagnosis
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apex-core2-ci-logs
+          path: |
+            godot-import.log
+            ci-results/*.log
+          if-no-files-found: warn
+          retention-days: 7
