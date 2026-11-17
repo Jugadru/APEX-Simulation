@@ -29,51 +29,57 @@ static func _update_game_ui(host) -> void:
 	if host.live_event_label != null and not host.race.events.is_empty():
 		var recent: Dictionary = host.race.events[-1]
 		host.live_event_label.text = "RÁDIO  |  %s" % str(recent.get("message", ""))
-	var fastest: float = host._best_lap(order)
-	for idx in range(host.main_rows.size()):
-		var row: Dictionary = host.main_rows[idx]
-		var is_visible: bool = idx < order.size()
-		row["container"].visible = is_visible
-		if not is_visible:
-			continue
-		var car: Dictionary = order[idx]
-		var is_mine: bool = str(car["team"]) == host.selected_team
-		var is_filmed: bool = int(car["id"]) == host.focused_id
-		var is_selected: bool = int(car["id"]) == host.manual_driver
-		var team_color: Color = Color.from_string(str(car.get("color", "#e8f5ff")), WHITE)
-		row["pos"].text = "%02d" % (idx + 1)
-		row["icon"].text = host._icon_for_car(car, order, idx)
-		row["button"].text = str(car["name"])
-		row["button"].add_theme_color_override("font_color", GREEN if is_mine else WHITE)
-		row["color_bar"].color = team_color
-		row["tire"].text = host._compound_code(str(car["tire"]))
-		row["tire"].add_theme_color_override("font_color", host._tyre_color(str(car["tire"])))
-		row["wear"].text = "%d%%" % int(round(float(car["wear"])))
-		row["wear"].add_theme_color_override("font_color", host._wear_color(float(car["wear"])))
-		row["pit"].text = str(int(car.get("stops", 0)))
-		row["detail"].text = host._row_detail(order, idx)
-		var is_fastest: bool = fastest < 9999.0 and absf(float(car.get("best_lap", 9999.0)) - fastest) < 0.001
-		row["detail"].add_theme_color_override("font_color", Color("#d8a2ff") if is_fastest and host.table_mode == 4 else MUTED)
-		# Recreate the row background only when its state changes.
-		var row_style: int = 2 if is_selected else (1 if is_mine else (3 if is_filmed else 0))
-		if int(row.get("style_id", -1)) != row_style:
-			var bg: Color = Color(0.08, 0.13, 0.20, 0.68)
-			var stroke: Color = Color("#263d50")
-			if row_style == 1:
-				bg = Color(0.09, 0.22, 0.22, 0.84)
-				stroke = Color("#317a70")
-			elif row_style == 2:
-				bg = Color(0.11, 0.26, 0.29, 0.91)
-				stroke = GREEN
-			elif row_style == 3:
-				bg = Color(0.17, 0.20, 0.30, 0.8)
-				stroke = YELLOW
-			row["container"].add_theme_stylebox_override("panel", HudThemeScript.panel(bg, 5, stroke, 3))
-			row["style_id"] = row_style
-	host._update_telemetry(order)
-	host._refresh_player_cards()
-	host._refresh_strategy_blocks()
-	host._refresh_car_diagnostics()
+	# 06684: ReBroadcast replaces the old left/table and telemetry widgets.
+	# Keep sporting/event updates below unchanged; skip rendering invisible controls.
+	if host.left_panel != null and host.left_panel.is_visible_in_tree():
+		var fastest: float = host._best_lap(order)
+		for idx in range(host.main_rows.size()):
+			var row: Dictionary = host.main_rows[idx]
+			var is_visible: bool = idx < order.size()
+			row["container"].visible = is_visible
+			if not is_visible:
+				continue
+			var car: Dictionary = order[idx]
+			var is_mine: bool = str(car["team"]) == host.selected_team
+			var is_filmed: bool = int(car["id"]) == host.focused_id
+			var is_selected: bool = int(car["id"]) == host.manual_driver
+			var team_color: Color = Color.from_string(str(car.get("color", "#e8f5ff")), WHITE)
+			row["pos"].text = "%02d" % (idx + 1)
+			row["icon"].text = host._icon_for_car(car, order, idx)
+			row["button"].text = str(car["name"])
+			row["button"].add_theme_color_override("font_color", GREEN if is_mine else WHITE)
+			row["color_bar"].color = team_color
+			row["tire"].text = host._compound_code(str(car["tire"]))
+			row["tire"].add_theme_color_override("font_color", host._tyre_color(str(car["tire"])))
+			row["wear"].text = "%d%%" % int(round(float(car["wear"])))
+			row["wear"].add_theme_color_override("font_color", host._wear_color(float(car["wear"])))
+			row["pit"].text = str(int(car.get("stops", 0)))
+			row["detail"].text = host._row_detail(order, idx)
+			var is_fastest: bool = fastest < 9999.0 and absf(float(car.get("best_lap", 9999.0)) - fastest) < 0.001
+			row["detail"].add_theme_color_override("font_color", Color("#d8a2ff") if is_fastest and host.table_mode == 4 else MUTED)
+			# Recreate the row background only when its state changes.
+			var row_style: int = 2 if is_selected else (1 if is_mine else (3 if is_filmed else 0))
+			if int(row.get("style_id", -1)) != row_style:
+				var bg: Color = Color(0.08, 0.13, 0.20, 0.68)
+				var stroke: Color = Color("#263d50")
+				if row_style == 1:
+					bg = Color(0.09, 0.22, 0.22, 0.84)
+					stroke = Color("#317a70")
+				elif row_style == 2:
+					bg = Color(0.11, 0.26, 0.29, 0.91)
+					stroke = GREEN
+				elif row_style == 3:
+					bg = Color(0.17, 0.20, 0.30, 0.8)
+					stroke = YELLOW
+				row["container"].add_theme_stylebox_override("panel", HudThemeScript.panel(bg, 5, stroke, 3))
+				row["style_id"] = row_style
+		host._update_telemetry(order)
+	if host.player_card_strip != null and host.player_card_strip.is_visible_in_tree():
+		host._refresh_player_cards()
+	if host.right_panel != null and host.right_panel.is_visible_in_tree():
+		host._refresh_strategy_blocks()
+	if host.telemetry_panel != null and host.telemetry_panel.is_visible_in_tree():
+		host._refresh_car_diagnostics()
 	if host.weather_label != null:
 		var conditions_now: Dictionary = host.race.weather_snapshot()
 		host.weather_header.text = "☀ CONDIÇÕES" if str(conditions_now["sky"]) == "Céu limpo" else "☁ CONDIÇÕES"
@@ -156,7 +162,9 @@ static func _update_game_ui(host) -> void:
 	host.info_label.text = "%s\n\nVisual: %s\nModo efetivo: %s\nÂngulo: %s\nTecla M alterna visual; mouse move a câmera em modo Livre." % [host.director.reason, VISUAL_OPTIONS[host.visual_setting], "Câmera 3D" if host.render_mode == 1 else "Mapa estratégico", str(host.director.camera_style) if host.tv_shot_override == "Automático" else host.tv_shot_override]
 	if host.analytics_seen_count != host.race.pit_history.size() or (host.race.finished and not host.analytics_final_rendered):
 		host._refresh_pit_analytics()
-	host._refresh_telemetry_panel()
+	# Legacy telemetry detail has no consumers while its panel is hidden.
+	if host.telemetry_panel != null and host.telemetry_panel.is_visible_in_tree():
+		host._refresh_telemetry_panel()
 	if host.race_hud_0620 != null:
 		host.race_hud_0620.refresh_hud()
 

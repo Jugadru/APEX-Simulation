@@ -1,0 +1,32 @@
+[
+  {
+    "name": "native_1920_0_base",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "native_1920_0_new",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "native_1920_1_new",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "native_1920_1_base",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "native_1920_2_base",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "native_1920_2_new",
+    "exit": 0,
+    "pass": true
+  }
+]

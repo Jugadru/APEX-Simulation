@@ -1,0 +1,842 @@
+[
+  {
+    "result": {
+      "event_count": 48,
+      "hashes": {
+        "1": "58bba634e268853a4582e7304a594535aa7a34c5603ec869cba024d9b6591e75",
+        "250": "5388f52237541d3d1899c95fecba78cb5dd453f84cf8a09820725ea3d5f8bda1",
+        "500": "2499e5507de26b65e839dd4a294798ee367fe6c179a1f3c800893adc027ca851",
+        "750": "07b02fc4d097fe56923e1da814a3f05df3bc377859efe3ffc6b905584c9eb232"
+      },
+      "position_checksum": [
+        {
+          "id": 0,
+          "position": 2,
+          "progress": 1.57292769055495,
+          "stops": 0,
+          "tire": "Macio",
+          "wear": 7.48126738800601
+        },
+        {
+          "id": 1,
+          "position": 1,
+          "progress": 1.57960439900412,
+          "stops": 0,
+          "tire": "Macio",
+          "wear": 7.66806104079519
+        },
+        {
+          "id": 2,
+          "position": 4,
+          "progress": 1.55260767908362,
+          "stops": 0,
+          "tire": "Duro",
+          "wear": 4.0271784049046
+        },
+        {
+          "id": 3,
+          "position": 5,
+          "progress": 1.54824716267955,
+          "stops": 0,
+          "tire": "Macio",
+          "wear": 7.9921576005388
+        },
+        {
+          "id": 4,
+          "position": 3,
+          "progress": 1.56522938489666,
+          "stops": 0,
+          "tire": "Macio",
+          "wear": 8.16954065891755
+        },
+        {
+          "id": 5,
+          "position": 9,
+          "progress": 1.52118156165272,
+          "stops": 0,
+          "tire": "Macio",
+          "wear": 8.30975900450285
+        },
+        {
+          "id": 6,
+          "position": 6,
+          "progress": 1.54388664627547,
+          "stops": 0,
+          "tire": "Macio",
+          "wear": 8.50532208916752
+        },
+        {
+          "id": 7,
+          "position": 8,
+          "progress": 1.52554207805679,
+          "stops": 0,
+          "tire": "Duro",
+          "wear": 3.82366879143542
+        },
+        {
+          "id": 8,
+          "position": 7,
+          "progress": 1.53897539336608,
+          "stops": 0,
+          "tire": "Macio",
+          "wear": 7.60881172813574
+        },
+        {
+          "id": 9,
+          "position": 10,
+          "progress": 1.51682104524865,
+          "stops": 0,
+          "tire": "Macio",
+          "wear": 7.7867457367346
+        },
+        {
+          "id": 10,
+          "position": 11,
+          "progress": 1.51246052884457,
+          "stops": 0,
+          "tire": "Macio",
+          "wear": 7.93850004842115
+        },
+        {
+          "id": 11,
+          "position": 13,
+          "progress": 1.49685035024039,
+          "stops": 0,
+          "tire": "Macio",
+          "wear": 8.10398602518071
+        },
+        {
+          "id": 12,
+          "position": 12,
+          "progress": 1.50121086664446,
+          "stops": 0,
+          "tire": "Duro",
+          "wear": 4.25648750230071
+        },
+        {
+          "id": 13,
+          "position": 14,
+          "progress": 1.49248983383631,
+          "stops": 0,
+          "tire": "Macio",
+          "wear": 8.45407880846994
+        },
+        {
+          "id": 14,
+          "position": 15,
+          "progress": 1.48812931743224,
+          "stops": 0,
+          "tire": "Macio",
+          "wear": 7.39174629742533
+        },
+        {
+          "id": 15,
+          "position": 17,
+          "progress": 1.47387221321713,
+          "stops": 0,
+          "tire": "Macio",
+          "wear": 7.55731897619502
+        },
+        {
+          "id": 16,
+          "position": 16,
+          "progress": 1.4782327296212,
+          "stops": 0,
+          "tire": "Duro",
+          "wear": 3.974526368779
+        },
+        {
+          "id": 17,
+          "position": 18,
+          "progress": 1.46951169681305,
+          "stops": 0,
+          "tire": "Macio",
+          "wear": 7.89560258768591
+        },
+        {
+          "id": 18,
+          "position": 19,
+          "progress": 1.4650477758227,
+          "stops": 0,
+          "tire": "Macio",
+          "wear": 8.03797599964627
+        },
+        {
+          "id": 19,
+          "position": 20,
+          "progress": 1.45293613847743,
+          "stops": 0,
+          "tire": "Duro",
+          "wear": 4.22264306030738
+        },
+        {
+          "id": 20,
+          "position": 21,
+          "progress": 1.44640270931789,
+          "stops": 0,
+          "tire": "Macio",
+          "wear": 8.32422358122122
+        },
+        {
+          "id": 21,
+          "position": 23,
+          "progress": 1.43609394798218,
+          "stops": 0,
+          "tire": "Macio",
+          "wear": 7.2823388338584
+        },
+        {
+          "id": 22,
+          "position": 22,
+          "progress": 1.44045446438625,
+          "stops": 0,
+          "tire": "Macio",
+          "wear": 7.45099817071207
+        },
+        {
+          "id": 23,
+          "position": 24,
+          "progress": 1.42040162277838,
+          "stops": 0,
+          "tire": "Duro",
+          "wear": 3.91701269868352
+        }
+      ],
+      "snapshot_mean_ms": 0.511684,
+      "snapshot_total_ms": 383.763,
+      "tick_count": 750,
+      "wall_ms": 6560.223
+    },
+    "scenario": "GBR"
+  },
+  {
+    "result": {
+      "event_count": 5,
+      "hashes": {
+        "1": "3776ff61431d2827e41c06f51809d5a7a16fb5567b1a90959c28399298938447",
+        "250": "036f195110930f95c3aca631461faca2e3750f57999431a71e1c71e1d9c66f27",
+        "500": "e4dd5455db042befa60053d72d12899c815c3e924c5df93543ed96546d8d0bb7",
+        "750": "33a6c76a50034820ed8ad263b52719b908894c100b6621ba9e24267a72300d65"
+      },
+      "position_checksum": [
+        {
+          "id": 0,
+          "position": 1,
+          "progress": 1.22333418712192,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 3.80941219115225
+        },
+        {
+          "id": 1,
+          "position": 2,
+          "progress": 1.21434065763474,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 3.88540428449925
+        },
+        {
+          "id": 2,
+          "position": 3,
+          "progress": 1.20959976638304,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 3.97567761189381
+        },
+        {
+          "id": 3,
+          "position": 6,
+          "progress": 1.19343984249495,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 4.06151622657722
+        },
+        {
+          "id": 4,
+          "position": 4,
+          "progress": 1.2042632490572,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 4.15120227003479
+        },
+        {
+          "id": 5,
+          "position": 8,
+          "progress": 1.18161328768071,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 4.22690423516521
+        },
+        {
+          "id": 6,
+          "position": 5,
+          "progress": 1.19797929558291,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 4.32422819358341
+        },
+        {
+          "id": 7,
+          "position": 9,
+          "progress": 1.17637207349754,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 3.77979775021679
+        },
+        {
+          "id": 8,
+          "position": 10,
+          "progress": 1.17183262040958,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 3.87028598245223
+        },
+        {
+          "id": 9,
+          "position": 7,
+          "progress": 1.18665017174354,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 3.96084537429425
+        },
+        {
+          "id": 10,
+          "position": 12,
+          "progress": 1.15971977604422,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 4.04035222255291
+        },
+        {
+          "id": 11,
+          "position": 16,
+          "progress": 1.1378670914175,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 4.12564932633468
+        },
+        {
+          "id": 12,
+          "position": 14,
+          "progress": 1.14835235085145,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 4.2124768204029
+        },
+        {
+          "id": 13,
+          "position": 11,
+          "progress": 1.16425922913218,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 4.30421500696706
+        },
+        {
+          "id": 14,
+          "position": 13,
+          "progress": 1.15289180393941,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 3.76499308532988
+        },
+        {
+          "id": 15,
+          "position": 15,
+          "progress": 1.14240654450546,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 3.85017651775248
+        },
+        {
+          "id": 16,
+          "position": 17,
+          "progress": 1.13261718887962,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 3.9373042607558
+        },
+        {
+          "id": 17,
+          "position": 18,
+          "progress": 1.12724218018856,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 4.02356760801413
+        },
+        {
+          "id": 18,
+          "position": 21,
+          "progress": 1.10467791843941,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 4.09956065466441
+        },
+        {
+          "id": 19,
+          "position": 19,
+          "progress": 1.11888593996575,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 4.18781007059018
+        },
+        {
+          "id": 20,
+          "position": 20,
+          "progress": 1.10921737152737,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 4.25832906297249
+        },
+        {
+          "id": 21,
+          "position": 24,
+          "progress": 1.08632399843879,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 3.72400091337404
+        },
+        {
+          "id": 22,
+          "position": 22,
+          "progress": 1.09729129067189,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 3.81073942190253
+        },
+        {
+          "id": 23,
+          "position": 23,
+          "progress": 1.09086345152675,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 3.8927392643811
+        }
+      ],
+      "snapshot_mean_ms": 0.468457333333333,
+      "snapshot_total_ms": 351.343,
+      "tick_count": 750,
+      "wall_ms": 5341.335
+    },
+    "scenario": "BEL"
+  },
+  {
+    "result": {
+      "event_count": 44,
+      "hashes": {
+        "1": "e16bc98327f03ec90c6144e49f2f5f3186a2e10ef9ad3aa5461a5bc3d1dc0401",
+        "250": "d7f493db5e8f3a7bfec7cca978bea10aad645bd1abaddb05a2d577e417bb57f6",
+        "500": "08c0330cbe5b5762a309e878ac3692bbec4b70d6a65aef087d9e8a3696b2fc4f",
+        "750": "dcbe808a844e268856b83028cf0025966cd4018109f1ca265c3371e1df013e6f"
+      },
+      "position_checksum": [
+        {
+          "id": 0,
+          "position": 1,
+          "progress": 1.712990297365,
+          "stops": 0,
+          "tire": "Médio",
+          "wear": 3.5176786704556
+        },
+        {
+          "id": 1,
+          "position": 5,
+          "progress": 1.67352858301174,
+          "stops": 0,
+          "tire": "Médio",
+          "wear": 3.58030998586042
+        },
+        {
+          "id": 2,
+          "position": 3,
+          "progress": 1.69278680939333,
+          "stops": 0,
+          "tire": "Médio",
+          "wear": 3.66634051618419
+        },
+        {
+          "id": 3,
+          "position": 4,
+          "progress": 1.67918021945601,
+          "stops": 0,
+          "tire": "Duro",
+          "wear": 2.84164247767355
+        },
+        {
+          "id": 4,
+          "position": 2,
+          "progress": 1.69906309307987,
+          "stops": 0,
+          "tire": "Médio",
+          "wear": 3.83094970082187
+        },
+        {
+          "id": 5,
+          "position": 7,
+          "progress": 1.6605529934314,
+          "stops": 0,
+          "tire": "Médio",
+          "wear": 3.89186705686241
+        },
+        {
+          "id": 6,
+          "position": 6,
+          "progress": 1.66787694656747,
+          "stops": 0,
+          "tire": "Médio",
+          "wear": 3.98402716414923
+        },
+        {
+          "id": 7,
+          "position": 8,
+          "progress": 1.64734687678907,
+          "stops": 0,
+          "tire": "Duro",
+          "wear": 2.64076042355786
+        },
+        {
+          "id": 8,
+          "position": 10,
+          "progress": 1.63604360390054,
+          "stops": 0,
+          "tire": "Médio",
+          "wear": 3.56329304869538
+        },
+        {
+          "id": 9,
+          "position": 9,
+          "progress": 1.6416952403448,
+          "stops": 0,
+          "tire": "Médio",
+          "wear": 3.64677747564806
+        },
+        {
+          "id": 10,
+          "position": 12,
+          "progress": 1.61933719175459,
+          "stops": 0,
+          "tire": "Duro",
+          "wear": 2.81932744840821
+        },
+        {
+          "id": 11,
+          "position": 11,
+          "progress": 1.6298329893496,
+          "stops": 0,
+          "tire": "Médio",
+          "wear": 3.79416329206888
+        },
+        {
+          "id": 12,
+          "position": 15,
+          "progress": 1.60158405780067,
+          "stops": 0,
+          "tire": "Médio",
+          "wear": 3.87320650675202
+        },
+        {
+          "id": 13,
+          "position": 13,
+          "progress": 1.61368555531032,
+          "stops": 0,
+          "tire": "Médio",
+          "wear": 3.95806559117127
+        },
+        {
+          "id": 14,
+          "position": 16,
+          "progress": 1.59034134240567,
+          "stops": 0,
+          "tire": "Duro",
+          "wear": 2.62485025030468
+        },
+        {
+          "id": 15,
+          "position": 14,
+          "progress": 1.60643346454567,
+          "stops": 0,
+          "tire": "Médio",
+          "wear": 3.53744494414299
+        },
+        {
+          "id": 16,
+          "position": 17,
+          "progress": 1.5846897059614,
+          "stops": 0,
+          "tire": "Médio",
+          "wear": 3.61689680098389
+        },
+        {
+          "id": 17,
+          "position": 18,
+          "progress": 1.57903806951713,
+          "stops": 0,
+          "tire": "Médio",
+          "wear": 3.69526983464344
+        },
+        {
+          "id": 18,
+          "position": 19,
+          "progress": 1.56898272710777,
+          "stops": 0,
+          "tire": "Médio",
+          "wear": 3.76125908301909
+        },
+        {
+          "id": 19,
+          "position": 20,
+          "progress": 1.55628855730186,
+          "stops": 0,
+          "tire": "Duro",
+          "wear": 2.91436619977094
+        },
+        {
+          "id": 20,
+          "position": 21,
+          "progress": 1.54424224770368,
+          "stops": 0,
+          "tire": "Médio",
+          "wear": 3.89453047859435
+        },
+        {
+          "id": 21,
+          "position": 23,
+          "progress": 1.52933846728115,
+          "stops": 0,
+          "tire": "Médio",
+          "wear": 3.40472237054922
+        },
+        {
+          "id": 22,
+          "position": 22,
+          "progress": 1.53499010372542,
+          "stops": 0,
+          "tire": "Médio",
+          "wear": 3.48364830478286
+        },
+        {
+          "id": 23,
+          "position": 24,
+          "progress": 1.51477294009464,
+          "stops": 0,
+          "tire": "Duro",
+          "wear": 2.69977753928759
+        }
+      ],
+      "snapshot_mean_ms": 0.574686666666667,
+      "snapshot_total_ms": 431.015,
+      "tick_count": 750,
+      "wall_ms": 7367.855
+    },
+    "scenario": "ITA"
+  },
+  {
+    "result": {
+      "event_count": 5,
+      "hashes": {
+        "1": "bb0a0ea1c250c71bd3e1e8763e60ef7305eabef6b6866b4ba5aaca0f10cdc216",
+        "250": "c015a1b0ed0850b6b109202ab24a60dfc8bfea2030b0eb9f80f9920217737688",
+        "500": "8fecfc9f0b38246eed52da98c29eb820f8ea11fc4dc1abf27c0691eb619c9f02",
+        "750": "d7c269a7d7101edf90ff1769007cac45f3ca03f41daf8d0456c7b6025d6d46d4"
+      },
+      "position_checksum": [
+        {
+          "id": 0,
+          "position": 2,
+          "progress": 1.23398389353472,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 3.81531560920503
+        },
+        {
+          "id": 1,
+          "position": 1,
+          "progress": 1.23935022013955,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 3.90944710407305
+        },
+        {
+          "id": 2,
+          "position": 4,
+          "progress": 1.22409796597418,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 3.99172960177832
+        },
+        {
+          "id": 3,
+          "position": 5,
+          "progress": 1.21983081020519,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 4.07796267311987
+        },
+        {
+          "id": 4,
+          "position": 3,
+          "progress": 1.22799112162027,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 4.16811852491298
+        },
+        {
+          "id": 5,
+          "position": 8,
+          "progress": 1.20380759894487,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 4.24368699847743
+        },
+        {
+          "id": 6,
+          "position": 6,
+          "progress": 1.21423739082188,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 4.34155564742913
+        },
+        {
+          "id": 7,
+          "position": 9,
+          "progress": 1.19923144258749,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 3.79482526702808
+        },
+        {
+          "id": 8,
+          "position": 7,
+          "progress": 1.20784305522766,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 3.88604668697079
+        },
+        {
+          "id": 9,
+          "position": 11,
+          "progress": 1.1883529146691,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 3.9762827862102
+        },
+        {
+          "id": 10,
+          "position": 12,
+          "progress": 1.184459759023,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 4.05633522616815
+        },
+        {
+          "id": 11,
+          "position": 10,
+          "progress": 1.19224607031519,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 4.14235036074185
+        },
+        {
+          "id": 12,
+          "position": 14,
+          "progress": 1.17550546905086,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 4.22917326984334
+        },
+        {
+          "id": 13,
+          "position": 13,
+          "progress": 1.1802307381574,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 4.32079271780625
+        },
+        {
+          "id": 14,
+          "position": 17,
+          "progress": 1.15999674007082,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 3.77944976588719
+        },
+        {
+          "id": 15,
+          "position": 18,
+          "progress": 1.15610358442473,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 3.86506932493909
+        },
+        {
+          "id": 16,
+          "position": 15,
+          "progress": 1.16874440218389,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 3.95294952505462
+        },
+        {
+          "id": 17,
+          "position": 16,
+          "progress": 1.16388989571691,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 4.03922752999185
+        },
+        {
+          "id": 18,
+          "position": 19,
+          "progress": 1.14825963560723,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 4.11586813201679
+        },
+        {
+          "id": 19,
+          "position": 20,
+          "progress": 1.14375931371822,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 4.20279556546408
+        },
+        {
+          "id": 20,
+          "position": 22,
+          "progress": 1.12927642948195,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 4.27129103525652
+        },
+        {
+          "id": 21,
+          "position": 23,
+          "progress": 1.12462237094652,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 3.73811434132256
+        },
+        {
+          "id": 22,
+          "position": 21,
+          "progress": 1.13316958512804,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 3.82779681725966
+        },
+        {
+          "id": 23,
+          "position": 24,
+          "progress": 1.11848129628226,
+          "stops": 0,
+          "tire": "Intermediário",
+          "wear": 3.90735246002739
+        }
+      ],
+      "snapshot_mean_ms": 0.463096,
+      "snapshot_total_ms": 347.322,
+      "tick_count": 750,
+      "wall_ms": 5406.535
+    },
+    "scenario": "SIN"
+  }
+]

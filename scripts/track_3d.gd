@@ -37,6 +37,8 @@ var camera_3d: Camera3D
 var course_root: Node3D
 var car_root: Node3D
 var live_cars: Dictionary = {}
+# Presentation-only references: nodes stay stable for the lifetime of a car model.
+var marker_cache: Dictionary = {}
 var last_positions: Dictionary = {}
 var models_created: int = 0
 var route: PackedVector2Array = PackedVector2Array()
@@ -116,6 +118,7 @@ func set_track_data(track: PackedVector2Array, title: String, teams: Array = [],
 	visual_lanes.clear()
 	occupation.clear()
 	live_cars.clear()
+	marker_cache.clear()
 	pit_visual_phase.clear()
 	if car_root != null:
 		for old_car in car_root.get_children():
@@ -179,18 +182,27 @@ func set_race_cars(cars: Array, selected_id: int, motion_delta: float = -1.0) ->
 		if not live_cars.has(id):
 			live_cars[id] = _create_car(str(car.get("color", "#dddddd")), str(car.get("team", "")), id + 1)
 		var model: Node3D = live_cars[id]
-		var queue_tag: Label3D = model.get_node_or_null("QueueTag") as Label3D
-		if queue_tag == null:
-			queue_tag = Label3D.new()
-			queue_tag.name = "QueueTag"
-			queue_tag.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-			queue_tag.font_size = 25
-			queue_tag.pixel_size = 0.012
-			queue_tag.position = Vector3(0.0, 2.6, 0.0)
-			queue_tag.modulate = Color("#ffce75")
-			queue_tag.outline_modulate = Color("#151b20")
-			queue_tag.outline_size = 4
-			model.add_child(queue_tag)
+		# Resolve scene nodes once per model, not four times on every frame.
+		# The cache contains no sporting state and is cleared with the models.
+		if not marker_cache.has(id):
+			var tag := Label3D.new()
+			tag.name = "QueueTag"
+			tag.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+			tag.font_size = 25
+			tag.pixel_size = 0.012
+			tag.position = Vector3(0.0, 2.6, 0.0)
+			tag.modulate = Color("#ffce75")
+			tag.outline_modulate = Color("#151b20")
+			tag.outline_size = 4
+			model.add_child(tag)
+			marker_cache[id] = {
+				"queue": tag,
+				"focus": model.get_node("FocusDisc"),
+				"player": model.get_node("PlayerRing"),
+				"number": model.get_node("NumberTag")
+			}
+		var markers: Dictionary = marker_cache[id]
+		var queue_tag: Label3D = markers["queue"]
 		var stage: String = str(car.get("pit_stage", "none"))
 		queue_tag.visible = stage in ["queue", "repair", "safety_hold"]
 		if stage == "queue":
@@ -259,9 +271,9 @@ func set_race_cars(cars: Array, selected_id: int, motion_delta: float = -1.0) ->
 			wheel_visual_phase = 0.52  # tyre still being serviced, visual state only
 		model.call("set_pit_wheel_swap", wheel_visual_phase,
 			PitComplexScript.STOP_START, PitComplexScript.STOP_END)
-		(model.get_node("FocusDisc") as MeshInstance3D).visible = id == selected_id
-		(model.get_node("PlayerRing") as MeshInstance3D).visible = bool(car.get("player", false)) and id != selected_id
-		(model.get_node("NumberTag") as Label3D).visible = id == selected_id
+		(markers["focus"] as MeshInstance3D).visible = id == selected_id
+		(markers["player"] as MeshInstance3D).visible = bool(car.get("player", false)) and id != selected_id
+		(markers["number"] as Label3D).visible = id == selected_id
 	if pit_complex != null:
 		pit_complex.update_pit_services(servicing_cars, float(Time.get_ticks_msec()) * 0.001)
 	for existing in live_cars.keys():
@@ -270,6 +282,7 @@ func set_race_cars(cars: Array, selected_id: int, motion_delta: float = -1.0) ->
 			car_root.remove_child(old)
 			old.queue_free()
 			live_cars.erase(existing)
+			marker_cache.erase(existing)
 			last_positions.erase(existing)
 			visual_lanes.erase(existing)
 			pit_visual_phase.erase(existing)

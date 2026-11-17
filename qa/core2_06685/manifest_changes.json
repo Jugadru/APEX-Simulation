@@ -1,0 +1,37 @@
+{
+  "base": "APEX_MOTORSPORT_MANAGER_v0.6.6.8.4_CORE2_HUD_CPU_COMPLETO.zip",
+  "unchanged_file_count": 2852,
+  "modifications": [
+    {
+      "file": "project.godot",
+      "change": "MODIFIED",
+      "before_sha256": "a1360bec959c688e9687cc209ac343460b03cb5040b15555df7519fef60ca0e6",
+      "after_sha256": "c1eded8b8add9cf8794b68c9160b118945668e737769a30136c0c7123849821b"
+    },
+    {
+      "file": "scripts/car_model_3d.gd",
+      "change": "MODIFIED",
+      "before_sha256": "0a5d56333fc4a1f48a428de55d21827525d8d8379447c76bb5eb8b778e067781",
+      "after_sha256": "b9b3673e7dba18a00ac08f1297b85d54905401a53e990a91e7b488c54af809df"
+    },
+    {
+      "file": "scripts/main.gd",
+      "change": "MODIFIED",
+      "before_sha256": "37d74008716c775ec86285be0523c24a95d6127c4466d3371d88eceb6b89abee",
+      "after_sha256": "3e17d31ca124e98722fc6db0139fe6e3e40ec6ec524387a7e2f9f4b1413e9b15"
+    },
+    {
+      "file": "scripts/pit_complex_3d.gd",
+      "change": "MODIFIED",
+      "before_sha256": "7d1dd48253cec58217a4601ebc82348513c64d61dce126c5726fea192615e356",
+      "after_sha256": "671ff605e14d19951a5ea1b2be33c9b7ff2bc8eb2273a2a7db02a3feb8b35fbf"
+    },
+    {
+      "file": "scripts/track_3d.gd",
+      "change": "MODIFIED",
+      "before_sha256": "ce45caefe3507347087885f1691c7703ceb5c0888148f1ccae68bad6c6b4a302",
+      "after_sha256": "03b93de07be145d3cca4e9be058a30b16b5835515e65dbaf84a223362ad2892e"
+    }
+  ],
+  "missing_base_files": []
+}

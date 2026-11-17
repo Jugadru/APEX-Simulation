@@ -1,0 +1,27 @@
+[
+  {
+    "test": "racecraft_0654_test",
+    "passed": true,
+    "exit_code": 0
+  },
+  {
+    "test": "racecraft_0654_native",
+    "passed": true,
+    "exit_code": 0
+  },
+  {
+    "test": "battle_motion_0652_test",
+    "passed": true,
+    "exit_code": 0
+  },
+  {
+    "test": "component_inventory_0651_test",
+    "passed": true,
+    "exit_code": 0
+  },
+  {
+    "test": "unified_hud_test",
+    "passed": true,
+    "exit_code": 0
+  }
+]

@@ -1,0 +1,35 @@
+{
+  "version": "v0.6.6.7.2.4",
+  "environment": "Godot 4.7.2 Linux headless tests, and Godot OpenGL Compatibility/Mesa llvmpipe for actual captures; not user hardware FPS",
+  "pit_scenario": {
+    "description": "180 synthetic UI calls at delta=1/60, two teammates entering pit; differing processed ticks limit comparability",
+    "baseline": {
+      "frames": 180,
+      "ticks": 355,
+      "hud_refreshes": 12,
+      "hud_total_ms": 225.438,
+      "p95_frame_ms": 33.549
+    },
+    "candidate": {
+      "frames": 180,
+      "ticks": 325,
+      "hud_refreshes": 6,
+      "hud_total_ms": 130.91,
+      "p95_frame_ms": 28.43
+    },
+    "limitations": "not matched number of ticks, cannot claim global fps gain or even throughput increase"
+  },
+  "requested_32x": {
+    "expected_label": "32x selected",
+    "effective_x_test_90_frames": 22.93,
+    "effective_x_render_capture_100_frames": 21.07,
+    "cpu_limited": true,
+    "normalization": "synthetic 60Hz delta, not actual end-user FPS"
+  },
+  "rejected_sporting_optimization": {
+    "baseline_750_ticks_ms": 6716.738,
+    "candidate_750_ticks_ms": 7044.82,
+    "reverted": true,
+    "identical_hashes": true
+  }
+}

@@ -1,0 +1,128 @@
+[
+  {
+    "name": "pitwall_06494_confidence_test",
+    "mode": "headless",
+    "status": "PASS",
+    "log": "logs/pitwall_06494_confidence_test.log"
+  },
+  {
+    "name": "pitwall_0649_strategy_test",
+    "mode": "headless",
+    "status": "PASS",
+    "log": "logs/pitwall_0649_strategy_test.log"
+  },
+  {
+    "name": "pitwall_06491_stint_reset_test",
+    "mode": "headless",
+    "status": "PASS",
+    "log": "logs/pitwall_06491_stint_reset_test.log"
+  },
+  {
+    "name": "double_stack_06492_entry_test",
+    "mode": "headless",
+    "status": "PASS",
+    "log": "logs/double_stack_06492_entry_test.log"
+  },
+  {
+    "name": "double_stack_single_smoke_test",
+    "mode": "headless",
+    "status": "PASS",
+    "log": "logs/double_stack_single_smoke_test.log"
+  },
+  {
+    "name": "pit_balance_06493_threshold_test",
+    "mode": "headless",
+    "status": "PASS",
+    "log": "logs/pit_balance_06493_threshold_test.log"
+  },
+  {
+    "name": "race_0645_intelligence_test",
+    "mode": "headless",
+    "status": "PASS",
+    "log": "logs/race_0645_intelligence_test.log"
+  },
+  {
+    "name": "race_0646_engineer_3_test",
+    "mode": "headless",
+    "status": "PASS",
+    "log": "logs/race_0646_engineer_3_test.log"
+  },
+  {
+    "name": "race_0647_soul2_test",
+    "mode": "headless",
+    "status": "PASS",
+    "log": "logs/race_0647_soul2_test.log"
+  },
+  {
+    "name": "staff_0648_contracts_test",
+    "mode": "headless",
+    "status": "PASS",
+    "log": "logs/staff_0648_contracts_test.log"
+  },
+  {
+    "name": "staff_0648_career_integration_test",
+    "mode": "headless",
+    "status": "PASS",
+    "log": "logs/staff_0648_career_integration_test.log"
+  },
+  {
+    "name": "core_0640_pitwall_intelligence_test",
+    "mode": "headless",
+    "status": "PASS",
+    "log": "logs/core_0640_pitwall_intelligence_test.log"
+  },
+  {
+    "name": "core_0635_soul_stint_smoke_test",
+    "mode": "headless",
+    "status": "PASS",
+    "log": "logs/core_0635_soul_stint_smoke_test.log"
+  },
+  {
+    "name": "core_0642_save_migration_test",
+    "mode": "headless",
+    "status": "PASS",
+    "log": "logs/core_0642_save_migration_test.log"
+  },
+  {
+    "name": "track_0644_hud_integration_test",
+    "mode": "headless",
+    "status": "PASS",
+    "log": "logs/track_0644_hud_integration_test.log"
+  },
+  {
+    "name": "core_0622_corner_hud_smoke_test",
+    "mode": "headless",
+    "status": "PASS",
+    "log": "logs/core_0622_corner_hud_smoke_test.log"
+  },
+  {
+    "name": "pit_lane_regression_test",
+    "mode": "headless",
+    "status": "PASS",
+    "log": "logs/pit_lane_regression_test_isolated.log"
+  },
+  {
+    "name": "pitwall_06494_confidence_ui_test",
+    "mode": "Xvfb render",
+    "status": "PASS",
+    "log": "logs/pitwall_06494_confidence_ui_test.log"
+  },
+  {
+    "name": "pitwall_0649_ui_test",
+    "mode": "Xvfb render",
+    "status": "PASS",
+    "log": "logs/pitwall_0649_ui_test.xvfb.log"
+  },
+  {
+    "name": "race_0647_soul2_ui_test",
+    "mode": "Xvfb render",
+    "status": "PASS",
+    "log": "logs/race_0647_soul2_ui_test.xvfb.log"
+  },
+  {
+    "name": "staff_0648_ui_test",
+    "mode": "Xvfb render",
+    "status": "PASS",
+    "log": "logs/staff_0648_ui_test.xvfb.log"
+  }
+]

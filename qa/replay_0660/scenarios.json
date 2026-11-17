@@ -1,0 +1,47 @@
+[
+  {
+    "name": "verified_replay_0660_test",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "verified_replay_0660_integration",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "gp_GBR",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "gp_BEL",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "gp_ITA",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "gp_SIN",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "gp_CHN",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "gp_GER",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "full_GBR_retry",
+    "exit": 0,
+    "pass": true
+  }
+]

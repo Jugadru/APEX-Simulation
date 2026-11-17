@@ -1,0 +1,28 @@
+{
+  "version": "0.6.6.8.4",
+  "baseline_filename": "APEX_MOTORSPORT_MANAGER_v0.6.6.8.3_CORE2_SNAPSHOT_CPU_COMPLETO.zip",
+  "baseline_sha256": "e4f4d39602c82c07a2ff5c354c111930fd1f9e65d18765b50f3c08bb07a0a4ad",
+  "base_entries": 2824,
+  "byte_identical_base_files": 2821,
+  "modified_base_files": [
+    {
+      "path": "project.godot",
+      "old_sha256": "5f610b30b4972c342257a064c849cdb771c713967c7db45af7b2aea3959edbe3",
+      "new_sha256": "a1360bec959c688e9687cc209ac343460b03cb5040b15555df7519fef60ca0e6"
+    },
+    {
+      "path": "scripts/apex_race_ui_presenter.gd",
+      "old_sha256": "0c939629ab8f898e9f41377b19ed2527b17fa231cf0b9add28c624d2e0186b3b",
+      "new_sha256": "f4d9401bcb20ae27b73656906d64b87f9471ec0f3d4fbb18ef1ce1cca631a30a"
+    },
+    {
+      "path": "scripts/main.gd",
+      "old_sha256": "4cb0dde714343e4ec5f9f759d6ba41d77f56ba2dbec0a1ea2a36e6e0e149fa02",
+      "new_sha256": "37d74008716c775ec86285be0523c24a95d6127c4466d3371d88eceb6b89abee"
+    }
+  ],
+  "missing_base_files": [],
+  "next_engine_activated": false,
+  "race_engine_modified": false,
+  "save_schema_modified": false
+}

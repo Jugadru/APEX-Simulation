@@ -1,0 +1,112 @@
+[
+  {
+    "test": "ZIP-base SHA-256 e CRC",
+    "status": "PASS",
+    "evidence": "d582bc698a235bd5f945f8bdaecd407e3f47b36715bb19c215be5e92d34ba27c; zipfile.testzip() returned None"
+  },
+  {
+    "test": "Importação da v0.6.6.8.6 no Godot 4.7.2",
+    "status": "PASS",
+    "evidence": "qa/core2_06686/logs/new_import3.log; exit 0"
+  },
+  {
+    "test": "Ordenação otimizada e fallback",
+    "status": "PASS",
+    "evidence": "tests/core2_06686_sort_contract.gd; 4 verificações"
+  },
+  {
+    "test": "A/B esportivo em quatro pistas × 750 ticks",
+    "status": "PASS",
+    "evidence": "qa/core2_06686/four_base_750.json and four_new_750.json: hashes, posições, eventos e checkpoints idênticos"
+  },
+  {
+    "test": "Monza 53 voltas completa",
+    "status": "PASS",
+    "evidence": "qa/core2_06686/monza_53_full.json; 24.431 ticks, 24 finalistas e hash histórico"
+  },
+  {
+    "test": "Replay integral Monza 24.431 ticks",
+    "status": "PASS",
+    "evidence": "qa/core2_06686/monza_53_full.json: full_replay_verified=true"
+  },
+  {
+    "test": "Racecraft Core 2",
+    "status": "PASS",
+    "evidence": "RACECRAFT_0662_UNIT_PASS; 1.027 verificações"
+  },
+  {
+    "test": "Driver Dynamics",
+    "status": "PASS",
+    "evidence": "DRIVER_DYNAMICS_0661_PASS; 17 verificações"
+  },
+  {
+    "test": "Double stack",
+    "status": "PASS",
+    "evidence": "tests/pit_incidents_double_stack_test.gd; exit 0"
+  },
+  {
+    "test": "Ordem manual de box V21/pending",
+    "status": "PASS",
+    "evidence": "HUD_06681_PENDING_ORDERS; 30 verificações e 750 ticks Spa com V21 mantida"
+  },
+  {
+    "test": "HUD e câmera 2D/3D",
+    "status": "PASS",
+    "evidence": "HUD_06681_CAMERA_POLICY_PASS; 18 combinações"
+  },
+  {
+    "test": "Replay unitário",
+    "status": "PASS",
+    "evidence": "REPLAY_UNIT_PASS; 200 ticks e velocidades 1,2,5,16,32"
+  },
+  {
+    "test": "Teste visual 3D e pit",
+    "status": "PASS",
+    "evidence": "APEX_06685_3D_VISUAL; 26 verificações"
+  },
+  {
+    "test": "Teste legado car_model_smoke atualizado",
+    "status": "PASS",
+    "evidence": "APEX CAR MODEL TEST OK; verificação dos meshes atuais sem alterar car_model_3d.gd"
+  },
+  {
+    "test": "Captura gráfica de HUD COMPACT em 3D",
+    "status": "PASS",
+    "evidence": "qa/core2_06686/hud_compact_3d_1600x900.png 1600×900; imagem real salva"
+  },
+  {
+    "test": "Encerramento do processo gráfico virtual",
+    "status": "INCONCLUSIVE",
+    "evidence": "Captura salva mas processo passou do limite (llvmpipe/Xvfb), sem saída limpa"
+  },
+  {
+    "test": "Benchmark A/B direto do módulo",
+    "status": "PASS",
+    "evidence": "175×5 chamadas por pista; mediana de 1.572 para 1.536 ms nos pares das quatro pistas; desempenho do jogo inteiro não comprovado"
+  },
+  {
+    "test": "Desempenho global e pico de memória da engine",
+    "status": "INCONCLUSIVE",
+    "evidence": "Replay + corrida têm memória própria; os ensaios não isolam um eventual vazamento nem FPS"
+  },
+  {
+    "test": "FPS no PC real do jogador",
+    "status": "NOT_RUN",
+    "evidence": "Requer execução no hardware do jogador"
+  },
+  {
+    "test": "GP completo em Silverstone, Spa e Singapura",
+    "status": "NOT_RUN",
+    "evidence": "Paridade em 750 ticks por pista; distância oficial não executada"
+  },
+  {
+    "test": "Save/load de carreira de múltiplas temporadas",
+    "status": "NOT_RUN",
+    "evidence": "Nenhuma estrutura de saves alterada, mas não foi feita simulação prolongada de carreira"
+  },
+  {
+    "test": "Importação final após reextração",
+    "status": "PASS",
+    "evidence": "ZIP reextraído em /mnt/data/apex_06686_clean, editor headless importou com exit 0; ordenação, carro 3D, ordens V21 e quatro circuitos passaram novamente"
+  }
+]

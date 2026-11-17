@@ -1,0 +1,67 @@
+{
+  "version": "v0.6.6.7.2.4",
+  "summary": {
+    "passed": 9,
+    "failed": 0,
+    "not_run": 3
+  },
+  "tests": [
+    {
+      "name": "GP GBR Seco + replay integral",
+      "status": "passed",
+      "ticks": 1668,
+      "final_hash": "7bca12f99088048b747f7ac3626b635133628cb0ae57de15db4fdf072be64837"
+    },
+    {
+      "name": "GP BEL Chuva intensa + replay integral",
+      "status": "passed",
+      "ticks": 2067,
+      "final_hash": "33c7c2d71e34779fb7e74f359f2663e0bea34074aaf4c655dc678f3b97fd8c0e"
+    },
+    {
+      "name": "GP ITA Seco + replay integral",
+      "status": "passed",
+      "ticks": 1553,
+      "final_hash": "5d4c508a64dce8d1c481a3661f56c6bdf97a2a7a7bab37a5e290be5e54188592"
+    },
+    {
+      "name": "GP SIN Chuva intensa + replay integral",
+      "status": "passed",
+      "ticks": 2050,
+      "final_hash": "48085a06fed3d7761a58206673c03685043645d813ea809e0b76c968e94439c9"
+    },
+    {
+      "name": "Pit wall garage-side positioning & effective 32x",
+      "status": "passed"
+    },
+    {
+      "name": "Pit service with 4 mechanics & tyre swap",
+      "status": "passed"
+    },
+    {
+      "name": "Pit Wall same-tick manual booking / double-stack",
+      "status": "passed"
+    },
+    {
+      "name": "2D Auto high speed and manual camera",
+      "status": "passed"
+    },
+    {
+      "name": "High-speed UI frame budget & replay hash",
+      "status": "passed"
+    },
+    {
+      "name": "FPS on end-user computer",
+      "status": "not_run"
+    },
+    {
+      "name": "Monza full 53 laps in this maintenance build",
+      "status": "not_run"
+    },
+    {
+      "name": "20 complete playable seasons",
+      "status": "not_run"
+    }
+  ],
+  "notes": "4 short GPs use historical hashes and complete replay; 32x real throughput not guaranteed; visual 3D screenshot generated with Godot."
+}

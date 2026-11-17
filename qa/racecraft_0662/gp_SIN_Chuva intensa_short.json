@@ -1,0 +1,793 @@
+{
+  "audit": {
+    "counts": {
+      "approaches": 35,
+      "attack_signals": 6,
+      "blocked_ticks": 6170,
+      "confirmed_passes": 0,
+      "contacts": 0,
+      "defense_signals": 1,
+      "driving_errors": 0,
+      "duel_entries": 5,
+      "position_gains_other": 40,
+      "yield_signals": 0
+    },
+    "coverage": "from_start",
+    "drivers": {
+      "0": {
+        "counts": {
+          "approaches": 1,
+          "attack_signals": 0,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 0,
+          "yield_signals": 0
+        },
+        "driver_id": 0,
+        "name": "Sebastian Vettel",
+        "risk_group": "balanced"
+      },
+      "10": {
+        "counts": {
+          "approaches": 1,
+          "attack_signals": 0,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 2,
+          "yield_signals": 0
+        },
+        "driver_id": 10,
+        "name": "Sergio Perez",
+        "risk_group": "balanced"
+      },
+      "11": {
+        "counts": {
+          "approaches": 1,
+          "attack_signals": 0,
+          "blocked_ticks": 1205,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 2,
+          "yield_signals": 0
+        },
+        "driver_id": 11,
+        "name": "Kamui Kobayashi",
+        "risk_group": "balanced"
+      },
+      "12": {
+        "counts": {
+          "approaches": 1,
+          "attack_signals": 0,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 2,
+          "yield_signals": 0
+        },
+        "driver_id": 12,
+        "name": "Paul di Resta",
+        "risk_group": "balanced"
+      },
+      "13": {
+        "counts": {
+          "approaches": 1,
+          "attack_signals": 0,
+          "blocked_ticks": 1409,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 2,
+          "yield_signals": 0
+        },
+        "driver_id": 13,
+        "name": "Nico Hulkenberg",
+        "risk_group": "balanced"
+      },
+      "14": {
+        "counts": {
+          "approaches": 1,
+          "attack_signals": 0,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 2,
+          "yield_signals": 0
+        },
+        "driver_id": 14,
+        "name": "Pastor Maldonado",
+        "risk_group": "balanced"
+      },
+      "15": {
+        "counts": {
+          "approaches": 1,
+          "attack_signals": 0,
+          "blocked_ticks": 1440,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 2,
+          "yield_signals": 0
+        },
+        "driver_id": 15,
+        "name": "Bruno Senna",
+        "risk_group": "balanced"
+      },
+      "16": {
+        "counts": {
+          "approaches": 1,
+          "attack_signals": 0,
+          "blocked_ticks": 1,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 2,
+          "yield_signals": 0
+        },
+        "driver_id": 16,
+        "name": "Daniel Ricciardo",
+        "risk_group": "balanced"
+      },
+      "17": {
+        "counts": {
+          "approaches": 1,
+          "attack_signals": 0,
+          "blocked_ticks": 1,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 2,
+          "yield_signals": 0
+        },
+        "driver_id": 17,
+        "name": "Jean-Eric Vergne",
+        "risk_group": "balanced"
+      },
+      "18": {
+        "counts": {
+          "approaches": 1,
+          "attack_signals": 0,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 2,
+          "yield_signals": 0
+        },
+        "driver_id": 18,
+        "name": "Heikki Kovalainen",
+        "risk_group": "balanced"
+      },
+      "19": {
+        "counts": {
+          "approaches": 1,
+          "attack_signals": 0,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 2,
+          "yield_signals": 0
+        },
+        "driver_id": 19,
+        "name": "Vitaly Petrov",
+        "risk_group": "balanced"
+      },
+      "2": {
+        "counts": {
+          "approaches": 1,
+          "attack_signals": 0,
+          "blocked_ticks": 460,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 2,
+          "yield_signals": 0
+        },
+        "driver_id": 2,
+        "name": "Lewis Hamilton",
+        "risk_group": "aggressive"
+      },
+      "20": {
+        "counts": {
+          "approaches": 1,
+          "attack_signals": 0,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 2,
+          "yield_signals": 0
+        },
+        "driver_id": 20,
+        "name": "Timo Glock",
+        "risk_group": "balanced"
+      },
+      "21": {
+        "counts": {
+          "approaches": 1,
+          "attack_signals": 0,
+          "blocked_ticks": 892,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 2,
+          "yield_signals": 0
+        },
+        "driver_id": 21,
+        "name": "Charles Pic",
+        "risk_group": "balanced"
+      },
+      "22": {
+        "counts": {
+          "approaches": 1,
+          "attack_signals": 0,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 2,
+          "yield_signals": 0
+        },
+        "driver_id": 22,
+        "name": "Pedro de la Rosa",
+        "risk_group": "balanced"
+      },
+      "23": {
+        "counts": {
+          "approaches": 1,
+          "attack_signals": 0,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 2,
+          "yield_signals": 0
+        },
+        "driver_id": 23,
+        "name": "Narain Karthikeyan",
+        "risk_group": "balanced"
+      },
+      "3": {
+        "counts": {
+          "approaches": 1,
+          "attack_signals": 0,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 2,
+          "yield_signals": 0
+        },
+        "driver_id": 3,
+        "name": "Jenson Button",
+        "risk_group": "balanced"
+      },
+      "4": {
+        "counts": {
+          "approaches": 1,
+          "attack_signals": 0,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 1,
+          "yield_signals": 0
+        },
+        "driver_id": 4,
+        "name": "Fernando Alonso",
+        "risk_group": "aggressive"
+      },
+      "5": {
+        "counts": {
+          "approaches": 1,
+          "attack_signals": 0,
+          "blocked_ticks": 408,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 1,
+          "yield_signals": 0
+        },
+        "driver_id": 5,
+        "name": "Felipe Massa",
+        "risk_group": "balanced"
+      },
+      "6": {
+        "counts": {
+          "approaches": 1,
+          "attack_signals": 0,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 2,
+          "yield_signals": 0
+        },
+        "driver_id": 6,
+        "name": "Kimi Räikkönen",
+        "risk_group": "balanced"
+      },
+      "7": {
+        "counts": {
+          "approaches": 7,
+          "attack_signals": 0,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 1,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 2,
+          "yield_signals": 0
+        },
+        "driver_id": 7,
+        "name": "Romain Grosjean",
+        "risk_group": "balanced"
+      },
+      "8": {
+        "counts": {
+          "approaches": 1,
+          "attack_signals": 0,
+          "blocked_ticks": 0,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 0,
+          "position_gains_other": 1,
+          "yield_signals": 0
+        },
+        "driver_id": 8,
+        "name": "Nico Rosberg",
+        "risk_group": "balanced"
+      },
+      "9": {
+        "counts": {
+          "approaches": 7,
+          "attack_signals": 6,
+          "blocked_ticks": 354,
+          "confirmed_passes": 0,
+          "contacts": 0,
+          "defense_signals": 0,
+          "driving_errors": 0,
+          "duel_entries": 5,
+          "position_gains_other": 1,
+          "yield_signals": 0
+        },
+        "driver_id": 9,
+        "name": "Michael Schumacher",
+        "risk_group": "balanced"
+      }
+    },
+    "end_tick": 2050,
+    "note": "Signals only. Position gains outside combat are not overtakes; blocked_ticks are 0.2s observations. No FIA calibration.",
+    "sample_count": 47,
+    "samples": [
+      {
+        "condition": "wet",
+        "driver_id": 2,
+        "event_id": 6,
+        "tick": 584,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 3,
+        "event_id": 7,
+        "tick": 587,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 6,
+        "event_id": 8,
+        "tick": 592,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 8,
+        "event_id": 9,
+        "tick": 597,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 7,
+        "event_id": 11,
+        "tick": 599,
+        "type": "defense_signals"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 7,
+        "event_id": 12,
+        "tick": 601,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 9,
+        "event_id": 13,
+        "tick": 601,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 10,
+        "event_id": 14,
+        "tick": 606,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 12,
+        "event_id": 15,
+        "tick": 610,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 11,
+        "event_id": 16,
+        "tick": 614,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 13,
+        "event_id": 17,
+        "tick": 617,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 14,
+        "event_id": 18,
+        "tick": 622,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 16,
+        "event_id": 19,
+        "tick": 626,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 15,
+        "event_id": 20,
+        "tick": 630,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 17,
+        "event_id": 21,
+        "tick": 634,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 18,
+        "event_id": 22,
+        "tick": 640,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 19,
+        "event_id": 23,
+        "tick": 644,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 20,
+        "event_id": 25,
+        "tick": 650,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 22,
+        "event_id": 26,
+        "tick": 654,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 21,
+        "event_id": 27,
+        "tick": 656,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 23,
+        "event_id": 28,
+        "tick": 660,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 9,
+        "event_id": 32,
+        "tick": 690,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 9,
+        "event_id": 39,
+        "tick": 904,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 9,
+        "event_id": 41,
+        "tick": 1114,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 9,
+        "event_id": 42,
+        "tick": 1307,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 9,
+        "event_id": 45,
+        "tick": 1523,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 9,
+        "event_id": 46,
+        "tick": 1735,
+        "type": "attack_signals"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 2,
+        "event_id": 48,
+        "tick": 1846,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 3,
+        "event_id": 50,
+        "tick": 1851,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 6,
+        "event_id": 51,
+        "tick": 1856,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 7,
+        "event_id": 52,
+        "tick": 1866,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 10,
+        "event_id": 54,
+        "tick": 1875,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 12,
+        "event_id": 55,
+        "tick": 1881,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 11,
+        "event_id": 56,
+        "tick": 1884,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 13,
+        "event_id": 57,
+        "tick": 1886,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 14,
+        "event_id": 58,
+        "tick": 1891,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 16,
+        "event_id": 59,
+        "tick": 1896,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 15,
+        "event_id": 60,
+        "tick": 1898,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 17,
+        "event_id": 61,
+        "tick": 1902,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 18,
+        "event_id": 62,
+        "tick": 1909,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 19,
+        "event_id": 63,
+        "tick": 1914,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 20,
+        "event_id": 64,
+        "tick": 1923,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 22,
+        "event_id": 65,
+        "tick": 1929,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 21,
+        "event_id": 66,
+        "tick": 1932,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 23,
+        "event_id": 67,
+        "tick": 1938,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 4,
+        "event_id": 68,
+        "tick": 2002,
+        "type": "position_gains_other"
+      },
+      {
+        "condition": "wet",
+        "driver_id": 5,
+        "event_id": 69,
+        "tick": 2050,
+        "type": "position_gains_other"
+      }
+    ],
+    "schema": "APEX_RACECRAFT_AUDIT_0662",
+    "start_tick": 0,
+    "track_code": "SIN",
+    "weather_and_risk": {
+      "wet/aggressive": {
+        "approaches": 2,
+        "attack_signals": 0,
+        "blocked_ticks": 460,
+        "confirmed_passes": 0,
+        "contacts": 0,
+        "defense_signals": 0,
+        "driving_errors": 0,
+        "duel_entries": 0,
+        "position_gains_other": 3,
+        "yield_signals": 0
+      },
+      "wet/balanced": {
+        "approaches": 33,
+        "attack_signals": 6,
+        "blocked_ticks": 5710,
+        "confirmed_passes": 0,
+        "contacts": 0,
+        "defense_signals": 1,
+        "driving_errors": 0,
+        "duel_entries": 5,
+        "position_gains_other": 37,
+        "yield_signals": 0
+      }
+    }
+  },
+  "full_distance": false,
+  "hash": "48085a06fed3d7761a58206673c03685043645d813ea809e0b76c968e94439c9",
+  "laps": 3,
+  "live_ms": 14390,
+  "matches_0661_short_baseline": true,
+  "passed": true,
+  "pit_phases": [
+    "approach",
+    "dock",
+    "service",
+    "queue",
+    "repair",
+    "safety_hold",
+    "exit"
+  ],
+  "pit_stops": 2,
+  "replay_ms": 14927,
+  "ticks": 2050,
+  "track": "SIN",
+  "weather": "Chuva intensa"
+}

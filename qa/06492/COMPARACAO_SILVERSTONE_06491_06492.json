@@ -1,0 +1,53 @@
+{
+  "version_before": "0.6.4.9.1",
+  "version_after": "0.6.4.9.2",
+  "circuit": "GBR - Silverstone",
+  "seed": 6403,
+  "weather": "Variável",
+  "native_step_s": 0.2,
+  "ticks": 26600,
+  "laps": 52,
+  "drivers": 24,
+  "winner_before": "Fernando Alonso",
+  "winner_after": "Fernando Alonso",
+  "pits_before": 90,
+  "pits_after": 90,
+  "events_same": true,
+  "laps_same": true,
+  "pit_history_same": true,
+  "three_queues_after": [
+    {
+      "driver": "Felipe Massa",
+      "team": "Ferrari",
+      "lap": 14,
+      "wait_s": 1.11
+    },
+    {
+      "driver": "Kamui Kobayashi",
+      "team": "Sauber Ferrari",
+      "lap": 14,
+      "wait_s": 6.64
+    },
+    {
+      "driver": "Jean-Eric Vergne",
+      "team": "Toro Rosso Ferrari",
+      "lap": 14,
+      "wait_s": 7.27
+    }
+  ],
+  "controlled_case": {
+    "scenario": "Dry Silverstone, safe tyre wear 35%, two already-authorized AI pit calls near entry",
+    "before": {
+      "first_stops": 1,
+      "second_stops": 1,
+      "second_wait_s": 7.4
+    },
+    "after": {
+      "first_stops": 1,
+      "second_stops": 0,
+      "second_wait_s": 0.0,
+      "second_continued": true
+    },
+    "note": "First 30 seconds of controlled scenario only; pit stop postponed rather than deleted from strategy"
+  }
+}

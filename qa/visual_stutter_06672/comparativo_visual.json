@@ -1,0 +1,342 @@
+{
+  "version": "0.6.6.7.2",
+  "base": "0.6.6.7.1",
+  "scenario": "Godot 4.7.2 headless, 24 cars, 125 simulation updates of 0.5 s each, per circuit; identical race data and seed",
+  "metric_note": "CPU measured per visual set_race_cars call (not actual gameplay FPS); headless may differ from graphics-enabled hardware. Different runs can have CPU scheduling noise.",
+  "baseline": {
+    "failures": 0,
+    "results": [
+      {
+        "code": "GBR",
+        "collisions": 0,
+        "collisions_detail": [],
+        "held": 1,
+        "lag_count": 0,
+        "long_holds": [],
+        "longest_held_consecutive": 1,
+        "max_progress_lag": 0.000545064550818986,
+        "max_resync_step_meters": 0.0,
+        "max_stationary": 0,
+        "max_step_meters": 8.22999572753906,
+        "max_us": 422719,
+        "mean_us": 6268.608,
+        "p95_step_meters": 7.86913204193115,
+        "p95_us": 3599,
+        "p99_us": 6163,
+        "resynced": 0,
+        "stationary_samples": 0,
+        "ticks": 125
+      },
+      {
+        "code": "MON",
+        "collisions": 0,
+        "collisions_detail": [],
+        "held": 891,
+        "lag_count": 812,
+        "long_holds": [
+          {
+            "id": 15,
+            "position": "(183.5844, -181.5011)",
+            "progress": 0.157433557195455,
+            "tick": 35
+          },
+          {
+            "id": 14,
+            "position": "(180.0058, -194.3743)",
+            "progress": 0.147615669900102,
+            "tick": 36
+          },
+          {
+            "id": 18,
+            "position": "(159.5605, -194.5908)",
+            "progress": 0.13310744772969,
+            "tick": 37
+          },
+          {
+            "id": 22,
+            "position": "(161.9506, -195.2864)",
+            "progress": 0.134824764698478,
+            "tick": 38
+          },
+          {
+            "id": 10,
+            "position": "(-103.7162, 181.2581)",
+            "progress": 0.588971738393354,
+            "tick": 117
+          },
+          {
+            "id": 11,
+            "position": "(-108.8675, 178.7829)",
+            "progress": 0.585027905556879,
+            "tick": 118
+          },
+          {
+            "id": 12,
+            "position": "(-113.8367, 175.8824)",
+            "progress": 0.581057130702772,
+            "tick": 118
+          },
+          {
+            "id": 13,
+            "position": "(-118.551, 172.5551)",
+            "progress": 0.577074887643358,
+            "tick": 118
+          },
+          {
+            "id": 20,
+            "position": "(-131.474, 159.0829)",
+            "progress": 0.564150182011774,
+            "tick": 121
+          }
+        ],
+        "longest_held_consecutive": 108,
+        "max_progress_lag": 0.169283190419832,
+        "max_resync_step_meters": 0.0,
+        "max_stationary": 26,
+        "max_step_meters": 49.0463447570801,
+        "max_us": 448402,
+        "mean_us": 13670.88,
+        "p95_step_meters": 9.87863922119141,
+        "p95_us": 36374,
+        "p99_us": 42863,
+        "resynced": 0,
+        "stationary_samples": 285,
+        "ticks": 125
+      },
+      {
+        "code": "BEL",
+        "collisions": 0,
+        "collisions_detail": [],
+        "held": 1339,
+        "lag_count": 1308,
+        "long_holds": [
+          {
+            "id": 7,
+            "position": "(-82.10773, -194.5867)",
+            "progress": 0.0268663844970133,
+            "tick": 26
+          },
+          {
+            "id": 6,
+            "position": "(-81.66143, -189.1303)",
+            "progress": 0.0226347078327479,
+            "tick": 26
+          },
+          {
+            "id": 10,
+            "position": "(-78.35654, -184.4452)",
+            "progress": 0.0185665325091912,
+            "tick": 32
+          },
+          {
+            "id": 9,
+            "position": "(-75.06674, -179.7904)",
+            "progress": 0.0145235770060952,
+            "tick": 32
+          },
+          {
+            "id": 11,
+            "position": "(-71.81387, -175.1097)",
+            "progress": 0.0104806283395783,
+            "tick": 33
+          },
+          {
+            "id": 12,
+            "position": "(-68.59219, -170.4075)",
+            "progress": 0.00643767804777986,
+            "tick": 33
+          },
+          {
+            "id": 13,
+            "position": "(-65.40067, -165.6848)",
+            "progress": 0.00239472428128944,
+            "tick": 33
+          },
+          {
+            "id": 15,
+            "position": "(-62.23088, -160.9474)",
+            "progress": -0.00164822634423142,
+            "tick": 33
+          },
+          {
+            "id": 17,
+            "position": "(-59.03521, -156.2275)",
+            "progress": -0.00569117160417463,
+            "tick": 33
+          },
+          {
+            "id": 14,
+            "position": "(-55.80993, -151.5278)",
+            "progress": -0.00973412097564979,
+            "tick": 33
+          },
+          {
+            "id": 16,
+            "position": "(-52.57016, -146.8381)",
+            "progress": -0.0137770668856738,
+            "tick": 33
+          },
+          {
+            "id": 19,
+            "position": "(-49.33036, -142.1483)",
+            "progress": -0.0178199949055507,
+            "tick": 34
+          },
+          {
+            "id": 18,
+            "position": "(-46.08849, -137.46)",
+            "progress": -0.0218629135660942,
+            "tick": 34
+          },
+          {
+            "id": 20,
+            "position": "(-42.81811, -132.7915)",
+            "progress": -0.0259058663776103,
+            "tick": 34
+          },
+          {
+            "id": 21,
+            "position": "(-39.51034, -128.1495)",
+            "progress": -0.029948820127812,
+            "tick": 34
+          },
+          {
+            "id": 23,
+            "position": "(-36.16747, -123.5327)",
+            "progress": -0.0339917692067167,
+            "tick": 35
+          },
+          {
+            "id": 22,
+            "position": "(-32.7986, -118.9348)",
+            "progress": -0.0380347145743068,
+            "tick": 35
+          }
+        ],
+        "longest_held_consecutive": 118,
+        "max_progress_lag": 0.419724634061749,
+        "max_resync_step_meters": 0.0,
+        "max_stationary": 96,
+        "max_step_meters": 410.470458984375,
+        "max_us": 457777,
+        "mean_us": 54501.76,
+        "p95_step_meters": 6.32162570953369,
+        "p95_us": 95659,
+        "p99_us": 97866,
+        "resynced": 0,
+        "stationary_samples": 1168,
+        "ticks": 125
+      },
+      {
+        "code": "SIN",
+        "collisions": 0,
+        "collisions_detail": [],
+        "held": 23,
+        "lag_count": 8,
+        "long_holds": [],
+        "longest_held_consecutive": 3,
+        "max_progress_lag": 0.00194657788317848,
+        "max_resync_step_meters": 0.0,
+        "max_stationary": 0,
+        "max_step_meters": 10.4042806625366,
+        "max_us": 424054,
+        "mean_us": 6094.6,
+        "p95_step_meters": 7.56869554519653,
+        "p95_us": 3298,
+        "p99_us": 3609,
+        "resynced": 0,
+        "stationary_samples": 0,
+        "ticks": 125
+      }
+    ]
+  },
+  "optimized": {
+    "failures": 0,
+    "results": [
+      {
+        "code": "GBR",
+        "collisions": 0,
+        "collisions_detail": [],
+        "held": 1,
+        "lag_count": 0,
+        "long_holds": [],
+        "longest_held_consecutive": 1,
+        "max_progress_lag": 0.000545064550818986,
+        "max_resync_step_meters": 0.0,
+        "max_stationary": 0,
+        "max_step_meters": 8.22999572753906,
+        "max_us": 450910,
+        "mean_us": 6492.984,
+        "p95_step_meters": 7.86913204193115,
+        "p95_us": 3925,
+        "p99_us": 4761,
+        "resynced": 0,
+        "stationary_samples": 0,
+        "ticks": 125
+      },
+      {
+        "code": "MON",
+        "collisions": 0,
+        "collisions_detail": [],
+        "held": 421,
+        "lag_count": 303,
+        "long_holds": [],
+        "longest_held_consecutive": 16,
+        "max_progress_lag": 0.0380991771380305,
+        "max_resync_step_meters": 43.0131607055664,
+        "max_stationary": 2,
+        "max_step_meters": 46.5990333557129,
+        "max_us": 589480,
+        "mean_us": 9457.352,
+        "p95_step_meters": 9.88082027435303,
+        "p95_us": 11636,
+        "p99_us": 15387,
+        "resynced": 13,
+        "stationary_samples": 61,
+        "ticks": 125
+      },
+      {
+        "code": "BEL",
+        "collisions": 0,
+        "collisions_detail": [],
+        "held": 170,
+        "lag_count": 112,
+        "long_holds": [],
+        "longest_held_consecutive": 11,
+        "max_progress_lag": 0.00981712627437283,
+        "max_resync_step_meters": 19.1452445983887,
+        "max_stationary": 2,
+        "max_step_meters": 19.1452445983887,
+        "max_us": 485522,
+        "mean_us": 7792.016,
+        "p95_step_meters": 6.36195373535156,
+        "p95_us": 6598,
+        "p99_us": 17242,
+        "resynced": 2,
+        "stationary_samples": 11,
+        "ticks": 125
+      },
+      {
+        "code": "SIN",
+        "collisions": 0,
+        "collisions_detail": [],
+        "held": 23,
+        "lag_count": 8,
+        "long_holds": [],
+        "longest_held_consecutive": 3,
+        "max_progress_lag": 0.00194657788317848,
+        "max_resync_step_meters": 0.0,
+        "max_stationary": 0,
+        "max_step_meters": 10.4042806625366,
+        "max_us": 476555,
+        "mean_us": 7196.312,
+        "p95_step_meters": 7.56869554519653,
+        "p95_us": 5832,
+        "p99_us": 8486,
+        "resynced": 0,
+        "stationary_samples": 0,
+        "ticks": 125
+      }
+    ]
+  }
+}

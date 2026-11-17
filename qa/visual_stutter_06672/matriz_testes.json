@@ -1,0 +1,170 @@
+{
+  "version": "v0.6.6.7.2",
+  "base": "v0.6.6.7.1",
+  "engine": "Godot 4.7.2 stable, Linux",
+  "changed_existing_files": [
+    "project.godot",
+    "scripts/apex_racecraft_0654.gd",
+    "scripts/track_3d.gd"
+  ],
+  "baseline_original_files_preserved": 2563,
+  "tests": [
+    {
+      "name": "Godot 4.7.2 import / parser",
+      "status": "PASS",
+      "details": "Imported the modified project headless with zero parser errors."
+    },
+    {
+      "name": "Visual stutter: four tracks native simulation",
+      "status": "PASS",
+      "details": "GBR, MON, BEL, SIN; 125 ticks per track, 24 cars, no body overlap, max 2 consecutive fully stationary updates; JSON and logs."
+    },
+    {
+      "name": "Racecraft 0654 unit / lane / collision / pause",
+      "status": "PASS"
+    },
+    {
+      "name": "Racecraft 0654 native 3D integration",
+      "status": "PASS",
+      "details": "GBR + MON 60 ticks each, 2880 car observations."
+    },
+    {
+      "name": "Racecraft 0662 unit",
+      "status": "PASS",
+      "details": "1027 checks, 500 ticks; historical hash preserved."
+    },
+    {
+      "name": "Driver Dynamics 0661",
+      "status": "PASS"
+    },
+    {
+      "name": "TV Director 0667 highlights",
+      "status": "PASS"
+    },
+    {
+      "name": "Pit Wall 0667 same-tick double-stack regression",
+      "status": "PASS"
+    },
+    {
+      "name": "Replay 0660 UI integration",
+      "status": "PASS",
+      "details": "UI, seek, live restore, inventory isolation."
+    },
+    {
+      "name": "Visual profiler F8 counters",
+      "status": "PASS",
+      "details": "100 occupancy calls; 32 stalled-car frames, 11 recovered-car frames in controlled Monza case."
+    },
+    {
+      "name": "GBR 3 laps dry + integral short replay",
+      "status": "PASS",
+      "details": {
+        "result": "PASS",
+        "laps": 3,
+        "ticks": 1668,
+        "sporting_sha256": "7bca12f99088048b747f7ac3626b635133628cb0ae57de15db4fdf072be64837",
+        "full_short_replay": true
+      }
+    },
+    {
+      "name": "BEL 3 laps heavy rain + integral short replay",
+      "status": "PASS",
+      "details": {
+        "result": "PASS",
+        "laps": 3,
+        "ticks": 2067,
+        "sporting_sha256": "33c7c2d71e34779fb7e74f359f2663e0bea34074aaf4c655dc678f3b97fd8c0e",
+        "full_short_replay": true
+      }
+    },
+    {
+      "name": "ITA 3 laps dry + integral short replay",
+      "status": "PASS",
+      "details": {
+        "result": "PASS",
+        "laps": 3,
+        "ticks": 1553,
+        "sporting_sha256": "5d4c508a64dce8d1c481a3661f56c6bdf97a2a7a7bab37a5e290be5e54188592",
+        "full_short_replay": true
+      }
+    },
+    {
+      "name": "SIN 3 laps heavy rain + integral short replay",
+      "status": "PASS",
+      "details": {
+        "result": "PASS",
+        "laps": 3,
+        "ticks": 2050,
+        "sporting_sha256": "48085a06fed3d7761a58206673c03685043645d813ea809e0b76c968e94439c9",
+        "full_short_replay": true
+      }
+    },
+    {
+      "name": "Godot independent-window real capture 1600x900",
+      "status": "PASS",
+      "details": "Mesa llvmpipe, Xvfb; image present, no XServer BadWindow observed."
+    },
+    {
+      "name": "Godot independent-window real capture 1920x1080",
+      "status": "PASS",
+      "details": "Mesa llvmpipe, Xvfb; image present."
+    },
+    {
+      "name": "Original package file integrity",
+      "status": "PASS",
+      "details": "2563 original files preserved, only ['project.godot', 'scripts/apex_racecraft_0654.gd', 'scripts/track_3d.gd'] changed."
+    },
+    {
+      "name": "Full 53-lap Monza newly simulated after visual hotfix",
+      "status": "NOT_RUN",
+      "details": "Not needed to claim short race deterministic preservation; no false full replay approval."
+    },
+    {
+      "name": "Player hardware GPU/X11 compositor and FPS benchmark",
+      "status": "NOT_RUN",
+      "details": "Cannot access the user PC; Xvfb/llvmpipe is not a GPU real-world FPS test."
+    },
+    {
+      "name": "Visual teleport / recovery jump absent in all circumstances",
+      "status": "LIMITED",
+      "details": "At coarse 0.5-second simulation steps, reset may produce noticeable visual jumps; max observed 43.0 m on Monza. 60 FPS camera smoothness not certified."
+    }
+  ],
+  "summary": {
+    "pass": 17,
+    "fail": 0,
+    "not_run": 2,
+    "limited": 1
+  },
+  "gp": {
+    "GBR": {
+      "result": "PASS",
+      "laps": 3,
+      "ticks": 1668,
+      "sporting_sha256": "7bca12f99088048b747f7ac3626b635133628cb0ae57de15db4fdf072be64837",
+      "full_short_replay": true
+    },
+    "BEL": {
+      "result": "PASS",
+      "laps": 3,
+      "ticks": 2067,
+      "sporting_sha256": "33c7c2d71e34779fb7e74f359f2663e0bea34074aaf4c655dc678f3b97fd8c0e",
+      "full_short_replay": true
+    },
+    "ITA": {
+      "result": "PASS",
+      "laps": 3,
+      "ticks": 1553,
+      "sporting_sha256": "5d4c508a64dce8d1c481a3661f56c6bdf97a2a7a7bab37a5e290be5e54188592",
+      "full_short_replay": true
+    },
+    "SIN": {
+      "result": "PASS",
+      "laps": 3,
+      "ticks": 2050,
+      "sporting_sha256": "48085a06fed3d7761a58206673c03685043645d813ea809e0b76c968e94439c9",
+      "full_short_replay": true
+    }
+  },
+  "visual_fps_note": "No FPS claims on player hardware; 3D screenshot via llvmpipe, Godot CPU benchmarks headless."
+}

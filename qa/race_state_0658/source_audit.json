@@ -1,0 +1,13 @@
+{
+  "modified_production_scripts": [
+    "scripts/track_map.gd",
+    "scripts/main.gd",
+    "scripts/apex_mini_map.gd"
+  ],
+  "unchanged_count": 102,
+  "missing": [],
+  "engine_sha256": "8eda013dd4a17889e308919f0f434efa1c101047410ca3e9b40277bc8c4ef95f",
+  "new_scripts": [
+    "scripts/race_view_snapshot_0658.gd"
+  ]
+}

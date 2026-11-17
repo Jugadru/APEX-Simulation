@@ -1,0 +1,86 @@
+{
+  "version": "0.6.6.7.2.3",
+  "environment": "Godot 4.7.2 Linux, headless, synthetic 60-frame UI timings; not end-user FPS",
+  "stint_optimizer": {
+    "baseline_ms_24": 1959.014,
+    "optimized_ms_24": 293.86,
+    "ratio": 6.67,
+    "identical_24_plans": true
+  },
+  "monza_750_ticks": {
+    "baseline": [
+      {
+        "block_ms": 2048.549,
+        "memory_static_bytes": 30071585.0,
+        "ms_tick": 8.194196,
+        "tick": 250
+      },
+      {
+        "block_ms": 6893.184,
+        "memory_static_bytes": 30708148.0,
+        "ms_tick": 27.572736,
+        "tick": 500
+      },
+      {
+        "block_ms": 9031.571,
+        "memory_static_bytes": 31223360.0,
+        "ms_tick": 36.126284,
+        "tick": 750
+      }
+    ],
+    "optimized": [
+      {
+        "block_ms": 2058.505,
+        "memory_static_bytes": 30086680.0,
+        "ms_tick": 8.23402,
+        "tick": 250
+      },
+      {
+        "block_ms": 2620.375,
+        "memory_static_bytes": 40776983.0,
+        "ms_tick": 10.4815,
+        "tick": 500
+      },
+      {
+        "block_ms": 2608.78,
+        "memory_static_bytes": 41636115.0,
+        "ms_tick": 10.43512,
+        "tick": 750
+      }
+    ],
+    "sporting_hash": "f39d9736c199bcf1a3994082678c3e943040aee67bb79e1c9117f4ee842be4b0",
+    "hash_equal": true
+  },
+  "synthetic_60_frames": {
+    "10.0x": {
+      "frames": 60,
+      "ticks": 50,
+      "mean_frame_ms": 11.3654833333333,
+      "p95_frame_ms": 26.489,
+      "max_frame_ms": 30.102,
+      "cpu_limited_frames": 0
+    },
+    "16.0x": {
+      "frames": 60,
+      "ticks": 80,
+      "mean_frame_ms": 13.9960166666667,
+      "p95_frame_ms": 29.712,
+      "max_frame_ms": 42.765,
+      "cpu_limited_frames": 0
+    },
+    "32.0x": {
+      "frames": 60,
+      "ticks": 120,
+      "mean_frame_ms": 16.7061166666667,
+      "p95_frame_ms": 28.62,
+      "max_frame_ms": 32.389,
+      "cpu_limited_frames": 53
+    }
+  },
+  "limitations": [
+    "No direct end-user hardware benchmark",
+    "No 60 FPS or true 32x guarantee",
+    "Cold strategy evaluation can still create frame-time spikes",
+    "At saturation the main-thread scheduler limits effective wall-clock simulation speed without skipping sporting ticks"
+  ]
+}

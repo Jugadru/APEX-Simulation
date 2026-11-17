@@ -1,0 +1,9 @@
+{
+  "process": "full_GBR_retry",
+  "note": "Amostra durante execu\u00e7\u00e3o; VmHWM \u00e9 maior RSS at\u00e9 esta leitura, n\u00e3o necessariamente pico final.",
+  "memory": {
+    "VmSize": "1732052 kB",
+    "VmHWM": "1310412 kB",
+    "VmRSS": "1310412 kB"
+  }
+}

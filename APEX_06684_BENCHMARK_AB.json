@@ -1,0 +1,81 @@
+{
+  "scenario": "160 redraws, 24 cars, Compact HUD, same 660 seed, Godot 4.7.2 headless",
+  "runs": [
+    {
+      "pair": 0,
+      "version": "06683",
+      "avg_ms": 11.12811875,
+      "count": 160,
+      "elapsed_ms": 1780.499,
+      "hud_mode": 1,
+      "panels_hidden": true,
+      "rank_rows": 24,
+      "sporting_hash_unchanged": true,
+      "status": "PASS"
+    },
+    {
+      "pair": 0,
+      "version": "06684",
+      "avg_ms": 6.4555,
+      "count": 160,
+      "elapsed_ms": 1032.88,
+      "hud_mode": 1,
+      "panels_hidden": true,
+      "rank_rows": 24,
+      "sporting_hash_unchanged": true,
+      "status": "PASS"
+    },
+    {
+      "pair": 1,
+      "version": "06683",
+      "avg_ms": 9.849,
+      "count": 160,
+      "elapsed_ms": 1575.84,
+      "hud_mode": 1,
+      "panels_hidden": true,
+      "rank_rows": 24,
+      "sporting_hash_unchanged": true,
+      "status": "PASS"
+    },
+    {
+      "pair": 1,
+      "version": "06684",
+      "avg_ms": 11.1943875,
+      "count": 160,
+      "elapsed_ms": 1791.102,
+      "hud_mode": 1,
+      "panels_hidden": true,
+      "rank_rows": 24,
+      "sporting_hash_unchanged": true,
+      "status": "PASS"
+    },
+    {
+      "pair": 2,
+      "version": "06683",
+      "avg_ms": 10.08090625,
+      "count": 160,
+      "elapsed_ms": 1612.945,
+      "hud_mode": 1,
+      "panels_hidden": true,
+      "rank_rows": 24,
+      "sporting_hash_unchanged": true,
+      "status": "PASS"
+    },
+    {
+      "pair": 2,
+      "version": "06684",
+      "avg_ms": 6.13678125,
+      "count": 160,
+      "elapsed_ms": 981.885,
+      "hud_mode": 1,
+      "panels_hidden": true,
+      "rank_rows": 24,
+      "sporting_hash_unchanged": true,
+      "status": "PASS"
+    }
+  ],
+  "paired_pass": 3,
+  "baseline_median_ms": 1612.945,
+  "new_median_ms": 1032.88,
+  "observed_reduction_pct": 35.96
+}

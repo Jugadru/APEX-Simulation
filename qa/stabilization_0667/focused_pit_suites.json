@@ -1,0 +1,32 @@
+[
+  {
+    "test": "pitwall_0649_strategy_test.gd",
+    "status": "PASS",
+    "exit_code": 0,
+    "elapsed_seconds": 1.218
+  },
+  {
+    "test": "team_pit_06497_integration_test.gd",
+    "status": "PASS",
+    "exit_code": 0,
+    "elapsed_seconds": 0.918
+  },
+  {
+    "test": "pitwall_06491_stint_reset_test.gd",
+    "status": "PASS",
+    "exit_code": 0,
+    "elapsed_seconds": 0.819
+  },
+  {
+    "test": "core_0640_pitwall_intelligence_test.gd",
+    "status": "FAIL",
+    "exit_code": 1,
+    "elapsed_seconds": 4.53
+  },
+  {
+    "test": "double_stack_06492_entry_test.gd",
+    "status": "PASS",
+    "exit_code": 0,
+    "elapsed_seconds": 3.629
+  }
+]

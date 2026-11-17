@@ -1,0 +1,22 @@
+{
+  "benchmark": "Godot 4.7.2 headless presentation, 24 cars, twelve pit garages, 120 frames per independent process, warmup 12 frames",
+  "metrics": "per update of Track3D.set_race_cars; includes visual occupation and 3D animations, not GPU render or race simulation",
+  "baseline_avg_us_per_run": [
+    10757.367,
+    2851.375,
+    3471.358,
+    2898.867,
+    3517.725
+  ],
+  "new_avg_us_per_run": [
+    2768.383,
+    2911.067,
+    2797.525,
+    2771.758,
+    3188.492
+  ],
+  "baseline_median_us": 3471.358,
+  "new_median_us": 2797.525,
+  "observed_median_reduction_percent": 19.41,
+  "warning": "High variability: first baseline run is anomalously slow; not a claim of FPS increase. Model and cases are controlled fixtures, not full GP in 3D."
+}

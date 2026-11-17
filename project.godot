@@ -10,8 +10,8 @@ config_version=5
 
 [application]
 
-config/name="APEX Motorsport Manager v0.6.6.8.1 — HUD ReBroadcast QA"
-config/description="v0.6.6.8.1: validação da HUD e feedback de comandos pendentes; Core 2, replay e saves preservados."
+config/name="APEX Motorsport Manager v0.6.6.8.6 — Core 2 Race Stability 2.0"
+config/description="v0.6.6.8.6: otimização determinística de resolução de tráfego no Core 2; HUD, replay e saves preservados."
 run/main_scene="res://scenes/main.tscn"
 config/use_custom_user_dir=true
 config/custom_user_dir_name="APEX_0650_SOUL_STAFF"
@@ -26,14 +26,11 @@ window/size/window_width_override=1600
 window/size/window_height_override=900
 window/stretch/mode="canvas_items"
 
-[editor_plugins]
-
-enabled=PackedStringArray("res://addons/gdUnit4/plugin.cfg")
-
 [physics]
 
 2d/default_gravity=0.0
 
 [rendering]
 
+renderer/rendering_method="forward_plus"
 renderer/rendering_method.mobile="gl_compatibility"

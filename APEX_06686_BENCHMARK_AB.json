@@ -1,0 +1,430 @@
+{
+  "version": "v0.6.6.8.6",
+  "reference": "v0.6.6.8.5",
+  "godot": "4.7.2.stable.official.ed1daf0bf",
+  "environment": "Linux virtualized CPU; Godot headless; not representative of user GPU",
+  "direct_call_fixture": {
+    "description": "Same 24-car grid, race-space plan() direct invocation; 175 calls × 5 alternating-order runs per circuit",
+    "unit": "microseconds per call",
+    "results": {
+      "BEL": {
+        "baseline_us": [
+          1561.30857142857,
+          1550.27428571429,
+          1541.17714285714,
+          1536.33142857143,
+          1558.83428571429
+        ],
+        "median_base_us": 1550.27428571429,
+        "median_new_us": 1545.24571428571,
+        "optimized_us": [
+          1544.32571428571,
+          1524.96571428571,
+          1545.24571428571,
+          1549.45714285714,
+          1577.13714285714
+        ]
+      },
+      "GBR": {
+        "baseline_us": [
+          1598.08571428571,
+          1557.92571428571,
+          1634.16571428571,
+          1543.38285714286,
+          1571.51428571429
+        ],
+        "median_base_us": 1571.51428571429,
+        "median_new_us": 1536.25142857143,
+        "optimized_us": [
+          1545.77142857143,
+          1531.97142857143,
+          1540.26285714286,
+          1524.56571428571,
+          1536.25142857143
+        ]
+      },
+      "ITA": {
+        "baseline_us": [
+          1537.32,
+          1556.19428571429,
+          1537.41714285714,
+          1562.36,
+          1550.40571428571
+        ],
+        "median_base_us": 1550.40571428571,
+        "median_new_us": 1512.32571428571,
+        "optimized_us": [
+          1487.70285714286,
+          1541.73142857143,
+          1502.38857142857,
+          1519.19428571429,
+          1512.32571428571
+        ]
+      },
+      "SIN": {
+        "baseline_us": [
+          1591.25142857143,
+          1624.05142857143,
+          1574.32,
+          1638.49714285714,
+          1575.76571428571
+        ],
+        "median_base_us": 1591.25142857143,
+        "median_new_us": 1527.09714285714,
+        "optimized_us": [
+          1527.09714285714,
+          1564.94285714286,
+          1535.32571428571,
+          1509.37714285714,
+          1495.8
+        ]
+      },
+      "summary": {
+        "median_of_track_medians_base_us": 1571.51428571429,
+        "median_of_track_medians_new_us": 1536.25142857143
+      }
+    },
+    "caution": "Small optimization of traffic ordering; not whole-game or GPU FPS gain"
+  },
+  "sporting_750_ticks": {
+    "description": "Identical seeds, track, weather, replay inputs, hashes at 1,80,250,500,750, events and ordered 24 IDs",
+    "base": {
+      "BEL": {
+        "checkpoints": 3,
+        "events": 5,
+        "hashes": {
+          "1": "0b258f7c75d55829b57d84efccf3edf309f42ab2279d9104b76290ec3de63105",
+          "250": "d358192d6aa8b2241b05e54929d9e9839b4c31c5aa30f98c9a5b1061d6b2df8d",
+          "500": "b4a17993130e3e07c5f3c05a35e46b5897a168ff67f83bf39cc3c906ad1b22fb",
+          "750": "39dde154138ea6d86c3be5a0f2e86e4839ca9c28116a20d6130c26161d91b564",
+          "80": "186844e2433e5393b11b71197520fe352b22d4a68914011e890ccd0a12a50378"
+        },
+        "memory_static_bytes": 41376371.0,
+        "positions_by_id": [
+          0,
+          1,
+          2,
+          4,
+          6,
+          3,
+          9,
+          5,
+          7,
+          8,
+          13,
+          10,
+          14,
+          12,
+          15,
+          11,
+          16,
+          17,
+          19,
+          20,
+          18,
+          22,
+          23,
+          21
+        ],
+        "ticks": 750,
+        "wall_ms": 4227.064
+      },
+      "GBR": {
+        "checkpoints": 3,
+        "events": 48,
+        "hashes": {
+          "1": "58bba634e268853a4582e7304a594535aa7a34c5603ec869cba024d9b6591e75",
+          "250": "5388f52237541d3d1899c95fecba78cb5dd453f84cf8a09820725ea3d5f8bda1",
+          "500": "2499e5507de26b65e839dd4a294798ee367fe6c179a1f3c800893adc027ca851",
+          "750": "07b02fc4d097fe56923e1da814a3f05df3bc377859efe3ffc6b905584c9eb232",
+          "80": "bef22d1bdc4907c83a8a73f414ebfc097a83be5f0bbcf609a31ce8ef2065d627"
+        },
+        "memory_static_bytes": 41536726.0,
+        "positions_by_id": [
+          1,
+          0,
+          4,
+          2,
+          3,
+          6,
+          8,
+          7,
+          5,
+          9,
+          10,
+          12,
+          11,
+          13,
+          14,
+          16,
+          15,
+          17,
+          18,
+          19,
+          20,
+          22,
+          21,
+          23
+        ],
+        "ticks": 750,
+        "wall_ms": 5079.89
+      },
+      "ITA": {
+        "checkpoints": 3,
+        "events": 44,
+        "hashes": {
+          "1": "e16bc98327f03ec90c6144e49f2f5f3186a2e10ef9ad3aa5461a5bc3d1dc0401",
+          "250": "d7f493db5e8f3a7bfec7cca978bea10aad645bd1abaddb05a2d577e417bb57f6",
+          "500": "08c0330cbe5b5762a309e878ac3692bbec4b70d6a65aef087d9e8a3696b2fc4f",
+          "750": "dcbe808a844e268856b83028cf0025966cd4018109f1ca265c3371e1df013e6f",
+          "80": "9d33c8019ff532e8378ed4d83c05da350c845727fc21162b03aa552340c14695"
+        },
+        "memory_static_bytes": 51331098.0,
+        "positions_by_id": [
+          0,
+          4,
+          2,
+          3,
+          1,
+          6,
+          5,
+          7,
+          9,
+          8,
+          11,
+          10,
+          13,
+          15,
+          12,
+          14,
+          16,
+          17,
+          18,
+          19,
+          20,
+          22,
+          21,
+          23
+        ],
+        "ticks": 750,
+        "wall_ms": 5703.822
+      },
+      "SIN": {
+        "checkpoints": 3,
+        "events": 5,
+        "hashes": {
+          "1": "bb0a0ea1c250c71bd3e1e8763e60ef7305eabef6b6866b4ba5aaca0f10cdc216",
+          "250": "c015a1b0ed0850b6b109202ab24a60dfc8bfea2030b0eb9f80f9920217737688",
+          "500": "8fecfc9f0b38246eed52da98c29eb820f8ea11fc4dc1abf27c0691eb619c9f02",
+          "750": "d7c269a7d7101edf90ff1769007cac45f3ca03f41daf8d0456c7b6025d6d46d4",
+          "80": "ecdf62be67c6066b02a0ece6fabc7f1a182aa415b2282c360a7b07896220c054"
+        },
+        "memory_static_bytes": 51176435.0,
+        "positions_by_id": [
+          1,
+          0,
+          4,
+          2,
+          3,
+          6,
+          8,
+          5,
+          7,
+          11,
+          9,
+          10,
+          13,
+          12,
+          16,
+          17,
+          14,
+          15,
+          18,
+          19,
+          22,
+          20,
+          21,
+          23
+        ],
+        "ticks": 750,
+        "wall_ms": 4529.315
+      }
+    },
+    "candidate": {
+      "BEL": {
+        "checkpoints": 3,
+        "events": 5,
+        "hashes": {
+          "1": "0b258f7c75d55829b57d84efccf3edf309f42ab2279d9104b76290ec3de63105",
+          "250": "d358192d6aa8b2241b05e54929d9e9839b4c31c5aa30f98c9a5b1061d6b2df8d",
+          "500": "b4a17993130e3e07c5f3c05a35e46b5897a168ff67f83bf39cc3c906ad1b22fb",
+          "750": "39dde154138ea6d86c3be5a0f2e86e4839ca9c28116a20d6130c26161d91b564",
+          "80": "186844e2433e5393b11b71197520fe352b22d4a68914011e890ccd0a12a50378"
+        },
+        "memory_static_bytes": 41377444.0,
+        "positions_by_id": [
+          0,
+          1,
+          2,
+          4,
+          6,
+          3,
+          9,
+          5,
+          7,
+          8,
+          13,
+          10,
+          14,
+          12,
+          15,
+          11,
+          16,
+          17,
+          19,
+          20,
+          18,
+          22,
+          23,
+          21
+        ],
+        "ticks": 750,
+        "wall_ms": 3928.139
+      },
+      "GBR": {
+        "checkpoints": 3,
+        "events": 48,
+        "hashes": {
+          "1": "58bba634e268853a4582e7304a594535aa7a34c5603ec869cba024d9b6591e75",
+          "250": "5388f52237541d3d1899c95fecba78cb5dd453f84cf8a09820725ea3d5f8bda1",
+          "500": "2499e5507de26b65e839dd4a294798ee367fe6c179a1f3c800893adc027ca851",
+          "750": "07b02fc4d097fe56923e1da814a3f05df3bc377859efe3ffc6b905584c9eb232",
+          "80": "bef22d1bdc4907c83a8a73f414ebfc097a83be5f0bbcf609a31ce8ef2065d627"
+        },
+        "memory_static_bytes": 41537799.0,
+        "positions_by_id": [
+          1,
+          0,
+          4,
+          2,
+          3,
+          6,
+          8,
+          7,
+          5,
+          9,
+          10,
+          12,
+          11,
+          13,
+          14,
+          16,
+          15,
+          17,
+          18,
+          19,
+          20,
+          22,
+          21,
+          23
+        ],
+        "ticks": 750,
+        "wall_ms": 4467.019
+      },
+      "ITA": {
+        "checkpoints": 3,
+        "events": 44,
+        "hashes": {
+          "1": "e16bc98327f03ec90c6144e49f2f5f3186a2e10ef9ad3aa5461a5bc3d1dc0401",
+          "250": "d7f493db5e8f3a7bfec7cca978bea10aad645bd1abaddb05a2d577e417bb57f6",
+          "500": "08c0330cbe5b5762a309e878ac3692bbec4b70d6a65aef087d9e8a3696b2fc4f",
+          "750": "dcbe808a844e268856b83028cf0025966cd4018109f1ca265c3371e1df013e6f",
+          "80": "9d33c8019ff532e8378ed4d83c05da350c845727fc21162b03aa552340c14695"
+        },
+        "memory_static_bytes": 51332171.0,
+        "positions_by_id": [
+          0,
+          4,
+          2,
+          3,
+          1,
+          6,
+          5,
+          7,
+          9,
+          8,
+          11,
+          10,
+          13,
+          15,
+          12,
+          14,
+          16,
+          17,
+          18,
+          19,
+          20,
+          22,
+          21,
+          23
+        ],
+        "ticks": 750,
+        "wall_ms": 4530.528
+      },
+      "SIN": {
+        "checkpoints": 3,
+        "events": 5,
+        "hashes": {
+          "1": "bb0a0ea1c250c71bd3e1e8763e60ef7305eabef6b6866b4ba5aaca0f10cdc216",
+          "250": "c015a1b0ed0850b6b109202ab24a60dfc8bfea2030b0eb9f80f9920217737688",
+          "500": "8fecfc9f0b38246eed52da98c29eb820f8ea11fc4dc1abf27c0691eb619c9f02",
+          "750": "d7c269a7d7101edf90ff1769007cac45f3ca03f41daf8d0456c7b6025d6d46d4",
+          "80": "ecdf62be67c6066b02a0ece6fabc7f1a182aa415b2282c360a7b07896220c054"
+        },
+        "memory_static_bytes": 51177508.0,
+        "positions_by_id": [
+          1,
+          0,
+          4,
+          2,
+          3,
+          6,
+          8,
+          5,
+          7,
+          11,
+          9,
+          10,
+          13,
+          12,
+          16,
+          17,
+          14,
+          15,
+          18,
+          19,
+          22,
+          20,
+          21,
+          23
+        ],
+        "ticks": 750,
+        "wall_ms": 3950.818
+      }
+    },
+    "caution": "Timing differences between separate processes are noisy; no verified overall CPU or FPS improvement"
+  },
+  "growth_2000_ticks": {
+    "baseline_hash": "9dd6c1ce7a67013e6bb94e395b6dbb679d75cbd3d198b963e6dfb393b011e785",
+    "optimized_hash": "9dd6c1ce7a67013e6bb94e395b6dbb679d75cbd3d198b963e6dfb393b011e785",
+    "caution": "No reliable time improvement in full 2,000-tick test due to run-to-run variation; sporting hash identical"
+  },
+  "graphics": {
+    "real_capture": true,
+    "resolution": "1600x900",
+    "renderer": "OpenGL Compatibility llvmpipe",
+    "process_exit": "INCONCLUSIVE — timeout after PNG was successfully saved"
+  },
+  "memory_os_sample": "VmPeak:\t 1075068 kB\nVmHWM:\t  582312 kB\nVmRSS:\t  542836 kB\n",
+  "fps_user_gpu": "NOT_RUN"
+}

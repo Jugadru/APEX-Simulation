@@ -1,0 +1,10 @@
+{
+  "ticks": 650,
+  "checkpoints_in_archive": 3,
+  "original_sha256": "4488d6e8ea33d0455a66cbe05971d4a52fc0b005dace74409f772f69f5b02ae7",
+  "candidate_sha256": "4488d6e8ea33d0455a66cbe05971d4a52fc0b005dace74409f772f69f5b02ae7",
+  "archives_byte_identical": true,
+  "old_archive_loaded_into_0663": true,
+  "replayed_from_tick_zero": true,
+  "original_sport_hash": "e955943cf932ad49bfff42aa98aeadc85b64771604d45a62376dce43b1e03849"
+}

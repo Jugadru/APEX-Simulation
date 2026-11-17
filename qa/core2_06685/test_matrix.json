@@ -1,0 +1,97 @@
+[
+  {
+    "name": "ZIP base CRC 0.6.6.8.4",
+    "status": "PASS",
+    "evidence": "unzip -tq verified original archive"
+  },
+  {
+    "name": "Godot 4.7.2 editor import new version",
+    "status": "PASS",
+    "evidence": "APEX_06685_EDITOR_IMPORT.log, exit 0"
+  },
+  {
+    "name": "Track3D node/marker/pit crew visual transitions",
+    "status": "PASS",
+    "evidence": "APEX_06685_3D_VISUAL PASS checks=26"
+  },
+  {
+    "name": "Core 2 sporting parity 4 scenarios x 80 ticks",
+    "status": "PASS",
+    "evidence": "same seeds, weather, driver positions, all hashes at ticks 1,20,40,80"
+  },
+  {
+    "name": "Pit Wall pending V21",
+    "status": "PASS",
+    "evidence": "HUD_06681_PENDING_ORDERS checks=30"
+  },
+  {
+    "name": "Double stack",
+    "status": "PASS",
+    "evidence": "pit_incidents_double_stack_test.gd exit 0"
+  },
+  {
+    "name": "Camera policy 1x/2x/5x and 10x/16x/32x",
+    "status": "PASS",
+    "evidence": "HUD_06681_CAMERA_POLICY_PASS combinations=18"
+  },
+  {
+    "name": "Racecraft",
+    "status": "PASS",
+    "evidence": "RACECRAFT_0662_UNIT_PASS checks=1027"
+  },
+  {
+    "name": "Driver Dynamics",
+    "status": "PASS",
+    "evidence": "DRIVER_DYNAMICS_0661_PASS checks=17"
+  },
+  {
+    "name": "Replay 200 ticks",
+    "status": "PASS",
+    "evidence": "REPLAY_UNIT_PASS speeds 1,2,5,16,32"
+  },
+  {
+    "name": "Replay/HUD isolation",
+    "status": "PASS",
+    "evidence": "HUD_06681_REPLAY_ISOLATION_PASS ticks=400"
+  },
+  {
+    "name": "Microbenchmark 3D results",
+    "status": "PASS",
+    "evidence": "five pairs of Godot headless measurements, detailed in benchmark JSON"
+  },
+  {
+    "name": "Guaranteed FPS gain",
+    "status": "INCONCLUSIVE",
+    "evidence": "not measured with representative GPU; CPU median not equivalent to FPS"
+  },
+  {
+    "name": "3D screenshot 1600x900",
+    "status": "INCONCLUSIVE",
+    "evidence": "actual image saved and inspected, but graphical process exceeded time budget while exiting"
+  },
+  {
+    "name": "Legacy car_model_smoke_test.gd",
+    "status": "FAIL",
+    "evidence": "pre-existing assertion expects TaperedChassis; base 8.4 and new 8.5 both fail and hang before quit"
+  },
+  {
+    "name": "Full Monza 53 laps in new build",
+    "status": "NOT_RUN",
+    "evidence": "not executed; preserved sports engine and shorter A/B only"
+  },
+  {
+    "name": "FPS on physical GPU",
+    "status": "NOT_RUN",
+    "evidence": "requires user target hardware"
+  },
+  {
+    "name": "Real 1366x768 end-to-end",
+    "status": "NOT_RUN",
+    "evidence": "not executed"
+  },
+  {
+    "name": "Full legacy sporting regression 4 x 750 ticks",
+    "status": "BLOCKED",
+    "evidence": "exceeded execution tool time limit; used shorter verified 4 x 80 A/B instead"
+  }
+]

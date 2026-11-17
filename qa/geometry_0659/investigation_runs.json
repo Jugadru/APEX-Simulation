@@ -1,0 +1,32 @@
+[
+  {
+    "name": "investigate_1080_0_0657",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "investigate_1080_0_0658",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "investigate_1080_1_0658",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "investigate_1080_1_0657",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "investigate_1080_2_0657",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "investigate_1080_2_0658",
+    "exit": 0,
+    "pass": true
+  }
+]

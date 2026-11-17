@@ -1,0 +1,21 @@
+CASE wet=0.40 wear=50 pit=false compound=Intermediário gain=16.2 critical=false reason=pista secando
+CASE wet=0.40 wear=52 pit=false compound=Intermediário gain=19.5 critical=false reason=pista secando
+CASE wet=0.40 wear=57 pit=true compound=Intermediário gain=27.6 critical=false reason=ganho projetado de 27.6s em 9 voltas
+CASE wet=0.40 wear=62 pit=true compound=Intermediário gain=35.9 critical=false reason=ganho projetado de 35.9s em 9 voltas
+CASE wet=0.40 wear=64 pit=true compound=Intermediário gain=39.1 critical=false reason=ganho projetado de 39.1s em 9 voltas
+CASE wet=0.40 wear=72 pit=true compound=Intermediário gain=53.7 critical=false reason=pista secando
+CASE wet=0.40 wear=91 pit=true compound=Intermediário gain=92.4 critical=true reason=pneu perto do limite
+CASE wet=0.60 wear=50 pit=false compound=Intermediário gain=11.8 critical=false reason=pista secando
+CASE wet=0.60 wear=52 pit=false compound=Intermediário gain=14.4 critical=false reason=pista secando
+CASE wet=0.60 wear=57 pit=true compound=Intermediário gain=23.0 critical=false reason=ganho projetado de 23.0s em 9 voltas
+CASE wet=0.60 wear=62 pit=true compound=Intermediário gain=31.5 critical=false reason=ganho projetado de 31.5s em 9 voltas
+CASE wet=0.60 wear=64 pit=true compound=Intermediário gain=35.4 critical=false reason=ganho projetado de 35.4s em 9 voltas
+CASE wet=0.60 wear=72 pit=true compound=Intermediário gain=50.8 critical=false reason=pista secando
+CASE wet=0.60 wear=91 pit=true compound=Intermediário gain=92.4 critical=true reason=pneu perto do limite
+CASE wet=0.70 wear=50 pit=false compound=Intermediário gain=10.4 critical=false reason=pista secando
+CASE wet=0.70 wear=52 pit=false compound=Intermediário gain=12.9 critical=false reason=pista secando
+CASE wet=0.70 wear=57 pit=false compound=Intermediário gain=21.1 critical=false reason=pista secando
+CASE wet=0.70 wear=62 pit=true compound=Intermediário gain=29.9 critical=false reason=ganho projetado de 29.9s em 9 voltas
+CASE wet=0.70 wear=64 pit=true compound=Intermediário gain=33.8 critical=false reason=ganho projetado de 33.8s em 9 voltas
+CASE wet=0.70 wear=72 pit=true compound=Intermediário gain=50.1 critical=false reason=pista secando
+CASE wet=0.70 wear=91 pit=true compound=Intermediário gain=92.5 critical=true reason=pneu perto do limite

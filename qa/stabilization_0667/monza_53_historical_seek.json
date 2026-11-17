@@ -1,0 +1,78 @@
+{
+  "all_targets_deterministic": true,
+  "archive_size_bytes": 41544880,
+  "audit": [
+    {
+      "audit_end": 10000,
+      "audit_start": 7800,
+      "tick": 10000
+    },
+    {
+      "audit_end": 10035,
+      "audit_start": 7800,
+      "tick": 10035
+    },
+    {
+      "audit_end": 10000,
+      "audit_start": 7800,
+      "tick": 10000
+    },
+    {
+      "audit_end": 20000,
+      "audit_start": 19800,
+      "tick": 20000
+    },
+    {
+      "audit_end": 20030,
+      "audit_start": 19800,
+      "tick": 20030
+    },
+    {
+      "audit_end": 20000,
+      "audit_start": 19800,
+      "tick": 20000
+    },
+    {
+      "audit_end": 24431,
+      "audit_start": 24300,
+      "tick": 24431
+    },
+    {
+      "audit_end": 24400,
+      "audit_start": 24300,
+      "tick": 24400
+    },
+    {
+      "audit_end": 24431,
+      "audit_start": 24300,
+      "tick": 24431
+    }
+  ],
+  "cars": 24,
+  "hot_count": 4,
+  "seek_seconds": [
+    76.657278,
+    1.228463,
+    0.23179,
+    4.674412,
+    0.736749,
+    0.368732,
+    2.456871,
+    2.590356,
+    0.662352
+  ],
+  "source": "0665 Monza 53 lap archive (no new race simulation)",
+  "sporting_hash": "2a7e27179177858b8754a0c65666b325499e4aa13d423de060181b11d9ae1c4b",
+  "targets": [
+    10000,
+    10035,
+    10000,
+    20000,
+    20030,
+    20000,
+    24431,
+    24400,
+    24431
+  ],
+  "ticks": 24431
+}

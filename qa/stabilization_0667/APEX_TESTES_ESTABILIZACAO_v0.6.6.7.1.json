@@ -1,0 +1,222 @@
+{
+  "release": "v0.6.6.7.1",
+  "kind": "maintenance-hotfix",
+  "previous": "APEX_MOTORSPORT_MANAGER_v0.6.6.7_TV_DIRECTOR_HIGHLIGHTS_COMPLETO.zip",
+  "engine": "Godot 4.7.2 stable, Linux",
+  "code_changes": [
+    "scripts/core/race_replay_0660.gd"
+  ],
+  "updated_tests": [
+    "tests/core_0640_pitwall_intelligence_test.gd",
+    "tests/pitwall_0649_ui_test.gd"
+  ],
+  "added_tests": [
+    "tests/pitwall_0667_same_tick_regression.gd",
+    "tests/career_0667_20_season_data_stress.gd"
+  ],
+  "previous_file_count": 2514,
+  "previous_files_preserved": true,
+  "case_before": {
+    "test": "same-tick double scheduling",
+    "driver_1_lap": 1,
+    "driver_2_lap": 1,
+    "commands": 2
+  },
+  "case_after": {
+    "test": "same-tick double scheduling",
+    "after_conflicting_click": {
+      "driver_1_lap": 1,
+      "driver_2_lap": 0,
+      "commands_queued": 1
+    },
+    "subsequent_distinct_lap": {
+      "driver_2_lap": 2,
+      "commands_total_after_two_ticks": 2
+    }
+  },
+  "binary_replay_compatibility": {
+    "original_0667": {
+      "status": "PASS",
+      "sha256": "a1f43f63fae9624f6c5300cdd95f735370574d2cf4e72f99882d62af00d38c1d",
+      "size_bytes": 161096
+    },
+    "patched_06671": {
+      "status": "PASS",
+      "sha256": "a1f43f63fae9624f6c5300cdd95f735370574d2cf4e72f99882d62af00d38c1d",
+      "size_bytes": 161096
+    },
+    "byte_identical": true
+  },
+  "regressions": [
+    {
+      "test": "replay_unit",
+      "script": "replay_0660_test.gd",
+      "started": "2026-11-16 00:02:56",
+      "status": "PASS",
+      "exit_code": 0,
+      "elapsed_seconds": 17.379
+    },
+    {
+      "test": "replay_boundaries",
+      "script": "replay_0660_boundaries.gd",
+      "started": "2026-11-16 00:03:13",
+      "status": "PASS",
+      "exit_code": 0,
+      "elapsed_seconds": 5.698
+    },
+    {
+      "test": "tv_highlights",
+      "script": "tv_director_highlights_0667_test.gd",
+      "started": "2026-11-16 00:03:19",
+      "status": "PASS",
+      "exit_code": 0,
+      "elapsed_seconds": 0.315
+    },
+    {
+      "test": "staff_migration",
+      "script": "soul_staff_0650_migration_test.gd",
+      "started": "2026-11-16 00:03:19",
+      "status": "PASS",
+      "exit_code": 0,
+      "elapsed_seconds": 0.316
+    },
+    {
+      "test": "racecraft_unit",
+      "script": "racecraft_0662_test.gd",
+      "started": "2026-11-16 00:03:20",
+      "status": "PASS",
+      "exit_code": 0,
+      "elapsed_seconds": 16.332
+    },
+    {
+      "test": "driver_dynamics",
+      "script": "driver_dynamics_0661_test.gd",
+      "started": "2026-11-16 00:03:36",
+      "status": "PASS",
+      "exit_code": 0,
+      "elapsed_seconds": 0.566
+    },
+    {
+      "test": "replay_integration",
+      "script": "replay_0660_integration.gd",
+      "started": "2026-11-16 00:03:36",
+      "status": "PASS",
+      "exit_code": 0,
+      "elapsed_seconds": 49.534
+    },
+    {
+      "test": "gp_GBR_dry",
+      "script": "racecraft_0662_gp.gd",
+      "started": "2026-11-16 00:04:26",
+      "status": "PASS",
+      "exit_code": 0,
+      "elapsed_seconds": 34.897
+    },
+    {
+      "test": "gp_BEL_wet",
+      "script": "racecraft_0662_gp.gd",
+      "started": "2026-11-16 00:05:01",
+      "status": "PASS",
+      "exit_code": 0,
+      "elapsed_seconds": 51.625
+    },
+    {
+      "test": "gp_ITA_dry",
+      "script": "racecraft_0662_gp.gd",
+      "started": "2026-11-16 00:05:53",
+      "status": "PASS",
+      "exit_code": 0,
+      "elapsed_seconds": 27.238
+    },
+    {
+      "test": "gp_SIN_wet",
+      "script": "racecraft_0662_gp.gd",
+      "started": "2026-11-16 00:06:20",
+      "status": "PASS",
+      "exit_code": 0,
+      "elapsed_seconds": 41.556
+    },
+    {
+      "test": "pitwall_ui",
+      "script": "pitwall_0649_ui_test.gd",
+      "started": "2026-11-16 00:07:01",
+      "status": "PASS",
+      "exit_code": 0,
+      "elapsed_seconds": 50.35
+    }
+  ],
+  "focused_tests": [
+    {
+      "test": "pitwall_0649_strategy_test.gd",
+      "status": "PASS",
+      "exit_code": 0,
+      "elapsed_seconds": 1.218
+    },
+    {
+      "test": "team_pit_06497_integration_test.gd",
+      "status": "PASS",
+      "exit_code": 0,
+      "elapsed_seconds": 0.918
+    },
+    {
+      "test": "pitwall_06491_stint_reset_test.gd",
+      "status": "PASS",
+      "exit_code": 0,
+      "elapsed_seconds": 0.819
+    },
+    {
+      "test": "core_0640_pitwall_intelligence_test.gd",
+      "status": "FAIL",
+      "exit_code": 1,
+      "elapsed_seconds": 4.53
+    },
+    {
+      "test": "double_stack_06492_entry_test.gd",
+      "status": "PASS",
+      "exit_code": 0,
+      "elapsed_seconds": 3.629
+    }
+  ],
+  "old_pitwall_0640_test_after_update": "PASS",
+  "old_pitwall_0649_visual_after_update": "PASS",
+  "full_monza": {
+    "status": "PASS",
+    "laps": 53,
+    "ticks": 24431,
+    "replay_ticks": 24431,
+    "live_seconds": 624.32248,
+    "replay_seconds": 539.264212,
+    "race_finishers": 24,
+    "unique_positions": 24,
+    "sport_hash": "2a7e27179177858b8754a0c65666b325499e4aa13d423de060181b11d9ae1c4b"
+  },
+  "historical_seek": {
+    "status": "PASS",
+    "targets": [
+      10000,
+      10035,
+      10000,
+      20000,
+      20030,
+      20000,
+      24431,
+      24400,
+      24431
+    ],
+    "ticks": 24431,
+    "hash": "2a7e27179177858b8754a0c65666b325499e4aa13d423de060181b11d9ae1c4b"
+  },
+  "career_20_seasons_administrative": {
+    "status": "PASS",
+    "seasons": 20,
+    "results_recorded": 400,
+    "checks": 1184,
+    "limitations": "Sem corrida simulada para cada resultado; não comprova carreira jogável por 20 anos"
+  },
+  "caveats": [
+    "O teste Monza longo foi iniciado no mesmo projeto antes da alteração de validação no enqueue; motor esportivo, fixture e comandos order_pit foram preservados. A lógica nova foi validada separadamente com testes nativos e replays curtos.",
+    "20 campeonatos de dados não são 20 temporadas esportivas simuladas.",
+    "Render Mesa llvmpipe, sem benchmark em GPU dedicada."
+  ],
+  "legacy_risks": "O teste 0640 original e o UI 0649 tinham expectativas antigas; testes corrigidos em arquivos fonte, históricos preservados em QA."
+}

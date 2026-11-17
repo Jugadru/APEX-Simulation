@@ -1,0 +1,104 @@
+{
+  "release": "0.6.6.8.4",
+  "base": "0.6.6.8.3",
+  "tests": [
+    {
+      "name": "Importação Godot 4.7.2 headless de trabalho",
+      "status": "PASS",
+      "evidence": "Importação --single-threaded-scene, status 0, sem erros de parser."
+    },
+    {
+      "name": "HUD legada oculta, 19 verificações",
+      "status": "PASS",
+      "evidence": "Teste novo: paineis ocultos não recebem updates; painel visível recarrega; HUD nova ativa."
+    },
+    {
+      "name": "Silverstone seco, 750 ticks",
+      "status": "PASS",
+      "evidence": "Hash nos ticks 1/250/500/750 e classificação comparados com referência da v0.6.6.8.3."
+    },
+    {
+      "name": "Spa chuva intensa, 750 ticks",
+      "status": "PASS",
+      "evidence": "Hashes; V21 não antecipada; comparação de estado esportivo."
+    },
+    {
+      "name": "Monza seco, 750 ticks",
+      "status": "PASS",
+      "evidence": "Hashes e posições de referência."
+    },
+    {
+      "name": "Singapura chuva intensa, 750 ticks",
+      "status": "PASS",
+      "evidence": "Hashes e posições de referência."
+    },
+    {
+      "name": "Ordem de pit pendente, 30 verificações",
+      "status": "PASS",
+      "evidence": "P21/V21, cancelamento, ação imediata e integridade esportiva."
+    },
+    {
+      "name": "Política automática 2D/3D, 18 combinações",
+      "status": "PASS",
+      "evidence": "1×/2×/5× 3D, 10×/16×/32× 2D; câmera manual preservada."
+    },
+    {
+      "name": "Replay e isolamento, 400 ticks",
+      "status": "PASS",
+      "evidence": "Seek 150/320/0; corrida original não alterada."
+    },
+    {
+      "name": "Replay básico, 200 ticks",
+      "status": "PASS",
+      "evidence": "Velocidades 1/2/5/16/32, checkpoint e serialização."
+    },
+    {
+      "name": "Racecraft, 1027 verificações",
+      "status": "PASS",
+      "evidence": "500 ticks, determinismo do Racecraft."
+    },
+    {
+      "name": "Driver Dynamics, 17 verificações",
+      "status": "PASS",
+      "evidence": "Seed fixa, determinismo das decisões."
+    },
+    {
+      "name": "Double stack e falha mecânica",
+      "status": "PASS",
+      "evidence": "Segundo carro aguarda no pit."
+    },
+    {
+      "name": "Pit Wall e stint reset",
+      "status": "PASS",
+      "evidence": "Silverstone V21 e serviço real de pneus."
+    },
+    {
+      "name": "Renderização 3D em Xvfb",
+      "status": "INCONCLUSIVE",
+      "evidence": "Imagem real 1600×900 produzida e verificada, mas processo gráfico extrapolou limite de execução após registrar PASS; GPU real não testada."
+    },
+    {
+      "name": "Corrida completa Monza 53 voltas",
+      "status": "NOT_RUN",
+      "evidence": "Não repetida nesta atualização específica; há referência em versões anteriores."
+    },
+    {
+      "name": "FPS no hardware do usuário",
+      "status": "NOT_RUN",
+      "evidence": "Ambiente virtual não mede FPS real da máquina de destino."
+    },
+    {
+      "name": "1366×768 no PC de destino",
+      "status": "NOT_RUN",
+      "evidence": "Não executado nesta versão."
+    }
+  ],
+  "counts": {
+    "PASS": 14,
+    "FAIL": 0,
+    "BLOCKED": 0,
+    "INCONCLUSIVE": 1,
+    "NOT_RUN": 3
+  },
+  "environment_note": "Bateria conjunta interrompida pelo limite da ferramenta após 4 testes; testes restantes repetidos individualmente e passaram, salvo gráfico inconclusivo."
+}

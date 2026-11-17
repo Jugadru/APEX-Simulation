@@ -1,0 +1,45 @@
+{
+  "base_zip_sha256": "4d7f3d9d89980d63ae23098eb0d73446b614d49b4696c0a9dfd5191b78834dff",
+  "godot_version": "4.7.2.stable.official.ed1daf0bf",
+  "production_file_changes": [
+    "scripts/core/race_replay_0660.gd",
+    "scripts/race_replay_panel_0660.gd",
+    "project.godot"
+  ],
+  "unchanged_sport_engine_sha256": "522327cc1bf06d0bcbe7e54d0eebf7c7026fdb0b0d8247e7d32f2d754e0aac7a",
+  "new_sport_engine_sha256": "522327cc1bf06d0bcbe7e54d0eebf7c7026fdb0b0d8247e7d32f2d754e0aac7a",
+  "before_after_3200": {
+    "scenario": "Monza 53 lap setup / 3200 ticks / seed 660 / dry / 24 cars / headless Godot 4.7.2",
+    "baseline_format": "load_data(recorder.export_data())",
+    "candidate_format": "load_live_session(recorder)",
+    "baseline_open_seconds": 0.809015,
+    "candidate_open_seconds": 0.013333,
+    "baseline_peak_rss_bytes": 195633152,
+    "candidate_peak_rss_bytes": 133398528,
+    "peak_rss_reduction_percent": 31.81,
+    "open_acceleration": 60.68,
+    "hashes_equal": true,
+    "baseline_hash": "f771fab5025055653075f853b4a06370097d5af74843d2deea4cc8dc17be9b90",
+    "candidate_hash": "f771fab5025055653075f853b4a06370097d5af74843d2deea4cc8dc17be9b90",
+    "baseline_record_seconds": 108.702288,
+    "candidate_record_seconds": 105.183163,
+    "monitor_sampling_interval_seconds": 0.12,
+    "notes": "Peak RSS covers whole recording+opening+seek process; host-level timing may fluctuate. Open duration excludes benchmark race."
+  },
+  "full_monza_result": {
+    "full_live_finished": true,
+    "full_replay_verified": true,
+    "live_ticks": 24431,
+    "replay_ticks": 24431,
+    "fork_seconds": 0.05875,
+    "sport_hash": "2a7e27179177858b8754a0c65666b325499e4aa13d423de060181b11d9ae1c4b"
+  },
+  "full_monza_peak_rss_bytes": 176590848,
+  "qa_status": {
+    "APROVADO": 26,
+    "NÃO EXECUTADO": 1
+  },
+  "source_files_preserved": true,
+  "clean_zip_import_exit": 0,
+  "clean_zip_smoke_exit": 0
+}
