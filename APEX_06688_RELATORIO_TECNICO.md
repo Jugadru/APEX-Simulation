@@ -17,7 +17,10 @@ Como decisões da corrida molhada podem mudar, atualizamos `Replay.SIMULATION_RE
 - Driver Dynamics 0661: **17** verificações PASS; Tyre Judgement 06687: **23** PASS; HUD 06687: **12** PASS.
 - Racecraft 0662: **1.027** verificações PASS; double stack, sort contract 06686, modelo 3D e replay 0660 (200 ticks, 5 velocidades): PASS.
 - A/B 4 pistas × 750 ticks: **GBR e ITA secos 100% hashes iguais** à v8.7 nos checkpoints 1/80/250/500/750; **BEL e SIN chuvosos divergiram a partir de 500**, resultado esperado de uma decisão esportiva alterada. Em todos os quatro cenários, a ordem final de 24 carros, número de eventos e checkpoints foi igual.
-- Replay integral Monza (53 voltas): **avaliação prolongada em andamento**; resultado será registrado antes do merge.
+- Monza completa: 53 voltas, 24.431 ticks, 24 pilotos classificados, 24 pit stops; hash final `2a7e27179177858b8754a0c65666b325499e4aa13d423de060181b11d9ae1c4b`, idêntico ao histórico.
+- Replay integral: **24.431/24.431 ticks reproduzidos**, `full_replay_verified=true`, auditoria/telemetria idênticas, mesmo hash e `error=""`. **Ressalva:** o supervisor externo de tempo retornou código 124 após 600s de parede, embora o Godot tenha gravado o resultado de verificação completo. Registrar o teste esportivo como PASS, mas o encerramento do supervisor como LIMITADO.
+- Save migration 0642: PASS em diretório de usuário isolado; preservou resultados, orçamento e melhorias de garagem.
+- ZIP reextraído: importação limpa PASS; teste Racecraft 06688, Driver Dynamics, HUD V21 e Racecraft 0662 (1.027 checks) PASS. Uma execução conjunta foi interrompida pelo limite da ferramenta, mas o teste 0662 passou na repetição isolada.
 
 ## Limites
 Ganho de FPS não é demonstrado (esta é uma mudança de gameplay). Save/load de temporadas múltiplas não foi revalidado. Outras pistas e combinações de chuva não foram completamente homologadas. O novo jogo não recupera replays históricos sob regras anteriores; conserve a versão 8.7 para assisti-los.
