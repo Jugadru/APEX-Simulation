@@ -2,7 +2,7 @@
 """APEX long-running regression checks for Godot 4.7.2.
 
 Reuses existing GDScript scenarios: a long 24-car Monza replay, two
-full-distance Grand Prix (dry Monza, wet Silverstone), and the existing
+full-distance Grand Prix (dry Monza, wet Silverstone) at 4 simulated seconds per engine step, and the existing
 20-season administrative championship/save/reload stress fixture.
 
 Each scenario runs twice in isolated Godot user directories. Differences in
@@ -24,7 +24,7 @@ import time
 from typing import Any
 
 GROWTH = "tests/high_speed_growth_066723_benchmark.gd"
-FULL_GP = "tests/long_race_benchmark_0663.gd"
+FULL_GP = "tests/ci/apex_full_gp_endurance.gd"
 CAREER = "tests/career_0667_20_season_data_stress.gd"
 MEMORY_BUDGET_BYTES = 2 * 1024**3
 RSS_FIELD = re.compile(r"^VmRSS:\s*(\d+)\s*kB", re.MULTILINE)
@@ -166,7 +166,9 @@ def parse_full_gp(result: dict[str, Any], track: str, weather: str, seed: int) -
             or result.get("seed") != seed or result.get("full_distance") is not True):
         raise EnduranceError(f"Full GP scenario does not match {track}/{weather}/{seed}")
     if result.get("finished") is not True:
-        raise EnduranceError(f"Full GP did not reach the checkered flag: {track}/{weather}")
+        raise EnduranceError(f"Full GP did not reach the checkered flag: {track}/{weather} "
+                             f"(steps={result.get('ticks')}, clock={result.get('clock')}, "
+                             f"last_lap={result.get('samples', [{}])[-1].get('leader_lap') if result.get('samples') else 'N/A'})")
     if not isinstance(result.get("last_hash"), str) or not result["last_hash"]:
         raise EnduranceError(f"Full GP missing final sporting hash: {track}/{weather}")
     if not isinstance(result.get("ticks"), int) or result["ticks"] <= 100:
@@ -175,11 +177,18 @@ def parse_full_gp(result: dict[str, Any], track: str, weather: str, seed: int) -
         raise EnduranceError(f"Full GP was not full-distance: {track}")
     if not isinstance(result.get("samples"), list):
         raise EnduranceError(f"Full GP progress samples missing: {track}")
+    if result.get("finished_cars") != 24 or result.get("manual_pit_orders") != 2:
+        raise EnduranceError(f"Full GP missing all classified cars or pit orders: {track}")
+    if result.get("step_sim_seconds") != 4.0:
+        raise EnduranceError(f"Full GP used unexpected step duration: {track}")
     return {
         "scenario": f"full_gp_{track}_{weather.replace(' ', '_')}",
         "track": track, "weather": weather, "seed": seed,
         "ticks": result["ticks"], "laps": int(result["laps"]),
         "finished": True, "sporting_hash": result["last_hash"],
+        "finished_cars": result["finished_cars"],
+        "manual_pit_orders": result["manual_pit_orders"],
+        "pit_history": result.get("pit_history", 0),
         "checkpoints": result.get("checkpoints"),
         "events": result.get("events"),
         "samples": len(result["samples"]),
@@ -285,19 +294,16 @@ def execute(root: Path, output: Path, godot: str, growth_ticks: int, timeout: in
                 file = output / f"{label}.json"
                 env = {
                     "APEX_TRACK": circuit,
-                    "APEX_TEST_TICKS": "15000",
-                    "APEX_FULL": "1",
                     "APEX_SEED": str(seed),
                     "APEX_WEATHER": weather,
                     "APEX_BENCH_OUTPUT": str(file),
-                    "APEX_BENCH_PROFILE": "0",
                 }
                 print(f"APEX_ENDURANCE_START {label}", flush=True)
                 run = run_godot(
                     root, godot, FULL_GP, label, env, output, temp / label, timeout
                 )
                 log = (output / run["log_file"]).read_text(encoding="utf-8", errors="replace")
-                marker = marker_json(log, "LRP_BENCH_DONE ")
+                marker = marker_json(log, "APEX_FULL_GP_DONE ")
                 if not file.is_file():
                     raise EnduranceError(f"{label}: missing exported GP JSON")
                 try:
@@ -312,7 +318,7 @@ def execute(root: Path, output: Path, godot: str, growth_ticks: int, timeout: in
                 print(f"APEX_ENDURANCE_RUN_DONE {label} hash={record['sporting_hash']}", flush=True)
             check_repetitions(
                 name, *scenarios[name],
-                ("track", "weather", "seed", "ticks", "laps", "sporting_hash"),
+                ("track", "weather", "seed", "ticks", "laps", "sporting_hash", "finished_cars", "manual_pit_orders", "pit_history"),
             )
 
         for rep in (1, 2):
@@ -347,7 +353,7 @@ def main() -> int:
     parser.add_argument("--godot", default="godot")
     parser.add_argument("--output", type=Path, default=Path("ci_artifacts/endurance"))
     parser.add_argument("--growth-ticks", type=int, default=6000)
-    parser.add_argument("--per-run-timeout", type=int, default=300)
+    parser.add_argument("--per-run-timeout", type=int, default=450)
     args = parser.parse_args()
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=True)
