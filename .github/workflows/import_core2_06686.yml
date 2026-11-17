@@ -1,0 +1,93 @@
+name: Import verified APEX Core 2 v0.6.6.8.6
+on:
+  push:
+    branches:
+      - import/core2-v0.6.6.8.6
+    paths:
+      - .github/workflows/import_core2_06686.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout import branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 1
+
+      - name: Download and verify exact Core 2 Release asset
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          zip_name='APEX_MOTORSPORT_MANAGER_v0.6.6.8.6_CORE2_RACE_STABILITY_COMPLETO.zip'
+          gh release download Versions --repo "$GITHUB_REPOSITORY" --pattern "$zip_name" --dir "$RUNNER_TEMP" --clobber
+          echo "8e097c251738df8b58a71943c834a8fd9951e4e9deebf37b13fc9ec934347fb8  $RUNNER_TEMP/$zip_name" | sha256sum --check
+
+      - name: Import project sources without generated QA media, without deleting existing files
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - "$RUNNER_TEMP/APEX_MOTORSPORT_MANAGER_v0.6.6.8.6_CORE2_RACE_STABILITY_COMPLETO.zip" <<'PY'
+          import pathlib
+          import shutil
+          import stat
+          import sys
+          import zipfile
+
+          root = pathlib.Path.cwd()
+          expected = 'APEX_MOTORSPORT_MANAGER_v0.6.6.8.6_CORE2_RACE_STABILITY'
+          archive = pathlib.Path(sys.argv[1])
+          count = 0
+          bytes_written = 0
+          with zipfile.ZipFile(archive) as zf:
+              corrupt = zf.testzip()
+              if corrupt:
+                  raise RuntimeError(f'ZIP CRC failed: {corrupt}')
+              for item in zf.infolist():
+                  if item.is_dir():
+                      continue
+                  parts = pathlib.PurePosixPath(item.filename).parts
+                  if len(parts) < 2 or parts[0] != expected:
+                      raise RuntimeError(f'Unexpected archive path: {item.filename}')
+                  rel = pathlib.PurePosixPath(*parts[1:])
+                  if any(p in ('.', '..', '.git', '.github', '.godot', '__pycache__') for p in rel.parts):
+                      continue
+                  # QA contains 140+ MB of generated screenshots, replay and benchmark data.
+                  # Commit just the portable test code and small textual fixtures.
+                  if rel.parts[0] == 'qa':
+                      if rel.suffix.lower() not in ('.gd', '.uid', '.tscn', '.tres', '.json', '.md', '.txt', '.cfg'):
+                          continue
+                      if item.file_size > 262144:
+                          continue
+                  if rel.suffix.lower() in ('.log', '.tmp', '.zip', '.mp4', '.apexreplay'):
+                      continue
+                  if stat.S_IFMT(item.external_attr >> 16) == stat.S_IFLNK:
+                      raise RuntimeError(f'Symlink not permitted: {rel}')
+                  target = root.joinpath(*rel.parts)
+                  target.parent.mkdir(parents=True, exist_ok=True)
+                  with zf.open(item) as source, target.open('wb') as dest:
+                      shutil.copyfileobj(source, dest)
+                  count += 1
+                  bytes_written += item.file_size
+          if count < 1000:
+              raise RuntimeError(f'Unexpected small import: {count} files')
+          print(f'Imported {count} source files / {bytes_written} bytes')
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --shortstat
+          if git diff --cached --quiet; then
+            echo 'No source changes to commit'
+          else
+            git commit -m 'Import Core 2 v0.6.6.8.6 verified release sources'
+            git push origin "HEAD:$GITHUB_REF_NAME"
+          fi
