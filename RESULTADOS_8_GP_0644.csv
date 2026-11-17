@@ -1,0 +1,9 @@
+code,voltas,tempo_simulado_s,asfalto_min_c,asfalto_max_c,aderencia_min,aderencia_max,borracha_inicial_pct,borracha_max_pct,pista_molhada,total_pits_24_carros,vencedor_simulado
+AUS,58,5328,33.3,37.2,1.075,1.11,8.0,42.0,false,44,Sebastian Vettel
+MAL,56,6720,26.5,37.4,0.742,0.758,8.0,8.0,true,70,Sebastian Vettel
+MON,78,6184,34.7,38.8,1.132,1.177,8.0,47.0,false,66,Sebastian Vettel
+GBR,52,5368,16.6,34.1,0.942,1.096,8.0,34.0,true,84,Lewis Hamilton
+BEL,44,5824,15.4,26.3,0.818,0.849,8.0,8.0,true,63,Mark Webber
+ITA,53,4712,37.8,41.7,1.027,1.062,8.0,37.0,false,22,Sebastian Vettel
+SIN,59,7000,25.7,43.9,0.919,1.031,8.0,30.0,true,104,Sebastian Vettel
+BRA,71,5632,35.6,40.2,1.061,1.11,8.0,51.0,false,38,Sebastian Vettel

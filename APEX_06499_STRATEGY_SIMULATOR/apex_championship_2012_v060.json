@@ -1,0 +1,295 @@
+{
+  "calendar": [
+    {
+      "code": "AUS",
+      "country": "Australia",
+      "laps": 58,
+      "name": "Albert Park — Melbourne"
+    },
+    {
+      "code": "MAL",
+      "country": "Malaysia",
+      "laps": 56,
+      "name": "Sepang — Kuala Lumpur"
+    },
+    {
+      "code": "CHN",
+      "country": "China",
+      "laps": 56,
+      "name": "Shanghai International Circuit"
+    },
+    {
+      "code": "BHR",
+      "country": "Bahrain",
+      "laps": 57,
+      "name": "Bahrain International Circuit"
+    },
+    {
+      "code": "ESP",
+      "country": "Spain",
+      "laps": 66,
+      "name": "Circuit de Barcelona-Catalunya"
+    },
+    {
+      "code": "MON",
+      "country": "Monaco",
+      "laps": 78,
+      "name": "Circuit de Monaco"
+    },
+    {
+      "code": "CAN",
+      "country": "Canada",
+      "laps": 70,
+      "name": "Circuit Gilles Villeneuve"
+    },
+    {
+      "code": "EUR",
+      "country": "Europe",
+      "laps": 57,
+      "name": "Valencia Street Circuit"
+    },
+    {
+      "code": "GBR",
+      "country": "Great Britain",
+      "laps": 52,
+      "name": "Silverstone"
+    },
+    {
+      "code": "GER",
+      "country": "Germany",
+      "laps": 67,
+      "name": "Hockenheimring"
+    },
+    {
+      "code": "HUN",
+      "country": "Hungary",
+      "laps": 69,
+      "name": "Hungaroring"
+    },
+    {
+      "code": "BEL",
+      "country": "Belgium",
+      "laps": 44,
+      "name": "Spa-Francorchamps"
+    },
+    {
+      "code": "ITA",
+      "country": "Italy",
+      "laps": 53,
+      "name": "Monza"
+    },
+    {
+      "code": "SIN",
+      "country": "Singapore",
+      "laps": 59,
+      "name": "Marina Bay"
+    },
+    {
+      "code": "JPN",
+      "country": "Japan",
+      "laps": 53,
+      "name": "Suzuka"
+    },
+    {
+      "code": "KOR",
+      "country": "South Korea",
+      "laps": 55,
+      "name": "Korea International Circuit"
+    },
+    {
+      "code": "IND",
+      "country": "India",
+      "laps": 60,
+      "name": "Buddh International Circuit"
+    },
+    {
+      "code": "UAE",
+      "country": "Abu Dhabi",
+      "laps": 55,
+      "name": "Yas Marina Circuit"
+    },
+    {
+      "code": "USA",
+      "country": "United States",
+      "laps": 56,
+      "name": "Circuit of The Americas"
+    },
+    {
+      "code": "BRA",
+      "country": "Brazil",
+      "laps": 71,
+      "name": "Interlagos"
+    }
+  ],
+  "complete": false,
+  "constructors": {
+    "Caterham Renault": 0,
+    "Ferrari": 0,
+    "Force India Mercedes": 0,
+    "HRT Cosworth": 0,
+    "Lotus Renault": 0,
+    "Marussia Cosworth": 0,
+    "McLaren Mercedes": 0,
+    "Mercedes": 0,
+    "Red Bull Racing Renault": 0,
+    "Sauber Ferrari": 0,
+    "Toro Rosso Ferrari": 0,
+    "Williams Renault": 0
+  },
+  "drivers": {
+    "Bruno Senna": 0,
+    "Charles Pic": 0,
+    "Daniel Ricciardo": 0,
+    "Felipe Massa": 0,
+    "Fernando Alonso": 0,
+    "Heikki Kovalainen": 0,
+    "Jean-Eric Vergne": 0,
+    "Jenson Button": 0,
+    "Kamui Kobayashi": 0,
+    "Kimi Räikkönen": 0,
+    "Lewis Hamilton": 0,
+    "Mark Webber": 0,
+    "Michael Schumacher": 0,
+    "Narain Karthikeyan": 0,
+    "Nico Hulkenberg": 0,
+    "Nico Rosberg": 0,
+    "Pastor Maldonado": 0,
+    "Paul di Resta": 0,
+    "Pedro de la Rosa": 0,
+    "Romain Grosjean": 0,
+    "Sebastian Vettel": 0,
+    "Sergio Perez": 0,
+    "Timo Glock": 0,
+    "Vitaly Petrov": 0
+  },
+  "format": 1,
+  "results": [],
+  "rival_development": {
+    "Caterham Renault": {
+      "budget": 3055000,
+      "history": [],
+      "invested": 0,
+      "levels": {
+        "Asa": 0,
+        "Chassi": 0,
+        "Motor": 0
+      },
+      "rating": 79.0
+    },
+    "Force India Mercedes": {
+      "budget": 3790000,
+      "history": [],
+      "invested": 0,
+      "levels": {
+        "Asa": 0,
+        "Chassi": 0,
+        "Motor": 0
+      },
+      "rating": 86.0
+    },
+    "HRT Cosworth": {
+      "budget": 2530000,
+      "history": [],
+      "invested": 0,
+      "levels": {
+        "Asa": 0,
+        "Chassi": 0,
+        "Motor": 0
+      },
+      "rating": 74.0
+    },
+    "Lotus Renault": {
+      "budget": 4315000,
+      "history": [],
+      "invested": 0,
+      "levels": {
+        "Asa": 0,
+        "Chassi": 0,
+        "Motor": 0
+      },
+      "rating": 91.0
+    },
+    "Marussia Cosworth": {
+      "budget": 2740000,
+      "history": [],
+      "invested": 0,
+      "levels": {
+        "Asa": 0,
+        "Chassi": 0,
+        "Motor": 0
+      },
+      "rating": 76.0
+    },
+    "McLaren Mercedes": {
+      "budget": 4735000,
+      "history": [],
+      "invested": 0,
+      "levels": {
+        "Asa": 0,
+        "Chassi": 0,
+        "Motor": 0
+      },
+      "rating": 95.0
+    },
+    "Mercedes": {
+      "budget": 4210000,
+      "history": [],
+      "invested": 0,
+      "levels": {
+        "Asa": 0,
+        "Chassi": 0,
+        "Motor": 0
+      },
+      "rating": 90.0
+    },
+    "Red Bull Racing Renault": {
+      "budget": 4840000,
+      "history": [],
+      "invested": 0,
+      "levels": {
+        "Asa": 0,
+        "Chassi": 0,
+        "Motor": 0
+      },
+      "rating": 96.0
+    },
+    "Sauber Ferrari": {
+      "budget": 3895000,
+      "history": [],
+      "invested": 0,
+      "levels": {
+        "Asa": 0,
+        "Chassi": 0,
+        "Motor": 0
+      },
+      "rating": 87.0
+    },
+    "Toro Rosso Ferrari": {
+      "budget": 3475000,
+      "history": [],
+      "invested": 0,
+      "levels": {
+        "Asa": 0,
+        "Chassi": 0,
+        "Motor": 0
+      },
+      "rating": 83.0
+    },
+    "Williams Renault": {
+      "budget": 3685000,
+      "history": [],
+      "invested": 0,
+      "levels": {
+        "Asa": 0,
+        "Chassi": 0,
+        "Motor": 0
+      },
+      "rating": 85.0
+    }
+  },
+  "round_index": 0,
+  "season": 2012,
+  "seed": 42,
+  "serial": 1,
+  "team": "Ferrari"
+}

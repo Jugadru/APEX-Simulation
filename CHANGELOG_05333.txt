@@ -1,0 +1,19 @@
+Apex Motorsport Manager v0.5.3.3 — Telemetria e eventos
+
+ADICIONADO
+- Registro de passagens por setores 1/3, 2/3 e 3/3
+- Histórico integral por volta e por piloto
+- Amostras de classificação/intervalo/pneu a cada 10s simulados
+- Log completo de eventos com IDs sequenciais
+- Registro de paradas concluídas no manifesto de telemetria
+- Aba Telemetria e atalho TELEM na corrida
+- Exportação 4 arquivos CSV e resumo JSON
+- Rádio consome eventos do histórico central
+- Teste de invariância do motor com e sem observador (para Godot)
+
+NÃO ALTERADO
+- Modelo de pneus, tempo por volta, IA, pit lane, double stack, 3D, mapas, oficina
+
+OBSERVAÇÃO
+- A geometria dos três setores é estimada por frações da progressão de volta.
+- Executar Godot no Linux Mint para validar runtime e exportações.

@@ -1,0 +1,147 @@
+{
+  "edition": "APEX2 Next Engine 1.0",
+  "summary": {
+    "PASS": 18,
+    "FAIL": 0,
+    "INCONCLUSIVE": 2,
+    "BLOCKED": 0,
+    "NOT_RUN": 7
+  },
+  "tests": [
+    {
+      "test": "CRC do ZIP da base 0.6.6.8.1",
+      "status": "PASS",
+      "evidence": "CRC integral dos 2.798 membros: nenhum erro"
+    },
+    {
+      "test": "Importação da base Godot 4.7.2",
+      "status": "PASS",
+      "evidence": "apex2_preflight_import.log"
+    },
+    {
+      "test": "Replay original Core 2 / V21 chuva V4",
+      "status": "PASS",
+      "evidence": "apex2_legacy_replay_0660_boundaries.log"
+    },
+    {
+      "test": "Comandos simultâneos Core 2",
+      "status": "PASS",
+      "evidence": "apex2_legacy_pitwall_0667_same_tick_regression.log"
+    },
+    {
+      "test": "HUD v0.6.6.8.1, comandos pendentes",
+      "status": "PASS",
+      "evidence": "apex2_legacy_hud_rebroadcast_06681_pending_orders.log; 30 verificações"
+    },
+    {
+      "test": "HUD: política Auto 2D/3D seis velocidades",
+      "status": "PASS",
+      "evidence": "apex2_legacy_hud_rebroadcast_06681_camera_policy.log; 18 combinações"
+    },
+    {
+      "test": "HUD: isolamento do replay original",
+      "status": "PASS",
+      "evidence": "apex2_legacy_hud_rebroadcast_06681_replay_isolation.log"
+    },
+    {
+      "test": "Importação de novos scripts no editor 4.7.2",
+      "status": "PASS",
+      "evidence": "apex2_final_import.log"
+    },
+    {
+      "test": "Kernel: tick fixo e determinismo agrupado vs individual",
+      "status": "PASS",
+      "evidence": "apex2_test_kernel_final.log; 525 verificações"
+    },
+    {
+      "test": "Kernel: cópia de snapshots e restauração transacional",
+      "status": "PASS",
+      "evidence": "apex2_test_kernel_final.log"
+    },
+    {
+      "test": "Command Queue: V21 em chuva, cancelamento e double stack",
+      "status": "PASS",
+      "evidence": "apex2_test_pit_queue_final.log; 97 verificações"
+    },
+    {
+      "test": "Ordem Manual domina AI no mesmo tick",
+      "status": "PASS",
+      "evidence": "apex2_test_pit_queue_final.log"
+    },
+    {
+      "test": "Replay experimental: checkpoint binário, reprocessamento, hashes intermediários",
+      "status": "PASS",
+      "evidence": "apex2_test_replay_final.log; 1.622 verificações"
+    },
+    {
+      "test": "Pit entry experimental: volta 21, não volta 4",
+      "status": "PASS",
+      "evidence": "apex2_test_pit_entry_21_final.log; tick 11.871"
+    },
+    {
+      "test": "Monza 53 voltas / 24 carros, integrador experimental",
+      "status": "PASS",
+      "evidence": "apex2_test_long_monza_final.log; 23.310 ticks, hash reproduzido"
+    },
+    {
+      "test": "Adaptador A/B: mesmos 24 IDs, pista, seed e cenários",
+      "status": "PASS",
+      "evidence": "benchmark_os_process.json"
+    },
+    {
+      "test": "Benchmark inicial: quatro cenários com mesmos 128 ticks",
+      "status": "PASS",
+      "evidence": "benchmark_ab.json, benchmark_os_process.json; métricas diferentes não significam física equivalente"
+    },
+    {
+      "test": "RSS e tempo de CPU do processo de benchmark",
+      "status": "PASS",
+      "evidence": "benchmark_os_process.json; pico 128,1 MiB e 5,16s CPU na bateria, NÃO separáveis por engine"
+    },
+    {
+      "test": "Superioridade de desempenho da Next Engine",
+      "status": "INCONCLUSIVE",
+      "evidence": "Modelos físicos e cobertura de regras incomparáveis: jamais concluir speedup"
+    },
+    {
+      "test": "A/B de resultados esportivos equivalentes entre engines",
+      "status": "INCONCLUSIVE",
+      "evidence": "Somente contrato de entradas comparáveis; modelo Next ainda não tem física, weather ou racecraft"
+    },
+    {
+      "test": "Alocações por componente",
+      "status": "NOT_RUN",
+      "evidence": "Sem profiler de alocação instrumentado"
+    },
+    {
+      "test": "Replay oficial de GP inteiro reexecutado nesta entrega",
+      "status": "NOT_RUN",
+      "evidence": "Teste anterior da 0.6.6.8.1 existe; não repetido aqui"
+    },
+    {
+      "test": "Homologação gráfica em GPU real Linux Mint",
+      "status": "NOT_RUN",
+      "evidence": "Engine experimental não possui HUD/renderer e não altera a HUD oficial"
+    },
+    {
+      "test": "Serviço real de pit stop e saída do pit lane na Next Engine",
+      "status": "NOT_RUN",
+      "evidence": "Kernel 1.0 apenas observa o ponto de entrada; sem simulação de garagem"
+    },
+    {
+      "test": "Vehicle Dynamics, Driver Brain, Racecraft e Strategy Brain",
+      "status": "NOT_RUN",
+      "evidence": "Módulos explicitamente adiados à fase 1.1+"
+    },
+    {
+      "test": "Corrida completa em Silverstone, Spa e Singapura com Core 2",
+      "status": "NOT_RUN",
+      "evidence": "Benchmark curto de 128 ticks apenas"
+    },
+    {
+      "test": "Save oficial do jogo com esquema migrado",
+      "status": "NOT_RUN",
+      "evidence": "Nenhum schema/salvamento do Core 2 foi alterado"
+    }
+  ]
+}

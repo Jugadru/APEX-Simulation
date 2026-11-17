@@ -1,0 +1,31 @@
+{
+  "version": "0.6.6.7.2.1",
+  "synthetic_motion": {
+    "1x": {
+      "cv_new": 5.18720210617653e-15,
+      "cv_old": 1.251132055394,
+      "last_progress": 0.018,
+      "static_frames_new": 12,
+      "static_frames_prior": 12,
+      "ticks": 9
+    },
+    "5x": {
+      "cv_new": 5.87183863213579e-15,
+      "cv_old": 0.279461476970842,
+      "last_progress": 0.0980000000000001,
+      "static_frames_new": 2,
+      "static_frames_prior": 2,
+      "ticks": 49
+    }
+  },
+  "real_scene_ticks": {
+    "1x": 10,
+    "5x": 50
+  },
+  "historical_hashes": {
+    "GBR": "7bca12f99088048b747f7ac3626b635133628cb0ae57de15db4fdf072be64837",
+    "BEL": "33c7c2d71e34779fb7e74f359f2663e0bea34074aaf4c655dc678f3b97fd8c0e",
+    "ITA": "5d4c508a64dce8d1c481a3661f56c6bdf97a2a7a7bab37a5e290be5e54188592",
+    "SIN": "48085a06fed3d7761a58206673c03685043645d813ea809e0b76c968e94439c9"
+  }
+}

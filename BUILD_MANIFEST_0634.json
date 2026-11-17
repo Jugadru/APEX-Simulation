@@ -1,0 +1,19 @@
+{
+  "base": "APEX_GODOT_0.6.3.3_CATEGORIAS_SOUL",
+  "version": "0.6.3.4",
+  "modified_original_files": [
+    "project.godot",
+    "scripts/apex_commentary.gd",
+    "scripts/apex_race_hud_0622.gd",
+    "scripts/core/race_engineer_interactive.gd"
+  ],
+  "added_source_and_tests": [
+    "scripts/core/race_driver_memory_0634.gd",
+    "scripts/core/race_driver_memory_0634.gd.uid",
+    "tests/core_0633_radio_categories_soul_smoke_test.gd.uid",
+    "tests/core_0634_radio_memory_smoke_test.gd",
+    "tests/native_capture_0633.gd.uid",
+    "tests/native_capture_0634.gd"
+  ],
+  "zip": "Apex_0634_RadioMemoria_FiltroPiloto_Godot472.zip"
+}

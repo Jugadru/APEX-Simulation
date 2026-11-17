@@ -1,0 +1,142 @@
+{
+  "version": "0.6.6.7.2.1",
+  "parent_version": "0.6.6.7.2",
+  "tested_using": "Godot 4.7.2 on Linux, headless; OpenGL captures via Xvfb/llvmpipe",
+  "passes": 12,
+  "failures": 0,
+  "not_executed": [
+    "Monza 53 voltas + full replay in new hotfix",
+    "20 seasons of full playable races",
+    "FPS/GPU measurement on user hardware"
+  ],
+  "tested": [
+    {
+      "id": "timing_visual_interpolation_1x_5x",
+      "status": "PASS",
+      "evidence": "speed_visual.log",
+      "note": "Movement variance for synthetic constant-speed progress; no GPU FPS claim"
+    },
+    {
+      "id": "real_scene_speed_1x_5x",
+      "status": "PASS",
+      "evidence": "speed_control3.log",
+      "note": "10 vs 50 fixed ticks for equal simulated display frame schedules; 3D camera retained"
+    },
+    {
+      "id": "capture_godot_open_gl",
+      "status": "PASS",
+      "evidence": "speed_visual_capture.log",
+      "note": "Xvfb + Mesa llvmpipe actual Godot screenshots 1600x900 & 1920x1080"
+    },
+    {
+      "id": "view_integration",
+      "status": "PASS",
+      "evidence": "view_0658_integration.log"
+    },
+    {
+      "id": "pitwall_queue",
+      "status": "PASS",
+      "evidence": "pitwall_0667_same_tick_regression.log"
+    },
+    {
+      "id": "replay_legacy_speeds",
+      "status": "PASS",
+      "evidence": "replay_0660_test.log"
+    },
+    {
+      "id": "tv_director_isolation",
+      "status": "PASS",
+      "evidence": "tv_director_0667_sporting_isolation.log"
+    },
+    {
+      "id": "godot_import_parsing",
+      "status": "PASS",
+      "evidence": "godot_reimport3.log"
+    },
+    {
+      "id": "short_gp_GBR",
+      "status": "PASS",
+      "evidence": "gp_GBR.log"
+    },
+    {
+      "id": "short_gp_BEL",
+      "status": "PASS",
+      "evidence": "gp_BEL.log"
+    },
+    {
+      "id": "short_gp_ITA",
+      "status": "PASS",
+      "evidence": "gp_ITA.log"
+    },
+    {
+      "id": "short_gp_SIN",
+      "status": "PASS",
+      "evidence": "gp_SIN.log"
+    }
+  ],
+  "gp": [
+    {
+      "circuit": "GBR",
+      "weather": "Seco",
+      "laps": 3,
+      "ticks": 1668,
+      "hash": "7bca12f99088048b747f7ac3626b635133628cb0ae57de15db4fdf072be64837",
+      "match_history": true,
+      "replay_integral_short": true,
+      "pit_stops": 24
+    },
+    {
+      "circuit": "BEL",
+      "weather": "Chuva intensa",
+      "laps": 3,
+      "ticks": 2067,
+      "hash": "33c7c2d71e34779fb7e74f359f2663e0bea34074aaf4c655dc678f3b97fd8c0e",
+      "match_history": true,
+      "replay_integral_short": true,
+      "pit_stops": 2
+    },
+    {
+      "circuit": "ITA",
+      "weather": "Seco",
+      "laps": 3,
+      "ticks": 1553,
+      "hash": "5d4c508a64dce8d1c481a3661f56c6bdf97a2a7a7bab37a5e290be5e54188592",
+      "match_history": true,
+      "replay_integral_short": true,
+      "pit_stops": 24
+    },
+    {
+      "circuit": "SIN",
+      "weather": "Chuva intensa",
+      "laps": 3,
+      "ticks": 2050,
+      "hash": "48085a06fed3d7761a58206673c03685043645d813ea809e0b76c968e94439c9",
+      "match_history": true,
+      "replay_integral_short": true,
+      "pit_stops": 2
+    }
+  ],
+  "synthetic_motion": {
+    "1x": {
+      "cv_new": 5.18720210617653e-15,
+      "cv_old": 1.251132055394,
+      "last_progress": 0.018,
+      "static_frames_new": 12,
+      "static_frames_prior": 12,
+      "ticks": 9
+    },
+    "5x": {
+      "cv_new": 5.87183863213579e-15,
+      "cv_old": 0.279461476970842,
+      "last_progress": 0.0980000000000001,
+      "static_frames_new": 2,
+      "static_frames_prior": 2,
+      "ticks": 49
+    }
+  },
+  "notes": [
+    "The 1x/5x test uses _process with fixed dt=1/60, NOT physical monitor/GPU FPS.",
+    "Sporting source scripts remained byte-identical to parent version.",
+    "BadWindow Linux editor-specific error was not reproduced nor definitively resolved."
+  ]
+}

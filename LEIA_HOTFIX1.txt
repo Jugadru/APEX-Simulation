@@ -1,0 +1,25 @@
+APEX MOTORSPORT MANAGER — v0.5.9.0 HOTFIX 1 (testes)
+
+IMPORTANTE: este hotfix corrige testes Python que estavam desatualizados,
+sem modificar o motor de corrida, a garagem, os menus ou a interface em si.
+As seis falhas anteriores eram de verificacao offline, nao seis erros do Godot.
+
+1. Extraia este ZIP inteiro em outra pasta (nao sobrescreva a v0.5.8.0).
+2. Abra Godot 4 e importe project.godot dentro da pasta extraida.
+3. Pressione F5. Teste mudar EQUIPE de MANUAL para AUTO e voltar.
+4. Agende BOX na V21 e confirme que nao para na V4, mesmo sob chuva.
+5. Feche e reabra para verificar se os niveis de STAFF comprados persistem.
+
+BATERIA PYTHON:
+  bash linux/validar_0590_python.sh
+
+GODOT RUNTIME (na pasta do projeto):
+  godot --headless --path . --editor --quit
+  godot --headless --path . --script res://tests/core_0590_team_control_smoke_test.gd
+  GODOT_BIN=godot bash linux/validar_core_0590.sh
+
+Se o comando no Linux Mint for 'godot4', substitua 'godot' por 'godot4'.
+Se abrir um erro vermelho no Godot, ele nao foi testado aqui; envie as linhas.
+
+Leia HOTFIX_0590_TESTES.md para explicacao das seis falhas e
+'PLANO_APEX_RECONSTRUIDO_2026-11-06.md' (dentro de docs/) para o roadmap.

@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://dtbbviq2v5gqn"
+
+[deps]
+
+files=["res://RESULTADOS_8_GP_0644.voltas.translation", "res://RESULTADOS_8_GP_0644.tempo.translation", "res://RESULTADOS_8_GP_0644.asfalto.translation", "res://RESULTADOS_8_GP_0644.asfalto.translation", "res://RESULTADOS_8_GP_0644.aderencia.translation", "res://RESULTADOS_8_GP_0644.aderencia.translation", "res://RESULTADOS_8_GP_0644.borracha.translation", "res://RESULTADOS_8_GP_0644.borracha.translation", "res://RESULTADOS_8_GP_0644.pista.translation", "res://RESULTADOS_8_GP_0644.total.translation", "res://RESULTADOS_8_GP_0644.vencedor.translation"]
+
+source_file="res://RESULTADOS_8_GP_0644.csv"
+dest_files=["res://RESULTADOS_8_GP_0644.voltas.translation", "res://RESULTADOS_8_GP_0644.tempo.translation", "res://RESULTADOS_8_GP_0644.asfalto.translation", "res://RESULTADOS_8_GP_0644.asfalto.translation", "res://RESULTADOS_8_GP_0644.aderencia.translation", "res://RESULTADOS_8_GP_0644.aderencia.translation", "res://RESULTADOS_8_GP_0644.borracha.translation", "res://RESULTADOS_8_GP_0644.borracha.translation", "res://RESULTADOS_8_GP_0644.pista.translation", "res://RESULTADOS_8_GP_0644.total.translation", "res://RESULTADOS_8_GP_0644.vencedor.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

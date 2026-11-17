@@ -1,0 +1,139 @@
+{
+  "base": {
+    "samples": [
+      {
+        "flavor": "base",
+        "hud_refreshes": 200,
+        "memory_static_bytes": 105133953,
+        "microseconds_per_refresh": 1034.165,
+        "microseconds_total": 206833,
+        "resolution": "1600x900",
+        "seed": 1208,
+        "sporting_unchanged": true,
+        "track": "GBR",
+        "weather": "dry"
+      },
+      {
+        "flavor": "base",
+        "hud_refreshes": 200,
+        "memory_static_bytes": 105134341,
+        "microseconds_per_refresh": 977.32,
+        "microseconds_total": 195464,
+        "resolution": "1600x900",
+        "seed": 1208,
+        "sporting_unchanged": true,
+        "track": "GBR",
+        "weather": "dry"
+      },
+      {
+        "flavor": "base",
+        "hud_refreshes": 200,
+        "memory_static_bytes": 105134729,
+        "microseconds_per_refresh": 951.445,
+        "microseconds_total": 190289,
+        "resolution": "1600x900",
+        "seed": 1208,
+        "sporting_unchanged": true,
+        "track": "GBR",
+        "weather": "dry"
+      },
+      {
+        "flavor": "base",
+        "hud_refreshes": 200,
+        "memory_static_bytes": 105135117,
+        "microseconds_per_refresh": 1117.165,
+        "microseconds_total": 223433,
+        "resolution": "1600x900",
+        "seed": 1208,
+        "sporting_unchanged": true,
+        "track": "GBR",
+        "weather": "dry"
+      },
+      {
+        "flavor": "base",
+        "hud_refreshes": 200,
+        "memory_static_bytes": 105135505,
+        "microseconds_per_refresh": 1065.2,
+        "microseconds_total": 213040,
+        "resolution": "1600x900",
+        "seed": 1208,
+        "sporting_unchanged": true,
+        "track": "GBR",
+        "weather": "dry"
+      }
+    ],
+    "median_us_per_refresh": 1034.165,
+    "median_memory_static_bytes": 105134729
+  },
+  "06681": {
+    "samples": [
+      {
+        "flavor": "06681",
+        "hud_refreshes": 200,
+        "memory_static_bytes": 105128865,
+        "microseconds_per_refresh": 925.455,
+        "microseconds_total": 185091,
+        "resolution": "1600x900",
+        "seed": 1208,
+        "sporting_unchanged": true,
+        "track": "GBR",
+        "weather": "dry"
+      },
+      {
+        "flavor": "06681",
+        "hud_refreshes": 200,
+        "memory_static_bytes": 105130101,
+        "microseconds_per_refresh": 1855.01,
+        "microseconds_total": 371002,
+        "resolution": "1600x900",
+        "seed": 1208,
+        "sporting_unchanged": true,
+        "track": "GBR",
+        "weather": "dry"
+      },
+      {
+        "flavor": "06681",
+        "hud_refreshes": 200,
+        "memory_static_bytes": 105130489,
+        "microseconds_per_refresh": 983.93,
+        "microseconds_total": 196786,
+        "resolution": "1600x900",
+        "seed": 1208,
+        "sporting_unchanged": true,
+        "track": "GBR",
+        "weather": "dry"
+      },
+      {
+        "flavor": "06681",
+        "hud_refreshes": 200,
+        "memory_static_bytes": 105130877,
+        "microseconds_per_refresh": 1003.47,
+        "microseconds_total": 200694,
+        "resolution": "1600x900",
+        "seed": 1208,
+        "sporting_unchanged": true,
+        "track": "GBR",
+        "weather": "dry"
+      },
+      {
+        "flavor": "06681",
+        "hud_refreshes": 200,
+        "memory_static_bytes": 105131265,
+        "microseconds_per_refresh": 955.67,
+        "microseconds_total": 191134,
+        "resolution": "1600x900",
+        "seed": 1208,
+        "sporting_unchanged": true,
+        "track": "GBR",
+        "weather": "dry"
+      }
+    ],
+    "median_us_per_refresh": 983.93,
+    "median_memory_static_bytes": 105130489
+  },
+  "version": "0.6.6.8.1",
+  "method": "Godot 4.7.2 headless; 200 refreshes with fixed Silverstone seed and race snapshot; 5 process runs per version; an independent full-GP process was running and may affect measurements",
+  "observed_median_change_percent": 4.86,
+  "caveat": "This is a CPU HUD refresh microbenchmark, not GPU/FPS; small median difference is not proof of hardware speed gain or statistically significant performance improvement",
+  "performance_improvement_status": "INCONCLUSIVE"
+}

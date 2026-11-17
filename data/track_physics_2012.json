@@ -1,0 +1,215 @@
+{
+  "season": 2012,
+  "version": "0.6.4.4 lab",
+  "units": {
+    "abrasion": "factor",
+    "lateral_load": "factor",
+    "surface_grip": "factor",
+    "drainage": "factor",
+    "traction": "factor",
+    "rubber_deposition": "factor"
+  },
+  "note": "Valores originais do jogo para os 20 GPs de 2012; não reproduzem telemetria real.",
+  "tracks": {
+    "AUS": {
+      "name": "Albert Park — Melbourne",
+      "abrasion": 0.92,
+      "lateral_load": 0.91,
+      "surface_grip": 1.06,
+      "drainage": 1.04,
+      "traction": 1.02,
+      "rubber_deposition": 0.99,
+      "notes": "Parâmetros de balanceamento Apex, não medições oficiais FIA/Pirelli."
+    },
+    "MAL": {
+      "name": "Sepang — Kuala Lumpur",
+      "abrasion": 1.15,
+      "lateral_load": 1.01,
+      "surface_grip": 0.96,
+      "drainage": 0.98,
+      "traction": 0.94,
+      "rubber_deposition": 1.05,
+      "notes": "Parâmetros de balanceamento Apex, não medições oficiais FIA/Pirelli."
+    },
+    "CHN": {
+      "name": "Shanghai International Circuit",
+      "abrasion": 1.06,
+      "lateral_load": 1.04,
+      "surface_grip": 1.0,
+      "drainage": 0.99,
+      "traction": 0.98,
+      "rubber_deposition": 1.01,
+      "notes": "Parâmetros de balanceamento Apex, não medições oficiais FIA/Pirelli."
+    },
+    "BHR": {
+      "name": "Bahrain International Circuit",
+      "abrasion": 1.26,
+      "lateral_load": 1.04,
+      "surface_grip": 0.92,
+      "drainage": 0.98,
+      "traction": 0.95,
+      "rubber_deposition": 1.08,
+      "notes": "Parâmetros de balanceamento Apex, não medições oficiais FIA/Pirelli."
+    },
+    "ESP": {
+      "name": "Circuit de Barcelona-Catalunya",
+      "abrasion": 1.18,
+      "lateral_load": 1.23,
+      "surface_grip": 1.02,
+      "drainage": 0.98,
+      "traction": 1.03,
+      "rubber_deposition": 1.04,
+      "notes": "Parâmetros de balanceamento Apex, não medições oficiais FIA/Pirelli."
+    },
+    "MON": {
+      "name": "Circuit de Monaco",
+      "abrasion": 0.76,
+      "lateral_load": 0.72,
+      "surface_grip": 1.12,
+      "drainage": 0.88,
+      "traction": 1.22,
+      "rubber_deposition": 0.87,
+      "notes": "Parâmetros de balanceamento Apex, não medições oficiais FIA/Pirelli."
+    },
+    "CAN": {
+      "name": "Circuit Gilles Villeneuve",
+      "abrasion": 0.87,
+      "lateral_load": 0.82,
+      "surface_grip": 0.96,
+      "drainage": 1.1,
+      "traction": 1.16,
+      "rubber_deposition": 0.97,
+      "notes": "Parâmetros de balanceamento Apex, não medições oficiais FIA/Pirelli."
+    },
+    "EUR": {
+      "name": "Valencia Street Circuit",
+      "abrasion": 0.96,
+      "lateral_load": 0.92,
+      "surface_grip": 0.97,
+      "drainage": 1.02,
+      "traction": 1.09,
+      "rubber_deposition": 1.01,
+      "notes": "Parâmetros de balanceamento Apex, não medições oficiais FIA/Pirelli."
+    },
+    "GBR": {
+      "name": "Silverstone",
+      "abrasion": 1.08,
+      "lateral_load": 1.24,
+      "surface_grip": 1.07,
+      "drainage": 1.02,
+      "traction": 1.05,
+      "rubber_deposition": 1.08,
+      "notes": "Parâmetros de balanceamento Apex, não medições oficiais FIA/Pirelli."
+    },
+    "GER": {
+      "name": "Hockenheimring",
+      "abrasion": 0.96,
+      "lateral_load": 0.98,
+      "surface_grip": 1.01,
+      "drainage": 1.05,
+      "traction": 1.02,
+      "rubber_deposition": 1.0,
+      "notes": "Parâmetros de balanceamento Apex, não medições oficiais FIA/Pirelli."
+    },
+    "HUN": {
+      "name": "Hungaroring",
+      "abrasion": 1.04,
+      "lateral_load": 1.13,
+      "surface_grip": 0.97,
+      "drainage": 0.9,
+      "traction": 1.23,
+      "rubber_deposition": 1.02,
+      "notes": "Parâmetros de balanceamento Apex, não medições oficiais FIA/Pirelli."
+    },
+    "BEL": {
+      "name": "Spa-Francorchamps",
+      "abrasion": 1.09,
+      "lateral_load": 1.18,
+      "surface_grip": 1.04,
+      "drainage": 1.14,
+      "traction": 1.0,
+      "rubber_deposition": 1.11,
+      "notes": "Parâmetros de balanceamento Apex, não medições oficiais FIA/Pirelli."
+    },
+    "ITA": {
+      "name": "Monza",
+      "abrasion": 0.9,
+      "lateral_load": 0.75,
+      "surface_grip": 1.02,
+      "drainage": 1.18,
+      "traction": 0.94,
+      "rubber_deposition": 0.95,
+      "notes": "Parâmetros de balanceamento Apex, não medições oficiais FIA/Pirelli."
+    },
+    "SIN": {
+      "name": "Marina Bay",
+      "abrasion": 1.08,
+      "lateral_load": 0.88,
+      "surface_grip": 1.01,
+      "drainage": 0.83,
+      "traction": 1.26,
+      "rubber_deposition": 0.88,
+      "notes": "Parâmetros de balanceamento Apex, não medições oficiais FIA/Pirelli."
+    },
+    "JPN": {
+      "name": "Suzuka",
+      "abrasion": 1.15,
+      "lateral_load": 1.26,
+      "surface_grip": 1.05,
+      "drainage": 1.07,
+      "traction": 1.02,
+      "rubber_deposition": 1.12,
+      "notes": "Parâmetros de balanceamento Apex, não medições oficiais FIA/Pirelli."
+    },
+    "KOR": {
+      "name": "Korea International Circuit",
+      "abrasion": 1.0,
+      "lateral_load": 1.04,
+      "surface_grip": 0.97,
+      "drainage": 0.96,
+      "traction": 1.08,
+      "rubber_deposition": 0.99,
+      "notes": "Parâmetros de balanceamento Apex, não medições oficiais FIA/Pirelli."
+    },
+    "IND": {
+      "name": "Buddh International Circuit",
+      "abrasion": 1.13,
+      "lateral_load": 1.1,
+      "surface_grip": 0.97,
+      "drainage": 1.0,
+      "traction": 1.05,
+      "rubber_deposition": 1.03,
+      "notes": "Parâmetros de balanceamento Apex, não medições oficiais FIA/Pirelli."
+    },
+    "UAE": {
+      "name": "Yas Marina Circuit",
+      "abrasion": 0.98,
+      "lateral_load": 0.91,
+      "surface_grip": 0.93,
+      "drainage": 1.01,
+      "traction": 1.08,
+      "rubber_deposition": 0.97,
+      "notes": "Parâmetros de balanceamento Apex, não medições oficiais FIA/Pirelli."
+    },
+    "USA": {
+      "name": "Circuit of The Americas",
+      "abrasion": 1.08,
+      "lateral_load": 1.12,
+      "surface_grip": 1.02,
+      "drainage": 0.98,
+      "traction": 1.04,
+      "rubber_deposition": 1.05,
+      "notes": "Parâmetros de balanceamento Apex, não medições oficiais FIA/Pirelli."
+    },
+    "BRA": {
+      "name": "Interlagos",
+      "abrasion": 0.93,
+      "lateral_load": 1.08,
+      "surface_grip": 1.05,
+      "drainage": 0.96,
+      "traction": 1.1,
+      "rubber_deposition": 1.08,
+      "notes": "Parâmetros de balanceamento Apex, não medições oficiais FIA/Pirelli."
+    }
+  }
+}
