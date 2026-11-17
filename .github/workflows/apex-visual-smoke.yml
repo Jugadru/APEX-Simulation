@@ -1,0 +1,31 @@
+
+name: APEX - Teste Grafico
+
+on:
+  workflow_dispatch:
+
+jobs:
+  teste-visual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Baixar APEX
+        uses: actions/checkout@v4
+
+      - name: Instalar Godot
+        uses: lihop/godot-setup@v3.0.1
+        with:
+          version: 4.7.2-stable
+
+      - name: Preparar ambiente grafico
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb libgl1 libgl1-mesa-dri
+
+      - name: Importar projeto
+        run: godot --headless --path . --import
+
+      - name: Iniciar APEX com tela virtual
+        run: |
+          xvfb-run -a godot --path . --rendering-method gl_compatibility --quit-after 120
