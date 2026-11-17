@@ -1,0 +1,90 @@
+name: APEX - Comparador de Benchmarks A-B
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/**'
+      - 'data/**'
+      - 'tests/**'
+      - 'tools/compare_apex_benchmarks.py'
+      - 'tools/tests/test_compare_apex_benchmarks.py'
+      - '.github/workflows/apex-benchmark-ab.yml'
+  workflow_dispatch:
+    inputs:
+      baseline_ref:
+        description: 'Branch, tag ou SHA de referencia'
+        required: true
+        default: 'main'
+        type: string
+      candidate_ref:
+        description: 'Branch, tag ou SHA candidata'
+        required: true
+        default: 'main'
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  compare-cpu:
+    name: A-B CPU / mesmo seed e hash
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout da referencia
+        uses: actions/checkout@v4
+        with:
+          path: base
+          ref: ${{ github.event.pull_request.base.sha || inputs.baseline_ref || 'main' }}
+          persist-credentials: false
+
+      - name: Checkout da versao candidata
+        uses: actions/checkout@v4
+        with:
+          path: candidate
+          ref: ${{ github.event.pull_request.head.sha || inputs.candidate_ref || github.sha }}
+          persist-credentials: false
+
+      - name: Preparar Godot 4.7.2
+        uses: lihop/godot-setup@v3.0.1
+        with:
+          version: 4.7.2-stable
+
+      - name: Testar o comparador sem Godot
+        run: python3 -m unittest discover -s candidate/tools/tests -p 'test_compare_apex_benchmarks.py' -v
+
+      - name: Importar referencia
+        run: godot --headless --path base --import
+
+      - name: Importar candidata
+        run: godot --headless --path candidate --import
+
+      - name: Rodar benchmarks alternados
+        run: |
+          python3 candidate/tools/compare_apex_benchmarks.py \
+            --base-dir base \
+            --candidate-dir candidate \
+            --ticks 1000 \
+            --repetitions 3 \
+            --output-dir benchmark-ab
+
+      - name: Mostrar resumo A-B
+        if: always()
+        shell: bash
+        run: |
+          if [ -f benchmark-ab/report.md ]; then
+            cat benchmark-ab/report.md >> "$GITHUB_STEP_SUMMARY"
+          elif [ -f benchmark-ab/error.txt ]; then
+            echo "### Benchmark A-B: erro" >> "$GITHUB_STEP_SUMMARY"
+            cat benchmark-ab/error.txt >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Guardar logs, JSON e comparacao
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apex-benchmark-ab
+          path: benchmark-ab/
+          retention-days: 14
+          if-no-files-found: warn
