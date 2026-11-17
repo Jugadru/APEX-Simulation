@@ -30,6 +30,9 @@ def gp_fixture(track: str = "ITA", weather: str = "Seco") -> dict:
         "full_distance": True, "finished": True,
         "last_hash": "stable", "ticks": 1500, "laps": 53,
         "samples": [{"tick": 500}],
+        "step_sim_seconds": 4.0,
+        "finished_cars": 24, "manual_pit_orders": 2,
+        "pit_history": 4,
     }
 
 
