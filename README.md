@@ -1,6 +1,10 @@
-# APEX Motorsport Manager — Core 2 v0.6.6.8.6
+# APEX Motorsport Manager — Core 2 v0.6.6.8.7
 
 Simulador de gestão de automobilismo criado em **Godot 4.7.2**. A branch `main` usa o **Core 2** como motor esportivo oficial. A **APEX 2 Next Engine** é uma experiência separada e **não está ativada**.
+
+## Novidade Driver Dynamics 2.0
+
+Em **RÁDIO > DISCUTIR STINT**, o piloto compara a última volta com a melhor volta e avalia desgaste, temperatura e tolerância fictícia ao risco. Pode pedir revisão da janela por perda de ritmo ou sugerir ficar mais uma volta quando o rendimento está estável. O engenheiro pondera a telemetria e preserva o BOX manual V21. **Este diálogo não altera ordens, física ou replay.** Relatório: [v0.6.6.8.7](APEX_06687_RELATORIO_TECNICO.md).
 
 ## Abrir o jogo
 
@@ -13,10 +17,10 @@ O projeto inclui corrida com 24 carros, 3D, HUD ReBroadcast, Pit Wall, replay de
 
 ## Versão completa e histórico
 
-- [Release oficial do Core 2 v0.6.6.8.6 (ZIP completo)](https://github.com/Quereni/APEX-Simulation/releases/tag/Versions)
-- [Relatório técnico v0.6.6.8.6](APEX_06686_RELATORIO_TECNICO.md)
-- [Matriz histórica de testes](APEX_06686_MATRIZ_TESTES.json)
-- [Changelog da versão](APEX_06686_CHANGELOG.md)
+- [Release-base Core 2 v0.6.6.8.6 (ZIP original)](https://github.com/Quereni/APEX-Simulation/releases/tag/Versions)
+- [Relatório técnico v0.6.6.8.7](APEX_06687_RELATORIO_TECNICO.md)
+- [Matriz histórica de testes](APEX_06687_MATRIZ_TESTES.json)
+- [Changelog da versão](APEX_06687_CHANGELOG.md)
 - [Referência histórica: replay v0.6.6.0](docs/REPLAY_0660_USO.md)
 
 As capturas, replays e outros arquivos grandes estão no pacote completo da Release; a árvore Git contém o código-fonte e testes leves.

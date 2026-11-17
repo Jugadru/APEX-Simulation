@@ -1,0 +1,47 @@
+[
+  {
+    "test": "Godot 4.7.2 import",
+    "status": "PASS",
+    "evidence": "Initial import exit 0, no GDScript errors; clean retry compatibility renderer exit 0"
+  },
+  {
+    "test": "Driver Tyre Judgement 2.0",
+    "status": "PASS",
+    "evidence": "23 checks, pure/read-only, risk and timing"
+  },
+  {
+    "test": "Live HUD + queued V21",
+    "status": "PASS",
+    "evidence": "12 checks; spoken delta, engineer reply, pit order intact"
+  },
+  {
+    "test": "Legacy Radio & Soul Stint",
+    "status": "PASS",
+    "evidence": "0630, 0631, 0635"
+  },
+  {
+    "test": "Core 2 sort / Driver Dynamics / Racecraft",
+    "status": "PASS",
+    "evidence": "4 + 17 + 1027 checks"
+  },
+  {
+    "test": "Double stack / 3D car / replay",
+    "status": "PASS",
+    "evidence": "Double stack passes, 3D smoke passes; replay 200 ticks and 5 speeds"
+  },
+  {
+    "test": "4 circuits x 750 ticks",
+    "status": "PASS",
+    "evidence": "Hashes positions events checkpoints equal 0.6.6.8.6"
+  },
+  {
+    "test": "Full race 53 laps (this release)",
+    "status": "NOT_RUN",
+    "evidence": "Covered by historical 8.6 baseline; not repeated"
+  },
+  {
+    "test": "GPU FPS / multiple-season saves",
+    "status": "NOT_RUN",
+    "evidence": "Needs physical hardware / extended campaign"
+  }
+]

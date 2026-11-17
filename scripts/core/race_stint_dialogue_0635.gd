@@ -1,6 +1,7 @@
 extends RefCounted
 ## Apex 0.6.3.5: fictional subjective stint preference versus current measured race state.
 ## Read-only. Not historical characterisation; no pit, pace, RNG or engine state mutation.
+const DriverTyreJudgement = preload("res://scripts/core/race_driver_tyre_judgement_06687.gd")
 
 static func evaluate(car_id: int, snapshot: Dictionary, advice: Dictionary, previous: Dictionary = {}, soul: Dictionary = {}) -> Dictionary:
     var car: Dictionary = {}
@@ -26,6 +27,7 @@ static func evaluate(car_id: int, snapshot: Dictionary, advice: Dictionary, prev
     var felt_wear: float = wear if soul.is_empty() else clampf(float(soul.get("perceived_wear", wear)), 0.0, 100.0)
     # Arbitrary, small FICTIONAL tolerance: not sourced from the named human driver.
     var tolerance: float = float(posmod(car_id * 13 + 3, 9) - 4) * 1.5
+    var timing: Dictionary = DriverTyreJudgement.assess(car, soul)
     var driver: String = ""
     var engineer: String = ""
     var wants_extend: bool = false
@@ -42,6 +44,20 @@ static func evaluate(car_id: int, snapshot: Dictionary, advice: Dictionary, prev
     elif felt_wear >= 78.0 + tolerance or heat >= 0.82:
         driver = "Está difícil manter o carro neste ritmo. Acho melhor avaliarmos uma parada."
         engineer = "O desgaste está em %.0f%% e o aquecimento em %.0f%%; os dados justificam revisar a janela de box." % [wear, heat * 100.0]
+    elif str(timing.get("state", "")) == "perda_ritmo":
+        driver = "Não estou encontrando ritmo com este jogo de pneus. Minha última volta ficou %.2fs acima da melhor; podemos analisar a janela?" % float(timing["delta_s"])
+        engineer = "Recebido. Última %.2fs, melhor %.2fs, diferença %.2fs e desgaste medido %.0f%%. Tráfego, clima e ritmo também podem explicar a diferença; vamos comparar antes de decidir o box." % [
+            float(timing["last_s"]), float(timing["best_s"]), float(timing["delta_s"]), wear]
+        conflict = not pit_now and wear < 65.0
+    elif str(timing.get("state", "")) == "stint_estavel":
+        wants_extend = true
+        driver = "Ainda sinto os pneus respondendo. Minha última volta ficou apenas %.2fs acima da melhor. Podemos considerar ficar na pista mais uma volta?" % float(timing["delta_s"])
+        if pit_now or wear >= 60.0:
+            conflict = true
+            engineer = "Sua percepção é útil, mas o plano pede revisão: desgaste %.0f%% e aquecimento %.0f%%. Uma volta próxima da melhor não prova que o pneu manterá rendimento." % [wear, heat * 100.0]
+        else:
+            engineer = "Telemetria: diferença de %.2fs, desgaste %.0f%% e aquecimento %.0f%%. Podemos estudar manter o stint, sem alterar a ordem automaticamente." % [
+                float(timing["delta_s"]), wear, heat * 100.0]
     elif felt_wear >= 54.0 + tolerance:
         wants_extend = true
         driver = "Ainda consigo administrar estes pneus. Podemos tentar mais uma volta antes de decidir?"
@@ -82,6 +98,8 @@ static func evaluate(car_id: int, snapshot: Dictionary, advice: Dictionary, prev
     var memory: Dictionary = {"time": now, "wear": wear, "heat": heat, "wetness": wetness,
         "tire": tire, "booked": booked, "estimated": estimated, "pit_now": pit_now,
         "remaining": remaining, "pit_active": pit_active,
+        "timing_state": str(timing.get("state", "sem_amostra")),
+        "timing_delta_s": float(timing.get("delta_s", -1.0)),
         "soul_revision": int(soul.get("revision", 0))}
     var repeat: bool = false
     if not previous.is_empty():
@@ -93,8 +111,11 @@ static func evaluate(car_id: int, snapshot: Dictionary, advice: Dictionary, prev
             and booked == int(previous.get("booked", -99)) \
             and estimated == int(previous.get("estimated", -99)) \
             and pit_now == bool(previous.get("pit_now", not pit_now)) \
-            and pit_active == bool(previous.get("pit_active", not pit_active))
+            and pit_active == bool(previous.get("pit_active", not pit_active)) \
+            and str(timing.get("state", "sem_amostra")) == str(previous.get("timing_state", "sem_amostra")) \
+            and absf(float(timing.get("delta_s", -1.0)) - float(previous.get("timing_delta_s", -1.0))) < 0.65
     return {"car_id": car_id, "car_name": str(car.get("name", "Piloto")),
         "driver": driver, "engineer": engineer, "disagreement": conflict,
         "wants_extend": wants_extend, "repeat": repeat, "memory": memory,
-        "fictional": true, "read_only": true, "perceived_wear": felt_wear}
+        "fictional": true, "read_only": true, "perceived_wear": felt_wear,
+        "timing": timing.duplicate(true)}
