@@ -28,7 +28,7 @@ jobs:
         uses: godot-gdunit-labs/gdUnit4-action@v1
         with:
           godot-version: '4.7.2'
-          version: '6.2.0'
+          version: 'v6.2.0'
           paths: 'res://tests/gdunit'
           headless: true
           arguments: '--ignoreHeadlessMode'
