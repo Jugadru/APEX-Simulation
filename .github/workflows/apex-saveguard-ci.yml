@@ -1,0 +1,106 @@
+name: APEX - SaveGuard Compatibilidade
+
+on:
+  workflow_dispatch:
+    inputs:
+      baseline_ref:
+        description: 'Revisao anterior que produz saves (main por padrao)'
+        required: true
+        default: 'main'
+        type: string
+      candidate_ref:
+        description: 'Revisao candidata que deve importar os saves anteriores'
+        required: true
+        default: 'infra/saveguard-cross-version-ci-v1'
+        type: string
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/**'
+      - 'tests/ci/apex_saveguard_cross_revision.gd'
+      - 'tests/career_0667_20_season_data_stress.gd'
+      - 'tests/core_0642_save_migration_test.gd'
+      - 'tests/replay_0663_legacy_fixture.gd'
+      - 'tools/apex_saveguard_ci.py'
+      - 'tools/tests/test_apex_saveguard_ci.py'
+      - '.github/workflows/apex-saveguard-ci.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: apex-saveguard-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  compatibility:
+    name: Saves / Replay / corrupcao — baseline vs candidata
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Baixar revisao de referencia
+        uses: actions/checkout@v4
+        with:
+          path: baseline
+          ref: ${{ github.event.pull_request.base.sha || inputs.baseline_ref || 'main' }}
+          persist-credentials: false
+
+      - name: Baixar revisao candidata
+        uses: actions/checkout@v4
+        with:
+          path: candidate
+          ref: ${{ github.event.pull_request.head.sha || inputs.candidate_ref || github.sha }}
+          persist-credentials: false
+
+      - name: Preparar Godot 4.7.2
+        uses: lihop/godot-setup@v3.0.1
+        with:
+          version: 4.7.2-stable
+
+      - name: Testar contratos de relatórios
+        run: |
+          python3 -m unittest discover -s candidate/tools/tests \
+            -p 'test_apex_saveguard_ci.py' -v
+
+      - name: Importar recursos da revisao de referencia
+        run: godot --headless --path baseline --import
+
+      - name: Importar recursos da versao candidata
+        run: godot --headless --path candidate --import
+
+      - name: Gerar fixtures reais na base e conferir na candidata
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 candidate/tools/apex_saveguard_ci.py \
+            --baseline baseline --candidate candidate \
+            --godot godot \
+            --timeout 150 \
+            --output ci_artifacts/saveguard
+
+      - name: Publicar resumo com limitacoes
+        if: always()
+        shell: bash
+        run: |
+          if [ -f ci_artifacts/saveguard/report.md ]; then
+            cat ci_artifacts/saveguard/report.md >> "$GITHUB_STEP_SUMMARY"
+          elif [ -f ci_artifacts/saveguard/error.txt ]; then
+            echo '### APEX SaveGuard — Falha / Incompatibilidade' >> "$GITHUB_STEP_SUMMARY"
+            cat ci_artifacts/saveguard/error.txt >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo '### APEX SaveGuard — Nenhum relatorio gerado' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Salvar somente logs e evidencias sem os saves de exemplo
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apex-saveguard-compatibilidade
+          path: |
+            ci_artifacts/saveguard/*.log
+            ci_artifacts/saveguard/report.json
+            ci_artifacts/saveguard/report.md
+            ci_artifacts/saveguard/error.txt
+          retention-days: 14
+          if-no-files-found: warn
