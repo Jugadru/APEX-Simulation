@@ -1,0 +1,53 @@
+extends SceneTree
+# 0664 local fast watch / legacy-replay compatibility and checkpoint parity.
+const Race = preload("res://scripts/race_engine.gd")
+const Replay = preload("res://scripts/core/race_replay_0660.gd")
+const Codec = preload("res://scripts/core/race_state_codec_0660.gd")
+func _initialize() -> void: call_deferred("run")
+func run() -> void:
+	var data: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/season_2012.json"))
+	var track: Dictionary = {}
+	for t in data.tracks:
+		if str(t.code)=="ITA":track=t.duplicate(true)
+	track.laps=3
+	var engine=Race.new(data.teams,"Ferrari",660,{},track,{})
+	engine.configure_weather("Seco")
+	var id: int=engine.player_cars()[0].id
+	var recorded=Replay.new()
+	recorded.attach(engine,{id:"Assistido"},{"Engenheiro":2,"Estrategista":2})
+	assert(recorded.enqueue("set_pace",[id,"Atacar"],10))
+	for i in range(650):assert(recorded.step_tick(),recorded.error)
+	var old_hashes:PackedStringArray=recorded.hashes.duplicate()
+	var old_tick:int=recorded.tick
+	var before_hash:String=Codec.sporting_hash(recorded.race,recorded.policy)
+	var direct=Replay.new()
+	assert(direct.load_live_session(recorded),direct.error)
+	assert(recorded.tick==old_tick and recorded.hashes==old_hashes)
+	assert(Codec.sporting_hash(recorded.race,recorded.policy)==before_hash)
+	assert(direct.playback and direct.end_tick==650)
+	assert(direct.seek(640),direct.error)
+	assert(direct.seek(0),direct.error)
+	for i in range(old_tick):assert(direct.step_tick(),direct.error)
+	assert(direct.hashes[-1]==recorded.hashes[-1])
+	assert(Codec.sporting_hash(direct.race,direct.policy)==before_hash)
+	var legacy=Replay.new()
+	assert(legacy.load_data(recorded.export_data()),legacy.error)
+	assert(legacy.seek(650),legacy.error)
+	assert(Codec.sporting_hash(legacy.race,legacy.policy)==before_hash)
+	var external=Replay.new()
+	assert(external.load_file("res://qa/long_race_0663/replay_0662_650.apexreplay"),external.error)
+	assert(external.seek(650),external.error)
+	# Watching an already-open replay was allowed by the 0663 UI.
+	var nested=Replay.new()
+	assert(nested.load_live_session(direct),nested.error)
+	assert(nested.seek(650),nested.error)
+	assert(nested.hashes==old_hashes)
+	var invalid=Replay.new()
+	assert(not invalid.load_live_session(null))
+	assert(not invalid.load_live_session(Replay.new()))
+	var again=Replay.new()
+	assert(again.load_live_session(recorded))
+	assert(again.seek(650),again.error)
+	assert(recorded.tick==old_tick)
+	print("REPLAY_WATCH_0664_PASS ticks=650; identical sport; old file; 2 seeks; live unchanged")
+	quit()

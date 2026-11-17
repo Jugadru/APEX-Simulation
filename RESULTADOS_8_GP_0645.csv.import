@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://bckgsvvwf81i7"
+
+[deps]
+
+files=["res://RESULTADOS_8_GP_0645.voltas.translation", "res://RESULTADOS_8_GP_0645.tempo.translation", "res://RESULTADOS_8_GP_0645.asfalto.translation", "res://RESULTADOS_8_GP_0645.asfalto.translation", "res://RESULTADOS_8_GP_0645.aderencia.translation", "res://RESULTADOS_8_GP_0645.aderencia.translation", "res://RESULTADOS_8_GP_0645.borracha.translation", "res://RESULTADOS_8_GP_0645.borracha.translation", "res://RESULTADOS_8_GP_0645.molhado.translation", "res://RESULTADOS_8_GP_0645.paradas.translation", "res://RESULTADOS_8_GP_0645.vencedor.translation", "res://RESULTADOS_8_GP_0645.passo.translation", "res://RESULTADOS_8_GP_0645.ticks.translation", "res://RESULTADOS_8_GP_0645.classificados.translation", "res://RESULTADOS_8_GP_0645.voltas.translation", "res://RESULTADOS_8_GP_0645.violacoes.translation"]
+
+source_file="res://RESULTADOS_8_GP_0645.csv"
+dest_files=["res://RESULTADOS_8_GP_0645.voltas.translation", "res://RESULTADOS_8_GP_0645.tempo.translation", "res://RESULTADOS_8_GP_0645.asfalto.translation", "res://RESULTADOS_8_GP_0645.asfalto.translation", "res://RESULTADOS_8_GP_0645.aderencia.translation", "res://RESULTADOS_8_GP_0645.aderencia.translation", "res://RESULTADOS_8_GP_0645.borracha.translation", "res://RESULTADOS_8_GP_0645.borracha.translation", "res://RESULTADOS_8_GP_0645.molhado.translation", "res://RESULTADOS_8_GP_0645.paradas.translation", "res://RESULTADOS_8_GP_0645.vencedor.translation", "res://RESULTADOS_8_GP_0645.passo.translation", "res://RESULTADOS_8_GP_0645.ticks.translation", "res://RESULTADOS_8_GP_0645.classificados.translation", "res://RESULTADOS_8_GP_0645.voltas.translation", "res://RESULTADOS_8_GP_0645.violacoes.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

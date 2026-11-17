@@ -1,0 +1,134 @@
+{
+  "version": "0.6.6.7",
+  "source_sha256": "842ef5a563094140092c947de3cf35aee200111030f973de81ea4b15e42ce981",
+  "original_entries": 2469,
+  "modified_original_files": [
+    "project.godot",
+    "scripts/tv_director.gd"
+  ],
+  "sports_engine_sha256": "522327cc1bf06d0bcbe7e54d0eebf7c7026fdb0b0d8247e7d32f2d754e0aac7a",
+  "tv_director_sha256": "0a779afe3ebc08c43c28e484e387d3543e6ab722b31e6d1308190502795dedbd",
+  "sporting_hash_gbr_3lap": "7bca12f99088048b747f7ac3626b635133628cb0ae57de15db4fdf072be64837",
+  "tests": [
+    {
+      "test": "source_zip_crc_integrity",
+      "status": "APROVADO",
+      "details": "ZIP original CRC válido, 2.469 entradas; nenhum arquivo original ausente"
+    },
+    {
+      "test": "source_preservation",
+      "status": "APROVADO",
+      "details": "Somente project.godot e scripts/tv_director.gd alterados em relação ao ZIP v0.6.6.6"
+    },
+    {
+      "test": "godot_472_import",
+      "status": "APROVADO",
+      "details": "import.log: código 0, nenhum erro de parser"
+    },
+    {
+      "test": "core_0627_tv_director_smoke",
+      "status": "APROVADO",
+      "details": "core_0627_tv_director_smoke_test.log"
+    },
+    {
+      "test": "camera_regression",
+      "status": "APROVADO",
+      "details": "camera_regression_test.log"
+    },
+    {
+      "test": "tv_highlights_0667_unit",
+      "status": "APROVADO",
+      "details": "tv_director_highlights_0667_test.log"
+    },
+    {
+      "test": "tv_highlights_0667_sport_isolation",
+      "status": "APROVADO",
+      "details": "tv_director_0667_sporting_isolation.log"
+    },
+    {
+      "test": "tv_highlights_0667_live_gp",
+      "status": "APROVADO",
+      "details": "tv_director_0667_live_gp.log: 18 eventos reais, 26 tomadas, hash original"
+    },
+    {
+      "test": "gp_GBR_dry_3laps_and_replay",
+      "status": "APROVADO",
+      "details": "gp_GBR_final.log: 1.668 ticks, hash legado"
+    },
+    {
+      "test": "gp_BEL_wet_3laps_and_replay",
+      "status": "APROVADO",
+      "details": "gp_BEL_final.log: 2.067 ticks, hash legado"
+    },
+    {
+      "test": "gp_ITA_dry_3laps_and_replay",
+      "status": "APROVADO",
+      "details": "gp_ITA_final.log: 1.553 ticks, hash legado"
+    },
+    {
+      "test": "gp_SIN_wet_3laps_and_replay",
+      "status": "APROVADO",
+      "details": "gp_SIN_final.log: 2.050 ticks, hash legado"
+    },
+    {
+      "test": "replay_boundaries",
+      "status": "APROVADO",
+      "details": "replay_0660_boundaries.log: V21 com chuva na V4 protegido"
+    },
+    {
+      "test": "replay_unit_speeds",
+      "status": "APROVADO",
+      "details": "replay_0660_test.log: 1x/2x/5x/16x/32x"
+    },
+    {
+      "test": "racecraft_0662_unit",
+      "status": "APROVADO",
+      "details": "racecraft_0662_test.log: 1.027 verificações"
+    },
+    {
+      "test": "driver_dynamics_0661",
+      "status": "APROVADO",
+      "details": "driver_dynamics_0661_test.log"
+    },
+    {
+      "test": "soul_driver_0647",
+      "status": "APROVADO",
+      "details": "race_0647_soul2_test.log"
+    },
+    {
+      "test": "godot_visual_1600x900",
+      "status": "APROVADO",
+      "details": "visual_1600x900.log: imagem real, OpenGL Compatibility / Mesa"
+    },
+    {
+      "test": "godot_visual_1920x1080",
+      "status": "APROVADO",
+      "details": "visual_1920x1080.log: imagem real, OpenGL Compatibility / Mesa"
+    },
+    {
+      "test": "pitwall_0649_historical_UI",
+      "status": "FALHA_HERDADA",
+      "details": "pitwall_0649_ui_isolated.log: comandos de agendamento falham igualmente na v0.6.6.6; não causada pelas duas modificações 0667"
+    },
+    {
+      "test": "staff_migration_0650_legacy",
+      "status": "INCONCLUSIVO",
+      "details": "soul_staff_0650_migration_test.log: erro em save legado e timeout; não validado nesta execução"
+    },
+    {
+      "test": "replay_0660_integration_heavy",
+      "status": "NÃO_CONCLUÍDO",
+      "details": "replay_0660_integration.log: ultrapassou limite de tempo; sem PASS"
+    },
+    {
+      "test": "monza53_full_sport_and_replay",
+      "status": "NÃO_EXECUTADO",
+      "details": "Não repetido, física/replay não alterados"
+    },
+    {
+      "test": "career_20_seasons",
+      "status": "NÃO_EXECUTADO",
+      "details": "Estresse de 20 temporadas fora do escopo"
+    }
+  ]
+}

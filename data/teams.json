@@ -1,0 +1,182 @@
+[
+  {
+    "name": "Red Bull Racing Renault",
+    "color": "#1e5eff",
+    "car": 96,
+    "drivers": [
+      {
+        "name": "Sebastian Vettel",
+        "skill": 96
+      },
+      {
+        "name": "Mark Webber",
+        "skill": 91
+      }
+    ]
+  },
+  {
+    "name": "McLaren Mercedes",
+    "color": "#d8dde7",
+    "car": 95,
+    "drivers": [
+      {
+        "name": "Lewis Hamilton",
+        "skill": 95
+      },
+      {
+        "name": "Jenson Button",
+        "skill": 92
+      }
+    ]
+  },
+  {
+    "name": "Ferrari",
+    "color": "#ff3030",
+    "car": 92,
+    "drivers": [
+      {
+        "name": "Fernando Alonso",
+        "skill": 97
+      },
+      {
+        "name": "Felipe Massa",
+        "skill": 86
+      }
+    ]
+  },
+  {
+    "name": "Lotus Renault",
+    "color": "#cab26a",
+    "car": 91,
+    "drivers": [
+      {
+        "name": "Kimi Räikkönen",
+        "skill": 94
+      },
+      {
+        "name": "Romain Grosjean",
+        "skill": 86
+      }
+    ]
+  },
+  {
+    "name": "Mercedes",
+    "color": "#5fd9cf",
+    "car": 90,
+    "drivers": [
+      {
+        "name": "Nico Rosberg",
+        "skill": 89
+      },
+      {
+        "name": "Michael Schumacher",
+        "skill": 90
+      }
+    ]
+  },
+  {
+    "name": "Sauber Ferrari",
+    "color": "#7bb9ff",
+    "car": 87,
+    "drivers": [
+      {
+        "name": "Sergio Perez",
+        "skill": 87
+      },
+      {
+        "name": "Kamui Kobayashi",
+        "skill": 84
+      }
+    ]
+  },
+  {
+    "name": "Force India Mercedes",
+    "color": "#f28f48",
+    "car": 86,
+    "drivers": [
+      {
+        "name": "Paul di Resta",
+        "skill": 84
+      },
+      {
+        "name": "Nico Hulkenberg",
+        "skill": 86
+      }
+    ]
+  },
+  {
+    "name": "Williams Renault",
+    "color": "#89b9ff",
+    "car": 85,
+    "drivers": [
+      {
+        "name": "Pastor Maldonado",
+        "skill": 82
+      },
+      {
+        "name": "Bruno Senna",
+        "skill": 79
+      }
+    ]
+  },
+  {
+    "name": "Toro Rosso Ferrari",
+    "color": "#2c54aa",
+    "car": 83,
+    "drivers": [
+      {
+        "name": "Daniel Ricciardo",
+        "skill": 81
+      },
+      {
+        "name": "Jean-Eric Vergne",
+        "skill": 79
+      }
+    ]
+  },
+  {
+    "name": "Caterham Renault",
+    "color": "#2bbf73",
+    "car": 79,
+    "drivers": [
+      {
+        "name": "Heikki Kovalainen",
+        "skill": 75
+      },
+      {
+        "name": "Vitaly Petrov",
+        "skill": 74
+      }
+    ]
+  },
+  {
+    "name": "Marussia Cosworth",
+    "color": "#c33b3b",
+    "car": 76,
+    "drivers": [
+      {
+        "name": "Timo Glock",
+        "skill": 73
+      },
+      {
+        "name": "Charles Pic",
+        "skill": 69
+      }
+    ]
+  },
+  {
+    "name": "HRT Cosworth",
+    "color": "#adb5c0",
+    "car": 74,
+    "drivers": [
+      {
+        "name": "Pedro de la Rosa",
+        "skill": 71
+      },
+      {
+        "name": "Narain Karthikeyan",
+        "skill": 66
+      }
+    ]
+  }
+]

@@ -1,0 +1,20 @@
+APEX MOTORSPORT MANAGER 0.5.4.1 — HOTFIX PERFORMANCE — GODOT 4.7.2
+
+O que foi corrigido:
+- GDScript 'Performance' conflita com a classe nativa Performance do Godot.
+- Renomeamos somente o alias da classe pré-carregada para RacePerformance.
+- Mantivemos as fórmulas e a lógica da simulação inalteradas.
+- Atualizamos o teste estático e, na versão 0.5.4.1, a fixture de comparação.
+
+COMO INSTALAR PROJETO COMPLETO
+1. Extraia o ZIP completo em uma pasta NOVA.
+2. Importe project.godot no Godot 4.7.2.
+3. Execute a cena com F5.
+
+COMO INSTALAR PATCH
+1. Entre na pasta do projeto APEX_GODOT_0.5.4.1 que você já extraiu.
+2. Substitua os arquivos nas mesmas subpastas presentes no ZIP do patch.
+3. Reabra o projeto no Godot.
+
+Atenção: os testes de código offline foram executados; não temos executável
+do Godot neste ambiente para validar a importação e execução reais.

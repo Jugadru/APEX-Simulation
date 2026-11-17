@@ -1,0 +1,9 @@
+etapa,GP,voltas,ticks_020s,tempo_simulado_s,vencedor,paradas_grid,Ferrari_pontos,premio,despesa_oficina,saldo,motor,asa,chassi,upgrades_rivais
+1,AUS,58,26286,5257.2,Fernando Alonso,47,35,1200000,3900000,9300000,1,0,0,11
+2,MAL,56,30537,6107.4,Mark Webber,96,65,1130000,0,10430000,1,1,0,22
+3,CHN,56,29745,5949.0,Sebastian Vettel,81,98,1130000,1190000,10370000,1,1,0,33
+4,BHR,57,28011,5602.2,Sebastian Vettel,67,119,1060000,0,11430000,1,1,1,37
+5,ESP,66,29416,5883.2,Sebastian Vettel,80,138,1130000,4250000,8310000,1,1,1,43
+6,MON,78,30624,6124.8,Lewis Hamilton,72,156,1130000,0,9440000,2,1,1,46
+7,CAN,70,26922,5384.4,Fernando Alonso,73,196,1200000,2720000,7920000,2,1,1,47
+8,EUR,57,29476,5895.2,Sebastian Vettel,36,212,990000,0,8910000,2,2,1,50

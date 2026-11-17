@@ -1,0 +1,2811 @@
+{
+  "best_lap_min": 87.3999999999205,
+  "cars_with_pits": 24,
+  "championship_committed": true,
+  "championship_round": 1,
+  "clock_s": 5259.99999999741,
+  "code": "AUS",
+  "constructor_standings": [
+    {
+      "name": "Red Bull Racing Renault",
+      "points": 35
+    },
+    {
+      "name": "McLaren Mercedes",
+      "points": 27
+    },
+    {
+      "name": "Ferrari",
+      "points": 24
+    },
+    {
+      "name": "Lotus Renault",
+      "points": 12
+    },
+    {
+      "name": "Mercedes",
+      "points": 3
+    },
+    {
+      "name": "Caterham Renault",
+      "points": 0
+    },
+    {
+      "name": "Force India Mercedes",
+      "points": 0
+    },
+    {
+      "name": "HRT Cosworth",
+      "points": 0
+    },
+    {
+      "name": "Marussia Cosworth",
+      "points": 0
+    },
+    {
+      "name": "Sauber Ferrari",
+      "points": 0
+    },
+    {
+      "name": "Toro Rosso Ferrari",
+      "points": 0
+    },
+    {
+      "name": "Williams Renault",
+      "points": 0
+    }
+  ],
+  "crew": {
+    "Agilidade": 0,
+    "Coordenação": 0,
+    "Precisão": 0
+  },
+  "disqualified": 0,
+  "driver_standings": [
+    {
+      "name": "Sebastian Vettel",
+      "points": 25
+    },
+    {
+      "name": "Fernando Alonso",
+      "points": 18
+    },
+    {
+      "name": "Jenson Button",
+      "points": 15
+    },
+    {
+      "name": "Lewis Hamilton",
+      "points": 12
+    },
+    {
+      "name": "Mark Webber",
+      "points": 10
+    },
+    {
+      "name": "Kimi Räikkönen",
+      "points": 8
+    },
+    {
+      "name": "Felipe Massa",
+      "points": 6
+    },
+    {
+      "name": "Romain Grosjean",
+      "points": 4
+    },
+    {
+      "name": "Nico Rosberg",
+      "points": 2
+    },
+    {
+      "name": "Michael Schumacher",
+      "points": 1
+    },
+    {
+      "name": "Bruno Senna",
+      "points": 0
+    },
+    {
+      "name": "Charles Pic",
+      "points": 0
+    },
+    {
+      "name": "Daniel Ricciardo",
+      "points": 0
+    },
+    {
+      "name": "Heikki Kovalainen",
+      "points": 0
+    },
+    {
+      "name": "Jean-Eric Vergne",
+      "points": 0
+    },
+    {
+      "name": "Kamui Kobayashi",
+      "points": 0
+    },
+    {
+      "name": "Narain Karthikeyan",
+      "points": 0
+    },
+    {
+      "name": "Nico Hulkenberg",
+      "points": 0
+    },
+    {
+      "name": "Pastor Maldonado",
+      "points": 0
+    },
+    {
+      "name": "Paul di Resta",
+      "points": 0
+    },
+    {
+      "name": "Pedro de la Rosa",
+      "points": 0
+    },
+    {
+      "name": "Sergio Perez",
+      "points": 0
+    },
+    {
+      "name": "Timo Glock",
+      "points": 0
+    },
+    {
+      "name": "Vitaly Petrov",
+      "points": 0
+    }
+  ],
+  "error_count": 0,
+  "errors": [],
+  "finish_results_validated": true,
+  "finished": true,
+  "finishers": 24,
+  "full_race": true,
+  "invalid_laps": 0,
+  "kers_max_used_kj": 400.0,
+  "kers_min_remaining_kj": 0.0,
+  "laps": 58,
+  "max_progress_backwards": 0.0,
+  "name": "Albert Park — Melbourne",
+  "pit_counts": {
+    "?": 48
+  },
+  "pit_events": [
+    {
+      "compound_before": "Macio",
+      "driver": "Kimi Räikkönen",
+      "lap": 17,
+      "message": "IA BOX | Kimi Räikkönen: plano de corrida completo / dois compostos, novo jogo Macio (70% desgaste).",
+      "stint": 17,
+      "wear": 70.3183683492516,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Médio",
+      "driver": "Lewis Hamilton",
+      "lap": 17,
+      "message": "IA BOX | Lewis Hamilton: plano de corrida completo / dois compostos, novo jogo Macio (45% desgaste).",
+      "stint": 17,
+      "wear": 45.0951517929926,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Nico Hulkenberg",
+      "lap": 17,
+      "message": "IA BOX | Nico Hulkenberg: plano de corrida completo / dois compostos, novo jogo Macio (70% desgaste).",
+      "stint": 17,
+      "wear": 70.4144279878689,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Médio",
+      "driver": "Daniel Ricciardo",
+      "lap": 17,
+      "message": "IA BOX | Daniel Ricciardo: plano de corrida completo / dois compostos, novo jogo Macio (45% desgaste).",
+      "stint": 17,
+      "wear": 45.1356643884454,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Vitaly Petrov",
+      "lap": 17,
+      "message": "IA BOX | Vitaly Petrov: plano de corrida completo / dois compostos, novo jogo Macio (69% desgaste).",
+      "stint": 17,
+      "wear": 69.0033557060219,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Médio",
+      "driver": "Narain Karthikeyan",
+      "lap": 17,
+      "message": "IA BOX | Narain Karthikeyan: plano de corrida completo / dois compostos, novo jogo Macio (45% desgaste).",
+      "stint": 17,
+      "wear": 45.108885312919,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Fernando Alonso",
+      "lap": 18,
+      "message": "IA BOX | Fernando Alonso: plano de corrida completo / dois compostos, novo jogo Macio (71% desgaste).",
+      "stint": 18,
+      "wear": 71.3740479655236,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Jenson Button",
+      "lap": 18,
+      "message": "IA BOX | Jenson Button: plano de corrida completo / dois compostos, novo jogo Macio (70% desgaste).",
+      "stint": 18,
+      "wear": 69.9720230670327,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Sergio Perez",
+      "lap": 18,
+      "message": "IA BOX | Sergio Perez: plano de corrida completo / dois compostos, novo jogo Macio (70% desgaste).",
+      "stint": 18,
+      "wear": 69.9537810004171,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Kamui Kobayashi",
+      "lap": 18,
+      "message": "IA BOX | Kamui Kobayashi: plano de corrida completo / dois compostos, novo jogo Macio (71% desgaste).",
+      "stint": 18,
+      "wear": 71.4126950206506,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Paul di Resta",
+      "lap": 18,
+      "message": "IA BOX | Paul di Resta: desgaste critico, novo jogo Macio (73% desgaste).",
+      "stint": 18,
+      "wear": 72.9142255556073,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Jean-Eric Vergne",
+      "lap": 18,
+      "message": "IA BOX | Jean-Eric Vergne: plano de corrida completo / dois compostos, novo jogo Macio (70% desgaste).",
+      "stint": 18,
+      "wear": 69.8590866730108,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Heikki Kovalainen",
+      "lap": 18,
+      "message": "IA BOX | Heikki Kovalainen: plano de corrida completo / dois compostos, novo jogo Macio (71% desgaste).",
+      "stint": 18,
+      "wear": 71.5244592146882,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Sebastian Vettel",
+      "lap": 19,
+      "message": "IA BOX | Sebastian Vettel: plano de corrida completo / dois compostos, novo jogo Macio (69% desgaste).",
+      "stint": 19,
+      "wear": 68.878045712561,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Mark Webber",
+      "lap": 19,
+      "message": "IA BOX | Mark Webber: plano de corrida completo / dois compostos, novo jogo Macio (70% desgaste).",
+      "stint": 19,
+      "wear": 70.4707864665151,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Nico Rosberg",
+      "lap": 19,
+      "message": "IA BOX | Nico Rosberg: plano de corrida completo / dois compostos, novo jogo Macio (70% desgaste).",
+      "stint": 19,
+      "wear": 70.3479195162671,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Michael Schumacher",
+      "lap": 19,
+      "message": "IA BOX | Michael Schumacher: plano de corrida completo / dois compostos, novo jogo Macio (72% desgaste).",
+      "stint": 19,
+      "wear": 72.0979554340446,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Médio",
+      "driver": "Romain Grosjean",
+      "lap": 19,
+      "message": "IA BOX | Romain Grosjean: plano de corrida completo / dois compostos, novo jogo Macio (48% desgaste).",
+      "stint": 19,
+      "wear": 48.1317209087033,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Pastor Maldonado",
+      "lap": 19,
+      "message": "IA BOX | Pastor Maldonado: plano de corrida completo / dois compostos, novo jogo Macio (69% desgaste).",
+      "stint": 19,
+      "wear": 68.8141198526801,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Bruno Senna",
+      "lap": 19,
+      "message": "IA BOX | Bruno Senna: plano de corrida completo / dois compostos, novo jogo Macio (70% desgaste).",
+      "stint": 19,
+      "wear": 70.5319740315003,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Pedro de la Rosa",
+      "lap": 19,
+      "message": "IA BOX | Pedro de la Rosa: plano de corrida completo / dois compostos, novo jogo Macio (71% desgaste).",
+      "stint": 19,
+      "wear": 70.528598111587,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Charles Pic",
+      "lap": 19,
+      "message": "IA BOX | Charles Pic: plano de corrida completo / dois compostos, novo jogo Macio (69% desgaste).",
+      "stint": 19,
+      "wear": 68.8390166174281,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Médio",
+      "driver": "Felipe Massa",
+      "lap": 21,
+      "message": "IA BOX | Felipe Massa: plano de corrida completo / dois compostos, novo jogo Macio (59% desgaste).",
+      "stint": 21,
+      "wear": 59.3686582008404,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Médio",
+      "driver": "Timo Glock",
+      "lap": 21,
+      "message": "IA BOX | Timo Glock: plano de corrida completo / dois compostos, novo jogo Macio (61% desgaste).",
+      "stint": 21,
+      "wear": 60.6649846745998,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Kimi Räikkönen",
+      "lap": 35,
+      "message": "IA BOX | Kimi Räikkönen: plano de corrida completo / dois compostos, novo jogo Médio (70% desgaste).",
+      "stint": 18,
+      "wear": 70.2076658643924,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Nico Hulkenberg",
+      "lap": 35,
+      "message": "IA BOX | Nico Hulkenberg: plano de corrida completo / dois compostos, novo jogo Médio (70% desgaste).",
+      "stint": 18,
+      "wear": 70.0830448348728,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Vitaly Petrov",
+      "lap": 35,
+      "message": "IA BOX | Vitaly Petrov: plano de corrida completo / dois compostos, novo jogo Médio (69% desgaste).",
+      "stint": 18,
+      "wear": 68.7064594861799,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Fernando Alonso",
+      "lap": 37,
+      "message": "IA BOX | Fernando Alonso: plano de corrida completo / dois compostos, novo jogo Médio (71% desgaste).",
+      "stint": 19,
+      "wear": 71.347730623945,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Jenson Button",
+      "lap": 37,
+      "message": "IA BOX | Jenson Button: plano de corrida completo / dois compostos, novo jogo Médio (70% desgaste).",
+      "stint": 19,
+      "wear": 69.8004502129813,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Lewis Hamilton",
+      "lap": 37,
+      "message": "IA BOX | Lewis Hamilton: plano de corrida completo / dois compostos, novo jogo Macio (72% desgaste).",
+      "stint": 20,
+      "wear": 71.8175236243661,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Sergio Perez",
+      "lap": 37,
+      "message": "IA BOX | Sergio Perez: plano de corrida completo / dois compostos, novo jogo Médio (70% desgaste).",
+      "stint": 19,
+      "wear": 69.6839204221257,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Paul di Resta",
+      "lap": 37,
+      "message": "IA BOX | Paul di Resta: desgaste critico, novo jogo Médio (73% desgaste).",
+      "stint": 19,
+      "wear": 72.7688875148553,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Kamui Kobayashi",
+      "lap": 37,
+      "message": "IA BOX | Kamui Kobayashi: plano de corrida completo / dois compostos, novo jogo Médio (71% desgaste).",
+      "stint": 19,
+      "wear": 71.1576203078838,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Jean-Eric Vergne",
+      "lap": 37,
+      "message": "IA BOX | Jean-Eric Vergne: plano de corrida completo / dois compostos, novo jogo Médio (70% desgaste).",
+      "stint": 19,
+      "wear": 69.8124670723689,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Daniel Ricciardo",
+      "lap": 37,
+      "message": "IA BOX | Daniel Ricciardo: plano de corrida completo / dois compostos, novo jogo Macio (72% desgaste).",
+      "stint": 20,
+      "wear": 71.9119063668502,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Heikki Kovalainen",
+      "lap": 37,
+      "message": "IA BOX | Heikki Kovalainen: plano de corrida completo / dois compostos, novo jogo Médio (71% desgaste).",
+      "stint": 19,
+      "wear": 71.0849942843342,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Romain Grosjean",
+      "lap": 38,
+      "message": "IA BOX | Romain Grosjean: plano de corrida completo / dois compostos, novo jogo Macio (65% desgaste).",
+      "stint": 19,
+      "wear": 64.9796750117646,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Narain Karthikeyan",
+      "lap": 37,
+      "message": "IA BOX | Narain Karthikeyan: plano de corrida completo / dois compostos, novo jogo Macio (72% desgaste).",
+      "stint": 20,
+      "wear": 71.9113543248752,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Sebastian Vettel",
+      "lap": 39,
+      "message": "IA BOX | Sebastian Vettel: plano de corrida completo / dois compostos, novo jogo Médio (69% desgaste).",
+      "stint": 20,
+      "wear": 68.6866362677217,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Mark Webber",
+      "lap": 39,
+      "message": "IA BOX | Mark Webber: plano de corrida completo / dois compostos, novo jogo Médio (70% desgaste).",
+      "stint": 20,
+      "wear": 70.2128102260599,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Nico Rosberg",
+      "lap": 39,
+      "message": "IA BOX | Nico Rosberg: plano de corrida completo / dois compostos, novo jogo Médio (70% desgaste).",
+      "stint": 20,
+      "wear": 70.2013809018317,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Michael Schumacher",
+      "lap": 39,
+      "message": "IA BOX | Michael Schumacher: plano de corrida completo / dois compostos, novo jogo Médio (72% desgaste).",
+      "stint": 20,
+      "wear": 71.9060698070544,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Felipe Massa",
+      "lap": 39,
+      "message": "IA BOX | Felipe Massa: plano de corrida completo / dois compostos, novo jogo Macio (69% desgaste).",
+      "stint": 18,
+      "wear": 69.030426088576,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Pastor Maldonado",
+      "lap": 39,
+      "message": "IA BOX | Pastor Maldonado: plano de corrida completo / dois compostos, novo jogo Médio (69% desgaste).",
+      "stint": 20,
+      "wear": 68.7236671745317,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Bruno Senna",
+      "lap": 39,
+      "message": "IA BOX | Bruno Senna: plano de corrida completo / dois compostos, novo jogo Médio (70% desgaste).",
+      "stint": 20,
+      "wear": 70.3089184281465,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Charles Pic",
+      "lap": 39,
+      "message": "IA BOX | Charles Pic: plano de corrida completo / dois compostos, novo jogo Médio (69% desgaste).",
+      "stint": 20,
+      "wear": 68.6936022869852,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Pedro de la Rosa",
+      "lap": 39,
+      "message": "IA BOX | Pedro de la Rosa: plano de corrida completo / dois compostos, novo jogo Médio (70% desgaste).",
+      "stint": 20,
+      "wear": 70.3395010455579,
+      "wetness": 0.0
+    },
+    {
+      "compound_before": "Macio",
+      "driver": "Timo Glock",
+      "lap": 39,
+      "message": "IA BOX | Timo Glock: plano de corrida completo / dois compostos, novo jogo Macio (70% desgaste).",
+      "stint": 18,
+      "wear": 70.0226364158343,
+      "wetness": 0.0
+    }
+  ],
+  "pit_extra_s": 0.0,
+  "pit_history": [
+    {
+      "car_id": 2,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.26905628338623,
+      "driver": "Lewis Hamilton",
+      "entered_at": 1600.60000000023,
+      "exited_at": 1628.00000000023,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 18,
+      "net_vs_untrained": 0.000000000000049737991503207,
+      "new_tire": "Macio",
+      "nominal": 27.2421356948853,
+      "old_tire": "Médio",
+      "order_origin": "ia_estrategia",
+      "position_after": 14,
+      "position_before": 5,
+      "service": 3.81389899728393,
+      "stop": 1,
+      "team": "McLaren Mercedes",
+      "total": 27.2421356948852,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.81389899728393,
+      "wait": 0.0
+    },
+    {
+      "car_id": 6,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.22949776306915,
+      "driver": "Kimi Räikkönen",
+      "entered_at": 1601.20000000023,
+      "exited_at": 1628.20000000023,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 18,
+      "net_vs_untrained": 0.0000000000000532907051820075,
+      "new_tire": "Macio",
+      "nominal": 26.9124813589096,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 15,
+      "position_before": 6,
+      "service": 3.76774739024734,
+      "stop": 1,
+      "team": "Lotus Renault",
+      "total": 26.9124813589096,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.76774739024734,
+      "wait": 0.0
+    },
+    {
+      "car_id": 13,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.23677879467773,
+      "driver": "Nico Hulkenberg",
+      "entered_at": 1609.20000000023,
+      "exited_at": 1636.20000000023,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 18,
+      "net_vs_untrained": 0.0000000000000532907051820075,
+      "new_tire": "Macio",
+      "nominal": 26.9731566223145,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 18,
+      "position_before": 11,
+      "service": 3.77624192712402,
+      "stop": 1,
+      "team": "Force India Mercedes",
+      "total": 26.9731566223144,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.77624192712402,
+      "wait": 0.0
+    },
+    {
+      "car_id": 16,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.22134585037994,
+      "driver": "Daniel Ricciardo",
+      "entered_at": 1627.60000000023,
+      "exited_at": 1654.60000000024,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 18,
+      "net_vs_untrained": 0.0000000000000532907051820075,
+      "new_tire": "Macio",
+      "nominal": 26.8445487531662,
+      "old_tire": "Médio",
+      "order_origin": "ia_estrategia",
+      "position_after": 22,
+      "position_before": 18,
+      "service": 3.75823682544327,
+      "stop": 1,
+      "team": "Toro Rosso Ferrari",
+      "total": 26.8445487531661,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.75823682544327,
+      "wait": 0.0
+    },
+    {
+      "car_id": 19,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.26873919621277,
+      "driver": "Vitaly Petrov",
+      "entered_at": 1633.20000000023,
+      "exited_at": 1660.60000000024,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 18,
+      "net_vs_untrained": 0.0000000000000532907051820075,
+      "new_tire": "Macio",
+      "nominal": 27.2394933017731,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 23,
+      "position_before": 20,
+      "service": 3.81352906224823,
+      "stop": 1,
+      "team": "Caterham Renault",
+      "total": 27.239493301773,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.81352906224823,
+      "wait": 0.0
+    },
+    {
+      "car_id": 23,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.25496248379517,
+      "driver": "Narain Karthikeyan",
+      "entered_at": 1658.00000000024,
+      "exited_at": 1685.20000000025,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 18,
+      "net_vs_untrained": 0.0000000000000532907051820075,
+      "new_tire": "Macio",
+      "nominal": 27.1246873649597,
+      "old_tire": "Médio",
+      "order_origin": "ia_estrategia",
+      "position_after": 24,
+      "position_before": 24,
+      "service": 3.79745623109436,
+      "stop": 1,
+      "team": "HRT Cosworth",
+      "total": 27.1246873649597,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.79745623109436,
+      "wait": 0.0
+    },
+    {
+      "car_id": 3,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.1428303326683,
+      "driver": "Jenson Button",
+      "entered_at": 1685.00000000025,
+      "exited_at": 1711.20000000025,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 19,
+      "net_vs_untrained": 0.0000000000000532907051820075,
+      "new_tire": "Macio",
+      "nominal": 26.1902527722359,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 9,
+      "position_before": 4,
+      "service": 3.66663538811302,
+      "stop": 1,
+      "team": "McLaren Mercedes",
+      "total": 26.1902527722358,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.66663538811302,
+      "wait": 0.0
+    },
+    {
+      "car_id": 4,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.21239644900131,
+      "driver": "Fernando Alonso",
+      "entered_at": 1685.00000000025,
+      "exited_at": 1711.80000000025,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 19,
+      "net_vs_untrained": 0.0000000000000532907051820075,
+      "new_tire": "Macio",
+      "nominal": 26.7699704083443,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 10,
+      "position_before": 3,
+      "service": 3.7477958571682,
+      "stop": 1,
+      "team": "Ferrari",
+      "total": 26.7699704083442,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.7477958571682,
+      "wait": 0.0
+    },
+    {
+      "car_id": 10,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.15005282417107,
+      "driver": "Sergio Perez",
+      "entered_at": 1697.60000000025,
+      "exited_at": 1724.00000000025,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 19,
+      "net_vs_untrained": 0.000000000000049737991503207,
+      "new_tire": "Macio",
+      "nominal": 26.2504402014256,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 13,
+      "position_before": 7,
+      "service": 3.67506162819958,
+      "stop": 1,
+      "team": "Sauber Ferrari",
+      "total": 26.2504402014255,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.67506162819958,
+      "wait": 0.0
+    },
+    {
+      "car_id": 12,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.25790877953339,
+      "driver": "Paul di Resta",
+      "entered_at": 1700.80000000025,
+      "exited_at": 1728.00000000026,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 19,
+      "net_vs_untrained": 0.000000000000049737991503207,
+      "new_tire": "Macio",
+      "nominal": 27.1492398294449,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 15,
+      "position_before": 11,
+      "service": 3.80089357612228,
+      "stop": 1,
+      "team": "Force India Mercedes",
+      "total": 27.1492398294448,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.80089357612228,
+      "wait": 0.0
+    },
+    {
+      "car_id": 11,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.17517170801926,
+      "driver": "Kamui Kobayashi",
+      "entered_at": 1699.60000000025,
+      "exited_at": 1730.80000000026,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 19,
+      "net_vs_untrained": -4.59747308761687,
+      "new_tire": "Macio",
+      "nominal": 26.4597642334938,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 16,
+      "position_before": 9,
+      "service": 3.70436699268913,
+      "stop": 1,
+      "team": "Sauber Ferrari",
+      "total": 31.0572373211107,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.70436699268913,
+      "wait": 4.59747308761692
+    },
+    {
+      "car_id": 17,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.17702521816063,
+      "driver": "Jean-Eric Vergne",
+      "entered_at": 1711.60000000025,
+      "exited_at": 1738.20000000026,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 19,
+      "net_vs_untrained": 0.000000000000049737991503207,
+      "new_tire": "Macio",
+      "nominal": 26.4752101513386,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 17,
+      "position_before": 16,
+      "service": 3.7065294211874,
+      "stop": 1,
+      "team": "Toro Rosso Ferrari",
+      "total": 26.4752101513385,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.7065294211874,
+      "wait": 0.0
+    },
+    {
+      "car_id": 18,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.27630631581116,
+      "driver": "Heikki Kovalainen",
+      "entered_at": 1718.60000000025,
+      "exited_at": 1746.00000000026,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 19,
+      "net_vs_untrained": 0.0000000000000532907051820075,
+      "new_tire": "Macio",
+      "nominal": 27.3025526317596,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 22,
+      "position_before": 17,
+      "service": 3.82235736844635,
+      "stop": 1,
+      "team": "Caterham Renault",
+      "total": 27.3025526317596,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.82235736844635,
+      "wait": 0.0
+    },
+    {
+      "car_id": 0,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.22577217474747,
+      "driver": "Sebastian Vettel",
+      "entered_at": 1773.20000000027,
+      "exited_at": 1800.20000000027,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 20,
+      "net_vs_untrained": 0.0000000000000532907051820075,
+      "new_tire": "Macio",
+      "nominal": 26.8814347895622,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 2,
+      "position_before": 1,
+      "service": 3.76340087053871,
+      "stop": 1,
+      "team": "Red Bull Racing Renault",
+      "total": 26.8814347895622,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.76340087053871,
+      "wait": 0.0
+    },
+    {
+      "car_id": 8,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.19796492710876,
+      "driver": "Nico Rosberg",
+      "entered_at": 1780.20000000027,
+      "exited_at": 1807.00000000027,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 20,
+      "net_vs_untrained": 0.0000000000000532907051820075,
+      "new_tire": "Macio",
+      "nominal": 26.6497077259064,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 7,
+      "position_before": 3,
+      "service": 3.73095908162689,
+      "stop": 1,
+      "team": "Mercedes",
+      "total": 26.6497077259063,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.73095908162689,
+      "wait": 0.0
+    },
+    {
+      "car_id": 1,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.2747938789444,
+      "driver": "Mark Webber",
+      "entered_at": 1773.60000000027,
+      "exited_at": 1807.40000000027,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 20,
+      "net_vs_untrained": -6.34011581272691,
+      "new_tire": "Macio",
+      "nominal": 27.2899489912033,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 8,
+      "position_before": 2,
+      "service": 3.82059285876846,
+      "stop": 1,
+      "team": "Red Bull Racing Renault",
+      "total": 33.6300648039302,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.82059285876846,
+      "wait": 6.34011581272697
+    },
+    {
+      "car_id": 9,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.26937118187714,
+      "driver": "Michael Schumacher",
+      "entered_at": 1786.60000000027,
+      "exited_at": 1814.00000000028,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 20,
+      "net_vs_untrained": -0.154124446817349,
+      "new_tire": "Macio",
+      "nominal": 27.2447598489761,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 10,
+      "position_before": 4,
+      "service": 3.81426637885666,
+      "stop": 1,
+      "team": "Mercedes",
+      "total": 27.3988842957935,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.81426637885666,
+      "wait": 0.154124446817398
+    },
+    {
+      "car_id": 7,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.13854030028152,
+      "driver": "Romain Grosjean",
+      "entered_at": 1790.00000000027,
+      "exited_at": 1816.20000000028,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 20,
+      "net_vs_untrained": 0.0000000000000532907051820075,
+      "new_tire": "Macio",
+      "nominal": 26.154502502346,
+      "old_tire": "Médio",
+      "order_origin": "ia_estrategia",
+      "position_after": 12,
+      "position_before": 6,
+      "service": 3.66163035032844,
+      "stop": 1,
+      "team": "Lotus Renault",
+      "total": 26.154502502346,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.66163035032844,
+      "wait": 0.0
+    },
+    {
+      "car_id": 14,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.17177301302719,
+      "driver": "Pastor Maldonado",
+      "entered_at": 1793.60000000027,
+      "exited_at": 1820.20000000028,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 20,
+      "net_vs_untrained": 0.0000000000000532907051820075,
+      "new_tire": "Macio",
+      "nominal": 26.4314417752266,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 14,
+      "position_before": 7,
+      "service": 3.70040184853172,
+      "stop": 1,
+      "team": "Williams Renault",
+      "total": 26.4314417752265,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.70040184853172,
+      "wait": 0.0
+    },
+    {
+      "car_id": 15,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.21805352822113,
+      "driver": "Bruno Senna",
+      "entered_at": 1794.00000000027,
+      "exited_at": 1827.40000000028,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 20,
+      "net_vs_untrained": -6.48669505209536,
+      "new_tire": "Macio",
+      "nominal": 26.8171127351761,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 16,
+      "position_before": 10,
+      "service": 3.75439578292465,
+      "stop": 1,
+      "team": "Williams Renault",
+      "total": 33.3038077872714,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.75439578292465,
+      "wait": 6.48669505209541
+    },
+    {
+      "car_id": 22,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.20509934559631,
+      "driver": "Pedro de la Rosa",
+      "entered_at": 1826.20000000028,
+      "exited_at": 1853.00000000028,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 20,
+      "net_vs_untrained": 0.0000000000000532907051820075,
+      "new_tire": "Macio",
+      "nominal": 26.7091612133026,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 22,
+      "position_before": 18,
+      "service": 3.73928256986237,
+      "stop": 1,
+      "team": "HRT Cosworth",
+      "total": 26.7091612133026,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.73928256986237,
+      "wait": 0.0
+    },
+    {
+      "car_id": 21,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.20591436520386,
+      "driver": "Charles Pic",
+      "entered_at": 1826.40000000028,
+      "exited_at": 1853.20000000028,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 20,
+      "net_vs_untrained": 0.000000000000049737991503207,
+      "new_tire": "Macio",
+      "nominal": 26.7159530433655,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 22,
+      "position_before": 19,
+      "service": 3.74023342607117,
+      "stop": 1,
+      "team": "Marussia Cosworth",
+      "total": 26.7159530433654,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.74023342607117,
+      "wait": 0.0
+    },
+    {
+      "car_id": 5,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.25461222306061,
+      "driver": "Felipe Massa",
+      "entered_at": 1967.80000000031,
+      "exited_at": 1995.00000000032,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 22,
+      "net_vs_untrained": 0.000000000000056843418860808,
+      "new_tire": "Macio",
+      "nominal": 27.1217685255051,
+      "old_tire": "Médio",
+      "order_origin": "ia_estrategia",
+      "position_after": 12,
+      "position_before": 1,
+      "service": 3.79704759357071,
+      "stop": 1,
+      "team": "Ferrari",
+      "total": 27.121768525505,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.79704759357071,
+      "wait": 0.0
+    },
+    {
+      "car_id": 20,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.24827168837357,
+      "driver": "Timo Glock",
+      "entered_at": 2010.40000000032,
+      "exited_at": 2037.60000000033,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 22,
+      "net_vs_untrained": 0.0000000000000532907051820075,
+      "new_tire": "Macio",
+      "nominal": 27.0689307364464,
+      "old_tire": "Médio",
+      "order_origin": "ia_estrategia",
+      "position_after": 23,
+      "position_before": 19,
+      "service": 3.78965030310249,
+      "stop": 1,
+      "team": "Marussia Cosworth",
+      "total": 27.0689307364463,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.78965030310249,
+      "wait": 0.0
+    },
+    {
+      "car_id": 6,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.20426494971085,
+      "driver": "Kimi Räikkönen",
+      "entered_at": 3217.39999999926,
+      "exited_at": 3244.19999999924,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 36,
+      "net_vs_untrained": 0.000000000000049737991503207,
+      "new_tire": "Médio",
+      "nominal": 26.7022079142571,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 11,
+      "position_before": 6,
+      "service": 3.73830910799599,
+      "stop": 2,
+      "team": "Lotus Renault",
+      "total": 26.702207914257,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.73830910799599,
+      "wait": 0.0
+    },
+    {
+      "car_id": 13,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.19484039321709,
+      "driver": "Nico Hulkenberg",
+      "entered_at": 3239.59999999924,
+      "exited_at": 3266.39999999922,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 36,
+      "net_vs_untrained": 0.000000000000049737991503207,
+      "new_tire": "Médio",
+      "nominal": 26.6236699434757,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 17,
+      "position_before": 12,
+      "service": 3.7273137920866,
+      "stop": 2,
+      "team": "Force India Mercedes",
+      "total": 26.6236699434757,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.7273137920866,
+      "wait": 0.0
+    },
+    {
+      "car_id": 19,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.24233182564545,
+      "driver": "Vitaly Petrov",
+      "entered_at": 3278.59999999921,
+      "exited_at": 3305.79999999918,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 36,
+      "net_vs_untrained": 0.0000000000000532907051820075,
+      "new_tire": "Médio",
+      "nominal": 27.0194318803787,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 20,
+      "position_before": 20,
+      "service": 3.78272046325302,
+      "stop": 2,
+      "team": "Caterham Renault",
+      "total": 27.0194318803787,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.78272046325302,
+      "wait": 0.0
+    },
+    {
+      "car_id": 3,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.20193882361221,
+      "driver": "Jenson Button",
+      "entered_at": 3384.99999999911,
+      "exited_at": 3411.79999999909,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 38,
+      "net_vs_untrained": 0.000000000000049737991503207,
+      "new_tire": "Médio",
+      "nominal": 26.6828235301018,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 4,
+      "position_before": 3,
+      "service": 3.73559529421425,
+      "stop": 2,
+      "team": "McLaren Mercedes",
+      "total": 26.6828235301017,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.73559529421425,
+      "wait": 0.0
+    },
+    {
+      "car_id": 4,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.24831596985626,
+      "driver": "Fernando Alonso",
+      "entered_at": 3384.79999999911,
+      "exited_at": 3411.99999999909,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 38,
+      "net_vs_untrained": 0.000000000000056843418860808,
+      "new_tire": "Médio",
+      "nominal": 27.0692997488022,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 4,
+      "position_before": 2,
+      "service": 3.78970196483231,
+      "stop": 2,
+      "team": "Ferrari",
+      "total": 27.0692997488021,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.78970196483231,
+      "wait": 0.0
+    },
+    {
+      "car_id": 2,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.19724436417389,
+      "driver": "Lewis Hamilton",
+      "entered_at": 3391.99999999911,
+      "exited_at": 3418.79999999908,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 38,
+      "net_vs_untrained": -0.140452059217402,
+      "new_tire": "Macio",
+      "nominal": 26.6437030347824,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 9,
+      "position_before": 4,
+      "service": 3.73011842486954,
+      "stop": 2,
+      "team": "McLaren Mercedes",
+      "total": 26.7841550939998,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.73011842486954,
+      "wait": 0.140452059217453
+    },
+    {
+      "car_id": 10,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.18840563073921,
+      "driver": "Sergio Perez",
+      "entered_at": 3411.39999999909,
+      "exited_at": 3437.99999999906,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 38,
+      "net_vs_untrained": 0.0000000000000532907051820075,
+      "new_tire": "Médio",
+      "nominal": 26.5700469228268,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 12,
+      "position_before": 9,
+      "service": 3.71980656919575,
+      "stop": 2,
+      "team": "Sauber Ferrari",
+      "total": 26.5700469228267,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.71980656919575,
+      "wait": 0.0
+    },
+    {
+      "car_id": 12,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.20291457548904,
+      "driver": "Paul di Resta",
+      "entered_at": 3421.59999999908,
+      "exited_at": 3448.39999999905,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 38,
+      "net_vs_untrained": 0.0000000000000532907051820075,
+      "new_tire": "Médio",
+      "nominal": 26.690954795742,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 15,
+      "position_before": 12,
+      "service": 3.73673367140388,
+      "stop": 2,
+      "team": "Force India Mercedes",
+      "total": 26.690954795742,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.73673367140388,
+      "wait": 0.0
+    },
+    {
+      "car_id": 11,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.2092074884491,
+      "driver": "Kamui Kobayashi",
+      "entered_at": 3423.19999999908,
+      "exited_at": 3449.99999999905,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 38,
+      "net_vs_untrained": 0.0000000000000532907051820075,
+      "new_tire": "Médio",
+      "nominal": 26.7433957370758,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 16,
+      "position_before": 13,
+      "service": 3.74407540319061,
+      "stop": 2,
+      "team": "Sauber Ferrari",
+      "total": 26.7433957370758,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.74407540319061,
+      "wait": 0.0
+    },
+    {
+      "car_id": 17,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.26672907009888,
+      "driver": "Jean-Eric Vergne",
+      "entered_at": 3435.19999999907,
+      "exited_at": 3462.59999999904,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 38,
+      "net_vs_untrained": 0.0000000000000532907051820075,
+      "new_tire": "Médio",
+      "nominal": 27.222742250824,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 17,
+      "position_before": 16,
+      "service": 3.81118391511536,
+      "stop": 2,
+      "team": "Toro Rosso Ferrari",
+      "total": 27.2227422508239,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.81118391511536,
+      "wait": 0.0
+    },
+    {
+      "car_id": 16,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.19402352109718,
+      "driver": "Daniel Ricciardo",
+      "entered_at": 3442.59999999906,
+      "exited_at": 3469.39999999904,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 38,
+      "net_vs_untrained": 0.0000000000000532907051820075,
+      "new_tire": "Macio",
+      "nominal": 26.6168626758099,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 18,
+      "position_before": 18,
+      "service": 3.72636077461338,
+      "stop": 2,
+      "team": "Toro Rosso Ferrari",
+      "total": 26.6168626758098,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.72636077461338,
+      "wait": 0.0
+    },
+    {
+      "car_id": 18,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.20976369992065,
+      "driver": "Heikki Kovalainen",
+      "entered_at": 3453.39999999905,
+      "exited_at": 3480.19999999903,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 38,
+      "net_vs_untrained": 0.000000000000049737991503207,
+      "new_tire": "Médio",
+      "nominal": 26.7480308326721,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 19,
+      "position_before": 19,
+      "service": 3.7447243165741,
+      "stop": 2,
+      "team": "Caterham Renault",
+      "total": 26.7480308326721,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.7447243165741,
+      "wait": 0.0
+    },
+    {
+      "car_id": 7,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.21707849875259,
+      "driver": "Romain Grosjean",
+      "entered_at": 3499.99999999901,
+      "exited_at": 3526.99999999898,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 39,
+      "net_vs_untrained": 0.0000000000000532907051820075,
+      "new_tire": "Macio",
+      "nominal": 26.808987489605,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 11,
+      "position_before": 7,
+      "service": 3.75325824854469,
+      "stop": 2,
+      "team": "Lotus Renault",
+      "total": 26.8089874896049,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.75325824854469,
+      "wait": 0.0
+    },
+    {
+      "car_id": 23,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.14446580067444,
+      "driver": "Narain Karthikeyan",
+      "entered_at": 3503.999999999,
+      "exited_at": 3530.39999999898,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 38,
+      "net_vs_untrained": 0.000000000000056843418860808,
+      "new_tire": "Macio",
+      "nominal": 26.203881672287,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 24,
+      "position_before": 24,
+      "service": 3.66854343412018,
+      "stop": 2,
+      "team": "HRT Cosworth",
+      "total": 26.2038816722869,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.66854343412018,
+      "wait": 0.0
+    },
+    {
+      "car_id": 0,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.21214351311493,
+      "driver": "Sebastian Vettel",
+      "entered_at": 3561.19999999895,
+      "exited_at": 3587.99999999893,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 40,
+      "net_vs_untrained": 0.0000000000000532907051820075,
+      "new_tire": "Médio",
+      "nominal": 26.7678626092911,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 1,
+      "position_before": 1,
+      "service": 3.74750076530075,
+      "stop": 2,
+      "team": "Red Bull Racing Renault",
+      "total": 26.767862609291,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.74750076530075,
+      "wait": 0.0
+    },
+    {
+      "car_id": 1,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.23981637850571,
+      "driver": "Mark Webber",
+      "entered_at": 3571.39999999894,
+      "exited_at": 3598.39999999892,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 40,
+      "net_vs_untrained": 0.0000000000000532907051820075,
+      "new_tire": "Médio",
+      "nominal": 26.9984698208809,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 5,
+      "position_before": 2,
+      "service": 3.77978577492332,
+      "stop": 2,
+      "team": "Red Bull Racing Renault",
+      "total": 26.9984698208808,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.77978577492332,
+      "wait": 0.0
+    },
+    {
+      "car_id": 8,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.17704720154572,
+      "driver": "Nico Rosberg",
+      "entered_at": 3580.19999999893,
+      "exited_at": 3606.79999999891,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 40,
+      "net_vs_untrained": 0.0000000000000532907051820075,
+      "new_tire": "Médio",
+      "nominal": 26.4753933462143,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 7,
+      "position_before": 3,
+      "service": 3.70655506847,
+      "stop": 2,
+      "team": "Mercedes",
+      "total": 26.4753933462142,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.70655506847,
+      "wait": 0.0
+    },
+    {
+      "car_id": 9,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.14414316311646,
+      "driver": "Michael Schumacher",
+      "entered_at": 3586.19999999893,
+      "exited_at": 3613.3999999989,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 40,
+      "net_vs_untrained": -0.877630161949106,
+      "new_tire": "Médio",
+      "nominal": 26.2011930259705,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 8,
+      "position_before": 6,
+      "service": 3.66816702363586,
+      "stop": 2,
+      "team": "Mercedes",
+      "total": 27.0788231879196,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.66816702363586,
+      "wait": 0.877630161949158
+    },
+    {
+      "car_id": 5,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.17575981632042,
+      "driver": "Felipe Massa",
+      "entered_at": 3589.39999999893,
+      "exited_at": 3615.9999999989,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 40,
+      "net_vs_untrained": 0.000000000000049737991503207,
+      "new_tire": "Macio",
+      "nominal": 26.4646651360035,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 10,
+      "position_before": 8,
+      "service": 3.70505311904049,
+      "stop": 2,
+      "team": "Ferrari",
+      "total": 26.4646651360034,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.70505311904049,
+      "wait": 0.0
+    },
+    {
+      "car_id": 14,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.24126665249634,
+      "driver": "Pastor Maldonado",
+      "entered_at": 3605.19999999891,
+      "exited_at": 3632.39999999889,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 40,
+      "net_vs_untrained": 0.000000000000049737991503207,
+      "new_tire": "Médio",
+      "nominal": 27.0105554374695,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 15,
+      "position_before": 10,
+      "service": 3.78147776124573,
+      "stop": 2,
+      "team": "Williams Renault",
+      "total": 27.0105554374694,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.78147776124573,
+      "wait": 0.0
+    },
+    {
+      "car_id": 15,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.193294317873,
+      "driver": "Bruno Senna",
+      "entered_at": 3614.1999999989,
+      "exited_at": 3640.99999999888,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 40,
+      "net_vs_untrained": 0.0000000000000532907051820075,
+      "new_tire": "Médio",
+      "nominal": 26.610785982275,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 16,
+      "position_before": 13,
+      "service": 3.7255100375185,
+      "stop": 2,
+      "team": "Williams Renault",
+      "total": 26.610785982275,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.7255100375185,
+      "wait": 0.0
+    },
+    {
+      "car_id": 22,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.14152756586838,
+      "driver": "Pedro de la Rosa",
+      "entered_at": 3663.99999999886,
+      "exited_at": 3690.19999999883,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 40,
+      "net_vs_untrained": 0.000000000000056843418860808,
+      "new_tire": "Médio",
+      "nominal": 26.1793963822365,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 21,
+      "position_before": 22,
+      "service": 3.66511549351311,
+      "stop": 2,
+      "team": "HRT Cosworth",
+      "total": 26.1793963822364,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.66511549351311,
+      "wait": 0.0
+    },
+    {
+      "car_id": 21,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.22837227955627,
+      "driver": "Charles Pic",
+      "entered_at": 3663.59999999886,
+      "exited_at": 3690.59999999883,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 40,
+      "net_vs_untrained": 0.0000000000000532907051820075,
+      "new_tire": "Médio",
+      "nominal": 26.9031023296356,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 22,
+      "position_before": 21,
+      "service": 3.76643432614899,
+      "stop": 2,
+      "team": "Marussia Cosworth",
+      "total": 26.9031023296356,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.76643432614899,
+      "wait": 0.0
+    },
+    {
+      "car_id": 20,
+      "crew_agility": 0,
+      "crew_coordination": 0,
+      "dock": 3.23445020809937,
+      "driver": "Timo Glock",
+      "entered_at": 3665.99999999886,
+      "exited_at": 3697.59999999883,
+      "incident": "",
+      "incident_delay": 0.0,
+      "lap": 40,
+      "net_vs_untrained": -4.64433696240992,
+      "new_tire": "Macio",
+      "nominal": 26.9537517341614,
+      "old_tire": "Macio",
+      "order_origin": "ia_estrategia",
+      "position_after": 23,
+      "position_before": 23,
+      "service": 3.77352524278259,
+      "stop": 2,
+      "team": "Marussia Cosworth",
+      "total": 31.5980886965713,
+      "track": "Albert Park — Melbourne",
+      "training_saved": 0.0,
+      "untrained_service": 3.77352524278259,
+      "wait": 4.64433696240997
+    }
+  ],
+  "pit_history_len": 48,
+  "player": [
+    {
+      "auto_updates": 69,
+      "id": 4,
+      "kers": "Equilibrado",
+      "mode": "IA",
+      "name": "Fernando Alonso",
+      "pace": "Atacar",
+      "position": 2,
+      "scheduled_at_end": 0,
+      "stops": 2
+    },
+    {
+      "auto_updates": 71,
+      "id": 5,
+      "kers": "Equilibrado",
+      "mode": "IA",
+      "name": "Felipe Massa",
+      "pace": "Normal",
+      "position": 7,
+      "scheduled_at_end": 0,
+      "stops": 2
+    }
+  ],
+  "player_team": "Ferrari",
+  "positions": [
+    {
+      "best_lap": 88.1999999999198,
+      "disqualified": false,
+      "finish_laps": 58,
+      "finish_time": 5177.59999999748,
+      "gap_label": "LIDER",
+      "name": "Sebastian Vettel",
+      "position": 1,
+      "stops": 2,
+      "team": "Red Bull Racing Renault"
+    },
+    {
+      "best_lap": 88.1999999999198,
+      "disqualified": false,
+      "finish_laps": 58,
+      "finish_time": 5178.19999999748,
+      "gap_label": "+0.60s",
+      "name": "Fernando Alonso",
+      "position": 2,
+      "stops": 2,
+      "team": "Ferrari"
+    },
+    {
+      "best_lap": 88.1999999999198,
+      "disqualified": false,
+      "finish_laps": 58,
+      "finish_time": 5178.19999999748,
+      "gap_label": "+0.60s",
+      "name": "Jenson Button",
+      "position": 3,
+      "stops": 2,
+      "team": "McLaren Mercedes"
+    },
+    {
+      "best_lap": 87.3999999999205,
+      "disqualified": false,
+      "finish_laps": 58,
+      "finish_time": 5178.59999999748,
+      "gap_label": "+1.00s",
+      "name": "Lewis Hamilton",
+      "position": 4,
+      "stops": 2,
+      "team": "McLaren Mercedes"
+    },
+    {
+      "best_lap": 87.99999999992,
+      "disqualified": false,
+      "finish_laps": 58,
+      "finish_time": 5191.39999999747,
+      "gap_label": "+13.80s",
+      "name": "Mark Webber",
+      "position": 5,
+      "stops": 2,
+      "team": "Red Bull Racing Renault"
+    },
+    {
+      "best_lap": 88.3999999999196,
+      "disqualified": false,
+      "finish_laps": 58,
+      "finish_time": 5197.39999999746,
+      "gap_label": "+19.80s",
+      "name": "Kimi Räikkönen",
+      "position": 6,
+      "stops": 2,
+      "team": "Lotus Renault"
+    },
+    {
+      "best_lap": 87.7999999999201,
+      "disqualified": false,
+      "finish_laps": 58,
+      "finish_time": 5204.79999999746,
+      "gap_label": "+27.20s",
+      "name": "Felipe Massa",
+      "position": 7,
+      "stops": 2,
+      "team": "Ferrari"
+    },
+    {
+      "best_lap": 87.7999999999201,
+      "disqualified": false,
+      "finish_laps": 58,
+      "finish_time": 5205.19999999746,
+      "gap_label": "+27.60s",
+      "name": "Romain Grosjean",
+      "position": 8,
+      "stops": 2,
+      "team": "Lotus Renault"
+    },
+    {
+      "best_lap": 88.3999999999196,
+      "disqualified": false,
+      "finish_laps": 58,
+      "finish_time": 5206.19999999746,
+      "gap_label": "+28.60s",
+      "name": "Nico Rosberg",
+      "position": 9,
+      "stops": 2,
+      "team": "Mercedes"
+    },
+    {
+      "best_lap": 88.3999999999196,
+      "disqualified": false,
+      "finish_laps": 58,
+      "finish_time": 5212.59999999745,
+      "gap_label": "+35.00s",
+      "name": "Michael Schumacher",
+      "position": 10,
+      "stops": 2,
+      "team": "Mercedes"
+    },
+    {
+      "best_lap": 88.7999999999192,
+      "disqualified": false,
+      "finish_laps": 58,
+      "finish_time": 5220.99999999744,
+      "gap_label": "+43.40s",
+      "name": "Sergio Perez",
+      "position": 11,
+      "stops": 2,
+      "team": "Sauber Ferrari"
+    },
+    {
+      "best_lap": 88.7999999999192,
+      "disqualified": false,
+      "finish_laps": 58,
+      "finish_time": 5232.39999999743,
+      "gap_label": "+54.80s",
+      "name": "Nico Hulkenberg",
+      "position": 12,
+      "stops": 2,
+      "team": "Force India Mercedes"
+    },
+    {
+      "best_lap": 89.2000000000203,
+      "disqualified": false,
+      "finish_laps": 58,
+      "finish_time": 5236.19999999743,
+      "gap_label": "+58.60s",
+      "name": "Paul di Resta",
+      "position": 13,
+      "stops": 2,
+      "team": "Force India Mercedes"
+    },
+    {
+      "best_lap": 88.6000000000201,
+      "disqualified": false,
+      "finish_laps": 58,
+      "finish_time": 5237.99999999743,
+      "gap_label": "+60.40s",
+      "name": "Kamui Kobayashi",
+      "position": 14,
+      "stops": 2,
+      "team": "Sauber Ferrari"
+    },
+    {
+      "best_lap": 89.2000000000203,
+      "disqualified": false,
+      "finish_laps": 58,
+      "finish_time": 5242.59999999742,
+      "gap_label": "+65.00s",
+      "name": "Pastor Maldonado",
+      "position": 15,
+      "stops": 2,
+      "team": "Williams Renault"
+    },
+    {
+      "best_lap": 88.5999999999194,
+      "disqualified": false,
+      "finish_laps": 58,
+      "finish_time": 5252.59999999741,
+      "gap_label": "+75.00s",
+      "name": "Daniel Ricciardo",
+      "position": 16,
+      "stops": 2,
+      "team": "Toro Rosso Ferrari"
+    },
+    {
+      "best_lap": 89.4000000000203,
+      "disqualified": false,
+      "finish_laps": 58,
+      "finish_time": 5253.59999999741,
+      "gap_label": "+76.00s",
+      "name": "Bruno Senna",
+      "position": 17,
+      "stops": 2,
+      "team": "Williams Renault"
+    },
+    {
+      "best_lap": 89.4000000000203,
+      "disqualified": false,
+      "finish_laps": 58,
+      "finish_time": 5257.79999999741,
+      "gap_label": "+80.20s",
+      "name": "Jean-Eric Vergne",
+      "position": 18,
+      "stops": 2,
+      "team": "Toro Rosso Ferrari"
+    },
+    {
+      "best_lap": 89.9999999999181,
+      "disqualified": false,
+      "finish_laps": 57,
+      "finish_time": 5192.39999999747,
+      "gap_label": "+1v",
+      "name": "Heikki Kovalainen",
+      "position": 19,
+      "stops": 2,
+      "team": "Caterham Renault"
+    },
+    {
+      "best_lap": 89.9999999999949,
+      "disqualified": false,
+      "finish_laps": 57,
+      "finish_time": 5199.99999999746,
+      "gap_label": "+1v",
+      "name": "Vitaly Petrov",
+      "position": 20,
+      "stops": 2,
+      "team": "Caterham Renault"
+    },
+    {
+      "best_lap": 90.199999999918,
+      "disqualified": false,
+      "finish_laps": 57,
+      "finish_time": 5233.39999999743,
+      "gap_label": "+1v",
+      "name": "Pedro de la Rosa",
+      "position": 21,
+      "stops": 2,
+      "team": "HRT Cosworth"
+    },
+    {
+      "best_lap": 90.199999999918,
+      "disqualified": false,
+      "finish_laps": 57,
+      "finish_time": 5233.99999999743,
+      "gap_label": "+1v",
+      "name": "Timo Glock",
+      "position": 22,
+      "stops": 2,
+      "team": "Marussia Cosworth"
+    },
+    {
+      "best_lap": 90.199999999918,
+      "disqualified": false,
+      "finish_laps": 57,
+      "finish_time": 5233.99999999743,
+      "gap_label": "+1v",
+      "name": "Charles Pic",
+      "position": 23,
+      "stops": 2,
+      "team": "Marussia Cosworth"
+    },
+    {
+      "best_lap": 90.7999999999174,
+      "disqualified": false,
+      "finish_laps": 57,
+      "finish_time": 5254.39999999741,
+      "gap_label": "+1v",
+      "name": "Narain Karthikeyan",
+      "position": 24,
+      "stops": 2,
+      "team": "HRT Cosworth"
+    }
+  ],
+  "rivals_after": {
+    "Caterham Renault": {
+      "budget": 2089000,
+      "history": [
+        {
+          "action": "melhoria",
+          "cost": 1800000,
+          "new_level": 1,
+          "part": "Motor",
+          "revenue": 834000,
+          "round": 1
+        }
+      ],
+      "invested": 1800000,
+      "levels": {
+        "Asa": 0,
+        "Chassi": 0,
+        "Motor": 1
+      },
+      "rating": 79.0
+    },
+    "Force India Mercedes": {
+      "budget": 2710000,
+      "history": [
+        {
+          "action": "melhoria",
+          "cost": 1800000,
+          "new_level": 1,
+          "part": "Motor",
+          "revenue": 720000,
+          "round": 1
+        }
+      ],
+      "invested": 1800000,
+      "levels": {
+        "Asa": 0,
+        "Chassi": 0,
+        "Motor": 1
+      },
+      "rating": 86.0
+    },
+    "HRT Cosworth": {
+      "budget": 1909000,
+      "history": [
+        {
+          "action": "melhoria",
+          "cost": 1550000,
+          "new_level": 1,
+          "part": "Asa",
+          "revenue": 929000,
+          "round": 1
+        }
+      ],
+      "invested": 1550000,
+      "levels": {
+        "Asa": 1,
+        "Chassi": 0,
+        "Motor": 0
+      },
+      "rating": 74.0
+    },
+    "Lotus Renault": {
+      "budget": 3756304,
+      "history": [
+        {
+          "action": "melhoria",
+          "cost": 1550000,
+          "new_level": 1,
+          "part": "Asa",
+          "revenue": 991304,
+          "round": 1
+        }
+      ],
+      "invested": 1550000,
+      "levels": {
+        "Asa": 1,
+        "Chassi": 0,
+        "Motor": 0
+      },
+      "rating": 91.0
+    },
+    "Marussia Cosworth": {
+      "budget": 1831000,
+      "history": [
+        {
+          "action": "melhoria",
+          "cost": 1800000,
+          "new_level": 1,
+          "part": "Motor",
+          "revenue": 891000,
+          "round": 1
+        }
+      ],
+      "invested": 1800000,
+      "levels": {
+        "Asa": 0,
+        "Chassi": 0,
+        "Motor": 1
+      },
+      "rating": 76.0
+    },
+    "McLaren Mercedes": {
+      "budget": 4425000,
+      "history": [
+        {
+          "action": "melhoria",
+          "cost": 1550000,
+          "new_level": 1,
+          "part": "Asa",
+          "revenue": 1240000,
+          "round": 1
+        }
+      ],
+      "invested": 1550000,
+      "levels": {
+        "Asa": 1,
+        "Chassi": 0,
+        "Motor": 0
+      },
+      "rating": 95.0
+    },
+    "Mercedes": {
+      "budget": 3447826,
+      "history": [
+        {
+          "action": "melhoria",
+          "cost": 1550000,
+          "new_level": 1,
+          "part": "Asa",
+          "revenue": 787826,
+          "round": 1
+        }
+      ],
+      "invested": 1550000,
+      "levels": {
+        "Asa": 1,
+        "Chassi": 0,
+        "Motor": 0
+      },
+      "rating": 90.0
+    },
+    "Red Bull Racing Renault": {
+      "budget": 4530000,
+      "history": [
+        {
+          "action": "melhoria",
+          "cost": 1550000,
+          "new_level": 1,
+          "part": "Asa",
+          "revenue": 1240000,
+          "round": 1
+        }
+      ],
+      "invested": 1550000,
+      "levels": {
+        "Asa": 1,
+        "Chassi": 0,
+        "Motor": 0
+      },
+      "rating": 96.0
+    },
+    "Sauber Ferrari": {
+      "budget": 3065000,
+      "history": [
+        {
+          "action": "melhoria",
+          "cost": 1550000,
+          "new_level": 1,
+          "part": "Asa",
+          "revenue": 720000,
+          "round": 1
+        }
+      ],
+      "invested": 1550000,
+      "levels": {
+        "Asa": 1,
+        "Chassi": 0,
+        "Motor": 0
+      },
+      "rating": 87.0
+    },
+    "Toro Rosso Ferrari": {
+      "budget": 2683000,
+      "history": [
+        {
+          "action": "melhoria",
+          "cost": 1550000,
+          "new_level": 1,
+          "part": "Asa",
+          "revenue": 758000,
+          "round": 1
+        }
+      ],
+      "invested": 1550000,
+      "levels": {
+        "Asa": 1,
+        "Chassi": 0,
+        "Motor": 0
+      },
+      "rating": 83.0
+    },
+    "Williams Renault": {
+      "budget": 2605000,
+      "history": [
+        {
+          "action": "melhoria",
+          "cost": 1800000,
+          "new_level": 1,
+          "part": "Motor",
+          "revenue": 720000,
+          "round": 1
+        }
+      ],
+      "invested": 1800000,
+      "levels": {
+        "Asa": 0,
+        "Chassi": 0,
+        "Motor": 1
+      },
+      "rating": 85.0
+    }
+  },
+  "rivals_before": {
+    "Caterham Renault": {
+      "Asa": 0,
+      "Chassi": 0,
+      "Motor": 0
+    },
+    "Force India Mercedes": {
+      "Asa": 0,
+      "Chassi": 0,
+      "Motor": 0
+    },
+    "HRT Cosworth": {
+      "Asa": 0,
+      "Chassi": 0,
+      "Motor": 0
+    },
+    "Lotus Renault": {
+      "Asa": 0,
+      "Chassi": 0,
+      "Motor": 0
+    },
+    "Marussia Cosworth": {
+      "Asa": 0,
+      "Chassi": 0,
+      "Motor": 0
+    },
+    "McLaren Mercedes": {
+      "Asa": 0,
+      "Chassi": 0,
+      "Motor": 0
+    },
+    "Mercedes": {
+      "Asa": 0,
+      "Chassi": 0,
+      "Motor": 0
+    },
+    "Red Bull Racing Renault": {
+      "Asa": 0,
+      "Chassi": 0,
+      "Motor": 0
+    },
+    "Sauber Ferrari": {
+      "Asa": 0,
+      "Chassi": 0,
+      "Motor": 0
+    },
+    "Toro Rosso Ferrari": {
+      "Asa": 0,
+      "Chassi": 0,
+      "Motor": 0
+    },
+    "Williams Renault": {
+      "Asa": 0,
+      "Chassi": 0,
+      "Motor": 0
+    }
+  },
+  "round": 1,
+  "seed": 321,
+  "staff": {
+    "Engenheiro": 0,
+    "Estrategista": 0
+  },
+  "staff_kers_changes": 0,
+  "staff_pace_changes": 3,
+  "steps": 1315,
+  "team_control": "Automático",
+  "total_stops": 48,
+  "upgrades": {
+    "Asa": 0,
+    "Chassi": 0,
+    "Motor": 0
+  },
+  "weather_final": {
+    "air_c": 21.9078380756113,
+    "climate_risk": 17,
+    "drs_allowed": true,
+    "forecast_kind": "estimativa móvel",
+    "forecast_minutes": 15,
+    "grip": "Alto",
+    "grip_factor": 0.75,
+    "mode": "Automático",
+    "rain_expected_15min": 4,
+    "rain_intensity": 0.0,
+    "rain_probability": 4,
+    "rubber": 80,
+    "sky": "Céu limpo",
+    "track_c": 32.8098380756113,
+    "track_code": "AUS",
+    "track_state": "Seca",
+    "wetness": 0,
+    "wetness_factor": 0.0,
+    "wind": 7.16233724434745
+  },
+  "weather_mode": "Automático",
+  "weather_samples": [
+    {
+      "lap": 1,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 2,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 3,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 4,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 5,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 6,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 7,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 8,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 9,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 10,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 11,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 12,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 13,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 14,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 15,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 16,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 17,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 18,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 19,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 20,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 21,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 22,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 23,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 24,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 25,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 26,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 27,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 28,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 29,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 30,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 31,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 32,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 33,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 34,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 35,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 36,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 37,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 38,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 39,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 40,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 41,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 42,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 43,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 44,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 45,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 46,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 47,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 48,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 49,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 50,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 51,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 52,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 53,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 54,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 55,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 56,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 57,
+      "rain": 0.0,
+      "wetness": 0.0
+    },
+    {
+      "lap": 58,
+      "rain": 0.0,
+      "wetness": 0.0
+    }
+  ]
+}

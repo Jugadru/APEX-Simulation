@@ -1,0 +1,32 @@
+{
+  "version": "0.6.3.8",
+  "based_on": "APEX_0637_GODOT.zip",
+  "godot": "4.7.2",
+  "build_time_utc": "2026-11-08T00:49:59.713678+00:00",
+  "changed_files": [
+    "CHANGELOG_0638.md",
+    "COMO_ABRIR_0638.md",
+    "RELATORIO_TESTES_0638.md",
+    "data/tyres_2012.json",
+    "project.godot",
+    "scripts/apex_race_formatting.gd",
+    "scripts/apex_race_hud_0620.gd",
+    "scripts/apex_race_hud_0622.gd",
+    "scripts/apex_race_session_controller.gd",
+    "scripts/apex_race_ui_layout.gd",
+    "scripts/apex_race_ui_presenter.gd",
+    "scripts/core/race_ai_director.gd",
+    "scripts/core/race_performance.gd",
+    "scripts/core/race_soul_reactive_0637.gd",
+    "scripts/main.gd",
+    "scripts/race_engine.gd",
+    "tests/core_0638_full_gp_test.gd",
+    "tests/core_0638_full_gp_test.gd.uid",
+    "tests/core_0638_integrity_test.gd",
+    "tests/core_0638_integrity_test.gd.uid",
+    "tests/core_0638_manual_warning_test.gd",
+    "tests/core_0638_manual_warning_test.gd.uid",
+    "tests/native_capture_0637.gd.uid"
+  ],
+  "files": 471
+}

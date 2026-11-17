@@ -1,0 +1,25 @@
+{
+  "baseline": {
+    "frames": 180,
+    "total_wall_ms": 1242.437,
+    "static_route_redraws_estimated": 180,
+    "source": "Godot 4.7.2 original track_map.gd redraws static circuit as part of every cars-only _draw()"
+  },
+  "optimized": {
+    "frames": 180,
+    "total_wall_ms": 1241.948,
+    "static_route_redraws_measured": 1,
+    "dynamic_car_redraws_measured": 181,
+    "route_points": 737,
+    "source": "Godot 4.7.2 script instrumentation in headless mode"
+  },
+  "high_speed_test": {
+    "test": "10 synthetic frames at 32x",
+    "sporting_ticks": 26,
+    "wall_ms_first_run": 218,
+    "wall_ms_second_run": 249,
+    "render_mode": "2D Auto",
+    "note": "Headless scripted _process time, not physical display FPS or a matched full-hardware benchmark"
+  },
+  "conclusion": "The background cache prevents redundant geometry redraws, but frame wall time did not measurably improve in capped 180-frame benchmark. 32x CPU workload still limits FPS."
+}

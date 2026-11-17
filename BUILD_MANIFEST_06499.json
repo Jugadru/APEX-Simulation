@@ -1,0 +1,30 @@
+{
+  "version": "0.6.4.9.9",
+  "base": "0.6.4.9.8",
+  "base_archive_sha256": "543b4bcca6c2cc3f0b57f348309cef8f1e640447aab45f55703d96924feea935",
+  "source_file_unchanged": 1211,
+  "source_file_changed": [
+    "project.godot",
+    "scripts/apex_race_hud_0622.gd"
+  ],
+  "source_file_missing": [],
+  "logic_boundary": "read-only simulator, HUD+tests+docs; physics/AI/pit sources byte-identical",
+  "engine": "4.7.2.stable.official.ed1daf0bf",
+  "release_title": "Strategy Simulator 1.0",
+  "new_module": "scripts/core/race_strategy_simulator_06499.gd",
+  "validated_tracks": [
+    "GBR",
+    "ITA",
+    "SIN"
+  ],
+  "tested_resolutions": [
+    "1600x900",
+    "1920x1080"
+  ],
+  "tests": [
+    "strategy_simulator_06499_model_test.gd",
+    "strategy_simulator_06499_ui_test.gd",
+    "strategy_simulator_06499_three_gp_test.gd"
+  ],
+  "no_next_release_work": true
+}

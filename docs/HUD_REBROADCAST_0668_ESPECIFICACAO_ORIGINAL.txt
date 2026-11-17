@@ -1,0 +1,574 @@
+# APEX MOTORSPORT MANAGER
+## v0.6.6.8 — HUD REBROADCAST 2.0
+### Redesign profissional de interface de corrida — Godot 4.7.2
+
+Atue como **diretor de UX/UI para jogos de automobilismo, engenheiro sênior de Godot 4.7.2, especialista em GDScript, arquitetura de interfaces e otimização de HUD em tempo real**.
+
+Sua missão é reconstruir a experiência visual de gerenciamento de corrida do APEX Motorsport Manager, criando uma HUD mais profissional, elegante, responsiva e intuitiva.
+
+Não quero apenas mudar cores e arredondar botões. Quero uma **evolução real na organização das informações, na hierarquia visual, na navegação e na facilidade de tomar decisões durante a corrida**.
+
+A HUD deve transmitir a sensação de acompanhar uma corrida profissional de Fórmula 1, mas preservar a profundidade de gerenciamento que diferencia o APEX.
+
+---
+
+# 1. ARQUIVOS E REFERÊNCIAS
+
+Utilize como base:
+
+- O ZIP completo mais recente e validado do APEX Motorsport Manager.
+- Inicialmente, a versão v0.6.6.7.2.4, salvo se houver uma versão oficial posterior fornecida.
+- O Plano Mestre Unificado 2.0 de 16/11/2026.
+- As imagens de referência enviadas pelo usuário.
+
+**Referências visuais prioritárias:**
+
+- Imagens indicadas pelo usuário como 4 a 7: linguagem de transmissão de corrida, classificação, status de prova, câmera, boxes e informações contextuais.
+- Imagem indicada pelo usuário como 15: tabela vertical compacta de classificação, com boa hierarquia, identificação dos pilotos e leitura rápida.
+- Demais imagens: referências secundárias para menus, tipografia, pit lane, painéis técnicos, notificações e apresentação.
+
+Inspecione os arquivos reais de imagem. Não dependa somente da numeração das imagens se ela não for preservada na nova conversa.
+
+Essas imagens devem ser usadas como **referências conceituais e visuais, não como assets para copiar literalmente**.
+
+Não reutilize elementos gráficos, fontes exclusivas, logotipos, fotografias ou materiais protegidos sem autorização.
+
+Preserve a identidade original APEX: laranja, grafite, cinza e cores de estado utilizadas com moderação.
+
+---
+
+# 2. PRIMEIRA ETAPA — AUDITORIA DA HUD EXISTENTE
+
+Antes de programar:
+
+1. Extraia e valide o ZIP do projeto.
+2. Identifique todas as cenas, scripts, temas e componentes utilizados na HUD de corrida.
+3. Localize as fontes reais dos dados exibidos.
+4. Identifique elementos duplicados, informações redundantes, textos pequenos, painéis excessivos e ações difíceis de encontrar.
+5. Verifique os sistemas de corrida, estratégia, dados, eventos, rádio, engenharia, câmera e minimapa.
+6. Identifique quais informações são atualizadas por quadro, por tick ou por eventos.
+7. Verifique a persistência das preferências de interface.
+8. Execute uma captura da HUD atual nas resoluções de teste.
+
+**Não recrie o motor esportivo, o sistema de estratégia ou o replay.**
+
+Esta versão é exclusivamente dedicada à apresentação e interação da HUD.
+
+---
+
+# 3. NOVA FILOSOFIA DE DESIGN
+
+A HUD deve obedecer a cinco princípios:
+
+**1. Corrida em primeiro lugar.** Os carros e a pista são os protagonistas visuais.
+
+**2. Informação por necessidade.** Mostrar imediatamente o que importa; oferecer detalhes adicionais quando solicitados.
+
+**3. Ações com poucos cliques.** Um jogador deve conseguir selecionar um piloto, alterar o ritmo ou consultar uma parada sem navegar por vários menus.
+
+**4. Consistência.** Mesmas cores, ícones, nomenclaturas e comportamentos em todas as telas.
+
+**5. Clareza acima da quantidade.** Não exibir todas as métricas existentes simultaneamente apenas porque o motor as fornece.
+
+A interface deverá ser original e profissional, com linguagem visual de transmissão esportiva e gerenciamento técnico.
+
+---
+
+# 4. DESIGN SYSTEM DO APEX
+
+Criar um sistema de design reutilizável no Godot, incluindo:
+
+- Paleta de cores.
+- Tipografia.
+- Escala de espaçamentos.
+- Estilos de botões.
+- Painéis.
+- Estados de seleção.
+- Indicadores de alerta.
+- Ícones.
+- Animações.
+- Tooltips.
+- Componentes reutilizáveis.
+- Regras de responsividade.
+
+## Paleta inicial sugerida
+
+| Elemento | Cor |
+|---|---|
+| Fundo principal | #111820 |
+| Painéis | #212B35 |
+| Painéis secundários | #303842 |
+| Texto principal | #F3F5F6 |
+| Texto secundário | #B7C3CC |
+| Destaque APEX | #FF8A21 |
+| Confirmação | #42BE89 |
+| Informação | #75D7DE |
+| Atenção | #F2BE49 |
+| Perigo | #E65D60 |
+
+Ajuste essas cores após analisar sua aparência real no Godot, especialmente sobre cenários claros e escuros.
+
+Evite contrastes excessivos, bordas pesadas, gradientes exagerados e excesso de elementos laranja.
+
+Utilize tipografia com boa legibilidade em 1600×900 e 1920×1080. Não reproduza o problema atual de textos excessivamente pequenos.
+
+Garantir boa diferenciação entre estados mesmo para pessoas com dificuldade de percepção de cores.
+
+---
+
+# 5. TRÊS MODOS DE HUD
+
+Implementar os seguintes modos:
+
+## MODO A — BROADCAST
+
+Objetivo: transmitir a sensação de acompanhar uma corrida na televisão.
+
+Exibir:
+
+- Classificação vertical compacta.
+- Volta atual.
+- Estado da corrida.
+- Informações essenciais do clima.
+- Minimap discreto.
+- Velocidade de simulação.
+- Destaques contextuais.
+
+Ocultar painéis técnicos detalhados por padrão.
+
+Ideal para assistir à corrida em 3D.
+
+## MODO B — COMPACT
+
+Objetivo: gerenciar a equipe sem poluir a tela.
+
+Exibir:
+
+- Classificação.
+- Dois pilotos da equipe.
+- Pneus.
+- Ritmo.
+- Comandos rápidos.
+- Informações essenciais de estratégia.
+- Clima e minimapa.
+
+Manter a maior parte do circuito visível.
+
+**Este deve ser o modo padrão inicialmente recomendado.**
+
+## MODO C — FULL
+
+Objetivo: analisar a corrida em profundidade.
+
+Permitir acesso ampliado a:
+
+- Telemetria.
+- Condição dos pneus.
+- Estratégia.
+- Gap e ritmo.
+- Previsão de chuva.
+- Dados do engenheiro.
+- Histórico de eventos.
+- Informações de boxes.
+
+Mesmo neste modo, organizar os dados em áreas separadas, sem abrir múltiplas janelas concorrentes desnecessariamente.
+
+A troca entre modos deve ser imediata e persistir nas preferências do usuário.
+
+---
+
+# 6. LEADERBOARD — CLASSIFICAÇÃO RECONSTRUÍDA
+
+Esta é a prioridade visual mais importante.
+
+Utilize especialmente a referência da tabela vertical indicada pelo usuário.
+
+Criar um componente compacto à esquerda contendo:
+
+- Posição.
+- Identificação da equipe.
+- Sigla do piloto.
+- Intervalo ou diferença para o líder.
+- Composto atual.
+- Indicador opcional de desgaste.
+- Informação de box ou abandono.
+- Destaque do piloto selecionado.
+
+A classificação precisa ser legível rapidamente, inclusive quando dois pilotos estão disputando posição.
+
+## Modos internos da classificação
+
+Permitir selecionar:
+
+- Intervalo.
+- Diferença para o líder.
+- Última volta, quando disponível.
+- Pneus, quando disponível.
+
+Não mostrar todas essas colunas simultaneamente.
+
+## Comportamento
+
+- Atualizar posições com os dados oficiais do motor.
+- Preservar ordenação correta.
+- Animações discretas de ganho ou perda de posição.
+- Diferenciar boxes, abandono e punição quando esses estados existirem.
+- Permitir clicar no piloto para selecioná-lo.
+- Respeitar o tamanho da janela.
+- Suportar a lista completa de 24 pilotos com rolagem apropriada.
+
+Evitar deslocamentos visuais excessivos a cada atualização.
+
+Os indicadores devem refletir somente dados realmente simulados.
+
+---
+
+# 7. BARRA SUPERIOR DE ESTADO
+
+Criar uma faixa contextual pequena, que apareça quando necessário.
+
+Estados possíveis, conforme funcionalidades efetivamente existentes:
+
+- Corrida normal.
+- Bandeira amarela.
+- Incidente.
+- Safety Car.
+- DRS habilitado.
+- Volta mais rápida.
+- Entrada nos boxes.
+- Replay.
+- Fim da corrida.
+
+**Importante:** a temporada inicial é 2012. Não incluir automaticamente VSC, ERS híbrido ou regras de temporadas posteriores.
+
+Quando o motor não possuir um estado, não gerar uma notificação fictícia.
+
+## Animação
+
+- Entrada rápida e discreta.
+- Tempo de permanência apropriado.
+- Evitar repetição incessante.
+- Permitir prioridade para acontecimentos importantes.
+- Não bloquear comandos.
+- Não esconder informações essenciais da corrida.
+
+O Diretor TV deverá continuar recebendo os eventos oficiais da simulação.
+
+---
+
+# 8. PAINEL DIREITO — CLIMA E MINIMAPA
+
+Reorganizar o lado direito com duas áreas compactas.
+
+## Clima
+
+Exibir inicialmente apenas:
+
+- Estado atual.
+- Condição da pista.
+- Chuva atual.
+- Tendência prevista, se disponível.
+
+Informações como temperatura do ar, pista, aderência e borracha devem ficar acessíveis por expansão ou tooltip.
+
+Separar claramente previsão e condição efetivamente medida.
+
+## Minimap
+
+Manter o circuito visível com:
+
+- Posições dos carros.
+- Destaque dos pilotos selecionados.
+- Identificação de acontecimentos relevantes.
+- Indicação de boxes, se suportada.
+
+O minimapa não deve reconstruir a geometria estática desnecessariamente.
+
+Preservar o cache gráfico já implementado.
+
+---
+
+# 9. CARDS DOS DOIS PILOTOS
+
+Reconstruir os cartões inferiores.
+
+O card compacto deve conter:
+
+- Nome ou sigla do piloto.
+- Posição.
+- Pneu atual.
+- Desgaste resumido.
+- Ritmo escolhido.
+- Estado de combustível, quando modelado.
+- KERS compatível com 2012.
+- Botão para acompanhar.
+- Botão de comando de box.
+
+Não exibir todos os atributos de personalidade, telemetria e estratégia diretamente no cartão.
+
+A expansão do card deverá mostrar opções adicionais de gestão.
+
+## Interações
+
+O jogador precisa conseguir:
+
+1. Selecionar o piloto.
+2. Acompanhar a câmera.
+3. Consultar seu estado.
+4. Modificar decisões autorizadas.
+5. Agendar uma parada.
+6. Confirmar uma ordem.
+7. Visualizar a resposta do engenheiro.
+
+Preservar as regras existentes de Manual, Assistido e Automático.
+
+Uma ordem manual de parada na volta 21 deve continuar protegida contra alteração automática indevida.
+
+---
+
+# 10. PIT WALL E ESTRATÉGIA
+
+A área de estratégia deve deixar de parecer uma janela com excesso de informações.
+
+Organizar em:
+
+**Resumo:** situação atual dos dois pilotos.
+
+**Plano:** stints previstos e paradas agendadas.
+
+**Decisão:** pneus, volta e confirmação do comando.
+
+**Análise:** justificativas, projeções, tráfego e cenários.
+
+O painel de análise profundo somente deve abrir quando solicitado.
+
+Exibir claramente a diferença entre:
+
+- Plano previsto.
+- Recomendação da IA.
+- Ordem manual.
+- Comando pendente.
+- Comando confirmado.
+- Comando recusado.
+
+Não criar botões que apenas aparentem funcionar.
+
+---
+
+# 11. RÁDIO, EVENTOS E ENGENHARIA
+
+Manter os três sistemas, mas com funções visuais distintas.
+
+## Rádio
+
+- Avisos curtos durante a corrida.
+- Identificação do piloto ou engenheiro.
+- Prioridade de mensagens.
+- Histórico consultável.
+- Nenhuma mensagem inventada para eventos que não ocorreram.
+
+## Eventos
+
+- Linha do tempo organizada.
+- Filtros por tipo.
+- Registro de incidentes, boxes, disputas e mudanças relevantes.
+- Evitar repetir a mesma informação em vários locais da HUD.
+
+## Engenharia
+
+- Resumo imediato.
+- Recomendações.
+- Justificativas.
+- Informações técnicas aprofundadas sob demanda.
+
+A HUD deve informar sem obrigar o jogador a ler grandes blocos de texto durante uma disputa.
+
+---
+
+# 12. VELOCIDADE E CÂMERAS
+
+Preservar a política atual:
+
+- 1x, 2x e 5x: 3D no modo Auto.
+- 10x, 16x e 32x: mapa 2D no modo Auto.
+- Seleção manual de câmera tem prioridade.
+
+O controle de velocidade deve permanecer claro e acessível.
+
+Quando a CPU não conseguir atingir a velocidade solicitada, manter a indicação honesta da velocidade efetiva.
+
+Não prometer FPS ou aceleração superiores apenas por simplificar a HUD.
+
+Preservar a opção de câmera livre, acompanhamento e Diretor TV quando existentes.
+
+---
+
+# 13. ANIMAÇÕES E TRANSIÇÕES
+
+Criar animações discretas para:
+
+- Abrir e fechar painéis.
+- Selecionar pilotos.
+- Alterar modos.
+- Exibir eventos.
+- Mostrar mudanças de posição.
+- Confirmar comandos.
+
+Evitar efeitos constantes que distraiam o jogador.
+
+Utilizar animações de interface independentes dos ticks esportivos.
+
+O desempenho da HUD deve continuar estável em diferentes velocidades de simulação.
+
+---
+
+# 14. DESEMPENHO E ARQUITETURA
+
+A nova HUD não deve sobrecarregar a simulação.
+
+Aplicar as seguintes diretrizes:
+
+1. Não reconstruir listas inteiras quando apenas alguns valores mudarem.
+2. Reutilizar componentes.
+3. Evitar criar objetos temporários desnecessariamente.
+4. Limitar atualizações de painéis que não precisam de alta frequência.
+5. Utilizar eventos para notificações e mudanças relevantes.
+6. Separar lógica de visualização e estado esportivo.
+7. Evitar copiar grandes estruturas de dados a cada quadro.
+8. Não recalcular dados derivados idênticos sem necessidade.
+9. Preservar o funcionamento correto do mapa 2D.
+10. Medir o custo da HUD antes e depois.
+
+A HUD jamais deve modificar diretamente a física, o RNG, os resultados ou os comandos internos da corrida sem passar pelos mecanismos existentes.
+
+---
+
+# 15. TESTES OBRIGATÓRIOS
+
+Executar:
+
+- Silverstone seco.
+- Spa com chuva intensa.
+- Monza seco.
+- Singapura com chuva intensa.
+- Pit stops.
+- Agendamento manual de paradas.
+- Double stack.
+- Replay.
+- Troca de velocidade.
+- Troca de câmera.
+- Diretor TV.
+- Rádio.
+- Seleção de piloto.
+- Interface de estratégia.
+- Save/load de preferências da HUD.
+- Validação em 1600×900 e 1920×1080.
+- Verificação adicional em 1366×768, se viável.
+
+Testar os três modos de HUD.
+
+Comparar hashes esportivos históricos para garantir que a alteração visual não modificou a simulação.
+
+Também medir:
+
+- Tempo de atualização da HUD.
+- Tempo de quadro.
+- Número de atualizações de componentes.
+- Consumo de memória.
+- Impacto com janelas abertas.
+- Legibilidade e possíveis sobreposições.
+
+Não declarar testes como aprovados sem execução.
+
+---
+
+# 16. CRITÉRIOS DE QUALIDADE VISUAL
+
+A nova HUD será aprovada se:
+
+- For mais fácil acompanhar a corrida.
+- Reduzir informações simultâneas.
+- Tornar estratégia e pit stops mais acessíveis.
+- Preservar os comandos existentes.
+- Eliminar textos cortados e sobreposições nas resoluções principais.
+- Funcionar em 2D e 3D.
+- Não produzir regressões esportivas.
+- Não piorar significativamente o desempenho.
+- Manter identidade visual própria do APEX.
+
+Além dos testes automáticos, realizar revisão visual comparativa de capturas reais.
+
+Não considerar a HUD concluída apenas porque a cena carrega sem erros.
+
+---
+
+# 17. ENTREGÁVEIS
+
+Fornecer:
+
+1. `APEX_MOTORSPORT_MANAGER_v0.6.6.8_HUD_REBROADCAST_COMPLETO.zip`
+2. Relatório técnico.
+3. Changelog.
+4. Lista de arquivos modificados.
+5. Matriz de testes.
+6. Comparativo de desempenho.
+7. Capturas reais antes/depois.
+8. Capturas BROADCAST, COMPACT e FULL.
+9. Guia de utilização dos modos.
+10. SHA-256 e instruções de rollback.
+
+O ZIP deve conter o projeto inteiro, não apenas scripts isolados.
+
+Validar a importação de uma extração limpa no Godot 4.7.2.
+
+Preservar todos os arquivos e funcionalidades não relacionados à HUD.
+
+---
+
+# 18. PROCEDIMENTO DE IMPLEMENTAÇÃO
+
+Organize o trabalho na seguinte sequência:
+
+**Etapa 1:** auditoria da HUD atual.
+
+**Etapa 2:** definição de componentes e design system.
+
+**Etapa 3:** implementação do novo leaderboard.
+
+**Etapa 4:** barra contextual, clima e minimapa.
+
+**Etapa 5:** cards dos pilotos e comandos rápidos.
+
+**Etapa 6:** integração das telas de estratégia, rádio, eventos e engenharia.
+
+**Etapa 7:** modos BROADCAST, COMPACT e FULL.
+
+**Etapa 8:** testes, benchmarks, revisão gráfica e correções.
+
+**Etapa 9:** empacotamento completo e relatório final.
+
+Pode realizar essas etapas dentro desta implementação, mas mantenha o escopo exclusivamente na HUD.
+
+Não comece novos sistemas esportivos, nova IA ou migração do APEX 2 Next Engine.
+
+---
+
+# RESULTADO ESPERADO
+
+Quero abrir uma corrida e sentir que estou administrando uma equipe de Fórmula 1 em um jogo profissional.
+
+A pista deve ser o elemento visual principal.
+
+A classificação deve ser fácil de ler.
+
+Os pilotos devem ser fáceis de controlar.
+
+Os acontecimentos devem aparecer naturalmente.
+
+O engenheiro deve informar, e não sobrecarregar.
+
+A estratégia deve ser profunda, mas a interface não deve parecer complicada.
+
+**Crie uma HUD que tenha a clareza das boas transmissões automobilísticas, a utilidade dos melhores jogos manager e uma identidade visual original do APEX Motorsport Manager.**
+
+Implemente, teste e entregue o projeto completo, deixando claramente identificadas quaisquer limitações ou pendências reais.

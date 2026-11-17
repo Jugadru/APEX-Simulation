@@ -1,0 +1,248 @@
+{
+  "version": "0.6.6.8.1",
+  "godot": "4.7.2",
+  "source": "0.6.6.8",
+  "tests": [
+    {
+      "id": "BASE_ZIP_CRC_SHA256",
+      "status": "PASS",
+      "evidence": "zipfile.testzip CRC + sha256sum; original matches 7d4ff778de6e59dac01edebff9be17419ca6d90d99d5ad5e66c0777776462a5f",
+      "notes": ""
+    },
+    {
+      "id": "GODOT_472_IMPORT",
+      "status": "PASS",
+      "evidence": "qa/hud_rebroadcast_06681/logs/import_06681.log; editor --headless --quit return 0",
+      "notes": ""
+    },
+    {
+      "id": "HUD_0668_UNIT",
+      "status": "PASS",
+      "evidence": "qa/hud_rebroadcast_06681/logs/hud_rebroadcast_0668_unit_final.log",
+      "notes": ""
+    },
+    {
+      "id": "HUD_SCENE_34_CHECKS",
+      "status": "PASS",
+      "evidence": "qa/hud_rebroadcast_06681/logs/hud_rebroadcast_0668_integration_final.log",
+      "notes": ""
+    },
+    {
+      "id": "FOUR_TRACKS_12_TICKS",
+      "status": "PASS",
+      "evidence": "qa/hud_rebroadcast_06681/logs/hud_rebroadcast_0668_scenarios_final.log",
+      "notes": ""
+    },
+    {
+      "id": "MANUAL_COMMAND_VISIBILITY_30_CHECKS",
+      "status": "PASS",
+      "evidence": "qa/hud_rebroadcast_06681/logs/hud_rebroadcast_06681_pending_orders_final.log",
+      "notes": ""
+    },
+    {
+      "id": "MANUAL_V21_HEAVY_RAIN_V4",
+      "status": "PASS",
+      "evidence": "qa/hud_rebroadcast_06681/logs/replay_0660_boundaries_final.log",
+      "notes": ""
+    },
+    {
+      "id": "DOUBLE_STACK_SIMULTANEOUS",
+      "status": "PASS",
+      "evidence": "qa/hud_rebroadcast_06681/logs/pitwall_0667_same_tick_regression_final.log",
+      "notes": ""
+    },
+    {
+      "id": "REPLAY_200_TICKS_SPEEDS",
+      "status": "PASS",
+      "evidence": "qa/hud_rebroadcast_06681/logs/replay_0660_test_final.log",
+      "notes": ""
+    },
+    {
+      "id": "SPEED_1X_5X_CAMERA",
+      "status": "PASS",
+      "evidence": "qa/hud_rebroadcast_06681/logs/speed_control_066721_final.log",
+      "notes": ""
+    },
+    {
+      "id": "TV_DIRECTOR_REAL_EVENTS_3_LAPS",
+      "status": "PASS",
+      "evidence": "qa/hud_rebroadcast_06681/logs/tv_director_0667_live_gp_final.log",
+      "notes": ""
+    },
+    {
+      "id": "LEGACY_CAREER_GARAGE_MIGRATION_FIXTURE",
+      "status": "PASS",
+      "evidence": "qa/hud_rebroadcast_06681/logs/core_0642_save_migration_test_final.log",
+      "notes": ""
+    },
+    {
+      "id": "HUD_3_LAPS_FOUR_TRACKS",
+      "status": "PASS",
+      "evidence": "qa/hud_rebroadcast_06681/logs/extended_race_scenarios.log",
+      "notes": "4 separate races with 3 full laps each, NOT full-distance GPs"
+    },
+    {
+      "id": "HUD_SPORTING_HASH_READ_ONLY",
+      "status": "PASS",
+      "evidence": "qa/hud_rebroadcast_06681/logs/extended_race_scenarios.log",
+      "notes": "hash compared immediately before and after each presentation refresh / mode switch"
+    },
+    {
+      "id": "HUD_CAMERA_18_MODES_AND_SPEEDS_POLICY",
+      "status": "PASS",
+      "evidence": "qa/hud_rebroadcast_06681/logs/camera_policy.log",
+      "notes": "headless UI policy 3 modes x 6 speeds plus manual 2D/3D overrides; not an FPS measurement"
+    },
+    {
+      "id": "HUD_REPLAY_SEEK_ISOLATION_400_TICKS",
+      "status": "PASS",
+      "evidence": "qa/hud_rebroadcast_06681/logs/replay_isolation.log",
+      "notes": "seeks 150/320/0 in imported playback did not mutate original live host or sporting hash"
+    },
+    {
+      "id": "HUD_PREFERENCE_REAL_PROCESS_RESTART",
+      "status": "PASS",
+      "evidence": "qa/hud_rebroadcast_06681/logs/restart_{write,read}.log",
+      "notes": ""
+    },
+    {
+      "id": "GODOT_GRAPHICS_1600X900_2D",
+      "status": "PASS",
+      "evidence": "qa/hud_rebroadcast_06681/{broadcast,compact,full}_1600x900.png",
+      "notes": ""
+    },
+    {
+      "id": "GODOT_GRAPHICS_1920X1080_2D",
+      "status": "PASS",
+      "evidence": "qa/hud_rebroadcast_06681/{broadcast,compact,full}_1920x1080.png",
+      "notes": ""
+    },
+    {
+      "id": "GODOT_GRAPHICS_1600X900_3D",
+      "status": "PASS",
+      "evidence": "qa/hud_rebroadcast_06681/compact_3d_1600x900.png",
+      "notes": ""
+    },
+    {
+      "id": "GODOT_GRAPHICS_1366X768_EXACT",
+      "status": "INCONCLUSIVE",
+      "evidence": "qa/hud_rebroadcast_06681/*_1365x768.png",
+      "notes": "Xvfb X11 returned 1365x768 from 1366x768 request; inspect on real monitor"
+    },
+    {
+      "id": "MONZA_53_LAPS_24431_TICKS",
+      "status": "PASS",
+      "evidence": "qa/hud_rebroadcast_06681/logs/monza_full_baseline.log",
+      "notes": "real core long GP; no renderer; expected 2012 sporting hash"
+    },
+    {
+      "id": "MONZA_53_LAPS_GOLDEN_HASH",
+      "status": "PASS",
+      "evidence": "qa/hud_rebroadcast_06681/logs/monza_full_baseline.log",
+      "notes": ""
+    },
+    {
+      "id": "MONZA_53_LAPS_FULL_REPLAY",
+      "status": "PASS",
+      "evidence": "qa/hud_rebroadcast_06681/logs/monza_full_baseline.log",
+      "notes": "full replay is verified ONLY when final event LRP_FULL_REPLAY_END verified=true exists"
+    },
+    {
+      "id": "HUD_CPU_BENCHMARK_RUNS",
+      "status": "PASS",
+      "evidence": "APEX_BENCHMARK_REBROADCAST_v0.6.6.8.1.json",
+      "notes": "5 x 200 headless refresh calls each variant"
+    },
+    {
+      "id": "CLAIMED_FPS_IMPROVEMENT",
+      "status": "INCONCLUSIVE",
+      "evidence": "APEX_BENCHMARK_REBROADCAST_v0.6.6.8.1.json",
+      "notes": "no real-GPU A/B; CPU refresh medians are noisy"
+    },
+    {
+      "id": "FULL_GP_ALL_FOUR_CIRCUITS",
+      "status": "NOT_RUN",
+      "evidence": "n/a",
+      "notes": "Only Monza full-distance; others each 3 complete laps"
+    },
+    {
+      "id": "GRAPHICS_USER_GPU_LINUX_MINT",
+      "status": "NOT_RUN",
+      "evidence": "n/a",
+      "notes": "Xvfb llvmpipe is not hardware validation"
+    },
+    {
+      "id": "MANUAL_IN_GAME_USER_TEST",
+      "status": "NOT_RUN",
+      "evidence": "n/a",
+      "notes": "only automated Godot engine interaction"
+    },
+    {
+      "id": "HUD_CAMERA_AUTO_10X_16X_32X_VISUAL",
+      "status": "NOT_RUN",
+      "evidence": "n/a",
+      "notes": "replay speeds tested without visual camera A/B at all speeds"
+    }
+  ],
+  "full_monza_live": {
+    "finished": true,
+    "finished_cars": 24,
+    "hash": "2a7e27179177858b8754a0c65666b325499e4aa13d423de060181b11d9ae1c4b",
+    "seconds": 416.473241,
+    "ticks": 24431,
+    "unique_positions": 24
+  },
+  "full_monza_replay": {
+    "error": "",
+    "hash": "2a7e27179177858b8754a0c65666b325499e4aa13d423de060181b11d9ae1c4b",
+    "seconds": 437.999009,
+    "ticks": 24431,
+    "verified": true
+  },
+  "scenarios_3_laps": [
+    {
+      "frames_refreshed": 35,
+      "lap_reached": 4,
+      "last_hash": "94409d443d8e9f0aa01189bbc452a131d22e85343b4dca9958e68a022251f55e",
+      "mode_changes": 35,
+      "name": "Silverstone dry",
+      "race_finished": false,
+      "read_only": true,
+      "seconds": 14.565,
+      "tick_count": 1426
+    },
+    {
+      "frames_refreshed": 46,
+      "lap_reached": 4,
+      "last_hash": "796635abef6caff56ea1c03e3157cbdde8b46c0b0196e4b142c6c45f70379c6d",
+      "mode_changes": 46,
+      "name": "Spa heavy rain",
+      "race_finished": false,
+      "read_only": true,
+      "seconds": 19.346,
+      "tick_count": 1867
+    },
+    {
+      "frames_refreshed": 32,
+      "lap_reached": 4,
+      "last_hash": "651586ef015bd66891b17e46e0daad7d445b083aabcd5f389178a350e4064da4",
+      "mode_changes": 32,
+      "name": "Monza dry",
+      "race_finished": false,
+      "read_only": true,
+      "seconds": 20.813,
+      "tick_count": 1316
+    },
+    {
+      "frames_refreshed": 46,
+      "lap_reached": 4,
+      "last_hash": "4a3d479c932cac816ac0631f21a5e9bc95bf4b0de6d4ff9422a89d1c692543d5",
+      "mode_changes": 46,
+      "name": "Singapore heavy rain",
+      "race_finished": false,
+      "read_only": true,
+      "seconds": 22.245,
+      "tick_count": 1842
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+FAIL  test_0524_static.py: line 13, in <module> |     assert hashlib.sha256(data).hexdigest() == sha, f'Approved asset unexpectedly changed: {path}' |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | AssertionError: Approved asset unexpectedly changed: scripts/track_map.gd
+FAIL  test_0526_static.py: lib.sha256((root/name).read_bytes()).hexdigest() == expected_hash, f'Approved content changed: {name}' |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | AssertionError: Approved content changed: scripts/track_map.gd
+PASS  test_0527_static.py: PASS: v0.5.2.7 pit incidents, extra time, double-stack exclusivity, HUD and 3D indicators
+PASS  test_0528_static.py: PASS: crew economy, persistence migration, timing, accuracy, 20 tracks / 24 drivers
+PASS  test_0529_static.py: SKIP: archived v0.5.2.8 baseline unavailable; current engine/geometric checks are in test_0533_static.py | PASS v0.5.2.9 static: telemetry, chart, team comparison, no baseline 3D/2D/crew changes
+FAIL  test_0530_static.py: ata/apex_hud_work/APEX_GODOT_0.6.1.2_HOTFIX_PARSE/tests/test_0530_static.py", line 16, in <module> |     assert feature in main, f'Missing HUD element: {feature}' |            ^^^^^^^^^^^^^^^ | AssertionError: Missing HUD element: hud_layout_0530.cfg
+PASS  test_0530_theme_hotfix.py: HUD source hotfix OK: reserved keyword removed, theme connected, gameplay preserved
+FAIL  test_0531_static.py: _hud_work/APEX_GODOT_0.6.1.2_HOTFIX_PARSE/tests/test_0531_static.py", line 16, in <module> |     assert feature in main, f'Missing 0.5.3.1 HUD feature: {feature}' |            ^^^^^^^^^^^^^^^ | AssertionError: Missing 0.5.3.1 HUD feature: LIVE TIMING
+PASS  test_05322_static.py: PASS: broadcast HUD controls, responsive layout on 6 sizes, motor/3D unchanged
+FAIL  test_05324_static.py: est_05324_static.py", line 46, in <module> |     assert hashlib.sha256((root/'scripts'/name).read_bytes()).hexdigest()==expected,name |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | AssertionError: track_map.gd
+FAIL  test_0532_static.py: recent call last): |   File "/mnt/data/apex_hud_work/APEX_GODOT_0.6.1.2_HOTFIX_PARSE/tests/test_0532_static.py", line 19, in <module> |     assert 'user://hud_layout_0530.cfg' in main |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | AssertionError
+PASS  test_0543_static.py: PASS: Core 2 único, estados de disputa, 2012, pit lane e HUD estáveis
+PASS  test_0550_weather_static.py: PASS: Core 2 climate single source, crossover, 20 tyre allocations, HUD, pit/3D code preserved
+PASS  test_0551_wet_balance.py: PASS 0.5.5.1: wet/inter cross-over, 8 lap advantage <20s at 85-100% standing water
+PASS  test_0552_tyre_ai_static.py: PASS 0552: AI critical tyre guard, wet compound repit, preserved weather balance, 20 venues and safety paths
+PASS  test_0560_kers_drs_static.py: PASS: limites KERS 2012, DRS condicionado, UI, telemetria e arquivos essenciais preservados
+PASS  test_0561_energy_balance.py: onds': 17.778, 'zones': [0, 1, 2], 'gain_s': 0.206} |    Equilibrado : {'energy_kj': 400.0, 'powered_seconds': 10.0, 'zones': [0, 1, 2], 'gain_s': 0.37} |    Atacar : {'energy_kj': 400.0, 'powered_seconds': 6.667, 'zones': [0, 1, 2], 'gain_s': 0.476}
+PASS  test_0570_ai_strategy_static.py: PASS 0570: deterministic planner, pit-cost model, team box coordination, read-only weather forecast and approved mechanics
+PASS  test_0580_static.py: PASS 0580: scheduled pit, UI, battle geometry, cause audit, legacy physics checks
+PASS  test_0590_regression_additional.py: PASS: team manual/auto, separate manual pit schedule, staff and legacy saves
+PASS  test_0600_campaign_static.py: PASS 0600: menu, progression, scoring, saving, idempotent rewards, 2012 data, legacy physics preserved
+FAIL  test_0600_no_regressions.py: .1.2_HOTFIX_PARSE/tests/test_0600_no_regressions.py", line 14, in <module> |     assert sha256((r/file).read_bytes()).hexdigest()==signature,file |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | AssertionError: scripts/track_map.gd
+PASS  test_0610_static.py: PASS 0610: 20 distinct circuits, independent weather per circuit, 32x, Full HD HUD, race engine preserved
+FAIL  test_0611_static.py: de, buffering, encoding, errors, newline) |            ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/mnt/data/APEX_GODOT_0.6.1_HUD_CLIMA_2012_EXPERIMENTAL/scripts/race_engine.gd'
+PASS  test_0612_indent_static.py: PASS: indentation and strategic-map regression across 71 GDScript files
+PASS  test_0620_hud_static.py: PASS: 0.6.2 HUD hooks, compact grid, tabs, commands and real planned stint markers | PASS: 0.6.2 HUD hooks, compact grid, tabs, commands and real planned stint markers
+PASS  test_camera_regression_static.py: CAMERA REGRESSION STATIC OK: no TV-centre reset, 5 angles, manual shot selector
+FAIL  test_car_models_3d.py: a4cf845cf9f077be022b537a4c9b94ad2afa41e4f6043c035238d39cf56410', '2D approved map altered' |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | AssertionError: 2D approved map altered
+PASS  test_circuits_2012.py: PASS: 20 GPs, 17 licensed outlines, 3 marked schematic, all official pace anchors, table fix kept.
+PASS  test_pit_continuity_static.py:  12 ordered garages | USA: connected corridor 109.9u, tangents 1.00/1.00, 12 ordered garages | BRA: connected corridor 169.6u, tangents 1.00/1.00, 12 ordered garages | PIT LANE OFFLINE OK: all 20 circuits, forward-aligned entry/exit and 12 team stops
+PASS  test_pit_service_static.py: SKIP: external v0.5.2.4.3 archive unavailable; test_0533_static.py checks frozen source fingerprints | APEX 0.5.2.5 STATIC OK: approved race visuals retained, crew, wheel swap and pit stopwatch integrated.
+PASS  test_road_mesh_geometry.py: ed runoff triangles | UAE: 768 shared sections; zero inverted runoff triangles | USA: 768 shared sections; zero inverted runoff triangles | BRA: 768 shared sections; zero inverted runoff triangles | PASS: all 20 circuits / continuous 3D road sections
+PASS  test_smooth_and_3d.py: PASS: 3D viewport, shared geometry, smoothing and data bindings checked
+RESULTADO: 24/33 scripts Python OK
+FALHAS: test_0524_static.py, test_0526_static.py, test_0530_static.py, test_0531_static.py, test_05324_static.py, test_0532_static.py, test_0600_no_regressions.py, test_0611_static.py, test_car_models_3d.py

@@ -1,0 +1,27 @@
+{
+  "project": "APEX Motorsport Manager",
+  "version": "0.6.6.5",
+  "release_name": "Replay Checkpoint Coverage 1.0",
+  "engine": "Godot 4.7.2 stable Linux x86_64",
+  "source_base_zip": "APEX_MOTORSPORT_MANAGER_v0.6.6.4_REPLAY_MEMORY_COMPLETO.zip",
+  "source_base_sha256": "ff13779c6b734af42fe7c00110870c9c89a3025ef2c0933d8d382bb9cc446ee1",
+  "original_entries": 2351,
+  "original_entries_missing": 0,
+  "existing_files_modified": [
+    "project.godot",
+    "scripts/core/race_replay_0660.gd"
+  ],
+  "sports_simulation_revision": "0661_driver_dynamics",
+  "public_replay_file_format": "APEX_REPLAY_0660",
+  "checkpoint_interval": 300,
+  "checkpoint_max_count": 9,
+  "checkpoint_prune_method": "minimum neighboring gap product; ties remove earliest interior checkpoint",
+  "sporting_3200_hash": "f771fab5025055653075f853b4a06370097d5af74843d2deea4cc8dc17be9b90",
+  "sporting_53_laps_hash": "2a7e27179177858b8754a0c65666b325499e4aa13d423de060181b11d9ae1c4b",
+  "monza_53_laps_ticks": 24431,
+  "monza_53_laps_passed": true,
+  "monza_53_laps_archive_bytes": 41544880,
+  "qa_report": "qa/replay_checkpoints_0665/test_results_0665.json",
+  "source_master": "docs/APEX_SIMULATION_FONTE_MESTRA_2026-11-13.md",
+  "fresh_zip_validation": "APROVADO — extração, importação, replay boundaries e replay watch legado"
+}

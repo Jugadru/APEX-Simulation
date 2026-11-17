@@ -1,0 +1,52 @@
+{
+  "base_zip_sha256": "41df3cf8cc42b75ac30786f2ce18a0f0e1630c8e2f2ec39f4d6a0efc4cfa2056",
+  "original_files_modified": 0,
+  "experimental_scripts_and_tests": [
+    {
+      "path": "experimental/apex2/command_queue.gd",
+      "sha256": "f3d47d622a805b4b70381703592a73739fb9b91d70d8bb048f0aa8b1deb43736",
+      "action": "ADDED"
+    },
+    {
+      "path": "experimental/apex2/scenario_adapter.gd",
+      "sha256": "5b2342b7c12b6f05da8ec04795a9169e62d4cda7414bc084362d4f4384762740",
+      "action": "ADDED"
+    },
+    {
+      "path": "experimental/apex2/simulation_kernel.gd",
+      "sha256": "2117b5e5b2550cf649766b5e9dc9edc24ad93caa970a31372878bcd809ce46e8",
+      "action": "ADDED"
+    },
+    {
+      "path": "tests/apex2/benchmark_ab.gd",
+      "sha256": "49795655d2dda7a75d81f3ddae232d3f48a1ad0833df14ed9c0fad653a21c8d6",
+      "action": "ADDED"
+    },
+    {
+      "path": "tests/apex2/test_kernel.gd",
+      "sha256": "e8743d411bbafd3d9245fa1ec885599ec00fc2d708d13024ba5b7d7ccf683f85",
+      "action": "ADDED"
+    },
+    {
+      "path": "tests/apex2/test_long_monza.gd",
+      "sha256": "f5924cc7d673291a8b7f376cb3240750d77b2e103cdb3f18ab119ce18052b953",
+      "action": "ADDED"
+    },
+    {
+      "path": "tests/apex2/test_pit_entry_21.gd",
+      "sha256": "d6f39b870fe33f5949f553a9d68084b9e15af080c5f2ceaa88e7dcadf3fbe873",
+      "action": "ADDED"
+    },
+    {
+      "path": "tests/apex2/test_pit_queue.gd",
+      "sha256": "6ae0fdc7351b46a77e4b1001f0c0f69571f76acaff532958ae4fa57cd38d85fc",
+      "action": "ADDED"
+    },
+    {
+      "path": "tests/apex2/test_replay.gd",
+      "sha256": "a9b9bdb4442d347b010012f5e3811f697fa22e47860a8f5e6166e7a2d4d8b66b",
+      "action": "ADDED"
+    }
+  ],
+  "other_new_files": "reports, test logs, benchmark, changelog"
+}

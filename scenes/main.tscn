@@ -1,0 +1,1055 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
+
+[node name="Apex" type="Node2D"]
+script = ExtResource("1_main")
+
+[node name="EditorPreview" type="Node2D" parent="."]
+
+[node name="Background" type="ColorRect" parent="EditorPreview"]
+offset_left = 0
+offset_top = 0
+offset_right = 1600
+offset_bottom = 900
+color = Color(0.02745, 0.06667, 0.11373, 1.0000)
+mouse_filter = 2
+
+[node name="Header" type="ColorRect" parent="EditorPreview"]
+offset_left = 0
+offset_top = 0
+offset_right = 1600
+offset_bottom = 78
+color = Color(0.06275, 0.13333, 0.20784, 1.0000)
+mouse_filter = 2
+
+[node name="GameTitle" type="Label" parent="EditorPreview"]
+offset_left = 22
+offset_top = 16
+offset_right = 512
+offset_bottom = 58
+theme_override_colors/font_color = Color(0.32941, 0.87451, 0.74118, 1.0000)
+theme_override_font_sizes/font_size = 26
+text = "APEX MOTORSPORT MANAGER"
+mouse_filter = 2
+
+[node name="BuildInfo" type="Label" parent="EditorPreview"]
+offset_left = 600
+offset_top = 25
+offset_right = 1050
+offset_bottom = 53
+theme_override_colors/font_color = Color(0.72157, 0.79216, 0.86275, 1.0000)
+theme_override_font_sizes/font_size = 15
+text = "GODOT 4  /  v0.5.1  /  SPA"
+mouse_filter = 2
+
+[node name="RaceStatus" type="Label" parent="EditorPreview"]
+offset_left = 1280
+offset_top = 25
+offset_right = 1570
+offset_bottom = 53
+theme_override_colors/font_color = Color(0.96078, 0.80000, 0.47451, 1.0000)
+theme_override_font_sizes/font_size = 15
+text = "GP DA BÉLGICA  •  00/44"
+mouse_filter = 2
+
+[node name="TrackBackground" type="ColorRect" parent="EditorPreview"]
+offset_left = 356
+offset_top = 94
+offset_right = 1242
+offset_bottom = 804
+color = Color(0.02745, 0.10196, 0.16471, 1.0000)
+mouse_filter = 2
+
+[node name="LeftPanel" type="ColorRect" parent="EditorPreview"]
+offset_left = 15
+offset_top = 96
+offset_right = 335
+offset_bottom = 804
+color = Color(0.06667, 0.14118, 0.22353, 1.0000)
+mouse_filter = 2
+
+[node name="RightPanel" type="ColorRect" parent="EditorPreview"]
+offset_left = 1264
+offset_top = 96
+offset_right = 1585
+offset_bottom = 804
+color = Color(0.06667, 0.14118, 0.22353, 1.0000)
+mouse_filter = 2
+
+[node name="ControlsBar" type="ColorRect" parent="EditorPreview"]
+offset_left = 0
+offset_top = 817
+offset_right = 1600
+offset_bottom = 900
+color = Color(0.07059, 0.14118, 0.21961, 1.0000)
+mouse_filter = 2
+
+[node name="TrackOutline" type="Line2D" parent="EditorPreview"]
+points = PackedVector2Array(515.92, 629.00, 515.00, 619.82, 527.88, 572.90, 543.52, 537.20, 560.08, 502.52, 580.32, 464.78, 601.48, 430.10, 623.56, 398.48, 649.32, 386.24, 675.08, 378.08, 695.32, 361.76, 718.32, 351.56, 745.00, 324.02, 775.36, 302.60, 809.40, 284.24, 849.88, 265.88, 890.36, 246.50, 929.92, 227.12, 966.72, 206.72, 984.20, 201.62, 995.24, 205.70, 1001.68, 215.90, 1009.96, 219.98, 1026.52, 214.88, 1040.32, 208.76, 1051.36, 208.76, 1064.24, 214.88, 1083.56, 237.32, 1103.80, 261.80, 1122.20, 286.28, 1129.56, 302.60, 1124.96, 313.82, 1117.60, 316.88, 1108.40, 309.74, 1086.32, 286.28, 1070.68, 269.96, 1061.48, 265.88, 1049.52, 266.90, 1030.20, 278.12, 1003.52, 291.38, 978.68, 302.60, 952.00, 313.82, 925.32, 328.10, 914.28, 341.36, 909.68, 356.66, 910.60, 377.06, 920.72, 395.42, 937.28, 407.66, 965.80, 421.94, 1005.36, 433.16, 1022.84, 441.32, 1040.32, 453.56, 1051.36, 468.86, 1049.52, 489.26, 1054.12, 511.70, 1066.08, 521.90, 1086.32, 533.12, 1107.48, 546.38, 1125.88, 565.76, 1122.20, 584.12, 1112.08, 610.64, 1097.36, 626.96, 1084.48, 630.02, 1062.40, 629.00, 1043.08, 620.84, 1023.76, 606.56, 1003.52, 582.08, 985.12, 554.54, 966.72, 530.06, 946.48, 505.58, 930.84, 494.36, 910.60, 481.10, 881.16, 466.82, 856.32, 458.66, 831.48, 459.68, 812.16, 464.78, 790.08, 479.06, 761.56, 496.40, 737.64, 510.68, 712.80, 517.82, 691.64, 523.94, 675.08, 524.96, 668.64, 513.74, 670.48, 501.50, 666.80, 495.38, 657.60, 506.60, 633.68, 524.96, 609.76, 545.36, 584.92, 566.78, 557.32, 590.24, 538.92, 608.60, 521.44, 627.98, 515.92, 629.00)
+width = 25
+default_color = Color(0.40784, 0.49412, 0.56863, 1.0000)
+antialiased = true
+
+[node name="TrackAsphalt" type="Line2D" parent="EditorPreview"]
+points = PackedVector2Array(515.92, 629.00, 515.00, 619.82, 527.88, 572.90, 543.52, 537.20, 560.08, 502.52, 580.32, 464.78, 601.48, 430.10, 623.56, 398.48, 649.32, 386.24, 675.08, 378.08, 695.32, 361.76, 718.32, 351.56, 745.00, 324.02, 775.36, 302.60, 809.40, 284.24, 849.88, 265.88, 890.36, 246.50, 929.92, 227.12, 966.72, 206.72, 984.20, 201.62, 995.24, 205.70, 1001.68, 215.90, 1009.96, 219.98, 1026.52, 214.88, 1040.32, 208.76, 1051.36, 208.76, 1064.24, 214.88, 1083.56, 237.32, 1103.80, 261.80, 1122.20, 286.28, 1129.56, 302.60, 1124.96, 313.82, 1117.60, 316.88, 1108.40, 309.74, 1086.32, 286.28, 1070.68, 269.96, 1061.48, 265.88, 1049.52, 266.90, 1030.20, 278.12, 1003.52, 291.38, 978.68, 302.60, 952.00, 313.82, 925.32, 328.10, 914.28, 341.36, 909.68, 356.66, 910.60, 377.06, 920.72, 395.42, 937.28, 407.66, 965.80, 421.94, 1005.36, 433.16, 1022.84, 441.32, 1040.32, 453.56, 1051.36, 468.86, 1049.52, 489.26, 1054.12, 511.70, 1066.08, 521.90, 1086.32, 533.12, 1107.48, 546.38, 1125.88, 565.76, 1122.20, 584.12, 1112.08, 610.64, 1097.36, 626.96, 1084.48, 630.02, 1062.40, 629.00, 1043.08, 620.84, 1023.76, 606.56, 1003.52, 582.08, 985.12, 554.54, 966.72, 530.06, 946.48, 505.58, 930.84, 494.36, 910.60, 481.10, 881.16, 466.82, 856.32, 458.66, 831.48, 459.68, 812.16, 464.78, 790.08, 479.06, 761.56, 496.40, 737.64, 510.68, 712.80, 517.82, 691.64, 523.94, 675.08, 524.96, 668.64, 513.74, 670.48, 501.50, 666.80, 495.38, 657.60, 506.60, 633.68, 524.96, 609.76, 545.36, 584.92, 566.78, 557.32, 590.24, 538.92, 608.60, 521.44, 627.98, 515.92, 629.00)
+width = 20
+default_color = Color(0.14510, 0.23137, 0.29412, 1.0000)
+antialiased = true
+
+[node name="Sector1" type="Line2D" parent="EditorPreview"]
+points = PackedVector2Array(515.92, 629.00, 515.00, 619.82, 527.88, 572.90, 543.52, 537.20, 560.08, 502.52, 580.32, 464.78, 601.48, 430.10, 623.56, 398.48, 649.32, 386.24, 675.08, 378.08, 695.32, 361.76, 718.32, 351.56, 745.00, 324.02, 775.36, 302.60, 809.40, 284.24, 849.88, 265.88, 890.36, 246.50, 929.92, 227.12, 966.72, 206.72, 984.20, 201.62, 995.24, 205.70, 1001.68, 215.90, 1009.96, 219.98, 1026.52, 214.88, 1040.32, 208.76, 1051.36, 208.76, 1064.24, 214.88, 1083.56, 237.32, 1103.80, 261.80, 1122.20, 286.28, 1129.56, 302.60, 1124.96, 313.82, 1117.60, 316.88)
+width = 4
+default_color = Color(0.91373, 0.31373, 0.39216, 1.0000)
+antialiased = true
+
+[node name="Sector2" type="Line2D" parent="EditorPreview"]
+points = PackedVector2Array(1117.60, 316.88, 1108.40, 309.74, 1086.32, 286.28, 1070.68, 269.96, 1061.48, 265.88, 1049.52, 266.90, 1030.20, 278.12, 1003.52, 291.38, 978.68, 302.60, 952.00, 313.82, 925.32, 328.10, 914.28, 341.36, 909.68, 356.66, 910.60, 377.06, 920.72, 395.42, 937.28, 407.66, 965.80, 421.94, 1005.36, 433.16, 1022.84, 441.32, 1040.32, 453.56, 1051.36, 468.86, 1049.52, 489.26, 1054.12, 511.70, 1066.08, 521.90, 1086.32, 533.12, 1107.48, 546.38, 1125.88, 565.76, 1122.20, 584.12, 1112.08, 610.64, 1097.36, 626.96, 1084.48, 630.02, 1062.40, 629.00)
+width = 4
+default_color = Color(0.19216, 0.74118, 0.92941, 1.0000)
+antialiased = true
+
+[node name="Sector3" type="Line2D" parent="EditorPreview"]
+points = PackedVector2Array(1062.40, 629.00, 1043.08, 620.84, 1023.76, 606.56, 1003.52, 582.08, 985.12, 554.54, 966.72, 530.06, 946.48, 505.58, 930.84, 494.36, 910.60, 481.10, 881.16, 466.82, 856.32, 458.66, 831.48, 459.68, 812.16, 464.78, 790.08, 479.06, 761.56, 496.40, 737.64, 510.68, 712.80, 517.82, 691.64, 523.94, 675.08, 524.96, 668.64, 513.74, 670.48, 501.50, 666.80, 495.38, 657.60, 506.60, 633.68, 524.96, 609.76, 545.36, 584.92, 566.78, 557.32, 590.24, 538.92, 608.60, 521.44, 627.98, 515.92, 629.00)
+width = 4
+default_color = Color(0.93333, 0.79608, 0.29020, 1.0000)
+antialiased = true
+
+[node name="MapCaption" type="Label" parent="EditorPreview"]
+offset_left = 394
+offset_top = 104
+offset_right = 1034
+offset_bottom = 133
+theme_override_colors/font_color = Color(0.87059, 0.92549, 0.96863, 1.0000)
+theme_override_font_sizes/font_size = 18
+text = "SPA-FRANCORCHAMPS  /  TRAÇADO VETORIAL"
+mouse_filter = 2
+
+[node name="MapCaption2" type="Label" parent="EditorPreview"]
+offset_left = 395
+offset_top = 135
+offset_right = 1115
+offset_bottom = 157
+theme_override_colors/font_color = Color(0.54902, 0.67451, 0.76078, 1.0000)
+theme_override_font_sizes/font_size = 13
+text = "7,004 km • 44 voltas • mapa ao vivo"
+mouse_filter = 2
+
+[node name="Car1" type="Label" parent="EditorPreview"]
+offset_left = 505
+offset_top = 617
+offset_right = 529
+offset_bottom = 641
+theme_override_colors/font_color = Color(0.31765, 0.86667, 0.74510, 1.0000)
+theme_override_font_sizes/font_size = 20
+text = "●"
+mouse_filter = 2
+
+[node name="Car2" type="Label" parent="EditorPreview"]
+offset_left = 570
+offset_top = 452
+offset_right = 594
+offset_bottom = 476
+theme_override_colors/font_color = Color(0.85882, 0.32549, 0.42353, 1.0000)
+theme_override_font_sizes/font_size = 20
+text = "●"
+mouse_filter = 2
+
+[node name="Car3" type="Label" parent="EditorPreview"]
+offset_left = 708
+offset_top = 339
+offset_right = 732
+offset_bottom = 363
+theme_override_colors/font_color = Color(0.35294, 0.66275, 0.95686, 1.0000)
+theme_override_font_sizes/font_size = 20
+text = "●"
+mouse_filter = 2
+
+[node name="Car4" type="Label" parent="EditorPreview"]
+offset_left = 974
+offset_top = 189
+offset_right = 998
+offset_bottom = 213
+theme_override_colors/font_color = Color(0.93725, 0.72549, 0.32941, 1.0000)
+theme_override_font_sizes/font_size = 20
+text = "●"
+mouse_filter = 2
+
+[node name="Car5" type="Label" parent="EditorPreview"]
+offset_left = 1054
+offset_top = 202
+offset_right = 1078
+offset_bottom = 226
+theme_override_colors/font_color = Color(0.70196, 0.54510, 0.92157, 1.0000)
+theme_override_font_sizes/font_size = 20
+text = "●"
+mouse_filter = 2
+
+[node name="Car6" type="Label" parent="EditorPreview"]
+offset_left = 1107
+offset_top = 304
+offset_right = 1131
+offset_bottom = 328
+theme_override_colors/font_color = Color(0.55686, 0.79608, 0.33725, 1.0000)
+theme_override_font_sizes/font_size = 20
+text = "●"
+mouse_filter = 2
+
+[node name="Car7" type="Label" parent="EditorPreview"]
+offset_left = 1039
+offset_top = 254
+offset_right = 1063
+offset_bottom = 278
+theme_override_colors/font_color = Color(0.32157, 0.86667, 0.74510, 1.0000)
+theme_override_font_sizes/font_size = 20
+text = "●"
+mouse_filter = 2
+
+[node name="Car8" type="Label" parent="EditorPreview"]
+offset_left = 968
+offset_top = 290
+offset_right = 992
+offset_bottom = 314
+theme_override_colors/font_color = Color(0.88235, 0.35686, 0.44314, 1.0000)
+theme_override_font_sizes/font_size = 20
+text = "●"
+mouse_filter = 2
+
+[node name="StandingsTitle" type="Label" parent="EditorPreview"]
+offset_left = 29
+offset_top = 114
+offset_right = 314
+offset_bottom = 140
+theme_override_colors/font_color = Color(0.32941, 0.87451, 0.74118, 1.0000)
+theme_override_font_sizes/font_size = 17
+text = "POSIÇÕES / LIVE TIMING"
+mouse_filter = 2
+
+[node name="StandingsHead" type="ColorRect" parent="EditorPreview"]
+offset_left = 29
+offset_top = 147
+offset_right = 317
+offset_bottom = 175
+color = Color(0.12549, 0.22353, 0.30588, 1.0000)
+mouse_filter = 2
+
+[node name="StandingsHeadText" type="Label" parent="EditorPreview"]
+offset_left = 33
+offset_top = 150
+offset_right = 317
+offset_bottom = 175
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 13
+text = "P  PILOTO                    INT"
+mouse_filter = 2
+
+[node name="RowPos0" type="Label" parent="EditorPreview"]
+offset_left = 32
+offset_top = 182
+offset_right = 62
+offset_bottom = 206
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 13
+text = "01"
+mouse_filter = 2
+
+[node name="RowName0" type="Label" parent="EditorPreview"]
+offset_left = 70
+offset_top = 182
+offset_right = 245
+offset_bottom = 206
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "Caio Nunes"
+mouse_filter = 2
+
+[node name="RowGap0" type="Label" parent="EditorPreview"]
+offset_left = 249
+offset_top = 182
+offset_right = 317
+offset_bottom = 206
+theme_override_colors/font_color = Color(0.64314, 0.76078, 0.81961, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "LÍDER"
+mouse_filter = 2
+
+[node name="RowPos1" type="Label" parent="EditorPreview"]
+offset_left = 32
+offset_top = 209
+offset_right = 62
+offset_bottom = 233
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 13
+text = "02"
+mouse_filter = 2
+
+[node name="RowName1" type="Label" parent="EditorPreview"]
+offset_left = 70
+offset_top = 209
+offset_right = 245
+offset_bottom = 233
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "Rafael Silva"
+mouse_filter = 2
+
+[node name="RowGap1" type="Label" parent="EditorPreview"]
+offset_left = 249
+offset_top = 209
+offset_right = 317
+offset_bottom = 233
+theme_override_colors/font_color = Color(0.64314, 0.76078, 0.81961, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "+0.6s"
+mouse_filter = 2
+
+[node name="PlayerRow2" type="ColorRect" parent="EditorPreview"]
+offset_left = 28
+offset_top = 234
+offset_right = 317
+offset_bottom = 259
+color = Color(0.10588, 0.34510, 0.28235, 1.0000)
+mouse_filter = 2
+
+[node name="RowPos2" type="Label" parent="EditorPreview"]
+offset_left = 32
+offset_top = 236
+offset_right = 62
+offset_bottom = 260
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 13
+text = "03"
+mouse_filter = 2
+
+[node name="RowName2" type="Label" parent="EditorPreview"]
+offset_left = 70
+offset_top = 236
+offset_right = 245
+offset_bottom = 260
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "Alex Costa"
+mouse_filter = 2
+
+[node name="RowGap2" type="Label" parent="EditorPreview"]
+offset_left = 249
+offset_top = 236
+offset_right = 317
+offset_bottom = 260
+theme_override_colors/font_color = Color(0.64314, 0.76078, 0.81961, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "+1.1s"
+mouse_filter = 2
+
+[node name="PlayerRow3" type="ColorRect" parent="EditorPreview"]
+offset_left = 28
+offset_top = 261
+offset_right = 317
+offset_bottom = 286
+color = Color(0.10588, 0.34510, 0.28235, 1.0000)
+mouse_filter = 2
+
+[node name="RowPos3" type="Label" parent="EditorPreview"]
+offset_left = 32
+offset_top = 263
+offset_right = 62
+offset_bottom = 287
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 13
+text = "04"
+mouse_filter = 2
+
+[node name="RowName3" type="Label" parent="EditorPreview"]
+offset_left = 70
+offset_top = 263
+offset_right = 245
+offset_bottom = 287
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "Lucas Martins"
+mouse_filter = 2
+
+[node name="RowGap3" type="Label" parent="EditorPreview"]
+offset_left = 249
+offset_top = 263
+offset_right = 317
+offset_bottom = 287
+theme_override_colors/font_color = Color(0.64314, 0.76078, 0.81961, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "+1.7s"
+mouse_filter = 2
+
+[node name="RowPos4" type="Label" parent="EditorPreview"]
+offset_left = 32
+offset_top = 290
+offset_right = 62
+offset_bottom = 314
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 13
+text = "05"
+mouse_filter = 2
+
+[node name="RowName4" type="Label" parent="EditorPreview"]
+offset_left = 70
+offset_top = 290
+offset_right = 245
+offset_bottom = 314
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "Diego Rocha"
+mouse_filter = 2
+
+[node name="RowGap4" type="Label" parent="EditorPreview"]
+offset_left = 249
+offset_top = 290
+offset_right = 317
+offset_bottom = 314
+theme_override_colors/font_color = Color(0.64314, 0.76078, 0.81961, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "+2.2s"
+mouse_filter = 2
+
+[node name="RowPos5" type="Label" parent="EditorPreview"]
+offset_left = 32
+offset_top = 317
+offset_right = 62
+offset_bottom = 341
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 13
+text = "06"
+mouse_filter = 2
+
+[node name="RowName5" type="Label" parent="EditorPreview"]
+offset_left = 70
+offset_top = 317
+offset_right = 245
+offset_bottom = 341
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "Bruno Santos"
+mouse_filter = 2
+
+[node name="RowGap5" type="Label" parent="EditorPreview"]
+offset_left = 249
+offset_top = 317
+offset_right = 317
+offset_bottom = 341
+theme_override_colors/font_color = Color(0.64314, 0.76078, 0.81961, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "+2.8s"
+mouse_filter = 2
+
+[node name="RowPos6" type="Label" parent="EditorPreview"]
+offset_left = 32
+offset_top = 344
+offset_right = 62
+offset_bottom = 368
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 13
+text = "07"
+mouse_filter = 2
+
+[node name="RowName6" type="Label" parent="EditorPreview"]
+offset_left = 70
+offset_top = 344
+offset_right = 245
+offset_bottom = 368
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "Mateus Ferreira"
+mouse_filter = 2
+
+[node name="RowGap6" type="Label" parent="EditorPreview"]
+offset_left = 249
+offset_top = 344
+offset_right = 317
+offset_bottom = 368
+theme_override_colors/font_color = Color(0.64314, 0.76078, 0.81961, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "+3.3s"
+mouse_filter = 2
+
+[node name="RowPos7" type="Label" parent="EditorPreview"]
+offset_left = 32
+offset_top = 371
+offset_right = 62
+offset_bottom = 395
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 13
+text = "08"
+mouse_filter = 2
+
+[node name="RowName7" type="Label" parent="EditorPreview"]
+offset_left = 70
+offset_top = 371
+offset_right = 245
+offset_bottom = 395
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "Pedro Lima"
+mouse_filter = 2
+
+[node name="RowGap7" type="Label" parent="EditorPreview"]
+offset_left = 249
+offset_top = 371
+offset_right = 317
+offset_bottom = 395
+theme_override_colors/font_color = Color(0.64314, 0.76078, 0.81961, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "+3.9s"
+mouse_filter = 2
+
+[node name="RowPos8" type="Label" parent="EditorPreview"]
+offset_left = 32
+offset_top = 398
+offset_right = 62
+offset_bottom = 422
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 13
+text = "09"
+mouse_filter = 2
+
+[node name="RowName8" type="Label" parent="EditorPreview"]
+offset_left = 70
+offset_top = 398
+offset_right = 245
+offset_bottom = 422
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "Gabriel Almeida"
+mouse_filter = 2
+
+[node name="RowGap8" type="Label" parent="EditorPreview"]
+offset_left = 249
+offset_top = 398
+offset_right = 317
+offset_bottom = 422
+theme_override_colors/font_color = Color(0.64314, 0.76078, 0.81961, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "+4.4s"
+mouse_filter = 2
+
+[node name="RowPos9" type="Label" parent="EditorPreview"]
+offset_left = 32
+offset_top = 425
+offset_right = 62
+offset_bottom = 449
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 13
+text = "10"
+mouse_filter = 2
+
+[node name="RowName9" type="Label" parent="EditorPreview"]
+offset_left = 70
+offset_top = 425
+offset_right = 245
+offset_bottom = 449
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "Vitor Cardoso"
+mouse_filter = 2
+
+[node name="RowGap9" type="Label" parent="EditorPreview"]
+offset_left = 249
+offset_top = 425
+offset_right = 317
+offset_bottom = 449
+theme_override_colors/font_color = Color(0.64314, 0.76078, 0.81961, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "+5.0s"
+mouse_filter = 2
+
+[node name="RowPos10" type="Label" parent="EditorPreview"]
+offset_left = 32
+offset_top = 452
+offset_right = 62
+offset_bottom = 476
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 13
+text = "11"
+mouse_filter = 2
+
+[node name="RowName10" type="Label" parent="EditorPreview"]
+offset_left = 70
+offset_top = 452
+offset_right = 245
+offset_bottom = 476
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "Daniel Melo"
+mouse_filter = 2
+
+[node name="RowGap10" type="Label" parent="EditorPreview"]
+offset_left = 249
+offset_top = 452
+offset_right = 317
+offset_bottom = 476
+theme_override_colors/font_color = Color(0.64314, 0.76078, 0.81961, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "+5.5s"
+mouse_filter = 2
+
+[node name="RowPos11" type="Label" parent="EditorPreview"]
+offset_left = 32
+offset_top = 479
+offset_right = 62
+offset_bottom = 503
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 13
+text = "12"
+mouse_filter = 2
+
+[node name="RowName11" type="Label" parent="EditorPreview"]
+offset_left = 70
+offset_top = 479
+offset_right = 245
+offset_bottom = 503
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "André Reis"
+mouse_filter = 2
+
+[node name="RowGap11" type="Label" parent="EditorPreview"]
+offset_left = 249
+offset_top = 479
+offset_right = 317
+offset_bottom = 503
+theme_override_colors/font_color = Color(0.64314, 0.76078, 0.81961, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "+6.1s"
+mouse_filter = 2
+
+[node name="RowPos12" type="Label" parent="EditorPreview"]
+offset_left = 32
+offset_top = 506
+offset_right = 62
+offset_bottom = 530
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 13
+text = "13"
+mouse_filter = 2
+
+[node name="RowName12" type="Label" parent="EditorPreview"]
+offset_left = 70
+offset_top = 506
+offset_right = 245
+offset_bottom = 530
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "Felipe Moura"
+mouse_filter = 2
+
+[node name="RowGap12" type="Label" parent="EditorPreview"]
+offset_left = 249
+offset_top = 506
+offset_right = 317
+offset_bottom = 530
+theme_override_colors/font_color = Color(0.64314, 0.76078, 0.81961, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "+6.6s"
+mouse_filter = 2
+
+[node name="RowPos13" type="Label" parent="EditorPreview"]
+offset_left = 32
+offset_top = 533
+offset_right = 62
+offset_bottom = 557
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 13
+text = "14"
+mouse_filter = 2
+
+[node name="RowName13" type="Label" parent="EditorPreview"]
+offset_left = 70
+offset_top = 533
+offset_right = 245
+offset_bottom = 557
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "Henrique Prado"
+mouse_filter = 2
+
+[node name="RowGap13" type="Label" parent="EditorPreview"]
+offset_left = 249
+offset_top = 533
+offset_right = 317
+offset_bottom = 557
+theme_override_colors/font_color = Color(0.64314, 0.76078, 0.81961, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "+7.2s"
+mouse_filter = 2
+
+[node name="RowPos14" type="Label" parent="EditorPreview"]
+offset_left = 32
+offset_top = 560
+offset_right = 62
+offset_bottom = 584
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 13
+text = "15"
+mouse_filter = 2
+
+[node name="RowName14" type="Label" parent="EditorPreview"]
+offset_left = 70
+offset_top = 560
+offset_right = 245
+offset_bottom = 584
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "João Tavares"
+mouse_filter = 2
+
+[node name="RowGap14" type="Label" parent="EditorPreview"]
+offset_left = 249
+offset_top = 560
+offset_right = 317
+offset_bottom = 584
+theme_override_colors/font_color = Color(0.64314, 0.76078, 0.81961, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "+7.7s"
+mouse_filter = 2
+
+[node name="RowPos15" type="Label" parent="EditorPreview"]
+offset_left = 32
+offset_top = 587
+offset_right = 62
+offset_bottom = 611
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 13
+text = "16"
+mouse_filter = 2
+
+[node name="RowName15" type="Label" parent="EditorPreview"]
+offset_left = 70
+offset_top = 587
+offset_right = 245
+offset_bottom = 611
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "Gustavo Vieira"
+mouse_filter = 2
+
+[node name="RowGap15" type="Label" parent="EditorPreview"]
+offset_left = 249
+offset_top = 587
+offset_right = 317
+offset_bottom = 611
+theme_override_colors/font_color = Color(0.64314, 0.76078, 0.81961, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "+8.2s"
+mouse_filter = 2
+
+[node name="RowPos16" type="Label" parent="EditorPreview"]
+offset_left = 32
+offset_top = 614
+offset_right = 62
+offset_bottom = 638
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 13
+text = "17"
+mouse_filter = 2
+
+[node name="RowName16" type="Label" parent="EditorPreview"]
+offset_left = 70
+offset_top = 614
+offset_right = 245
+offset_bottom = 638
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "Eduardo Farias"
+mouse_filter = 2
+
+[node name="RowGap16" type="Label" parent="EditorPreview"]
+offset_left = 249
+offset_top = 614
+offset_right = 317
+offset_bottom = 638
+theme_override_colors/font_color = Color(0.64314, 0.76078, 0.81961, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "+8.8s"
+mouse_filter = 2
+
+[node name="RowPos17" type="Label" parent="EditorPreview"]
+offset_left = 32
+offset_top = 641
+offset_right = 62
+offset_bottom = 665
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 13
+text = "18"
+mouse_filter = 2
+
+[node name="RowName17" type="Label" parent="EditorPreview"]
+offset_left = 70
+offset_top = 641
+offset_right = 245
+offset_bottom = 665
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "Renan Dias"
+mouse_filter = 2
+
+[node name="RowGap17" type="Label" parent="EditorPreview"]
+offset_left = 249
+offset_top = 641
+offset_right = 317
+offset_bottom = 665
+theme_override_colors/font_color = Color(0.64314, 0.76078, 0.81961, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "+9.4s"
+mouse_filter = 2
+
+[node name="RowPos18" type="Label" parent="EditorPreview"]
+offset_left = 32
+offset_top = 668
+offset_right = 62
+offset_bottom = 692
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 13
+text = "19"
+mouse_filter = 2
+
+[node name="RowName18" type="Label" parent="EditorPreview"]
+offset_left = 70
+offset_top = 668
+offset_right = 245
+offset_bottom = 692
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "Thiago Barros"
+mouse_filter = 2
+
+[node name="RowGap18" type="Label" parent="EditorPreview"]
+offset_left = 249
+offset_top = 668
+offset_right = 317
+offset_bottom = 692
+theme_override_colors/font_color = Color(0.64314, 0.76078, 0.81961, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "+9.9s"
+mouse_filter = 2
+
+[node name="RowPos19" type="Label" parent="EditorPreview"]
+offset_left = 32
+offset_top = 695
+offset_right = 62
+offset_bottom = 719
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 13
+text = "20"
+mouse_filter = 2
+
+[node name="RowName19" type="Label" parent="EditorPreview"]
+offset_left = 70
+offset_top = 695
+offset_right = 245
+offset_bottom = 719
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "Igor Ramos"
+mouse_filter = 2
+
+[node name="RowGap19" type="Label" parent="EditorPreview"]
+offset_left = 249
+offset_top = 695
+offset_right = 317
+offset_bottom = 719
+theme_override_colors/font_color = Color(0.64314, 0.76078, 0.81961, 1.0000)
+theme_override_font_sizes/font_size = 12
+text = "+10.5s"
+mouse_filter = 2
+
+[node name="PitTitle" type="Label" parent="EditorPreview"]
+offset_left = 1280
+offset_top = 112
+offset_right = 1560
+offset_bottom = 142
+theme_override_colors/font_color = Color(0.32941, 0.87451, 0.74118, 1.0000)
+theme_override_font_sizes/font_size = 17
+text = "PIT WALL  /  ESTRATÉGIA"
+mouse_filter = 2
+
+[node name="DriverOne" type="ColorRect" parent="EditorPreview"]
+offset_left = 1280
+offset_top = 165
+offset_right = 1569
+offset_bottom = 323
+color = Color(0.10196, 0.19608, 0.27059, 1.0000)
+mouse_filter = 2
+
+[node name="DriverOneName" type="Label" parent="EditorPreview"]
+offset_left = 1293
+offset_top = 176
+offset_right = 1553
+offset_bottom = 200
+theme_override_colors/font_color = Color(0.94118, 0.96078, 0.98039, 1.0000)
+theme_override_font_sizes/font_size = 16
+text = "ALEX COSTA   |   P03"
+mouse_filter = 2
+
+[node name="DriverOneInfo" type="Label" parent="EditorPreview"]
+offset_left = 1294
+offset_top = 210
+offset_right = 1554
+offset_bottom = 300
+theme_override_colors/font_color = Color(0.69804, 0.79216, 0.85882, 1.0000)
+theme_override_font_sizes/font_size = 14
+text = "PNEU: C3 MÉDIO\nDESGASTE: 0%\nRITMO: NORMAL\nBOX: AGUARDANDO"
+mouse_filter = 2
+
+[node name="DriverTwo" type="ColorRect" parent="EditorPreview"]
+offset_left = 1280
+offset_top = 337
+offset_right = 1569
+offset_bottom = 495
+color = Color(0.10196, 0.19608, 0.27059, 1.0000)
+mouse_filter = 2
+
+[node name="DriverTwoName" type="Label" parent="EditorPreview"]
+offset_left = 1293
+offset_top = 348
+offset_right = 1553
+offset_bottom = 372
+theme_override_colors/font_color = Color(0.93725, 0.96471, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 16
+text = "LUCAS MARTINS   |   P04"
+mouse_filter = 2
+
+[node name="DriverTwoInfo" type="Label" parent="EditorPreview"]
+offset_left = 1294
+offset_top = 380
+offset_right = 1554
+offset_bottom = 480
+theme_override_colors/font_color = Color(0.69804, 0.79216, 0.85882, 1.0000)
+theme_override_font_sizes/font_size = 14
+text = "PNEU: C3 MÉDIO\nDESGASTE: 0%\nRITMO: NORMAL\nBOX: AGUARDANDO"
+mouse_filter = 2
+
+[node name="RadioTitle" type="Label" parent="EditorPreview"]
+offset_left = 1280
+offset_top = 512
+offset_right = 1550
+offset_bottom = 536
+theme_override_colors/font_color = Color(0.32941, 0.87451, 0.74118, 1.0000)
+theme_override_font_sizes/font_size = 16
+text = "RÁDIO / DIRETOR TV"
+mouse_filter = 2
+
+[node name="RadioBg" type="ColorRect" parent="EditorPreview"]
+offset_left = 1280
+offset_top = 545
+offset_right = 1569
+offset_bottom = 765
+color = Color(0.08627, 0.16863, 0.23922, 1.0000)
+mouse_filter = 2
+
+[node name="RadioText" type="Label" parent="EditorPreview"]
+offset_left = 1292
+offset_top = 556
+offset_right = 1557
+offset_bottom = 751
+theme_override_colors/font_color = Color(0.69804, 0.80000, 0.85490, 1.0000)
+theme_override_font_sizes/font_size = 13
+text = "[00:00] GRID FORMADO\n[00:01] 20 PILOTOS EM SPA\n[00:05] DRS ATIVO NA V3\n[00:12] FOCO EM BATALHAS"
+mouse_filter = 2
+
+[node name="PlayButtonBg" type="ColorRect" parent="EditorPreview"]
+offset_left = 22
+offset_top = 836
+offset_right = 175
+offset_bottom = 878
+color = Color(0.14118, 0.24314, 0.32157, 1.0000)
+mouse_filter = 2
+
+[node name="PlayButtonText" type="Label" parent="EditorPreview"]
+offset_left = 36
+offset_top = 845
+offset_right = 169
+offset_bottom = 869
+theme_override_colors/font_color = Color(0.32941, 0.87451, 0.74118, 1.0000)
+theme_override_font_sizes/font_size = 14
+text = "▶ INICIAR"
+mouse_filter = 2
+
+[node name="SpeedButtonBg" type="ColorRect" parent="EditorPreview"]
+offset_left = 192
+offset_top = 836
+offset_right = 326
+offset_bottom = 878
+color = Color(0.14118, 0.24314, 0.32157, 1.0000)
+mouse_filter = 2
+
+[node name="SpeedButtonText" type="Label" parent="EditorPreview"]
+offset_left = 206
+offset_top = 845
+offset_right = 320
+offset_bottom = 869
+theme_override_colors/font_color = Color(1.00000, 1.00000, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 14
+text = "5×  VELOCIDADE"
+mouse_filter = 2
+
+[node name="CameraButtonBg" type="ColorRect" parent="EditorPreview"]
+offset_left = 344
+offset_top = 836
+offset_right = 520
+offset_bottom = 878
+color = Color(0.14118, 0.24314, 0.32157, 1.0000)
+mouse_filter = 2
+
+[node name="CameraButtonText" type="Label" parent="EditorPreview"]
+offset_left = 358
+offset_top = 845
+offset_right = 514
+offset_bottom = 869
+theme_override_colors/font_color = Color(1.00000, 1.00000, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 14
+text = "DIRETOR TV"
+mouse_filter = 2
+
+[node name="HudButtonBg" type="ColorRect" parent="EditorPreview"]
+offset_left = 537
+offset_top = 836
+offset_right = 682
+offset_bottom = 878
+color = Color(0.14118, 0.24314, 0.32157, 1.0000)
+mouse_filter = 2
+
+[node name="HudButtonText" type="Label" parent="EditorPreview"]
+offset_left = 551
+offset_top = 845
+offset_right = 676
+offset_bottom = 869
+theme_override_colors/font_color = Color(1.00000, 1.00000, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 14
+text = "HUD: ON"
+mouse_filter = 2
+
+[node name="GarageButtonBg" type="ColorRect" parent="EditorPreview"]
+offset_left = 699
+offset_top = 836
+offset_right = 863
+offset_bottom = 878
+color = Color(0.14118, 0.24314, 0.32157, 1.0000)
+mouse_filter = 2
+
+[node name="GarageButtonText" type="Label" parent="EditorPreview"]
+offset_left = 713
+offset_top = 845
+offset_right = 857
+offset_bottom = 869
+theme_override_colors/font_color = Color(1.00000, 1.00000, 1.00000, 1.0000)
+theme_override_font_sizes/font_size = 14
+text = "OFICINA"
+mouse_filter = 2
+
+[node name="EditorNote" type="Label" parent="EditorPreview"]
+offset_left = 902
+offset_top = 841
+offset_right = 1562
+offset_bottom = 873
+theme_override_colors/font_color = Color(0.60392, 0.69804, 0.77647, 1.0000)
+theme_override_font_sizes/font_size = 14
+text = "PRÉVIA DO EDITOR  •  PRESSIONE F5 PARA JOGAR"
+mouse_filter = 2
+
