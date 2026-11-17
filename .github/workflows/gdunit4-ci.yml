@@ -34,4 +34,5 @@ jobs:
           arguments: '--ignoreHeadlessMode'
           timeout: 10
           upload-report: true
-          publish-report: true
+          publish-report: false
+          # Testes e artefatos continuam disponiveis sem permissao de escrita em checks.
