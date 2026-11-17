@@ -1,0 +1,37 @@
+name: APEX - GdUnit4 CI
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/**'
+      - 'data/**'
+      - 'tests/gdunit/**'
+      - 'addons/gdUnit4/**'
+      - '.github/workflows/gdunit4-ci.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  gdunit4:
+    name: Testes de logica 2012
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Baixar o projeto
+        uses: actions/checkout@v4
+
+      # A acao oficial gerencia o Godot e publica resultados da suite.
+      # GdUnit4 6.x requer --ignoreHeadlessMode para execucao headless.
+      - name: Executar GdUnit4
+        uses: godot-gdunit-labs/gdUnit4-action@v1
+        with:
+          godot-version: '4.7.2'
+          version: '6.2.0'
+          paths: 'res://tests/gdunit'
+          headless: true
+          arguments: '--ignoreHeadlessMode'
+          timeout: 10
+          upload-report: true
+          publish-report: true
