@@ -1,0 +1,65 @@
+name: APEX - Auditoria GDScript Toolkit
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/**'
+      - 'tools/gdscript_style_audit.py'
+      - 'tools/tests/test_gdscript_style_audit.py'
+      - '.github/workflows/apex-gdscript-toolkit.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  gdscript-toolkit:
+    name: gdlint + gdformat (informativo)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Baixar codigo do APEX
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Instalar GDScript Toolkit para Godot 4
+        run: |
+          python -m pip install --disable-pip-version-check 'gdtoolkit==4.5.0'
+          gdlint --version
+          gdformat --version
+
+      - name: Validar o gerador do relatorio
+        run: |
+          python -m unittest discover -s tools/tests \
+            -p 'test_gdscript_style_audit.py' -v
+
+      - name: Auditar scripts proprios sem alterar arquivos
+        run: |
+          python tools/gdscript_style_audit.py \
+            --output-dir ci_artifacts/gdscript-toolkit
+          git diff --exit-code -- scripts
+
+      - name: Exibir resumo da auditoria
+        if: always()
+        shell: bash
+        run: |
+          if [ -f ci_artifacts/gdscript-toolkit/report.md ]; then
+            cat ci_artifacts/gdscript-toolkit/report.md >> "$GITHUB_STEP_SUMMARY"
+          elif [ -f ci_artifacts/gdscript-toolkit/error.txt ]; then
+            echo '### GDScript Toolkit: ferramenta nao concluiu a auditoria' >> "$GITHUB_STEP_SUMMARY"
+            cat ci_artifacts/gdscript-toolkit/error.txt >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Guardar logs e JSON da auditoria
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apex-gdscript-toolkit-auditoria
+          path: ci_artifacts/gdscript-toolkit/
+          retention-days: 14
+          if-no-files-found: warn
