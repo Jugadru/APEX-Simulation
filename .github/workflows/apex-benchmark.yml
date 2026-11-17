@@ -1,0 +1,40 @@
+
+name: APEX - Benchmark Automatico
+
+on:
+  workflow_dispatch:
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Baixar codigo APEX
+        uses: actions/checkout@v4
+
+      - name: Preparar Godot
+        uses: lihop/godot-setup@v3.0.1
+        with:
+          version: 4.7.2-stable
+
+      - name: Importar projeto
+        run: godot --headless --path . --import
+
+      - name: Medir desempenho do motor
+        env:
+          APEX_TICKS: "500"
+        run: |
+          set -o pipefail
+          godot --headless --path . \
+            --script res://tests/high_speed_growth_066723_benchmark.gd \
+            2>&1 | tee benchmark.log
+          grep -q 'GROWTH_DONE' benchmark.log
+
+      - name: Salvar relatorio
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apex-benchmark-relatorio
+          path: benchmark.log
+          if-no-files-found: warn
