@@ -4,7 +4,7 @@ const RacecraftAudit = preload("res://scripts/core/racecraft_audit_0662.gd")
 const Engineer = preload("res://scripts/core/race_engineer_0639.gd")
 const STEP := 0.20
 # A replay is tied to the exact sporting rules, not only its Godot runtime.
-const SIMULATION_REVISION := "0661_driver_dynamics"
+const SIMULATION_REVISION := "06688_grip_aware_defense"
 const CHECKPOINT_TICKS := 300
 const MAX_CHECKPOINTS := 9
 # 0666: at most four compressed, RAM-only seek anchors. Never serialized.
