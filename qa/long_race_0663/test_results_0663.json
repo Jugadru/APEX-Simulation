@@ -1,0 +1,191 @@
+[
+  {
+    "test": "import_original_godot472",
+    "category": "import",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/import_original.log"
+  },
+  {
+    "test": "import_0663_godot472",
+    "category": "import",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/import_candidate.log"
+  },
+  {
+    "test": "racecraft_1027_checks",
+    "category": "regression",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/racecraft_1027_checks.log"
+  },
+  {
+    "test": "gp_GBR_dry_3_laps",
+    "category": "race_regression",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/gp_GBR_dry_3_laps.log"
+  },
+  {
+    "test": "gp_BEL_rain_3_laps",
+    "category": "race_regression",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/gp_BEL_rain_3_laps.log"
+  },
+  {
+    "test": "gp_ITA_dry_3_laps",
+    "category": "race_regression",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/gp_ITA_dry_3_laps.log"
+  },
+  {
+    "test": "gp_SIN_rain_3_laps",
+    "category": "race_regression",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/gp_SIN_rain_3_laps.log"
+  },
+  {
+    "test": "legacy_650_record_original",
+    "category": "regression",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/legacy_650_record_original.log"
+  },
+  {
+    "test": "legacy_650_open_in_0663",
+    "category": "regression",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/legacy_650_open_in_0663.log"
+  },
+  {
+    "test": "legacy_650_record_0663",
+    "category": "regression",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/legacy_650_record_0663.log"
+  },
+  {
+    "test": "replay_speeds",
+    "category": "regression",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/replay_speeds.log"
+  },
+  {
+    "test": "pit_v21_rain",
+    "category": "regression",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/pit_v21_rain.log"
+  },
+  {
+    "test": "replay_weather",
+    "category": "regression",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/replay_weather.log"
+  },
+  {
+    "test": "driver_dynamics",
+    "category": "regression",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/driver_dynamics.log"
+  },
+  {
+    "test": "inventory",
+    "category": "regression",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/inventory.log"
+  },
+  {
+    "test": "workshop",
+    "category": "regression",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/workshop.log"
+  },
+  {
+    "test": "save_migration",
+    "category": "regression",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/save_migration.log"
+  },
+  {
+    "test": "soul_staff_migration",
+    "category": "regression",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/soul_staff_migration.log"
+  },
+  {
+    "test": "sim_engine",
+    "category": "regression",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/sim_engine.log"
+  },
+  {
+    "test": "strategy_sim",
+    "category": "regression",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/strategy_sim.log"
+  },
+  {
+    "test": "pit_lane",
+    "category": "regression",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/pit_lane.log"
+  },
+  {
+    "test": "replay_integration",
+    "category": "regression",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/replay_integration.log"
+  },
+  {
+    "test": "godot_visual_1600x900",
+    "category": "visual",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/godot_visual_1600x900.log"
+  },
+  {
+    "test": "godot_visual_1920x1080",
+    "category": "visual",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/godot_visual_1920x1080.log"
+  },
+  {
+    "test": "monza_53_laps_full",
+    "category": "long_race",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "monza_53.json + logs/monza_53_full.log"
+  },
+  {
+    "test": "monza_53_laps_integral_replay",
+    "category": "long_race",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "monza_53.json + logs/monza_53_full.log"
+  },
+  {
+    "test": "long_term_20_seasons",
+    "category": "career_stress",
+    "status": "NÃO EXECUTADO",
+    "exit_code": null,
+    "evidence": "fora do escopo da versão 0663"
+  }
+]

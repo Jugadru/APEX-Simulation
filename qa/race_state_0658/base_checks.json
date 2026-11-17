@@ -1,0 +1,27 @@
+[
+  {
+    "name": "base_import",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "base_perf_0657_unit",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "base_perf_0657_rng",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "base_sim_engine_0655_test",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "base_workshop_0656_legacy",
+    "exit": 0,
+    "pass": true
+  }
+]

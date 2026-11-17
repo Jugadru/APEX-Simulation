@@ -1,0 +1,65 @@
+[
+  {
+    "track": "GBR",
+    "weather": "Seco",
+    "hashes": [
+      "1e3f3df0cef5f314c795977f70ff27840df9912f402df9a90e25439247d8015b",
+      "1e3f3df0cef5f314c795977f70ff27840df9912f402df9a90e25439247d8015b"
+    ],
+    "identical": true
+  },
+  {
+    "track": "GBR",
+    "weather": "Chuva intensa",
+    "hashes": [
+      "fe69acc40c277e05accab0bcc35b73dc14cbd4ed77be94487e634addce58d4a3",
+      "fe69acc40c277e05accab0bcc35b73dc14cbd4ed77be94487e634addce58d4a3"
+    ],
+    "identical": true
+  },
+  {
+    "track": "BEL",
+    "weather": "Seco",
+    "hashes": [
+      "6758ca6f7a21011ef5f16a271abef0dfdf6e717eb5fe485261503a1646c05092",
+      "6758ca6f7a21011ef5f16a271abef0dfdf6e717eb5fe485261503a1646c05092"
+    ],
+    "identical": true
+  },
+  {
+    "track": "ITA",
+    "weather": "Seco",
+    "hashes": [
+      "e4eb5b109eb42336bcb8ecd6b549e4d0bfa0007a4de225d1f40f6da479458433",
+      "e4eb5b109eb42336bcb8ecd6b549e4d0bfa0007a4de225d1f40f6da479458433"
+    ],
+    "identical": true
+  },
+  {
+    "track": "SIN",
+    "weather": "Chuva intensa",
+    "hashes": [
+      "7a37174aefc687c61a8fb2cd076e3606f7fa6c9b9fc0599398fcda97b0d504c4",
+      "7a37174aefc687c61a8fb2cd076e3606f7fa6c9b9fc0599398fcda97b0d504c4"
+    ],
+    "identical": true
+  },
+  {
+    "track": "CHN",
+    "weather": "Seco",
+    "hashes": [
+      "4baa6f95bf7488c03cd1e2c7732376a9a06773524bf5266cc9e249cdc9725ad8",
+      "4baa6f95bf7488c03cd1e2c7732376a9a06773524bf5266cc9e249cdc9725ad8"
+    ],
+    "identical": true
+  },
+  {
+    "track": "GER",
+    "weather": "Chuva intensa",
+    "hashes": [
+      "dcdd626572222622dcc6aecb4ddff00552ce0e1a2416fc2c90a924c709d55655",
+      "dcdd626572222622dcc6aecb4ddff00552ce0e1a2416fc2c90a924c709d55655"
+    ],
+    "identical": true
+  }
+]

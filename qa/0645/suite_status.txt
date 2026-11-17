@@ -1,0 +1,15 @@
+track_0644_unit_test 0
+track_0644_native_tick_smoke_test 0
+track_0644_hud_integration_test 0
+core_0638_1_timing_rootcause_test 0
+core_0643_dynamic_track_weather_test 0
+core_0642_rival_workshop_weather_test 0
+core_0642_save_migration_test 0
+core_0639_race_engineer_test 0
+core_0640_pitwall_intelligence_test 1
+core_0637_reactive_radio_smoke_test 0
+core_0636_soul_personality_smoke_test 0
+core_0634_radio_memory_smoke_test 0
+core_0590_team_control_smoke_test 0
+core_0640_pitwall_intelligence_test isolated 0
+race_0645_intelligence_test 0

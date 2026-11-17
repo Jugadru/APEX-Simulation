@@ -1,0 +1,32 @@
+extends SceneTree
+func _initialize() -> void: call_deferred("run")
+func run() -> void:
+    var game = load("res://scenes/main.tscn").instantiate()
+    root.add_child(game)
+    await process_frame
+    game._start_race()
+    await process_frame
+    var team: Array = game.race.player_cars()
+    var car: Dictionary = team[0]
+    var mate: Dictionary = team[1]
+    var id: int = int(car["id"])
+    var id2: int = int(mate["id"])
+    var hud = game.race_hud_0620
+    hud._open_window("pitwall3")
+    await process_frame
+    var queued_before: int = game.replay_session.commands.size()
+    hud._pitwall3_schedule(id, 0)
+    var queued_one: int = game.replay_session.commands.size()
+    var lap1: int = int(car.get("pit_scheduled_lap",0))
+    hud._pitwall3_schedule(id2, 0)
+    var queued_two: int = game.replay_session.commands.size()
+    var lap2: int = int(mate.get("pit_scheduled_lap",0))
+    var detail: Array = []
+    for command in game.replay_session.commands:
+        detail.append({"actor": command.actor,"type":command.type,"tick":command.tick,"target":command.payload[2] if command.type=="schedule_pit" else 0})
+    var result: Dictionary = {"queued_before":queued_before,"queued_after_first":queued_one,"queued_after_second":queued_two,"lap1_before_tick":lap1,"lap2_before_tick":lap2,"queued_commands":detail}
+    result["step_ok"] = game.replay_session.step_tick()
+    result["lap1_after_tick"] = int(car.get("pit_scheduled_lap",0))
+    result["lap2_after_tick"] = int(mate.get("pit_scheduled_lap",0))
+    print("SAME_TICK_PITWALL_PROBE ",JSON.stringify(result))
+    quit(0)

@@ -1,0 +1,358 @@
+{
+  "status": "PASS",
+  "consecutive_rounds": 8,
+  "native_step_seconds": 0.2,
+  "native_ticks": 231017,
+  "sim_seconds": 46203.4,
+  "explicit_worker_checks": 1458,
+  "classified_cars": 192,
+  "invalid_laps": 0,
+  "points_drivers": 808,
+  "points_constructors": 808,
+  "final_budget": 8910000,
+  "final_levels": {
+    "Asa": 2,
+    "Chassi": 1,
+    "Motor": 2
+  },
+  "research_deliveries": 4,
+  "research_cancellations": 1,
+  "awards": 8,
+  "rivals": 11,
+  "rival_history_entries": 88,
+  "rival_total_upgrades": 50,
+  "next_gp": "GBR",
+  "runs": [
+    {
+      "round": 1,
+      "code": "AUS",
+      "result": "PASS",
+      "seed": 321,
+      "laps": 58,
+      "ticks": 26286,
+      "sim_seconds": 5257.2,
+      "winner": "Fernando Alonso",
+      "stops": 47,
+      "Ferrari_points": 35,
+      "all_points": 101,
+      "prize": 1200000,
+      "workshop_expense": 3900000,
+      "budget": 9300000,
+      "levels": {
+        "Asa": 0,
+        "Chassi": 0,
+        "Motor": 1
+      },
+      "rival_total_upgrades": 11
+    },
+    {
+      "round": 2,
+      "code": "MAL",
+      "result": "PASS",
+      "seed": 8240,
+      "laps": 56,
+      "ticks": 30537,
+      "sim_seconds": 6107.4,
+      "winner": "Mark Webber",
+      "stops": 96,
+      "Ferrari_points": 65,
+      "all_points": 202,
+      "prize": 1130000,
+      "workshop_expense": 0,
+      "budget": 10430000,
+      "levels": {
+        "Asa": 1,
+        "Chassi": 0,
+        "Motor": 1
+      },
+      "rival_total_upgrades": 22
+    },
+    {
+      "round": 3,
+      "code": "CHN",
+      "result": "PASS",
+      "seed": 16159,
+      "laps": 56,
+      "ticks": 29745,
+      "sim_seconds": 5949.0,
+      "winner": "Sebastian Vettel",
+      "stops": 81,
+      "Ferrari_points": 98,
+      "all_points": 303,
+      "prize": 1130000,
+      "workshop_expense": 1190000,
+      "budget": 10370000,
+      "levels": {
+        "Asa": 1,
+        "Chassi": 0,
+        "Motor": 1
+      },
+      "rival_total_upgrades": 33
+    },
+    {
+      "round": 4,
+      "code": "BHR",
+      "result": "PASS",
+      "seed": 24078,
+      "laps": 57,
+      "ticks": 28011,
+      "sim_seconds": 5602.2,
+      "winner": "Sebastian Vettel",
+      "stops": 67,
+      "Ferrari_points": 119,
+      "all_points": 404,
+      "prize": 1060000,
+      "workshop_expense": 0,
+      "budget": 11430000,
+      "levels": {
+        "Asa": 1,
+        "Chassi": 1,
+        "Motor": 1
+      },
+      "rival_total_upgrades": 37
+    },
+    {
+      "round": 5,
+      "code": "ESP",
+      "result": "PASS",
+      "seed": 31997,
+      "laps": 66,
+      "ticks": 29416,
+      "sim_seconds": 5883.2,
+      "winner": "Sebastian Vettel",
+      "stops": 80,
+      "Ferrari_points": 138,
+      "all_points": 505,
+      "prize": 1130000,
+      "workshop_expense": 4250000,
+      "budget": 8310000,
+      "levels": {
+        "Asa": 1,
+        "Chassi": 1,
+        "Motor": 1
+      },
+      "rival_total_upgrades": 43
+    },
+    {
+      "round": 6,
+      "code": "MON",
+      "result": "PASS",
+      "seed": 39916,
+      "laps": 78,
+      "ticks": 30624,
+      "sim_seconds": 6124.8,
+      "winner": "Lewis Hamilton",
+      "stops": 72,
+      "Ferrari_points": 156,
+      "all_points": 606,
+      "prize": 1130000,
+      "workshop_expense": 0,
+      "budget": 9440000,
+      "levels": {
+        "Asa": 1,
+        "Chassi": 1,
+        "Motor": 2
+      },
+      "rival_total_upgrades": 46
+    },
+    {
+      "round": 7,
+      "code": "CAN",
+      "result": "PASS",
+      "seed": 47835,
+      "laps": 70,
+      "ticks": 26922,
+      "sim_seconds": 5384.4,
+      "winner": "Fernando Alonso",
+      "stops": 73,
+      "Ferrari_points": 196,
+      "all_points": 707,
+      "prize": 1200000,
+      "workshop_expense": 2720000,
+      "budget": 7920000,
+      "levels": {
+        "Asa": 1,
+        "Chassi": 1,
+        "Motor": 2
+      },
+      "rival_total_upgrades": 47
+    },
+    {
+      "round": 8,
+      "code": "EUR",
+      "result": "PASS",
+      "seed": 55754,
+      "laps": 57,
+      "ticks": 29476,
+      "sim_seconds": 5895.2,
+      "winner": "Sebastian Vettel",
+      "stops": 36,
+      "Ferrari_points": 212,
+      "all_points": 808,
+      "prize": 990000,
+      "workshop_expense": 0,
+      "budget": 8910000,
+      "levels": {
+        "Asa": 2,
+        "Chassi": 1,
+        "Motor": 2
+      },
+      "rival_total_upgrades": 50
+    }
+  ],
+  "drivers_standings": [
+    [
+      "Fernando Alonso",
+      149
+    ],
+    [
+      "Sebastian Vettel",
+      144
+    ],
+    [
+      "Lewis Hamilton",
+      120
+    ],
+    [
+      "Mark Webber",
+      102
+    ],
+    [
+      "Jenson Button",
+      89
+    ],
+    [
+      "Kimi Räikkönen",
+      66
+    ],
+    [
+      "Felipe Massa",
+      63
+    ],
+    [
+      "Michael Schumacher",
+      23
+    ],
+    [
+      "Nico Rosberg",
+      23
+    ],
+    [
+      "Romain Grosjean",
+      17
+    ],
+    [
+      "Nico Hulkenberg",
+      6
+    ],
+    [
+      "Kamui Kobayashi",
+      2
+    ],
+    [
+      "Pastor Maldonado",
+      2
+    ],
+    [
+      "Sergio Perez",
+      2
+    ],
+    [
+      "Bruno Senna",
+      0
+    ],
+    [
+      "Charles Pic",
+      0
+    ],
+    [
+      "Daniel Ricciardo",
+      0
+    ],
+    [
+      "Heikki Kovalainen",
+      0
+    ],
+    [
+      "Jean-Eric Vergne",
+      0
+    ],
+    [
+      "Narain Karthikeyan",
+      0
+    ],
+    [
+      "Paul di Resta",
+      0
+    ],
+    [
+      "Pedro de la Rosa",
+      0
+    ],
+    [
+      "Timo Glock",
+      0
+    ],
+    [
+      "Vitaly Petrov",
+      0
+    ]
+  ],
+  "constructors_standings": [
+    [
+      "Red Bull Racing Renault",
+      246
+    ],
+    [
+      "Ferrari",
+      212
+    ],
+    [
+      "McLaren Mercedes",
+      209
+    ],
+    [
+      "Lotus Renault",
+      83
+    ],
+    [
+      "Mercedes",
+      46
+    ],
+    [
+      "Force India Mercedes",
+      6
+    ],
+    [
+      "Sauber Ferrari",
+      4
+    ],
+    [
+      "Williams Renault",
+      2
+    ],
+    [
+      "Caterham Renault",
+      0
+    ],
+    [
+      "HRT Cosworth",
+      0
+    ],
+    [
+      "Marussia Cosworth",
+      0
+    ],
+    [
+      "Toro Rosso Ferrari",
+      0
+    ]
+  ],
+  "source_sha256": {
+    "tests/career_0645_native_worker.gd": "84132ad86c14f75c4df8f2eb2905d144caffea3b133be343729668e9d8778db5",
+    "linux/validar_carreira_0645.sh": "9cc4a08cccf1130e7291d9f6b084ccadec7d694e6a5ee855166c6c949ff307eb",
+    "scripts/race_engine.gd": "2402ab2d8643a3f4b4a6d3f1a2af567a79d8cbeec030b7539f053e74eb926f22",
+    "scripts/championship_2012.gd": "804828ae5947e980367317441e6dafce5d7bb6dd4fe687ac95add64127d36d52",
+    "scripts/garage.gd": "3aa9486debc024d41bb2fffade34b42d8c25872b8150421d1e2d9b8fa4647731"
+  }
+}

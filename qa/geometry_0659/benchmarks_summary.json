@@ -1,0 +1,102 @@
+{
+  "1600": {
+    "base": {
+      "running": {
+        "main_cpu_ms": 13.8322666666667,
+        "frames_per_wall_second": 47.62446521694267,
+        "projection_ms_per_frame": 4.03955,
+        "godot_static_bytes": 182284654,
+        "orphan_nodes": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "paused": {
+        "main_cpu_ms": 1.31962222222222,
+        "frames_per_wall_second": 61.27542760035894,
+        "projection_ms_per_frame": 0.0,
+        "godot_static_bytes": 182693790,
+        "orphan_nodes": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "new": {
+      "running": {
+        "main_cpu_ms": 9.82937222222222,
+        "frames_per_wall_second": 59.3306709244114,
+        "projection_ms_per_frame": 0.35587222222222226,
+        "godot_static_bytes": 182430539,
+        "orphan_nodes": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "paused": {
+        "main_cpu_ms": 1.33912222222222,
+        "frames_per_wall_second": 61.24257093590897,
+        "projection_ms_per_frame": 0.0,
+        "godot_static_bytes": 182839675,
+        "orphan_nodes": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    }
+  },
+  "1920": {
+    "base": {
+      "running": {
+        "main_cpu_ms": 13.6761666666667,
+        "frames_per_wall_second": 48.38704474511318,
+        "projection_ms_per_frame": 4.0142500000000005,
+        "godot_static_bytes": 179917218,
+        "orphan_nodes": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "paused": {
+        "main_cpu_ms": 1.33384444444444,
+        "frames_per_wall_second": 61.53017337151851,
+        "projection_ms_per_frame": 0.0,
+        "godot_static_bytes": 180326242,
+        "orphan_nodes": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "new": {
+      "running": {
+        "main_cpu_ms": 9.82961111111111,
+        "frames_per_wall_second": 59.676196955320435,
+        "projection_ms_per_frame": 0.3573222222222222,
+        "godot_static_bytes": 180002072,
+        "orphan_nodes": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "paused": {
+        "main_cpu_ms": 1.34065555555556,
+        "frames_per_wall_second": 60.84102577969465,
+        "projection_ms_per_frame": 0.0,
+        "godot_static_bytes": 180411096,
+        "orphan_nodes": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    }
+  }
+}

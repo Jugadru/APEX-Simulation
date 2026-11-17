@@ -1,0 +1,150 @@
+{
+  "1600": {
+    "base": {
+      "running": {
+        "mean_cpu_ms_median": 14.3956388888889,
+        "build_ms_median": 1.06431111111111,
+        "maps_ms_median": 0.192761111111111,
+        "frames_per_wall_second_median": 46.23359317468875,
+        "static_bytes_median": 183207501,
+        "orphan_nodes": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_calls": [
+          180,
+          180,
+          180
+        ]
+      },
+      "paused": {
+        "mean_cpu_ms_median": 3.44194444444444,
+        "build_ms_median": 1.12892222222222,
+        "maps_ms_median": 0.199733333333333,
+        "frames_per_wall_second_median": 61.1291366596187,
+        "static_bytes_median": 183554549,
+        "orphan_nodes": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_calls": [
+          90,
+          90,
+          90
+        ]
+      }
+    },
+    "new": {
+      "running": {
+        "mean_cpu_ms_median": 13.8446444444444,
+        "build_ms_median": 0.693638888888889,
+        "maps_ms_median": 0.04255,
+        "frames_per_wall_second_median": 47.41200266455455,
+        "static_bytes_median": 182671456,
+        "orphan_nodes": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_calls": [
+          180,
+          180,
+          180
+        ]
+      },
+      "paused": {
+        "mean_cpu_ms_median": 1.4009,
+        "build_ms_median": 0.638333333333333,
+        "maps_ms_median": 0.0556222222222222,
+        "frames_per_wall_second_median": 60.984203736027844,
+        "static_bytes_median": 183080592,
+        "orphan_nodes": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_calls": [
+          0,
+          0,
+          0
+        ]
+      }
+    }
+  },
+  "1920": {
+    "base": {
+      "running": {
+        "mean_cpu_ms_median": 15.5883333333333,
+        "build_ms_median": 1.23545,
+        "maps_ms_median": 0.216111111111111,
+        "frames_per_wall_second_median": 41.70300233814833,
+        "static_bytes_median": 183249973,
+        "orphan_nodes": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_calls": [
+          180,
+          180,
+          180
+        ]
+      },
+      "paused": {
+        "mean_cpu_ms_median": 4.3994,
+        "build_ms_median": 1.37483333333333,
+        "maps_ms_median": 0.316277777777778,
+        "frames_per_wall_second_median": 57.94097102629555,
+        "static_bytes_median": 183596909,
+        "orphan_nodes": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_calls": [
+          90,
+          90,
+          90
+        ]
+      }
+    },
+    "new": {
+      "running": {
+        "mean_cpu_ms_median": 16.1657611111111,
+        "build_ms_median": 0.8315,
+        "maps_ms_median": 0.0516444444444444,
+        "frames_per_wall_second_median": 38.6361358197547,
+        "static_bytes_median": 183093192,
+        "orphan_nodes": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_calls": [
+          180,
+          180,
+          180
+        ]
+      },
+      "paused": {
+        "mean_cpu_ms_median": 1.42633333333333,
+        "build_ms_median": 0.660988888888889,
+        "maps_ms_median": 0.0607444444444444,
+        "frames_per_wall_second_median": 60.92483905688349,
+        "static_bytes_median": 183502216,
+        "orphan_nodes": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "world_calls": [
+          0,
+          0,
+          0
+        ]
+      }
+    }
+  }
+}

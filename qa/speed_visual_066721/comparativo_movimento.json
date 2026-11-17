@@ -1,0 +1,18 @@
+{
+  "1x": {
+    "cv_new": 5.18720210617653e-15,
+    "cv_old": 1.251132055394,
+    "last_progress": 0.018,
+    "static_frames_new": 12,
+    "static_frames_prior": 12,
+    "ticks": 9
+  },
+  "5x": {
+    "cv_new": 5.87183863213579e-15,
+    "cv_old": 0.279461476970842,
+    "last_progress": 0.0980000000000001,
+    "static_frames_new": 2,
+    "static_frames_prior": 2,
+    "ticks": 49
+  }
+}

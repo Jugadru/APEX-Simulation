@@ -53,8 +53,24 @@ static func corridor_crosses(a0: float,a1: float,b0: float,b1: float) -> bool:
 
 static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,shape: Dictionary, weather: Dictionary = {}) -> Dictionary:
 	var length: float=shape.length
-	var order := cars.filter(func(c): return active(c) and metrics.has(int(c.id)))
-	order.sort_custom(func(a,b): return float(a.progress)>float(b.progress) if a.progress!=b.progress else int(a.id)<int(b.id))
+	# 06686: RaceEngine normally supplies a sorted frozen sporting snapshot.
+	# Filtering out inactive cars preserves its order. Avoid sorting 24
+	# dictionaries a SECOND time if progress / ID tie ordering is valid.
+	# External callers with unordered input are still sorted identically.
+	var order: Array = []
+	for car in cars:
+		if active(car) and metrics.has(int(car.id)):
+			order.append(car)
+	var must_sort: bool = false
+	for index in range(1, order.size()):
+		var previous: Dictionary = order[index - 1]
+		var current: Dictionary = order[index]
+		if float(previous.progress) < float(current.progress) or (
+				float(previous.progress) == float(current.progress) and int(previous.id) > int(current.id)):
+			must_sort = true
+			break
+	if must_sort:
+		order.sort_custom(func(a,b): return float(a.progress)>float(b.progress) if a.progress!=b.progress else int(a.id)<int(b.id))
 	var intents := {}
 	var by_id := {}
 	for c in order:

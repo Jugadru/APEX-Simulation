@@ -1,0 +1,12 @@
+[
+  {
+    "name": "shadow_diagnostic",
+    "exit": 0,
+    "pass": true
+  },
+  {
+    "name": "compatibility",
+    "exit": 0,
+    "pass": true
+  }
+]

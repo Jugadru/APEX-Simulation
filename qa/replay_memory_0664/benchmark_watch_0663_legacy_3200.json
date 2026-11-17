@@ -1,0 +1,11 @@
+{
+  "checkpoint_count": 9,
+  "fork_seconds": 0.809015,
+  "godot_static_bytes": 38305784,
+  "hash": "f771fab5025055653075f853b4a06370097d5af74843d2deea4cc8dc17be9b90",
+  "mode": "legacy",
+  "record_seconds": 108.702288,
+  "replay_ready": true,
+  "seed": 660,
+  "ticks": 3200
+}

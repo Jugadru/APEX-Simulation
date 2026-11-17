@@ -1,0 +1,92 @@
+[
+  {
+    "test": "functional",
+    "result": "PASS",
+    "log": "functional.log",
+    "exit_code": 0
+  },
+  {
+    "test": "visual",
+    "result": "PASS",
+    "log": "visual.log",
+    "exit_code": 0
+  },
+  {
+    "test": "final_ui",
+    "result": "PASS",
+    "log": "final_ui.log",
+    "exit_code": 0
+  },
+  {
+    "test": "soul_staff_0650_model_test",
+    "result": "PASS",
+    "log": "soul_staff_0650_model_test.log",
+    "exit_code": 0
+  },
+  {
+    "test": "soul_staff_0650_migration_test",
+    "result": "PASS",
+    "log": "soul_staff_0650_migration_test.log",
+    "exit_code": 0
+  },
+  {
+    "test": "strategy_simulator_06499_model_test",
+    "result": "PASS",
+    "log": "strategy_simulator_06499_model_test.log",
+    "exit_code": 0
+  },
+  {
+    "test": "pitwall_0649_strategy_test",
+    "result": "PASS",
+    "log": "pitwall_0649_strategy_test.log",
+    "exit_code": 0
+  },
+  {
+    "test": "race_0646_engineer_3_test",
+    "result": "PASS",
+    "log": "race_0646_engineer_3_test.log",
+    "exit_code": 0
+  },
+  {
+    "test": "lap_strategy_06496_test",
+    "result": "PASS",
+    "log": "lap_strategy_06496_test.log",
+    "exit_code": 0
+  },
+  {
+    "test": "team_pit_06497_unit_test",
+    "result": "PASS",
+    "log": "team_pit_06497_unit_test.log",
+    "exit_code": 0
+  },
+  {
+    "test": "team_pit_06497_integration_test",
+    "result": "PASS",
+    "log": "team_pit_06497_integration_test.log",
+    "exit_code": 0
+  },
+  {
+    "test": "core_0552_tyre_ai_smoke_test",
+    "result": "PASS",
+    "log": "core_0552_tyre_ai_smoke_test.log",
+    "exit_code": 0
+  },
+  {
+    "test": "core_0643_dynamic_track_weather_test",
+    "result": "PASS",
+    "log": "core_0643_dynamic_track_weather_test.log",
+    "exit_code": 0
+  },
+  {
+    "test": "unified_hud_test",
+    "result": "PASS",
+    "log": "unified_hud_test.log",
+    "exit_code": 0
+  },
+  {
+    "test": "management_hud04_test",
+    "result": "PASS",
+    "log": "management_hud04_test.log",
+    "exit_code": 0
+  }
+]

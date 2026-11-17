@@ -1,0 +1,17 @@
+{
+  "changed_scripts": [
+    "scripts/apex_component_workshop_0651.gd",
+    "scripts/apex_workshop_0656.gd",
+    "scripts/apex_management_hub.gd",
+    "scripts/apex_race_session_controller.gd",
+    "scripts/garage.gd",
+    "scripts/core/workshop_0656.gd"
+  ],
+  "unchanged_protected": {
+    "scripts/race_engine.gd": true,
+    "scripts/core/race_space_0655.gd": true,
+    "scripts/track_3d.gd": true,
+    "scripts/car_model_3d.gd": true
+  },
+  "base_sha256": "5fe4e6f2d1c53468a346edbed07a0ecf7886db238aa1fd64539b6b6d8c72aa43"
+}

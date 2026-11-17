@@ -1,0 +1,38 @@
+[
+  {
+    "track": "GBR",
+    "weather": "Seco",
+    "hashes": [
+      "1e3f3df0cef5f314c795977f70ff27840df9912f402df9a90e25439247d8015b",
+      "1e3f3df0cef5f314c795977f70ff27840df9912f402df9a90e25439247d8015b"
+    ],
+    "identical": true
+  },
+  {
+    "track": "GBR",
+    "weather": "Chuva intensa",
+    "hashes": [
+      "fe69acc40c277e05accab0bcc35b73dc14cbd4ed77be94487e634addce58d4a3",
+      "fe69acc40c277e05accab0bcc35b73dc14cbd4ed77be94487e634addce58d4a3"
+    ],
+    "identical": true
+  },
+  {
+    "track": "UAE",
+    "weather": "Seco",
+    "hashes": [
+      "0d4d987ca4f7a098eead2c19418a7e70dddae1424417f0d763f7f41fd21e35b7",
+      "0d4d987ca4f7a098eead2c19418a7e70dddae1424417f0d763f7f41fd21e35b7"
+    ],
+    "identical": true
+  },
+  {
+    "track": "GER",
+    "weather": "Chuva intensa",
+    "hashes": [
+      "dcdd626572222622dcc6aecb4ddff00552ce0e1a2416fc2c90a924c709d55655",
+      "dcdd626572222622dcc6aecb4ddff00552ce0e1a2416fc2c90a924c709d55655"
+    ],
+    "identical": true
+  }
+]

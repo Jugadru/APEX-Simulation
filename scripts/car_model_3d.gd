@@ -22,6 +22,8 @@ var driven_meters: float = 0.0
 var motion_speed := 0.0
 var drs_flap: Node3D
 var drs_angle := 0.0
+# Visual-only switch: avoid setting four identical wheel visibilities every frame.
+var pit_wheels_visible: bool = true
 
 func _init(color_code: String = "#e74d4d", team: String = "", number: int = 1) -> void:
 	team_color = Color.from_string(color_code, Color("#e74d4d"))
@@ -324,13 +326,15 @@ func set_tire_compound(compound: String) -> void:
 		sidewall.material_override = _mat(color)
 
 func set_pit_wheel_swap(phase: float, begin_phase: float, end_phase: float) -> void:
-	# Briefly lift the old wheels before four spares reach the hubs.
-	# Do not change physical racing position or tyre physics here.
-	var removing: bool = phase >= begin_phase and phase < end_phase
-	if removing:
+	# A pit-service visual can hide wheels briefly; normal racing does not.
+	# Reapply only on a state change (4 visibility setters avoided per car/frame).
+	# Racing position, tyre physics and actual pit commands are not touched.
+	var target_visible: bool = true
+	if phase >= begin_phase and phase < end_phase:
 		var t: float = clampf((phase - begin_phase) / maxf(0.001, end_phase - begin_phase), 0.0, 1.0)
-		for spin in wheel_spins:
-			spin.visible = not (t > 0.32 and t < 0.55)
-	else:
-		for spin in wheel_spins:
-			spin.visible = true
+		target_visible = not (t > 0.32 and t < 0.55)
+	if target_visible == pit_wheels_visible:
+		return
+	pit_wheels_visible = target_visible
+	for spin in wheel_spins:
+		spin.visible = target_visible

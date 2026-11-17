@@ -1,0 +1,12 @@
+{
+  "source_file": "APEX_MOTORSPORT_MANAGER_v0.6.6.5_REPLAY_CHECKPOINTS_COMPLETO.zip",
+  "source_sha256": "f450345304324f89f6a21bc91c207ef6288fe9bf25b93793b826ed3762d4180d",
+  "files_compared": 2410,
+  "files_missing": [],
+  "changed_preexisting": [
+    "project.godot",
+    "scripts/core/race_replay_0660.gd"
+  ],
+  "sporting_engine_sha256_before_after": "522327cc1bf06d0bcbe7e54d0eebf7c7026fdb0b0d8247e7d32f2d754e0aac7a",
+  "status": "APROVADO"
+}

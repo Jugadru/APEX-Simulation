@@ -503,7 +503,14 @@ func _advance(dt: float) -> void:
 	var perf_snapshot := Perf.begin() if Perf.enabled else 0
 	var old_order: Array = []
 	for entry in get_sorted():
-		old_order.append(entry.duplicate(true))
+		# 0.6.6.8.3: freeze the scalar sporting fields without deep-copying
+		# histories, soul/strategy dictionaries or tyre arrays every tick.
+		# RacePerformance.evaluate and RaceSpace.plan only read scalar fields;
+		# TyreThermal.advance writes new scalar values to the live car, then
+		# those same values are merged into this detached top-level view.
+		# Never mutate nested members of old_order; deep copies remain
+		# mandatory at the public get_state_snapshot/replay/save boundary.
+		old_order.append(entry.duplicate(false))
 	if Perf.enabled: Perf.end(&"race.snapshot",perf_snapshot)
 	var gaps: Dictionary = {}
 	for i in range(old_order.size()):

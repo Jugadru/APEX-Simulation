@@ -1,0 +1,118 @@
+{
+  "version": "0.6.6.8.3",
+  "source": "0.6.6.8.1 (Core 2)",
+  "checks": [
+    {
+      "id": "base_zip_crc",
+      "status": "PASS",
+      "evidence": "ZIP de entrada verificado por unzip -tq e SHA-256."
+    },
+    {
+      "id": "godot_editor_import",
+      "status": "PASS",
+      "evidence": "Godot 4.7.2 importação headless sem errors após importação de assets."
+    },
+    {
+      "id": "core2_four_scenarios",
+      "status": "PASS",
+      "evidence": "Silverstone seco / Spa chuva intensa / Monza seco / Singapura chuva intensa, cada cenário 750 ticks, 4 hashes por cenário iguais à base, posições/pneus/eventos iguais."
+    },
+    {
+      "id": "manual_pit_v21",
+      "status": "PASS",
+      "evidence": "Ordem V21 em Spa preservada nos 750 ticks + teste Pit Wall legado."
+    },
+    {
+      "id": "replay_unit",
+      "status": "PASS",
+      "evidence": "Replay 200 ticks, saves/load, speed 1/2/5/16/32."
+    },
+    {
+      "id": "replay_isolation",
+      "status": "PASS",
+      "evidence": "Seek 150/320/0 em replay separado com hash original intacto."
+    },
+    {
+      "id": "racecraft_0662",
+      "status": "PASS",
+      "evidence": "Teste Racecraft 1027 verificações e 500 ticks."
+    },
+    {
+      "id": "driver_dynamics_0661",
+      "status": "PASS",
+      "evidence": "Teste de decisões de pilotos (17 verificações)."
+    },
+    {
+      "id": "double_stack",
+      "status": "PASS",
+      "evidence": "Fila durante reparo comprovada no teste legado."
+    },
+    {
+      "id": "pitwall_stint",
+      "status": "PASS",
+      "evidence": "Teste legado de hold/retorno de stint/V21."
+    },
+    {
+      "id": "hud_pending_orders",
+      "status": "PASS",
+      "evidence": "HUD 30 verificações; reexecutado após importação limpa, sem parser errors."
+    },
+    {
+      "id": "hud_camera_policy",
+      "status": "PASS",
+      "evidence": "18 combinações entre modos HUD e velocidades, headless."
+    },
+    {
+      "id": "wet_gbr_3_lap_gp_replay",
+      "status": "PASS",
+      "evidence": "GBR chuva intensa, 3 voltas, 1786 ticks, pit service/reparos e replay completo."
+    },
+    {
+      "id": "paired_cpu_benchmark",
+      "status": "INCONCLUSIVE",
+      "evidence": "2 pares A/B completos, melhora observada na etapa race.snapshot; terceira execução foi interrompida por limite do ambiente, não comprova FPS."
+    },
+    {
+      "id": "3d_gpu_user_hardware",
+      "status": "NOT_RUN",
+      "evidence": "Sem execução gráfica em GPU real nesta release."
+    },
+    {
+      "id": "monza_53_lap_full",
+      "status": "NOT_RUN",
+      "evidence": "Monza 53 voltas não foi repetida nesta release; apenas hashes de testes curtos e replay de GBR 3 voltas."
+    },
+    {
+      "id": "all_20_tracks",
+      "status": "NOT_RUN",
+      "evidence": "Não há teste de 20 GPs completos."
+    },
+    {
+      "id": "final_clean_import_default",
+      "status": "FAIL",
+      "evidence": "A primeira importação headless em pasta recém-extraída abortou com SIGSEGV na etapa de reimport CSV/notify; trace no log. Não é erro comprovado de GDScript."
+    },
+    {
+      "id": "final_clean_import_single_threaded",
+      "status": "PASS",
+      "evidence": "A reimportação no mesmo projeto extraído com --single-threaded-scene terminou com exit 0."
+    },
+    {
+      "id": "final_clean_regression",
+      "status": "PASS",
+      "evidence": "Suíte de quatro cenários, 750 ticks cada, na extração limpa após importação single-threaded; hash/posições/eventos iguais."
+    },
+    {
+      "id": "final_clean_hud",
+      "status": "PASS",
+      "evidence": "Reteste da HUD de ordens pendentes na extração limpa: 30 verificações, retorno 0."
+    }
+  ],
+  "status_counts": {
+    "PASS": 16,
+    "FAIL": 1,
+    "INCONCLUSIVE": 1,
+    "BLOCKED": 0,
+    "NOT_RUN": 3
+  }
+}

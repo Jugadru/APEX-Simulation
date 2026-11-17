@@ -1,0 +1,164 @@
+[
+  {
+    "test": "original_import",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/original_import.log"
+  },
+  {
+    "test": "candidate_import",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/candidate_import.log"
+  },
+  {
+    "test": "local_replay_fork",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/local_replay_fork.log"
+  },
+  {
+    "test": "pit_v21_rain",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/pit_v21_rain.log"
+  },
+  {
+    "test": "replay_1x_2x_5x_16x_32x",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/replay_1x_2x_5x_16x_32x.log"
+  },
+  {
+    "test": "gp_GBR_3_laps",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/gp_GBR_3_laps.log"
+  },
+  {
+    "test": "gp_BEL_3_laps",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/gp_BEL_3_laps.log"
+  },
+  {
+    "test": "gp_ITA_3_laps",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/gp_ITA_3_laps.log"
+  },
+  {
+    "test": "gp_SIN_3_laps",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/gp_SIN_3_laps.log"
+  },
+  {
+    "test": "watch_0664",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/watch_0664.log"
+  },
+  {
+    "test": "replay_integration",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/replay_integration.log"
+  },
+  {
+    "test": "replay_weather",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/replay_weather.log"
+  },
+  {
+    "test": "racecraft_audit",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/racecraft_audit.log"
+  },
+  {
+    "test": "driver_dynamics",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/driver_dynamics.log"
+  },
+  {
+    "test": "sim_engine",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/sim_engine.log"
+  },
+  {
+    "test": "pit_lane",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/pit_lane.log"
+  },
+  {
+    "test": "save_migration",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/save_migration.log"
+  },
+  {
+    "test": "workshop",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/workshop.log"
+  },
+  {
+    "test": "inventory",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/inventory.log"
+  },
+  {
+    "test": "soul_staff_migration",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/soul_staff_migration.log"
+  },
+  {
+    "test": "monza53_full",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "monza_53_full_fork.json + logs/monza53_full_fork.log"
+  },
+  {
+    "test": "monza53_replay_integral",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "monza_53_full_fork.json + logs/monza53_full_fork.log"
+  },
+  {
+    "test": "20_temporadas_stress",
+    "status": "NÃO EXECUTADO",
+    "exit_code": null,
+    "evidence": "não solicitado nesta versão"
+  },
+  {
+    "test": "visual_1600x900",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/visual_1600x900.log"
+  },
+  {
+    "test": "visual_1920x1080",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/visual_1920x1080.log"
+  },
+  {
+    "test": "final_clean_zip_godot_import",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/final_clean_zip_godot_import.log"
+  },
+  {
+    "test": "final_clean_zip_replay_smoke",
+    "status": "APROVADO",
+    "exit_code": 0,
+    "evidence": "logs/final_clean_zip_replay_smoke.log"
+  }
+]

@@ -1,0 +1,13 @@
+{
+  "original_0667": {
+    "status": "PASS",
+    "sha256": "a1f43f63fae9624f6c5300cdd95f735370574d2cf4e72f99882d62af00d38c1d",
+    "size_bytes": 161096
+  },
+  "patched_06671": {
+    "status": "PASS",
+    "sha256": "a1f43f63fae9624f6c5300cdd95f735370574d2cf4e72f99882d62af00d38c1d",
+    "size_bytes": 161096
+  },
+  "byte_identical": true
+}

@@ -1,0 +1,13 @@
+{
+  "baseline": "0.6.6.5",
+  "source_zip_sha256": "f450345304324f89f6a21bc91c207ef6288fe9bf25b93793b826ed3762d4180d",
+  "draft_zip_sha256": "4eecb28949e095f2562ecc268da568d58cf34e7f4a078f8f28cf7f36f8c6a9d2",
+  "draft_entries": 2464,
+  "draft_crc": "APROVADO",
+  "clean_extraction": "APROVADO",
+  "clean_godot_import": "APROVADO",
+  "clean_contract_replay": "APROVADO",
+  "clean_pit_replay_boundaries": "APROVADO",
+  "version": "0.6.6.6",
+  "note": "Definitive ZIP repacked after QA documentation; checked separately after creation."
+}

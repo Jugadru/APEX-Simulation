@@ -1,0 +1,62 @@
+{
+  "1600": {
+    "base": {
+      "cpu_ms": 11.35235,
+      "frames_per_wall": 50.319697813441394,
+      "paused_cpu_ms": 1.39641111111111,
+      "sporting_hash": "8ee522f1eccfb69c798da8b5509ee7f73e14688761fbaa206313ab65a8c7a7e4",
+      "monitors": {
+        "fps": 49.0,
+        "frame_ms": 33.677,
+        "godot_static_bytes": 185626768,
+        "nodes": 5571.0,
+        "objects": 13928.0,
+        "orphan_nodes": 0.0
+      }
+    },
+    "new": {
+      "cpu_ms": 6.27098333333333,
+      "frames_per_wall": 59.90682491831039,
+      "paused_cpu_ms": 1.36257777777778,
+      "sporting_hash": "9477575d869c8e8a4b3cee08c293330ba5378f6e3287578837aa75e1d377b804",
+      "monitors": {
+        "fps": 60.0,
+        "frame_ms": 26.176,
+        "godot_static_bytes": 188921862,
+        "nodes": 5635.0,
+        "objects": 14080.0,
+        "orphan_nodes": 0.0
+      }
+    }
+  },
+  "1920": {
+    "base": {
+      "cpu_ms": 11.0657388888889,
+      "frames_per_wall": 52.542977966686,
+      "paused_cpu_ms": 1.34805555555556,
+      "sporting_hash": "8ee522f1eccfb69c798da8b5509ee7f73e14688761fbaa206313ab65a8c7a7e4",
+      "monitors": {
+        "fps": 37.0,
+        "frame_ms": 58.302,
+        "godot_static_bytes": 182835057,
+        "nodes": 5571.0,
+        "objects": 13909.0,
+        "orphan_nodes": 0.0
+      }
+    },
+    "new": {
+      "cpu_ms": 6.22841111111111,
+      "frames_per_wall": 59.90977587752844,
+      "paused_cpu_ms": 1.38345555555556,
+      "sporting_hash": "9477575d869c8e8a4b3cee08c293330ba5378f6e3287578837aa75e1d377b804",
+      "monitors": {
+        "fps": 60.0,
+        "frame_ms": 24.941,
+        "godot_static_bytes": 187052190,
+        "nodes": 5635.0,
+        "objects": 14069.0,
+        "orphan_nodes": 0.0
+      }
+    }
+  }
+}

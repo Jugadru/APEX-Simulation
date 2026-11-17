@@ -319,6 +319,11 @@ func update_active_teams(team_names: Array, simulation_clock: float) -> void:
 	update_pit_services(frames, simulation_clock)
 
 func update_pit_services(services: Array, simulation_clock: float) -> void:
+	# All crew nodes are hidden after prepare(). Once the last service has
+	# cleared, skip iterating every empty garage on every 3D presentation frame.
+	# The first empty frame after an active pit still runs and hides the crews.
+	if services.is_empty() and active_teams.is_empty() and service_frames.is_empty():
+		return
 	# Four wheel crew members are animated only while their own car is at
 	# its own stall. Every team's service uses the approved team-slot mapping.
 	active_teams.clear()

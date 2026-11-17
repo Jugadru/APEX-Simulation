@@ -1,0 +1,2 @@
+Versao 0.6.4.9.1: first_stops=1 second_stops=1 second_hold=false second_pit_stage=exit second_wait=7.4
+Versao 0.6.4.9.2: first_stops=1 second_stops=0 second_hold=true second_pit_stage=none second_wait=0.0

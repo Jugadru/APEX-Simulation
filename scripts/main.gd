@@ -260,7 +260,7 @@ func _ready() -> void:
 	var preview := get_node_or_null("EditorPreview")
 	if preview != null:
 		preview.hide()
-	get_window().title = "APEX Motorsport Manager — v0.6.6.8.1 / HUD ReBroadcast QA • Replay F9"
+	get_window().title = "APEX Motorsport Manager — v0.6.6.8.6 / Core 2 Race Stability 2.0 • Replay F9"
 	_load_season_data()
 	_load_hud_prefs()
 	garage = GarageScript.new()

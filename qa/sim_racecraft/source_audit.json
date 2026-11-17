@@ -1,0 +1,18 @@
+{
+  "baseline": "0.6.5.4",
+  "identical": {
+    "scripts/car_model_3d.gd": true,
+    "scripts/garage.gd": true,
+    "scripts/apex_race_ui_presenter.gd": true,
+    "scripts/apex_race_ui_legacy_cards.gd": true,
+    "scripts/apex_race_ui_legacy_builder.gd": true,
+    "scripts/apex_race_ui_layout.gd": true
+  },
+  "changed": [
+    "scripts/race_engine.gd",
+    "scripts/apex_racecraft_0654.gd"
+  ],
+  "added": [
+    "scripts/core/race_space_0655.gd"
+  ]
+}

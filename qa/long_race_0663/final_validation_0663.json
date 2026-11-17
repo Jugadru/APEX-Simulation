@@ -1,0 +1,19 @@
+{
+  "package_name": "APEX_MOTORSPORT_MANAGER_v0.6.6.3_LONG_RACE_PERFORMANCE_COMPLETO.zip",
+  "godot_version": "4.7.2.stable.official.ed1daf0bf",
+  "original_source_entries": 2234,
+  "all_original_files_present": true,
+  "initial_original_import_exit": 0,
+  "candidate_import_exit": 0,
+  "clean_zip_import_exit": 0,
+  "clean_zip_parser_errors": [],
+  "monza_53_live_approved": true,
+  "monza_53_full_replay_approved": true,
+  "short_races_sport_hashes_preserved": true,
+  "legacy_replay_byte_identical": true,
+  "runnable_regressions_passed": 26,
+  "runnable_regressions_failed": 0,
+  "not_executed": 1,
+  "source_master_document_included": true,
+  "note": "Final repack additionally incorporates final clean-import evidence and read-only master plan; production code unchanged."
+}

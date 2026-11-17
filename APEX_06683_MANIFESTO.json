@@ -1,0 +1,51 @@
+{
+  "version": "0.6.6.8.3",
+  "base_version": "0.6.6.8.1",
+  "base_zip_sha256": "41df3cf8cc42b75ac30786f2ce18a0f0e1630c8e2f2ec39f4d6a0efc4cfa2056",
+  "base_file_count": 2798,
+  "preserved_file_count": 2795,
+  "modified_existing": {
+    "project.godot": {
+      "old_sha256": "a7449561be04c2508b696f5b29d118afa6c9a1ef3403f8cc0cbae22d5fbb18c7",
+      "new_sha256": "5f610b30b4972c342257a064c849cdb771c713967c7db45af7b2aea3959edbe3"
+    },
+    "scripts/main.gd": {
+      "old_sha256": "23433d65d68396e3b1a96b02afaee6a381835b66f3a459cfc42afac5ffec50f5",
+      "new_sha256": "4cb0dde714343e4ec5f9f759d6ba41d77f56ba2dbec0a1ea2a36e6e0e149fa02"
+    },
+    "scripts/race_engine.gd": {
+      "old_sha256": "522327cc1bf06d0bcbe7e54d0eebf7c7026fdb0b0d8247e7d32f2d754e0aac7a",
+      "new_sha256": "ffd1aa396915e33d060e5d52f2f28785e4cc68c519a587eb6db42b78aaa65878"
+    }
+  },
+  "new_files": [
+    "APEX_06683_CHANGELOG.md",
+    "APEX_06683_MANIFESTO.json",
+    "APEX_06683_RELATORIO_TECNICO.md",
+    "LEIA_PRIMEIRO_APEX_06683.md",
+    "qa/core2_06683/benchmark_ab.json",
+    "qa/core2_06683/fixtures_reference.json",
+    "qa/core2_06683/logs/baseline_four_scenarios.log",
+    "qa/core2_06683/logs/clean_hud_PASS.log",
+    "qa/core2_06683/logs/clean_import_default_FAIL.log",
+    "qa/core2_06683/logs/clean_import_single_threaded_PASS.log",
+    "qa/core2_06683/logs/clean_regression_PASS.log",
+    "qa/core2_06683/logs/driver_dynamics_0661_test.gd.log",
+    "qa/core2_06683/logs/editor_import.log",
+    "qa/core2_06683/logs/hud_rebroadcast_06681_camera_policy.gd.log",
+    "qa/core2_06683/logs/hud_rebroadcast_06681_pending_orders.gd.log",
+    "qa/core2_06683/logs/hud_rebroadcast_06681_replay_isolation.gd.log",
+    "qa/core2_06683/logs/optimized_four_scenarios.log",
+    "qa/core2_06683/logs/pit_incidents_double_stack_test.gd.log",
+    "qa/core2_06683/logs/pitwall_06491_stint_reset_test.gd.log",
+    "qa/core2_06683/logs/racecraft_0662_test.gd.log",
+    "qa/core2_06683/logs/replay_0660_test.gd.log",
+    "qa/core2_06683/logs/wet_gbr_gp_3laps_replay.log",
+    "qa/core2_06683/matriz_testes.json",
+    "qa/core2_06683/scenarios.json",
+    "tests/core2_snapshot_06683_regression.gd",
+    "tests/core2_snapshot_06683_regression.gd.uid"
+  ],
+  "removed_files": [],
+  "notes": "Core 2 production: somente otimização do snapshot por tick; outras duas mudanças são metadados da versão. Nenhuma modificação em Next Engine."
+}

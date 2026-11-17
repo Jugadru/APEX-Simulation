@@ -1,0 +1,34 @@
+{
+  "archive_bytes": 5284360,
+  "checkpoints": [
+    0,
+    600,
+    1200,
+    1800,
+    2400,
+    3000
+  ],
+  "godot_static_bytes": 61842248,
+  "hash": "f771fab5025055653075f853b4a06370097d5af74843d2deea4cc8dc17be9b90",
+  "legacy_v0662_read": true,
+  "load_seconds": 0.330208,
+  "mode": "candidate",
+  "record_s": 99.23812,
+  "replay_format": "APEX_REPLAY_0660",
+  "replay_sport_identical": true,
+  "save_seconds": 0.315449,
+  "seed": 660,
+  "seek_seconds": [
+    4.449476,
+    12.091418,
+    14.431819
+  ],
+  "seek_targets": [
+    750,
+    1500,
+    2800
+  ],
+  "ticks": 3200,
+  "track": "ITA",
+  "weather": "Seco"
+}

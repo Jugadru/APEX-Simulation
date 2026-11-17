@@ -1,0 +1,11 @@
+{
+  "hash": "b0f63df8f8c9bd957c3bcb90c5010587cb466997e102fb84db589a0400ebc0fb",
+  "pass": true,
+  "race_rng_state_identical": true,
+  "seed": 660,
+  "telemetry_identical": true,
+  "ticks": 750,
+  "track": "GBR",
+  "unique_focal_cars": 1,
+  "weather": "Chuva intensa"
+}

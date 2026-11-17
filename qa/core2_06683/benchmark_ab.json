@@ -1,0 +1,55 @@
+{
+  "version": "0.6.6.8.3",
+  "baseline": "0.6.6.8.1",
+  "fixture": "Monza seco, 24 carros, seed 660, 750 ticks, Godot 4.7.2 headless, 2 paired completed runs",
+  "samples": [
+    {
+      "iteration": 0,
+      "version": "0.6.6.8.1",
+      "status": "PASS",
+      "hash": "f39d9736c199bcf1a3994082678c3e943040aee67bb79e1c9117f4ee842be4b0",
+      "snapshot_total_ms": 631.954,
+      "elapsed_750_ms": 6905.906
+    },
+    {
+      "iteration": 0,
+      "version": "0.6.6.8.3",
+      "status": "PASS",
+      "hash": "f39d9736c199bcf1a3994082678c3e943040aee67bb79e1c9117f4ee842be4b0",
+      "snapshot_total_ms": 364.04,
+      "elapsed_750_ms": 6591.051
+    },
+    {
+      "iteration": 1,
+      "version": "0.6.6.8.1",
+      "status": "PASS",
+      "hash": "f39d9736c199bcf1a3994082678c3e943040aee67bb79e1c9117f4ee842be4b0",
+      "snapshot_total_ms": 650.065,
+      "elapsed_750_ms": 7358.433
+    },
+    {
+      "iteration": 1,
+      "version": "0.6.6.8.3",
+      "status": "PASS",
+      "hash": "f39d9736c199bcf1a3994082678c3e943040aee67bb79e1c9117f4ee842be4b0",
+      "snapshot_total_ms": 356.171,
+      "elapsed_750_ms": 6307.604
+    }
+  ],
+  "paired_runs_completed": 2,
+  "planned_runs": 3,
+  "third_run_status": "BLOCKED: tool execution timeout before completion",
+  "snapshot_total_ms_median_baseline": 641.0095,
+  "snapshot_total_ms_median_new": 360.1055,
+  "snapshot_reduction_pct": 43.82,
+  "all_tick_wall_ms_median_baseline": 7132.1695,
+  "all_tick_wall_ms_median_new": 6449.3275,
+  "all_tick_wall_reduction_pct": 9.57,
+  "sporting_hashes_identical": true,
+  "limitations": [
+    "Small sample: two completed repetitions",
+    "Headless CPU benchmark, not user PC FPS",
+    "End-to-end wall time includes other activities and scheduler jitter",
+    "Third pair incomplete"
+  ]
+}
