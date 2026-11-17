@@ -41,8 +41,18 @@
   },
   {
     "test": "Monza 53-lap complete race + full replay",
-    "status": "IN_PROGRESS",
-    "evidence": "Being run before PR merge"
+    "status": "PASS_WITH_RUNNER_LIMIT",
+    "evidence": "Godot finished 53 laps and 24431 ticks with 24 classified; full_replay_verified=true, hash equal; external wrapper exit 124 after >600s."
+  },
+  {
+    "test": "Legacy career/garage save migration",
+    "status": "PASS",
+    "evidence": "0642 save migration test in isolated user data: championship, budgets and parts retained"
+  },
+  {
+    "test": "Clean ZIP reimport and core regressions",
+    "status": "PASS",
+    "evidence": "2970 files, CRC PASS, Godot import + grip 27, Driver Dynamics 17, HUD 12 and Racecraft 1027 checks passed after reextract"
   },
   {
     "test": "GPU FPS on player's PC",
