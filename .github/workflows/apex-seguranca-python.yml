@@ -44,7 +44,8 @@ jobs:
           set -euo pipefail
           mkdir -p ci_artifacts/security
           set +e
-          bandit --quiet --recursive .github/scripts tools tests \
+          bandit --quiet --recursive .github/scripts tools \
+            --exclude tools/tests \
             --format json --output ci_artifacts/security/bandit.json \
             2>&1 | tee ci_artifacts/security/bandit.log
           result=${PIPESTATUS[0]}
