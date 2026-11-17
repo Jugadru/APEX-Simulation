@@ -76,7 +76,7 @@ func run() -> void:
 	var session = Replay.new()
 	session.attach(race)
 	var payload: Dictionary = session.export_data()
-	check(payload.simulation_revision == "0661_driver_dynamics","Revision stamped in replay")
+	check(payload.simulation_revision == Replay.SIMULATION_REVISION,"Revision stamped in replay")
 	payload.erase("simulation_revision")
 	var incompatible = Replay.new()
 	check(not incompatible.load_data(payload),"0.6.6.0 trace rejected without false playback")

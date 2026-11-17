@@ -1,4 +1,15 @@
-# APEX Motorsport Manager — Core 2 v0.6.6.8.7
+# APEX Motorsport Manager — Core 2 v0.6.6.8.8
+
+## Racecraft 2.0 — defesa consciente da aderência
+
+A novidade é uma decisão de **defesa antecipada** mais prudente quando a pista está molhada e o defensor tem pneus gastos e percepção espacial limitada. Pilotos com melhor consciência espacial e pneus em bom estado ainda podem defender. O piloto **não recebe velocidade artificial**; depois de iniciar a disputa, a linha defensiva permanece travada (sem segunda mudança de direção). **O comportamento na pista seca permanece igual ao da v0.6.6.8.7.**
+
+**Replay:** como uma decisão real da simulação mudou na chuva, novos registros usam `simulation_revision = 06688_grip_aware_defense`. Replays sob regras anteriores são **recusados explicitamente**, não reproduzidos com hashes incompatíveis. Faça backup de saves e replays antes de trocar de versão. O Core 2 continua único motor esportivo oficial; Next Engine suspensa.
+
+[Relatório v8.8](APEX_06688_RELATORIO_TECNICO.md) · [Matriz de testes](APEX_06688_MATRIZ_TESTES.json) · [Changelog](APEX_06688_CHANGELOG.md)
+
+---
+
 
 Simulador de gestão de automobilismo criado em **Godot 4.7.2**. A branch `main` usa o **Core 2** como motor esportivo oficial. A **APEX 2 Next Engine** é uma experiência separada e **não está ativada**.
 

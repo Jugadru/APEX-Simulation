@@ -4,6 +4,7 @@ extends RefCounted
 ## Numerical values are gameplay approximations, not FIA-measured behavior.
 
 const CAR_WIDTH := 2.95
+const GripDefense = preload("res://scripts/core/race_defense_grip_06688.gd")
 
 static func choose(attacker: Dictionary, defender: Dictionary,
 		gap_m: float, advantage_s: float, usable_lane: float,
@@ -29,7 +30,8 @@ static func choose(attacker: Dictionary, defender: Dictionary,
 	# A defender may make ONE early move. After the attacker is within
 	# 1.8 car lengths, line changes are prohibited, even with high aggression.
 	var can_move: bool = gap_m > 11.5 and gap_m < 36.0
-	var defensive_move: bool = aggression >= 47.0 and can_move
+	var grip_defense: Dictionary = GripDefense.evaluate(defender, gap_m, weather)
+	var defensive_move: bool = bool(grip_defense["early_move"])
 	if same_duel and absf(float(defender.get("race_defense_line", 0.0))) > 0.10:
 		defend_lane = clampf(float(defender.get("race_defense_line")), -usable_lane, usable_lane)
 	elif defensive_move and absf(defend_lane) < 0.20:
@@ -67,7 +69,9 @@ static func choose(attacker: Dictionary, defender: Dictionary,
 		"side": "right" if side > 0.0 else "left",
 		"margin_m": margin, "threshold_s": required,
 		"overlap": overlap, "advantage_s": advantage_s,
-		"blocked": eligible and prepared and advantage_s > required and not good_gap}
+		"blocked": eligible and prepared and advantage_s > required and not good_gap,
+		"defense_caution": float(grip_defense["caution"]),
+		"defense_effective_aggression": float(grip_defense["effective_aggression"])}
 
 static func CombatZone(car: Dictionary, track: Dictionary) -> bool:
 	# Keep a single source for circuit passing zones.
