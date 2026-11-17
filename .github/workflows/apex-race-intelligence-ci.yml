@@ -1,0 +1,73 @@
+name: APEX - Race Intelligence Tester
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/**'
+      - 'data/**'
+      - 'tests/ci/apex_race_intelligence_probe.gd'
+      - 'tests/core_0552_tyre_ai_smoke_test.gd'
+      - 'tests/core_0570_ai_director_smoke_test.gd'
+      - 'tests/lap_strategy_06496_auto_gate_test.gd'
+      - 'tests/pitwall_0667_same_tick_regression.gd'
+      - 'tools/apex_race_intelligence_ci.py'
+      - 'tools/tests/test_apex_race_intelligence_ci.py'
+      - '.github/workflows/apex-race-intelligence-ci.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: apex-race-intelligence-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  race-intelligence:
+    name: Pit Wall, chuva, manual e IA / 2012
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Baixar o APEX
+        uses: actions/checkout@v4
+
+      - name: Instalar Godot 4.7.2
+        uses: lihop/godot-setup@v3.0.1
+        with:
+          version: 4.7.2-stable
+
+      - name: Validar contrato do comparador Python
+        run: |
+          python3 -m unittest discover -s tools/tests \
+            -p 'test_apex_race_intelligence_ci.py' -v
+
+      - name: Importar recursos e classes
+        run: godot --headless --path . --import
+
+      - name: Testar estrategia com motor real e 2 repeticoes por cenario
+        run: |
+          python3 tools/apex_race_intelligence_ci.py \
+            --project . \
+            --godot godot \
+            --timeout 150 \
+            --output ci_artifacts/race_intelligence
+
+      - name: Publicar resultado e limites
+        if: always()
+        shell: bash
+        run: |
+          if [ -f ci_artifacts/race_intelligence/report.md ]; then
+            cat ci_artifacts/race_intelligence/report.md >> "$GITHUB_STEP_SUMMARY"
+          elif [ -f ci_artifacts/race_intelligence/error.txt ]; then
+            echo '### Race Intelligence Tester: FAIL' >> "$GITHUB_STEP_SUMMARY"
+            cat ci_artifacts/race_intelligence/error.txt >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Guardar todas as evidencias e logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apex-race-intelligence-relatorios
+          path: ci_artifacts/race_intelligence/
+          retention-days: 14
+          if-no-files-found: warn
