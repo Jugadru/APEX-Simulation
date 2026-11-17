@@ -10,10 +10,13 @@ O fluxo reutiliza cenários existentes (sem refatorá-los):
 1. `tests/high_speed_growth_066723_benchmark.gd`: 6.000 ticks de Monza,
    seed 660, 24 carros, hashes de replay, amostras a cada 250 ticks e
    memória estática monitorada pelo Godot.
-2. `tests/long_race_benchmark_0663.gd`: **GP completo de Monza**, tempo
-   seco, seed 660, ordens de pit e replay; exige bandeirada e hash final.
+2. `tests/ci/apex_full_gp_endurance.gd`: **GP completo de Monza**, tempo
+   seco, seed 660, passos de 4 segundos no RaceEngine e ordens manuais
+   de pit perto da volta 20; exige bandeirada, 24 carros finalizados e hash.
 3. A mesma fixture com **GP completo de Silverstone**, chuva intensa,
-   seed 661; exige bandeirada e hash final.
+   seed 661; exige bandeirada, duas ordens de pit e hash final.
+   O replay de 0,2 segundo por tick é testado separadamente no item 1;
+   não é adequado limitar um GP completo a 15 mil desses ticks (50 min).
 4. `tests/career_0667_20_season_data_stress.gd`: 20 temporadas
    **administrativas**, 400 resultados registrados, validação de
    persistência, recargas de arquivo e rejeição de resultados duplicados.
@@ -33,7 +36,7 @@ falha de carregamento, corrida incompleta ou timeout **reprova** a rotina.
 - Coleta aproximada da memória RSS observável do processo no Linux.
   Se não for possível amostrar, informa `null`, nunca inventa medição.
   RSS observado >2 GiB reprova como limite de proteção do runner.
-- O GitHub Actions permite 5 minutos por execução de um cenário e
+- O GitHub Actions permite até 7,5 minutos por execução de um cenário e
   timeout total do job de 35 minutos. Esses limites são de CI e
   precisam ser recalibrados conforme hardware e escopo.
 - **Não são 400 GPs simulados.** O teste de carreira cobre apenas os dados
@@ -41,7 +44,8 @@ falha de carregamento, corrida incompleta ou timeout **reprova** a rotina.
 - Não cobre FPS, desempenho da GPU, apresentação 3D, PCs do jogador,
   quantidade arbitrária de temporadas ou desempenho em velocidades
   efetivas 16x/32x.
-- Os GPs são física + replay sem apresentação gráfica. O resultado não
+- Os GPs completos usam o RaceEngine diretamente, enquanto Monza também
+  verifica replay/telemetria prolongados, todos sem apresentação gráfica. O resultado não
   implica que o sistema de pit ou IA está perfeito em todos os cenários.
 
 ## Execução e artefatos
