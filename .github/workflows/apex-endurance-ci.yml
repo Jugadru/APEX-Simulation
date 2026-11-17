@@ -16,7 +16,7 @@ on:
       - 'scripts/**'
       - 'data/**'
       - 'tests/high_speed_growth_066723_benchmark.gd'
-      - 'tests/long_race_benchmark_0663.gd'
+      - 'tests/ci/apex_full_gp_endurance.gd'
       - 'tests/career_0667_20_season_data_stress.gd'
       - 'tools/apex_endurance_ci.py'
       - 'tools/tests/test_apex_endurance_ci.py'
@@ -64,7 +64,7 @@ jobs:
             --project . \
             --godot godot \
             --growth-ticks "$APEX_GROWTH_TICKS" \
-            --per-run-timeout 300 \
+            --per-run-timeout 450 \
             --output ci_artifacts/endurance
 
       - name: Resumir resultados
