@@ -86,12 +86,12 @@ jobs:
           done
 
 
-      - name: Probe two real licensed Commons driver portraits (optional network QA)
+      - name: Probe all 24 individually licensed Commons portraits (optional network QA)
         continue-on-error: true
         shell: bash
         run: |
           set -o pipefail
-          timeout 120s godot --headless --single-threaded-scene --path . --script res://tests/driver_identity_066811_network_probe.gd 2>&1 | tee portrait-network.log
+          timeout 210s godot --headless --single-threaded-scene --path . --script res://tests/driver_identity_066811_network_probe.gd 2>&1 | tee portrait-network.log
 
       - name: Save optional Wikimedia probe log
         if: always()
@@ -99,6 +99,70 @@ jobs:
         with:
           name: apex-driver-portraits-live-probe
           path: portrait-network.log
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Build portrait source and HUD-crop contact sheets for human review
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet pillow
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+          from PIL import Image, ImageOps, ImageDraw, ImageFont
+
+          entries = json.loads(Path("data/driver_identity_2012.json").read_text())["drivers"]
+          base = Path("dist/portrait_previews")
+          base.mkdir(parents=True, exist_ok=True)
+          try:
+              font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 14)
+              header_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 18)
+          except OSError:
+              font = ImageFont.load_default()
+              header_font = font
+          cw, ch, columns, head = 255, 215, 4, 54
+          for style in ("full", "hud_crop"):
+              sheet = Image.new("RGB", (cw*columns, head + ch*6), (17, 24, 38))
+              draw = ImageDraw.Draw(sheet)
+              draw.text((14, 12), f"2012 APEX - {'original photos' if style == 'full' else 'center-cropped HUD preview'}", fill=(245, 245, 245), font=header_font)
+              for i, entry in enumerate(entries):
+                  x, y = (i % columns)*cw, head + (i // columns)*ch
+                  p = base / f"driver_{entry['number']:02d}.jpg"
+                  draw.rectangle((x+4,y+4,x+cw-5,y+ch-5), outline=(68,86,109), width=1)
+                  if p.is_file():
+                      with Image.open(p) as im:
+                          photo = im.convert("RGB")
+                          if style == "full":
+                              photo.thumbnail((235,168))
+                              px,py = x + (cw-photo.width)//2, y+7+(168-photo.height)//2
+                              sheet.paste(photo,(px,py))
+                          else:
+                              # Mirror narrow vertical cover crop in the game's card (74x114 aspect).
+                              photo = ImageOps.fit(photo, (110,168), method=Image.Resampling.LANCZOS)
+                              sheet.paste(photo,(x+(cw-110)//2,y+7))
+                      label_color=(239,246,255)
+                  else:
+                      draw.text((x+30,y+75),"PHOTO NOT LOADED",fill=(255,170,170),font=font)
+                      label_color=(255,170,170)
+                  draw.text((x+12,y+181),f"#{entry['number']} {entry['name']}",fill=label_color,font=font)
+              draw.text((14,head+ch*6-16),"Photos: Gussisaurio / Wikimedia Commons / CC BY-SA 3.0 - preview cropping indicated",fill=(230,195,149),font=font)
+              filename = base.parent / f"portrait_contact_sheet_{style}.png"
+              sheet.save(filename)
+              loaded_count = len(list(base.glob('driver_*.jpg')))
+              print(f'PORTRAIT_SHEET {filename} loaded={loaded_count}/24')
+          PY
+
+      - name: Upload visual portrait review sheets and credits
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apex-2012-driver-face-review
+          path: |
+            dist/portrait_contact_sheet_*.png
+            dist/portrait_previews/*.jpg
+            docs/DRIVER_PORTRAITS_2012_CREDITS.md
           if-no-files-found: ignore
           retention-days: 7
 
