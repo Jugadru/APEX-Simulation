@@ -1,0 +1,42 @@
+[
+  {
+    "test": "24 original drivers, 12 teams, 2012 numbers & nationalities",
+    "status": "PENDING_CI",
+    "evidence": "tests/driver_identity_066811_catalog_test.gd"
+  },
+  {
+    "test": "Radio, portraits vs initials, credits, no sports mutation",
+    "status": "PENDING_CI",
+    "evidence": "tests/driver_identity_066811_ui_test.gd"
+  },
+  {
+    "test": "Core 2 legacy regression suite",
+    "status": "PENDING_CI",
+    "evidence": "13 existing deterministic tests in GitHub Actions"
+  },
+  {
+    "test": "Wikimedia per-file license validation",
+    "status": "RUNTIME_GUARD",
+    "evidence": "Check LicenseShortName CC BY-SA 3.0 and Artist Gussisaurio before cache"
+  },
+  {
+    "test": "Individual face framing on 24 photographs",
+    "status": "MANUAL_REVIEW_REQUIRED",
+    "evidence": "Face/portrait framing cannot be guaranteed by source filename or a headless smoke test"
+  },
+  {
+    "test": "Online download of all 24 photos",
+    "status": "NOT_RUN",
+    "evidence": "Requires network to Commons at game runtime; user opt-in"
+  },
+  {
+    "test": "Sporting source changes",
+    "status": "NONE",
+    "evidence": "RaceEngine, RaceSpace, Replay unchanged"
+  },
+  {
+    "test": "Full GP / FPS GPU / multi-season saves",
+    "status": "NOT_RUN",
+    "evidence": "Presentation-only release, no sporting algorithm changes"
+  }
+]
