@@ -260,7 +260,7 @@ func _ready() -> void:
 	var preview := get_node_or_null("EditorPreview")
 	if preview != null:
 		preview.hide()
-	get_window().title = "APEX Motorsport Manager — v0.6.6.8.10 / Core 2 Cooperação de Equipe 2.0 • Replay F9"
+	get_window().title = "APEX Motorsport Manager — v0.6.6.8.11 / Core 2 Driver Identity Pack 2012 • Replay F9"
 	_load_season_data()
 	_load_hud_prefs()
 	garage = GarageScript.new()
@@ -414,6 +414,8 @@ func _on_portrait_finished() -> void:
 		_rebuild_player_cards()
 		_layout_ui()
 		_update_game_ui()
+	if race_hud_0620 != null and is_instance_valid(race_hud_0620):
+		race_hud_0620._refresh_radio_identity()
 
 func _on_team_selected(index: int) -> void:
 	if championship_mode:
