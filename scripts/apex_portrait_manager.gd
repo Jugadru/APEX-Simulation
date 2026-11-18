@@ -185,7 +185,8 @@ func _request_completed(result: int, status_code: int, _headers: PackedStringArr
 			_skip("Formato não suportado")
 			return
 		_image_url = str(image_info.get("thumburl", image_info.get("url", "")))
-		if not _image_url.begins_with("https://upload.wikimedia.org/"):
+		if not (_image_url.begins_with("https://thumb.wikimedia.org/wikipedia/commons/thumb/") \
+			or _image_url.begins_with("https://upload.wikimedia.org/wikipedia/commons/")):
 			_skip("Origem de imagem inválida: " + _image_url.left(180))
 			return
 		_phase = "image_pending"
