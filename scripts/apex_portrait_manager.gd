@@ -186,7 +186,7 @@ func _request_completed(result: int, status_code: int, _headers: PackedStringArr
 			return
 		_image_url = str(image_info.get("thumburl", image_info.get("url", "")))
 		if not _image_url.begins_with("https://upload.wikimedia.org/"):
-			_skip("Origem de imagem inválida")
+			_skip("Origem de imagem inválida: " + _image_url.left(180))
 			return
 		_phase = "image_pending"
 		call_deferred("_request_image")
