@@ -1,0 +1,42 @@
+[
+  {
+    "test": "Godot 4.7.2 clean import",
+    "status": "PASS",
+    "evidence": "ZIP reextracted; --import exit 0"
+  },
+  {
+    "test": "Manual team authorization/cancel/replay",
+    "status": "PASS",
+    "evidence": "36 checks, V21, eligibility, expiration, lane suppression, 100 replay ticks"
+  },
+  {
+    "test": "Live radio HUD authorization",
+    "status": "PASS",
+    "evidence": "18 checks; pending command and cancel, V21 intact"
+  },
+  {
+    "test": "Core 2 previous regressions",
+    "status": "PASS",
+    "evidence": "15/15 tests including Racecraft 1027, Driver Dynamics, radios, pit and replay"
+  },
+  {
+    "test": "4 circuits without team orders, 150 ticks",
+    "status": "PASS",
+    "evidence": "Normalized sporting hashes at 1/80/150, events, RNG, standings identical to 8.9"
+  },
+  {
+    "test": "4 circuits x 750 ticks",
+    "status": "INCONCLUSIVE",
+    "evidence": "Environment time limit before completion"
+  },
+  {
+    "test": "Full GP / GPU FPS / multi-season career",
+    "status": "NOT_RUN",
+    "evidence": "Outside bounded scope"
+  },
+  {
+    "test": "GitHub CI on PR",
+    "status": "PENDING",
+    "evidence": "Wait for Godot import + 13 smoke tests"
+  }
+]

@@ -1,4 +1,14 @@
-# APEX Motorsport Manager — Core 2 v0.6.6.8.9
+# APEX Motorsport Manager — Core 2 v0.6.6.8.10
+
+## Ordens de Equipe 1.0 — autorização real (v0.6.6.8.10)
+
+Na janela **RÁDIO**, primeiro escolha o piloto que está atrás e use **COMPARAR COMPANHEIRO**. Quando há duas voltas de vantagem sustentada, menos de 1,5 segundo de distância, posições adjacentes, pneus adequados e segurança, o botão **AUTORIZAR NÃO DEFENDER** envia uma ordem explícita ao companheiro da frente. O pedido é aplicado **no tick seguinte** pelo replay e permite que o líder evite uma defesa antecipada agressiva por até **15 segundos de tempo de simulação**, sem garantir passagem nem dar velocidade artificial. A pista continua respeitando ocupação lateral, segurança e espaço físico no Core 2. O jogador pode usar **CANCELAR AUTORIZAÇÃO**.
+
+Não há ultrapassagem automática, cancelamento de BOX V21, alteração de pneus, ritmo ou prioridade de pit. Quando a manobra não é segura, o sistema recusa a ordem. Como comandos e estado esportivo foram atualizados, replays gravados nas regras anteriores **não carregam na 8.10**; mantenha a 8.9 para reproduzi-los. O formato dos saves de carreira não foi migrado.
+
+[Relatório 8.10](APEX_066810_RELATORIO_TECNICO.md) · [Matriz de testes 8.10](APEX_066810_MATRIZ_TESTES.json) · [Changelog 8.10](APEX_066810_CHANGELOG.md)
+
+---
 
 ## Cooperação de Equipe 2.0 — rádio consultivo (v0.6.6.8.9)
 

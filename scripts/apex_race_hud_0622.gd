@@ -1097,7 +1097,7 @@ func _build_events_window() -> void:
 
 func _build_radio_window() -> void:
 	overlay_title.text = "RÁDIO — PERGUNTAR AO ENGENHEIRO"
-	_text(overlay_content, "Perguntas rápidas sobre a situação real da corrida. Nenhuma pergunta executa ordens.", 11, MUTED)
+	_text(overlay_content, "Consultas não emitem ordens. AUTORIZAR PASSAGEM executa apenas com clique explícito; revogável.", 11, MUTED)
 	var driver_line := _line(overlay_content, 8)
 	_text(driver_line, "PILOTO", 11, ACCENT)
 	radio_driver_ids.clear()
@@ -1120,8 +1120,11 @@ func _build_radio_window() -> void:
 		button.tooltip_text = "Consultar o engenheiro sem alterar o comando da equipe"
 	var discuss_line := _line(overlay_content, 8)
 	_btn(discuss_line, "DISCUTIR STINT", _discuss_stint, 162).tooltip_text = "Confrontar sensação fictícia e telemetria; não executa box"
-	_btn(discuss_line, "COMPARAR COMPANHEIRO", _compare_teammate, 194).tooltip_text = "Análise consultiva de diferença de ritmo, distância e aderência; não emite ordens"
-	_text(discuss_line, "Discussão consultiva; nenhuma decisão é executada.", 11, MUTED)
+	_btn(discuss_line, "COMPARAR COMPANHEIRO", _compare_teammate, 194).tooltip_text = "Análise consultiva; não executa ordens"
+	_text(discuss_line, "Discussões não executam ordens.", 11, MUTED)
+	var order_line := _line(overlay_content, 8)
+	_btn(order_line, "AUTORIZAR NÃO DEFENDER", _authorize_teammate_pass, 194).tooltip_text = "Ordem REAL do jogador: líder não bloqueia agressivamente o companheiro por até 15s. Exige vantagem de ritmo comprovada."
+	_btn(order_line, "CANCELAR AUTORIZAÇÃO", _cancel_teammate_pass, 172).tooltip_text = "Cancelar no próximo tick a autorização ativa; não altera BOX"
 	var response_line := _line(overlay_content, 8)
 	_btn(response_line, "APOIAR PILOTO", _answer_stint.bind("piloto"), 139).tooltip_text = "Reconhecer a opinião do piloto no rádio; não altera o ritmo, pneus ou estratégia"
 	_btn(response_line, "PRIORIZAR DADOS", _answer_stint.bind("engenheiro"), 153).tooltip_text = "Dar prioridade à telemetria no diálogo; não envia ordens"
@@ -1401,6 +1404,57 @@ func _compare_teammate() -> void:
 	var evaluation: Dictionary = TeamRadioAdvice.evaluate(selected, teammate, snapshot.get("weather", {}))
 	radio_response_label.text = "%s: %s\nENGENHEIRO: %s" % [
 		str(selected.get("name", "Piloto")), str(evaluation.get("driver", "")), str(evaluation.get("engineer", ""))]
+	_set_radio_category(2)
+
+# Explicit player command, not a radio question. The leader is asked to avoid
+# an early defensive block for up to 15s; the follower still must overtake safely.
+func _authorize_teammate_pass() -> void:
+	if host == null or host.race == null or radio_driver_picker == null or radio_driver_ids.is_empty():
+		return
+	var index: int = radio_driver_picker.selected
+	if index < 0 or index >= radio_driver_ids.size():
+		return
+	var chase_id: int = radio_driver_ids[index]
+	var snapshot: Dictionary = host.race.get_state_snapshot()
+	var selected: Dictionary = {}
+	var leader: Dictionary = {}
+	for car in snapshot.get("cars", []):
+		if int(car.get("id", -1)) == chase_id:
+			selected = car
+	if selected.is_empty():
+		return
+	for car in snapshot.get("cars", []):
+		if int(car.get("id", -1)) != chase_id and str(car.get("team", "")) == str(selected.get("team", "")):
+			leader = car
+			break
+	var decision: Dictionary = TeamRadioAdvice.evaluate(selected, leader, snapshot.get("weather", {}))
+	if str(decision.get("state", "")) != "avaliar_passagem" or int(decision.get("chasing_id", -1)) != chase_id:
+		radio_response_label.text = "ENGENHEIRO: ordem não autorizada: piloto atrás precisa de duas voltas de vantagem, proximidade e condições seguras. Use COMPARAR COMPANHEIRO."
+	else:
+		var front_id: int = int(decision.get("leading_id", -1))
+		if host.race.authorize_team_yield(front_id, chase_id):
+			radio_response_label.text = "ORDEM ENFILEIRADA: %s evitará defesa agressiva contra %s por até 15s após confirmação no próximo tick. Sem garantia de ultrapassagem; BOX preservado." % [str(leader.get("name", "Líder")), str(selected.get("name", "Companheiro"))]
+		else:
+			radio_response_label.text = "ENGENHEIRO: comando não aceito; situação pode ter mudado ou já existe uma ordem pendente."
+	_set_radio_category(2)
+
+func _cancel_teammate_pass() -> void:
+	if host == null or host.race == null:
+		return
+	var car_id: int = -1
+	if radio_driver_picker != null and radio_driver_picker.selected >= 0 and radio_driver_picker.selected < radio_driver_ids.size():
+		car_id = radio_driver_ids[radio_driver_picker.selected]
+	var front: Dictionary = {}
+	for c in host.race.player_cars():
+		if int(c.get("team_yield_ticks", 0)) > 0 and (int(c.get("team_yield_to_id", -1)) == car_id or int(c.get("id", -1)) == car_id):
+			front = c
+			break
+	if front.is_empty():
+		radio_response_label.text = "ENGENHEIRO: não existe autorização ativa para o piloto selecionado."
+	elif host.race.cancel_team_yield(int(front.id)):
+		radio_response_label.text = "CANCELAMENTO ENFILEIRADO: autorização encerrada no próximo tick. BOX preservado."
+	else:
+		radio_response_label.text = "ENGENHEIRO: cancelamento não aceito; confira comandos pendentes."
 	_set_radio_category(2)
 
 func _discuss_stint() -> void:
