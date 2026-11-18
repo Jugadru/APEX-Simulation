@@ -7,7 +7,7 @@ const WHITE := Color("#F3F5F6")
 const MUTED := Color("#B7C3CC")
 const ACCENT := Color("#FF8A21")
 
-static func reference() -> Dictionary:
+static func _load_reference_catalog() -> Dictionary:
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(REFERENCE_PATH))
 	if typeof(parsed) != TYPE_DICTIONARY:
 		return {}
@@ -15,7 +15,7 @@ static func reference() -> Dictionary:
 
 static func snapshot(teams: Array, tracks: Array) -> Dictionary:
 	# Immutable projection of existing sources, without touching race rules.
-	var meta: Dictionary = reference()
+	var meta: Dictionary = _load_reference_catalog()
 	var tyre_data: Dictionary = Tyres.catalog()
 	var compounds: Dictionary = tyre_data.get("compounds", {})
 	var models: Dictionary = meta.get("chassis_by_team", {})
