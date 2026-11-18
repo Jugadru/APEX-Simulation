@@ -9,3 +9,6 @@
 - Documentação e links de crédito de cada fonte em `docs/DRIVER_PORTRAITS_2012_CREDITS.md`. Nenhuma foto recortada do pôster YankeeF1 foi reutilizada.
 - Sem qualquer modificação nas regras esportivas, replays, saves, ordens de equipe ou motor Core 2.
 - **Limites:** fotos individuais são baixadas pelo jogador após autorização no menu; não estão embutidas no ZIP. Enquadramento e apresentação de todas as 24 fotos reais ainda exigem revisão visual manual.
+
+- Estabilidade de rede: intervalos de 1,5 s e até quatro retentativas com backoff limitado para HTTP 429/5xx, respeitando `Retry-After`; novas tentativas não alteram o Core 2.
+- Validação CI: Godot 4.7.2, 16 testes Godot, 24/24 fotos verificadas por metadados e baixadas em ambiente com rede. Recortes individuais seguem sujeitos à revisão visual humana.
