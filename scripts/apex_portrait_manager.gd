@@ -59,6 +59,10 @@ func _load_catalogue() -> void:
 func get_info(driver_name: String) -> Dictionary:
 	return _entries.get(driver_name, {}).duplicate(true)
 
+func get_abbreviation(driver_name: String) -> String:
+	# The curated 2012 code is authoritative; unknown drivers use a UI fallback.
+	return str(_entries.get(driver_name, {}).get("abbr", ""))
+
 func get_credit(driver_name: String) -> String:
 	var info: Dictionary = _entries.get(driver_name, {})
 	if info.is_empty():
