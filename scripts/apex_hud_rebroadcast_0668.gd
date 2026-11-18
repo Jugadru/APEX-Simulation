@@ -93,13 +93,14 @@ static func _order_status(car: Dictionary) -> String:
 
 static func update_row(row: Dictionary, car: Dictionary, index: int, own_team: String,
 		detail: String, tire: String, selected_id: int, idle_style: StyleBoxFlat,
-		active_style: StyleBoxFlat, pending: Dictionary = {}) -> int:
+		active_style: StyleBoxFlat, pending: Dictionary = {}, official_abbr: String = "") -> int:
 	# Update only the properties whose displayed values have changed; row nodes
 	# are allocated just once per 24-car grid, never recreated per refresh.
 	var changes := 0
 	var name: String = str(car.get("name", "Piloto"))
 	var pieces: PackedStringArray = name.split(" ", false)
-	var abbr: String = (name if pieces.is_empty() else pieces[pieces.size() - 1]).left(3).to_upper()
+	var fallback_abbr: String = (name if pieces.is_empty() else pieces[pieces.size() - 1]).left(3).to_upper()
+	var abbr: String = official_abbr.to_upper() if official_abbr.length() == 3 else fallback_abbr
 	changes += set_text_if_changed(row["pos"], "%02d" % (index + 1))
 	changes += set_text_if_changed(row["driver"], abbr)
 	changes += set_text_if_changed(row["detail"], detail)
