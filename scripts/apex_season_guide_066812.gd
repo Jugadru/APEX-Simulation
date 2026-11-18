@@ -145,7 +145,7 @@ static func _build(host) -> AcceptDialog:
 		_swatch(line, str(item["color"]))
 		var body := _column(line, 2)
 		_label(body, "%s  •  %s" % [str(item["name"]), str(item["chassis"])], 14)
-		_label(body, "%s  |  %s" % [str(item["engine"]), " / ".join(item["drivers"])], 11, MUTED)
+		_label(body, "%s  |  %s" % [str(item["engine"]), " / ".join(PackedStringArray(item["drivers"]))], 11, MUTED)
 		_action(line, "ESCOLHER EQUIPE", _pick_team.bind(host, i, dialog), bool(host.championship_mode))
 	_label(teams, "Nomes e cores de referência; não foram adicionados modelos 3D nem pinturas externas.", 11, MUTED)
 	var calendar := _tab(tabs, "CALENDÁRIO")
@@ -158,7 +158,7 @@ static func _build(host) -> AcceptDialog:
 		var body := _column(line, 2)
 		_label(body, "%02d  •  %s  •  %s" % [int(item["round"]), date_label, str(item["circuit"])], 13)
 		var choices: Array = item["dry"]
-		_label(body, "%s  |  %d voltas  |  %s" % [str(item["country"]), int(item["laps"]), " + ".join(choices)], 11, MUTED)
+		_label(body, "%s  |  %d voltas  |  %s" % [str(item["country"]), int(item["laps"]), " + ".join(PackedStringArray(choices))], 11, MUTED)
 		_action(line, "PREPARAR GP", _pick_track.bind(host, i, dialog), bool(host.championship_mode))
 	_label(calendar, "Fonte: calendário FIA 2012. Não reproduz resultados históricos automaticamente.", 11, MUTED)
 	return dialog
