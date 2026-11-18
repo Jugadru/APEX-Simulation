@@ -420,7 +420,7 @@ func _create_driver_card(car: Dictionary, slot: int) -> void:
 		portrait_column.add_child(face)
 	else:
 		var bits: PackedStringArray = driver_name.split(" ", false)
-		var portrait_mark := _text(portrait_column, bits[bits.size()-1].left(3).to_upper(), 18, WHITE)
+		var portrait_mark := _text(portrait_column, str(identity.get("abbr", bits[bits.size()-1].left(3).to_upper())), 18, WHITE)
 		portrait_mark.custom_minimum_size = Vector2(76, 85)
 		portrait_mark.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		portrait_mark.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -720,10 +720,13 @@ func refresh_hud() -> void:
 		if i >= order.size():
 			continue
 		var car: Dictionary = order[i]
+		var official_abbr: String = ""
+		if host.portrait_manager != null:
+			official_abbr = host.portrait_manager.get_abbreviation(str(car.get("name", "")))
 		ranking_field_writes += ReBroadcast.update_row(row, car, i, str(host.selected_team),
 			_standing_value(order, i), _compound(str(car.get("tire", "Médio"))),
 			int(host.manual_driver), rank_idle_style, rank_selected_style,
-			pending_pits.get(int(car.get("id", -1)), {}))
+			pending_pits.get(int(car.get("id", -1)), {}), official_abbr)
 	for i in range(race_card_panels.size()):
 		var card: Dictionary = race_card_panels[i]
 		var car: Dictionary = _driver_from_slot(i)
@@ -1227,7 +1230,7 @@ func _refresh_radio_identity() -> void:
 	radio_portrait_texture.visible = photo != null
 	if radio_portrait_placeholder != null:
 		var bits: PackedStringArray = driver_name.split(" ", false)
-		radio_portrait_placeholder.text = bits[bits.size()-1].left(3).to_upper()
+		radio_portrait_placeholder.text = str(info.get("abbr", bits[bits.size()-1].left(3).to_upper()))
 		radio_portrait_placeholder.visible = photo == null
 	var detail: String = "%s  •  #%d  •  %s  •  %s" % [
 		driver_name, int(info.get("number", 0)),
