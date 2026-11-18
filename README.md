@@ -1,4 +1,14 @@
-# APEX Motorsport Manager — Core 2 v0.6.6.8.8
+# APEX Motorsport Manager — Core 2 v0.6.6.8.9
+
+## Cooperação de Equipe 2.0 — rádio consultivo (v0.6.6.8.9)
+
+O sistema Soul 2.0 já permite ao piloto pedir uma revisão da ordem de equipe quando seu ritmo é consistentemente superior ao do companheiro. Agora, em **RÁDIO > COMPARAR COMPANHEIRO**, o engenheiro confronta o pedido com dados atuais: tempo da última volta de cada carro, diferença de ritmo, distância entre companheiros adjacentes, duas voltas consecutivas de vantagem, chuva, desgaste e operações de box. Se as informações não forem suficientes, informa a incerteza em vez de inventar uma conclusão.
+
+**A ação é somente consultiva:** não ordena ultrapassagem, não altera velocidade, pneus, Pit Wall, regras esportivas, RNG, saves ou replay. Um BOX V21 previamente marcado continua agendado. Replays da 8.8 permanecem sob o mesmo motor esportivo.
+
+[Relatório v8.9](APEX_06689_RELATORIO_TECNICO.md) · [Matriz de testes v8.9](APEX_06689_MATRIZ_TESTES.json) · [Changelog v8.9](APEX_06689_CHANGELOG.md)
+
+---
 
 ## Racecraft 2.0 — defesa consciente da aderência
 

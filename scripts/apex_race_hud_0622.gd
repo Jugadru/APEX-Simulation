@@ -16,6 +16,7 @@ const SoulReactive = preload("res://scripts/core/race_soul_reactive_0637.gd")
 const Engineer2 = preload("res://scripts/core/race_engineer_0645.gd")
 const Engineer3 = preload("res://scripts/core/race_engineer_0646.gd")
 const DriverSoul2 = preload("res://scripts/core/race_driver_soul_0647.gd")
+const TeamRadioAdvice = preload("res://scripts/core/race_team_radio_advice_06689.gd")
 const RaceEngineer = preload("res://scripts/core/race_engineer_0639.gd")
 const PitWallIntel = preload("res://scripts/core/race_pitwall_intelligence_0640.gd")
 const PitWallStrategy3 = preload("res://scripts/core/race_pitwall_strategy_0649.gd")
@@ -1119,6 +1120,7 @@ func _build_radio_window() -> void:
 		button.tooltip_text = "Consultar o engenheiro sem alterar o comando da equipe"
 	var discuss_line := _line(overlay_content, 8)
 	_btn(discuss_line, "DISCUTIR STINT", _discuss_stint, 162).tooltip_text = "Confrontar sensação fictícia e telemetria; não executa box"
+	_btn(discuss_line, "COMPARAR COMPANHEIRO", _compare_teammate, 194).tooltip_text = "Análise consultiva de diferença de ritmo, distância e aderência; não emite ordens"
 	_text(discuss_line, "Discussão consultiva; nenhuma decisão é executada.", 11, MUTED)
 	var response_line := _line(overlay_content, 8)
 	_btn(response_line, "APOIAR PILOTO", _answer_stint.bind("piloto"), 139).tooltip_text = "Reconhecer a opinião do piloto no rádio; não altera o ritmo, pneus ou estratégia"
@@ -1373,6 +1375,32 @@ func _ask_driver() -> void:
 	if host.commentary != null:
 		host.commentary.add_driver_consultation(float(snapshot.get("time", 0.0)), driver_name, impression, str(facts["reply"]), car_id)
 	_update_soul_status()
+	_set_radio_category(2)
+
+func _compare_teammate() -> void:
+	# Radio-only consultation, using a read-only engine snapshot.
+	# The player's existing team-order request still comes from Soul 2.0.
+	if host == null or host.race == null or radio_driver_picker == null or radio_driver_ids.is_empty():
+		return
+	var index: int = radio_driver_picker.selected
+	if index < 0 or index >= radio_driver_ids.size():
+		return
+	var car_id: int = radio_driver_ids[index]
+	var snapshot: Dictionary = host.race.get_state_snapshot()
+	var selected: Dictionary = {}
+	var teammate: Dictionary = {}
+	for entry in snapshot.get("cars", []):
+		if int(entry.get("id", -1)) == car_id:
+			selected = entry
+	if selected.is_empty():
+		return
+	for entry in snapshot.get("cars", []):
+		if int(entry.get("id", -1)) != car_id and str(entry.get("team", "")) == str(selected.get("team", "")):
+			teammate = entry
+			break
+	var evaluation: Dictionary = TeamRadioAdvice.evaluate(selected, teammate, snapshot.get("weather", {}))
+	radio_response_label.text = "%s: %s\nENGENHEIRO: %s" % [
+		str(selected.get("name", "Piloto")), str(evaluation.get("driver", "")), str(evaluation.get("engineer", ""))]
 	_set_radio_category(2)
 
 func _discuss_stint() -> void:
