@@ -22,6 +22,13 @@ func run() -> void:
 	await process_frame
 	var hud = game.race_hud_0620
 	check(hud != null, "Real HUD instance")
+	hud.refresh_hud()
+	var order: Array = game.race.get_sorted()
+	check(hud.standing_rows.size() == 24, "24 leaderboard entries")
+	for i in range(mini(order.size(), hud.standing_rows.size())):
+		var grid_name: String = str(order[i].get("name", ""))
+		var official: String = game.portrait_manager.get_abbreviation(grid_name)
+		check(hud.standing_rows[i]["driver"].text == official, "Official 2012 abbreviation in ranking: " + grid_name)
 	var player: Dictionary = game.race.player_cars()[0]
 	var player_name: String = str(player.get("name", ""))
 	var info: Dictionary = game.portrait_manager.get_info(player_name)
@@ -42,6 +49,7 @@ func run() -> void:
 	var image = game.portrait_manager.get_photo(player_name)
 	check(hud.radio_portrait_texture.visible == (image != null), "Actual JPG only, no fake car fallback")
 	check(hud.radio_portrait_placeholder.visible == (image == null), "Initials on missing photo")
+	check(hud.radio_portrait_placeholder.text == str(info.get("abbr", "---")), "Official initials in radio fallback")
 	if image != null:
 		check(str(hud.radio_identity_info.text).contains("Gussisaurio"), "Photo visible with attribution")
 	else:
