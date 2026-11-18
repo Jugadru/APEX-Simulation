@@ -79,7 +79,7 @@ func run() -> void:
             break
     check(int(engine.player_cars()[0].get("pit_scheduled_lap", 0)) == 21, "Manual V21 preserved")
     var archive: Dictionary = session.export_data()
-    check(archive.simulation_revision == "06688_grip_aware_defense", "Replay revision updated")
+    check(archive.simulation_revision == Replay.SIMULATION_REVISION, "Replay revision updated")
     var replay = Replay.new()
     check(replay.load_data(archive) and replay.seek(session.tick), "New-rule replay verified")
     check(replay.hashes[-1] == session.hashes[-1], "Identical replay hash")
