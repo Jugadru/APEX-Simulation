@@ -424,8 +424,9 @@ func _create_driver_card(car: Dictionary, slot: int) -> void:
 		portrait_mark.custom_minimum_size = Vector2(76, 85)
 		portrait_mark.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		portrait_mark.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	var identity_line := _text(portrait_column, "#%d %s" % [
-		int(identity.get("number", 0)), str(identity.get("country", "---"))], 10, WHITE)
+	var identity_line := _text(portrait_column, "#%d %s %s" % [
+		int(identity.get("number", 0)), str(identity.get("abbr", "---")),
+		str(identity.get("country", "---"))], 10, WHITE)
 	identity_line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	identity_line.tooltip_text = "Temporada histórica 2012; identidade separada dos dados esportivos."
 	var core := _column(interior, 5)
@@ -462,7 +463,7 @@ func _create_driver_card(car: Dictionary, slot: int) -> void:
 	var detail_body := _column(content, 6)
 	expanded.hide()
 	race_card_panels.append({"base":base, "expanded":expanded, "content":detail_body, "heading":heading_label,
-		"id":int(car["id"]), "slot":slot, "pos":pos, "name":name, "status":status, "secondary":second_line,
+		"id":int(car["id"]), "slot":slot, "pos":pos, "name":name, "identity":identity_line, "status":status, "secondary":second_line,
 		"wear_bar":tyre_bar, "tabs":tab_buttons, "quick":quick, "context":-1,
 		"target_tire":str(car.get("pit_target", "Duro")), "tire_picker":null,
 		"lap_picker":null, "data_labels":[], "buttons":[], "follow":follow})
