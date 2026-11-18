@@ -1,4 +1,20 @@
-# APEX Motorsport Manager — Core 2 v0.6.6.8.10
+# APEX Motorsport Manager — Core 2 v0.6.6.8.11
+
+## Driver Identity Pack 2012 — fotografias de pilotos reais (v0.6.6.8.11)
+
+Identidade histórica dos **24 titulares da temporada 2012**: número, sigla, país, equipe e foto individual. O novo catálogo fica em `data/driver_identity_2012.json`.
+
+No menu, selecione **BAIXAR RETRATOS DA EQUIPE** ou **BAIXAR RETRATOS DE TODA A GRID**. O jogo obtém fotos individuais do Wikimedia Commons e verifica a licença CC BY-SA 3.0 e o fotógrafo Gussisaurio **para cada arquivo** antes de salvar no cache local. Precisa de internet apenas no primeiro download.
+
+**Nunca aparece um carro no lugar do rosto do piloto:** se a foto estiver indisponível, o jogo mostra apenas as iniciais. Os retratos, quando baixados, aparecem nos cards e na janela de rádio com créditos e fonte. A escolha é reversível: remova o cache local `user://apex_driver_portraits_2012` para reverter às iniciais. As fotografias não são embutidas automaticamente no ZIP de fontes.
+
+O material YankeeF1 foi utilizado só como referência; nenhuma foto da montagem foi redistribuída. Consulte os [créditos individuais e licenças](docs/DRIVER_PORTRAITS_2012_CREDITS.md).
+
+**Sem alterações esportivas**: Core 2, Pit Wall, ordens V21, replays e saves permanecem compatíveis com a v0.6.6.8.10. A revisão esportiva do replay não muda.
+
+[Relatório 8.11](APEX_066811_RELATORIO_TECNICO.md) · [Matriz de testes 8.11](APEX_066811_MATRIZ_TESTES.json) · [Changelog 8.11](APEX_066811_CHANGELOG.md)
+
+---
 
 ## Ordens de Equipe 1.0 — autorização real (v0.6.6.8.10)
 
