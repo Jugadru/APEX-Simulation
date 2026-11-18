@@ -9,7 +9,11 @@ func run() -> void:
 	root.add_child(manager)
 	await process_frame
 	manager.status_changed.connect(func(m: String) -> void: print("PORTRAIT_NETWORK_STATUS ", m))
-	var names: Array[String] = ["Fernando Alonso", "Bruno Senna"]
+	var catalog: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/driver_identity_2012.json"))
+	var names: Array[String] = []
+	for entry in catalog.get("drivers", []):
+		names.append(str(entry.get("name", "")))
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://dist/portrait_previews"))
 	manager.download_for_team(names)
 	await manager.portraits_finished
 	var checked := 0
@@ -22,6 +26,11 @@ func run() -> void:
 				" url=", manager.get_source_url(name))
 			if dims.x >= 128 and dims.y >= 128:
 				checked += 1
+				var image: Image = photo.get_image()
+				var number: int = int(manager.get_info(name).get("number", 0))
+				var preview_path: String = "res://dist/portrait_previews/driver_%02d.jpg" % number
+				var save_result: int = image.save_jpg(preview_path, 0.86)
+				print("PORTRAIT_PREVIEW ", name, " path=", preview_path, " save_error=", save_result)
 		else:
 			print("PORTRAIT_NETWORK_FALLBACK ", name, " initials_only=true")
 	print("PORTRAIT_NETWORK_066811_RESULT downloaded=", checked, "/", names.size(),
