@@ -25,6 +25,10 @@ func run() -> void:
 	hud.refresh_hud()
 	var order: Array = game.race.get_sorted()
 	check(hud.standing_rows.size() == 24, "24 leaderboard entries")
+	for card in hud.race_card_panels:
+		var card_name: String = str(card["name"].text)
+		var card_info: Dictionary = game.portrait_manager.get_info(card_name)
+		check(str(card["identity"].text).contains(str(card_info.get("abbr", "___"))), "Card displays official code: " + card_name)
 	for i in range(mini(order.size(), hud.standing_rows.size())):
 		var grid_name: String = str(order[i].get("name", ""))
 		var official: String = game.portrait_manager.get_abbreviation(grid_name)
