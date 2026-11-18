@@ -110,6 +110,12 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 		var driver: Dictionary = c.duplicate()
 		driver["attack_charge"] = float(a.charge)
 		var tactic: Dictionary = DriverDynamics.choose(driver,ahead,gap,advantage,limit,track,weather)
+		# A player-approved order may suppress only an EARLY aggressive block.
+		# Already occupied lanes, overlap, third cars and safety still apply.
+		if int(ahead.get("team_yield_to_id", -1)) == id \
+				and int(ahead.get("team_yield_ticks", 0)) > 0 \
+				and str(ahead.get("team", "")) == str(c.get("team", "")):
+			tactic["defense"] = false
 		var cooling: bool = float(c.get("combat_cooldown", 0.0)) > 0.0
 		if int(d.defending) < 0:
 			# Once the cars approach overlap, the defender must HOLD its actual
