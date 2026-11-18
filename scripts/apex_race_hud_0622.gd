@@ -62,6 +62,9 @@ var modal_driver_rows: Array = []
 var radio_driver_ids: Array[int] = []
 var radio_driver_picker: OptionButton
 var radio_response_label: Label
+var radio_portrait_texture: TextureRect
+var radio_portrait_placeholder: Label
+var radio_identity_info: Label
 var radio_history: RichTextLabel
 var radio_category: int = 0
 var radio_category_buttons: Array[Button] = []
@@ -396,25 +399,35 @@ func _create_driver_card(car: Dictionary, slot: int) -> void:
 		b.custom_minimum_size.y = 29
 		b.tooltip_text = CONTEXTS[k] + " — abrir detalhes acima do piloto"
 		tab_buttons.append(b)
-	# Show an optional openly licensed portrait. Without one, use a clean team-color badge.
-	var portrait_holder := _panel(interior, Color.from_string(str(car.get("color", "#253f57")), BORDER).darkened(0.58))
-	portrait_holder.custom_minimum_size = Vector2(74, 114)
+	# Real driver photograph if it has been downloaded/licensed; NEVER a car photo.
+	# The offline fallback is just the driver's initials, not another image.
+	var driver_name: String = str(car.get("name", "Piloto"))
+	var identity: Dictionary = {}
 	var portrait_tex: Texture2D = null
 	if host != null and host.portrait_manager != null:
-		portrait_tex = host.portrait_manager.get_photo(str(car.get("name", "")))
+		identity = host.portrait_manager.get_info(driver_name)
+		portrait_tex = host.portrait_manager.get_photo(driver_name)
+	var portrait_holder := _panel(interior, Color.from_string(str(car.get("color", "#253f57")), BORDER).darkened(0.58))
+	portrait_holder.custom_minimum_size = Vector2(82, 114)
+	var portrait_column := _column(portrait_holder, 2)
 	if portrait_tex != null:
 		var face := TextureRect.new()
 		face.texture = portrait_tex
+		face.custom_minimum_size = Vector2(76, 85)
 		face.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		face.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-		portrait_holder.add_child(face)
+		face.tooltip_text = host.portrait_manager.get_credit(driver_name) + " · " + host.portrait_manager.get_source_url(driver_name)
+		portrait_column.add_child(face)
 	else:
-		var name_bits: PackedStringArray = str(car.get("name", "Piloto")).split(" ", false)
-		var initials: String = name_bits[name_bits.size() - 1].left(3).to_upper()
-		var portrait_mark := _text(portrait_holder, initials, 18, WHITE)
+		var bits: PackedStringArray = driver_name.split(" ", false)
+		var portrait_mark := _text(portrait_column, bits[bits.size()-1].left(3).to_upper(), 18, WHITE)
+		portrait_mark.custom_minimum_size = Vector2(76, 85)
 		portrait_mark.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		portrait_mark.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		portrait_mark.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	var identity_line := _text(portrait_column, "#%d %s" % [
+		int(identity.get("number", 0)), str(identity.get("country", "---"))], 10, WHITE)
+	identity_line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	identity_line.tooltip_text = "Temporada histórica 2012; identidade separada dos dados esportivos."
 	var core := _column(interior, 5)
 	core.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var title_line := _line(core, 6)
@@ -1113,6 +1126,23 @@ func _build_radio_window() -> void:
 	radio_only_button = _btn(driver_line, "SÓ ESTE: NÃO", _toggle_radio_driver_filter, 119)
 	radio_only_button.tooltip_text = "Filtrar as mensagens de Equipe e Pilotos pelo piloto selecionado"
 	_refresh_radio_filter_button()
+	# Driver Identity Pack 2012 — portrait is a real person, downloaded by
+	# the user from Wikimedia Commons; otherwise display neutral initials.
+	var identity_row := _line(overlay_content, 10)
+	var identity_frame := _panel(identity_row, Color("#101C2A"))
+	var identity_box := _column(identity_frame, 1)
+	radio_portrait_texture = TextureRect.new()
+	radio_portrait_texture.custom_minimum_size = Vector2(90, 110)
+	radio_portrait_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	radio_portrait_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	identity_box.add_child(radio_portrait_texture)
+	radio_portrait_placeholder = _text(identity_box, "—", 17, WHITE)
+	radio_portrait_placeholder.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	radio_identity_info = _text(identity_row, "Temporada 2012 • foto opcional de pessoa real", 12, WHITE)
+	radio_identity_info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	radio_identity_info.custom_minimum_size = Vector2(260, 60)
+	radio_identity_info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_refresh_radio_identity()
 	var questions := _line(overlay_content, 5)
 	for topic in ["pneus", "ritmo", "trafego", "box"]:
 		var button := _btn(questions, str(EngineerInteractive.QUESTIONS[topic]), _ask_engineer.bind(topic))
@@ -1175,7 +1205,42 @@ func _set_radio_category(index: int) -> void:
 	_refresh_radio_filter_button()
 	_refresh_interactive_history()
 
+func _refresh_radio_identity() -> void:
+	if radio_portrait_texture == null or not is_instance_valid(radio_portrait_texture):
+		return
+	if radio_driver_picker == null or host == null or host.race == null or host.portrait_manager == null:
+		return
+	var index: int = radio_driver_picker.selected
+	if index < 0 or index >= radio_driver_ids.size():
+		return
+	var driver_id: int = radio_driver_ids[index]
+	var driver_name: String = ""
+	for car in host.race.player_cars():
+		if int(car.get("id", -1)) == driver_id:
+			driver_name = str(car.get("name", ""))
+			break
+	if driver_name.is_empty():
+		return
+	var info: Dictionary = host.portrait_manager.get_info(driver_name)
+	var photo: Texture2D = host.portrait_manager.get_photo(driver_name)
+	radio_portrait_texture.texture = photo
+	radio_portrait_texture.visible = photo != null
+	if radio_portrait_placeholder != null:
+		var bits: PackedStringArray = driver_name.split(" ", false)
+		radio_portrait_placeholder.text = bits[bits.size()-1].left(3).to_upper()
+		radio_portrait_placeholder.visible = photo == null
+	var detail: String = "%s  •  #%d  •  %s  •  %s" % [
+		driver_name, int(info.get("number", 0)),
+		str(info.get("abbr", "---")), str(info.get("country", "---"))]
+	if photo != null:
+		detail += "\n" + host.portrait_manager.get_credit(driver_name)
+		radio_portrait_texture.tooltip_text = host.portrait_manager.get_source_url(driver_name)
+	else:
+		detail += "\nFoto ainda não baixada: apenas iniciais, sem carros."
+	radio_identity_info.text = detail
+
 func _radio_driver_changed(_index: int) -> void:
+	_refresh_radio_identity()
 	if radio_response_label != null and is_instance_valid(radio_response_label):
 		radio_response_label.text = "Selecione uma pergunta para consultar o piloto ou o engenheiro."
 	_update_soul_status()
