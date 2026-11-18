@@ -11,6 +11,8 @@ const MANIFEST := "res://data/driver_identity_2012.json"
 const CACHE_FOLDER := "user://apex_driver_portraits_2012"
 const MAX_IMAGE_BYTES := 2500000
 const MAX_THUMB_WIDTH := 480
+const BETWEEN_PORTRAITS_SECONDS := 1.5
+const MAX_TRANSIENT_RETRIES := 4
 
 var status := "Retratos 2012: clique para baixar fotografias individuais (Wikimedia Commons)."
 var download_state := "idle"
@@ -19,6 +21,8 @@ var _textures: Dictionary = {}
 var _requests: Array[String] = []
 var _active_name := ""
 var _image_url := ""
+var _metadata_url := ""
+var _transient_retries := 0
 var _phase := ""
 var _completed := 0
 var _failed := 0
@@ -138,6 +142,8 @@ func _next_portrait() -> void:
 		portraits_finished.emit()
 		return
 	_active_name = _requests.pop_front()
+	_transient_retries = 0
+	_image_url = ""
 	var info: Dictionary = _entries.get(_active_name, {})
 	var name: String = "File:" + str(info.get("source_file", ""))
 	# The API supplies a thumb URL and a per-file copyright statement.
@@ -145,7 +151,8 @@ func _next_portrait() -> void:
 		+ name.uri_encode() \
 		+ "&prop=imageinfo&iiprop=url%7Csize%7Cmime%7Cextmetadata&iiurlwidth=" + str(MAX_THUMB_WIDTH)
 	_phase = "metadata"
-	var err: int = _http.request(endpoint, _request_headers(), HTTPClient.METHOD_GET)
+	_metadata_url = endpoint
+	var err: int = _http.request(_metadata_url, _request_headers(), HTTPClient.METHOD_GET)
 	if err != OK:
 		_skip("Falha de conexão ao consultar metadados")
 
@@ -153,10 +160,18 @@ func _metadata_text(data: Dictionary, field: String) -> String:
 	var value: Variant = data.get(field, {})
 	return str(value.get("value", "")) if typeof(value) == TYPE_DICTIONARY else ""
 
-func _request_completed(result: int, status_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
+func _request_completed(result: int, status_code: int, headers: PackedStringArray, body: PackedByteArray) -> void:
 	if download_state != "running" or _active_name.is_empty():
 		return
 	if result != HTTPRequest.RESULT_SUCCESS or status_code != 200:
+		if result == HTTPRequest.RESULT_SUCCESS and _is_retryable_http_status(status_code) and _transient_retries < MAX_TRANSIENT_RETRIES:
+			_transient_retries += 1
+			var pause: float = _retry_delay_seconds(_transient_retries, headers)
+			status = "%s: servidor temporariamente indisponível (HTTP %d). Nova tentativa %d/%d em %.0f s." % [
+				_active_name, status_code, _transient_retries, MAX_TRANSIENT_RETRIES, pause]
+			status_changed.emit(status)
+			get_tree().create_timer(pause).timeout.connect(_retry_current_request)
+			return
 		_skip("HTTP %d / conexão %d" % [status_code, result])
 		return
 	if _phase == "metadata":
@@ -210,7 +225,7 @@ func _request_completed(result: int, status_code: int, _headers: PackedStringArr
 		_completed += 1
 		status = "Retrato real: %s (%d/%d), fotógrafo Gussisaurio." % [_active_name, _completed + _failed, _total]
 		status_changed.emit(status)
-		call_deferred("_next_portrait")
+		_schedule_next_portrait()
 
 func _request_image() -> void:
 	_phase = "image"
@@ -222,4 +237,33 @@ func _skip(reason: String) -> void:
 	_failed += 1
 	status = "%s: %s. Mantendo iniciais; nunca substituindo por foto de carro." % [_active_name, reason]
 	status_changed.emit(status)
-	call_deferred("_next_portrait")
+	_schedule_next_portrait()
+
+func _is_retryable_http_status(status_code: int) -> bool:
+	return status_code in [429, 500, 502, 503, 504]
+
+func _retry_delay_seconds(attempt: int, headers: PackedStringArray = PackedStringArray()) -> float:
+	# Respect retry-after seconds, with a strict bound to avoid indefinite UI stalls.
+	var delay: float = minf(30.0, 2.0 * pow(2.0, float(maxi(0, attempt - 1))))
+	for header in headers:
+		if header.to_lower().begins_with("retry-after:"):
+			var requested: String = header.substr(header.find(":") + 1).strip_edges()
+			if requested.is_valid_int():
+				delay = maxf(delay, minf(30.0, float(maxi(0, int(requested)))))
+	return delay
+
+func _retry_current_request() -> void:
+	if download_state != "running" or _active_name.is_empty() or _http == null:
+		return
+	var url: String = _metadata_url if _phase == "metadata" else _image_url
+	if url.is_empty() or _phase not in ["metadata", "image"]:
+		_skip("Etapa de download inválida")
+		return
+	var err: int = _http.request(url, _request_headers(), HTTPClient.METHOD_GET)
+	if err != OK:
+		_skip("Falha ao retomar download")
+
+func _schedule_next_portrait() -> void:
+	# Spacing requests is kinder to Commons and avoids repeated HTTP 429.
+	if download_state == "running":
+		get_tree().create_timer(BETWEEN_PORTRAITS_SECONDS).timeout.connect(_next_portrait)
