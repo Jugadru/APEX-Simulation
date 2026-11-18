@@ -52,6 +52,8 @@ jobs:
           set -euo pipefail
           mkdir -p ci-results
           tests=(
+            'team_radio_06689_advice_test.gd|TEAM_RADIO_06689_PASS'
+            'team_radio_06689_ui_test.gd|TEAM_RADIO_UI_06689_PASS'
             'racecraft_06688_grip_defense_test.gd|RACECRAFT_06688_GRIP_PASS'
             'driver_dynamics_06687_tyre_judgement_test.gd|DRIVER_DYNAMICS_06687_PASS'
             'driver_dynamics_06687_ui_test.gd|DRIVER_DYNAMICS_06687_UI_PASS'
