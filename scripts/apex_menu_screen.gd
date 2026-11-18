@@ -168,9 +168,9 @@ static func _build_menu(host) -> void:
 	host._button(box, "★  SOUL STAFF 1.0 / GESTÃO DE EQUIPE", host._open_staff)
 	host.portrait_download_button = host._button(box, "↓  BAIXAR RETRATOS DA EQUIPE (WIKIMEDIA)", host._download_team_portraits)
 	host.portrait_download_all_button = host._button(box, "↓  BAIXAR RETRATOS DE TODA A GRID", host._download_all_portraits)
-	host.portrait_status_label = host._label(box, "Identidade visual neutra: pilotos identificados por nome e iniciais.", 11, MUTED)
-	host.portrait_download_button.hide()
-	host.portrait_download_all_button.hide()
+	host.portrait_status_label = host._label(box, "RETRATOS 2012 • Fotografias de pilotos reais (Gussisaurio / Wikimedia Commons, CC BY-SA 3.0). Download opcional; sem foto, aparecem iniciais — nunca um carro.", 11, MUTED)
+	host.portrait_download_button.tooltip_text = "Baixa e armazena localmente as fotos do rosto dos dois pilotos da equipe (Wikimedia, crédito visível). Requer internet."
+	host.portrait_download_all_button.tooltip_text = "Baixa fotos individuais de 24 pilotos, uma por vez; verificação de licença por arquivo; cache local."
 	host.portrait_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	var note = host._label(box, "Tabela lateral: líder / frente / trás / pneus / melhor volta no botão ⇆.", 12, MUTED)
 	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
