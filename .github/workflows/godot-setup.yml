@@ -86,6 +86,22 @@ jobs:
           done
 
 
+      - name: Probe two real licensed Commons driver portraits (optional network QA)
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          timeout 120s godot --headless --single-threaded-scene --path . --script res://tests/driver_identity_066811_network_probe.gd 2>&1 | tee portrait-network.log
+
+      - name: Save optional Wikimedia probe log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apex-driver-portraits-live-probe
+          path: portrait-network.log
+          if-no-files-found: ignore
+          retention-days: 7
+
       - name: Package installable Core 2 source ZIP (photos downloaded opt-in inside game)
         shell: bash
         run: |
