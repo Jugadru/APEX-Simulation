@@ -14,6 +14,7 @@ const PitWallStrategy3 = preload("res://scripts/core/race_pitwall_strategy_0649.
 const LapStrategy06496 = preload("res://scripts/core/race_lap_reassessment_06496.gd")
 const TeamPitCoordinator06497 = preload("res://scripts/core/race_team_pit_coordination_06497.gd")
 const DriverSoul = preload("res://scripts/core/race_driver_soul_0647.gd")
+const TeamRadioAdvice = preload("res://scripts/core/race_team_radio_advice_06689.gd")
 const AIDirector = preload("res://scripts/core/race_ai_director.gd")
 const DriverFeedback = preload("res://scripts/core/race_driver_feedback.gd")
 const EngineerReply = preload("res://scripts/core/race_engineer_reply.gd")
@@ -187,6 +188,7 @@ func _start_grid() -> void:
 			"risk_tolerance": float(45 + (int(driver["id"]) * 13) % 27),
 			"defense_aggression": float(45 + (int(driver["id"]) * 17) % 20),
 			"pit_scheduled_lap": 0, "pit_order_source": "", "pit_control_mode": "Manual",
+			"team_yield_to_id": -1, "team_yield_ticks": 0,
 			"pit_request": false, "pit_target": str(nominated[1]) if compound == str(nominated[0]) else str(nominated[0]), "pit_left": 0.0,
 			"pit_total": 0.0, "pit_phase": 0.0, "pit_from": 0.0, "pit_to": 0.0,
 			"pit_service_total": 0.0, "pit_service_elapsed": 0.0,
@@ -385,6 +387,51 @@ func set_pace(car_id: int, pace_name: String) -> void:
 			car["pace"] = pace_name
 			return
 
+# 066810: Explicit player-approved short-lived non-defence against a teammate.
+# A live request is recorded by Replay; there are no AI-issued team orders.
+func team_yield_eligible(leader_id: int, chasing_id: int) -> bool:
+	if leader_id == chasing_id or finished:
+		return false
+	var leader: Dictionary = {}
+	var chasing: Dictionary = {}
+	for c in player_cars():
+		if int(c.id) == leader_id:
+			leader = c
+		elif int(c.id) == chasing_id:
+			chasing = c
+	if leader.is_empty() or chasing.is_empty():
+		return false
+	if int(leader.get("team_yield_ticks", 0)) > 0:
+		return false
+	var assessment: Dictionary = TeamRadioAdvice.evaluate(chasing, leader, weather_snapshot())
+	return bool(assessment.get("valid", false)) and str(assessment.get("state", "")) == "avaliar_passagem" \
+		and int(assessment.get("chasing_id", -1)) == chasing_id \
+		and int(assessment.get("leading_id", -1)) == leader_id
+
+func authorize_team_yield(leader_id: int, chasing_id: int) -> bool:
+	if command_session != null and command_session.get_ref() != null and not command_session.get_ref().applying:
+		return command_session.get_ref().enqueue("authorize_team_yield", [leader_id, chasing_id])
+	if not team_yield_eligible(leader_id, chasing_id):
+		return false
+	for c in player_cars():
+		if int(c.id) == leader_id:
+			c["team_yield_to_id"] = chasing_id
+			c["team_yield_ticks"] = 75 # 75 * 0.2s = 15 seconds.
+			_event("strategy", leader_id, "EQUIPE | %s autorizado a não defender agressivamente de %s por até 15s; passagem não garantida." % [str(c.name), str(chasing_id)], 75)
+			return true
+	return false
+
+func cancel_team_yield(leader_id: int) -> bool:
+	if command_session != null and command_session.get_ref() != null and not command_session.get_ref().applying:
+		return command_session.get_ref().enqueue("cancel_team_yield", [leader_id])
+	for c in player_cars():
+		if int(c.id) == leader_id and int(c.get("team_yield_ticks", 0)) > 0:
+			c["team_yield_ticks"] = 0
+			c["team_yield_to_id"] = -1
+			_event("strategy", leader_id, "EQUIPE | autorização de passagem cancelada pelo jogador.", 58)
+			return true
+	return false
+
 func _next_pit_entry_lap(car: Dictionary) -> int:
 	var progress: float = maxf(0.0, float(car.get("progress", 0.0)))
 	var current: int = int(floor(progress)) + 1
@@ -501,6 +548,25 @@ func _advance(dt: float) -> void:
 	# influencing others through iteration order. Combat and pace see the
 	# same positions at the start of every physics tick.
 	var perf_snapshot := Perf.begin() if Perf.enabled else 0
+	# A yield order expires after 15 simulated seconds or when the follower is
+	# no longer behind. No effect on RNG, pit calls or driving speed.
+	var by_team_id: Dictionary = {}
+	for entry in cars:
+		by_team_id[int(entry.id)] = entry
+	for entry in cars:
+		if int(entry.get("team_yield_ticks", 0)) <= 0:
+			continue
+		var target_id: int = int(entry.get("team_yield_to_id", -1))
+		var mate: Dictionary = by_team_id.get(target_id, {})
+		if mate.is_empty() or bool(entry.get("finished", false)) or bool(mate.get("finished", false)) \
+				or str(mate.get("team", "")) != str(entry.get("team", "")) \
+				or float(mate.get("progress", -1.0)) >= float(entry.get("progress", -1.0)):
+			entry["team_yield_ticks"] = 0
+			entry["team_yield_to_id"] = -1
+		else:
+			entry["team_yield_ticks"] = maxi(0, int(entry["team_yield_ticks"]) - 1)
+			if int(entry["team_yield_ticks"]) == 0:
+				entry["team_yield_to_id"] = -1
 	var old_order: Array = []
 	for entry in get_sorted():
 		# 0.6.6.8.3: freeze the scalar sporting fields without deep-copying
