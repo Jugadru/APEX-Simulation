@@ -1,47 +1,47 @@
 [
   {
     "test": "Godot 4.7.2 editor import and script parse",
-    "status": "NOT_RUN",
-    "evidence": "GitHub Actions branch PR pending"
+    "status": "PASS",
+    "evidence": "Actions 44405628481 import succeeded"
   },
   {
-    "test": "Original 19 Core 2/HUD/Driver Identity regression scripts",
-    "status": "NOT_RUN",
-    "evidence": "20-script workflow configured"
+    "test": "20 Godot scripted tests including 19 previous Core2/HUD/Identity regressions",
+    "status": "PASS",
+    "evidence": "Actions 44405628481 regression step succeeded"
   },
   {
-    "test": "Six historic colours and unchanged two slick nominations",
-    "status": "NOT_RUN",
-    "evidence": "tests/season_2012_066812_test.gd"
+    "test": "2012 season guide, 6 tyres/12 chassis/20 dates, menu UI, read-only state",
+    "status": "PASS",
+    "evidence": "SEASON_GUIDE_066812_PASS checks=152 no_sporting_mutation=true"
   },
   {
-    "test": "12 chassis/teams and 20 official FIA dates",
-    "status": "NOT_RUN",
-    "evidence": "tests/season_2012_066812_test.gd"
+    "test": "Old HUD and queued V21 order regression",
+    "status": "PASS",
+    "evidence": "ReBroadcast checks=34 and queued pit checks=30"
   },
   {
-    "test": "Menu dialogue, 3 tabs and selecting Monza and team",
-    "status": "NOT_RUN",
-    "evidence": "tests/season_2012_066812_test.gd"
+    "test": "Race replay deterministic short run",
+    "status": "PASS",
+    "evidence": "Replay 200 ticks, speeds 1x 2x 5x 16x 32x"
   },
   {
-    "test": "Snapshot sport state and replay commands unchanged",
-    "status": "NOT_RUN",
-    "evidence": "tests/season_2012_066812_test.gd"
+    "test": "24 Wikimedia Commons portrait live downloads & author/license metadata",
+    "status": "PASS",
+    "evidence": "PORTRAIT_NETWORK_066811_RESULT downloaded=24/24"
   },
   {
-    "test": "24 historical portraits and Wikimedia individual metadata",
-    "status": "NOT_RUN",
-    "evidence": "Optional live network QA"
+    "test": "Source ZIP CRC and tracked files",
+    "status": "PASS",
+    "evidence": "Actions 44405628481 packaged 2310 files, 14143134 bytes; SHA-256 7dcc3d0ac14bb6a98209eed82c4a4c6733bfa24b28ab2f2e7cc991d03a530715 (prior doc commit only)"
   },
   {
-    "test": "Human visual inspection 24 portraits",
+    "test": "Human visual inspection of 24 portrait crops",
     "status": "NOT_RUN",
-    "evidence": "Carry-over from 8.11; not implied by automated downloads"
+    "evidence": "Contact sheets available; manual review needed"
   },
   {
-    "test": "Full GP, hardware GPU FPS and legacy long-save validation",
+    "test": "GPU FPS, four complete GPs and legacy multi-season save QA",
     "status": "NOT_RUN",
-    "evidence": "Not covered by display-only CI"
+    "evidence": "Outside 20 scripted tests; not claimed stable"
   }
 ]

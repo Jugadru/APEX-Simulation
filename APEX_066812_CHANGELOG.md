@@ -12,3 +12,6 @@
 - Não altera RaceEngine, Replay, Core 2, IA, física, desgaste, regulamento, saves, retratos 8.11 ou modelos 3D.
 
 Dependência de versão: branch derivada diretamente da v0.6.6.8.11, cujo PR ainda não foi mesclado. Integração sequencial recomendada, sem sobrescrever a main antes de homologar as pendências visuais.
+
+## Resultado efetivo dos testes
+- GitHub Actions 44405628481: 20/20 scripts Godot PASS, 152 verificações do novo guia PASS, importação Godot 4.7.2 PASS e download opcional de 24/24 fotos. Estado da revisão visual: NOT_RUN.
