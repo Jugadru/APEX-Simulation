@@ -21,6 +21,7 @@ const AnalyticsChartScript = preload("res://scripts/pit_analytics_chart.gd")
 const HudThemeScript = preload("res://scripts/apex_hud_theme.gd")
 const MiniMapScript = preload("res://scripts/apex_mini_map.gd")
 const PortraitScript = preload("res://scripts/apex_portrait_manager.gd")
+const SeasonGuide066812 = preload("res://scripts/apex_season_guide_066812.gd")
 const CommentaryScript = preload("res://scripts/apex_commentary.gd")
 const StrategyTimelineScript = preload("res://scripts/apex_stint_timeline.gd")
 const TeamAutonomyScript = preload("res://scripts/core/race_team_autonomy.gd")
@@ -230,6 +231,7 @@ var portrait_manager
 var portrait_status_label: Label
 var portrait_download_button: Button
 var portrait_download_all_button: Button
+var season_guide_button: Button
 var top_shortcuts: HBoxContainer
 var position_header: Label
 var pit_wall_header: Label
@@ -260,7 +262,7 @@ func _ready() -> void:
 	var preview := get_node_or_null("EditorPreview")
 	if preview != null:
 		preview.hide()
-	get_window().title = "APEX Motorsport Manager — v0.6.6.8.11 / Core 2 Driver Identity Pack 2012 • Replay F9"
+	get_window().title = "APEX Motorsport Manager — v0.6.6.8.12 / Guia Histórico 2012 • Core 2 • Replay F9"
 	_load_season_data()
 	_load_hud_prefs()
 	garage = GarageScript.new()
@@ -379,6 +381,9 @@ func _full_cover() -> Control:
 
 func _build_menu() -> void:
 	MenuScreen._build_menu(self)
+
+func _show_season_guide() -> void:
+	SeasonGuide066812.show(self)
 
 func _download_team_portraits() -> void:
 	var names: Array[String] = []

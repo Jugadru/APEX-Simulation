@@ -10,8 +10,8 @@ config_version=5
 
 [application]
 
-config/name="APEX Motorsport Manager v0.6.6.8.11 — Driver Identity Pack 2012"
-config/description="v0.6.6.8.11: identidade histórica dos 24 pilotos e retratos Wikimedia opt-in; Core 2 inalterado."
+config/name="APEX Motorsport Manager v0.6.6.8.12 — Guia da Temporada 2012"
+config/description="v0.6.6.8.12: guia da temporada 2012, seis pneus históricos, 12 chassis e 20 datas FIA; Core 2 preservado."
 run/main_scene="res://scenes/main.tscn"
 config/use_custom_user_dir=true
 config/custom_user_dir_name="APEX_0650_SOUL_STAFF"

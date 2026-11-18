@@ -24,12 +24,14 @@ static func set_text_if_changed(control, value: String) -> int:
 	return 1
 
 static func tyre_tint(code: String) -> Color:
+	# 2012 Pirelli historical visuals, aligned to data/tyres_2012.json.
 	match code.to_upper():
-		"S", "SOFT": return Color("#E65D60")
-		"M", "MEDIUM": return Color("#F2BE49")
-		"H", "HARD": return Color("#F3F5F6")
-		"I", "INTER", "INTERMEDIATE": return Color("#42BE89")
-		"W", "WET", "EXTREME": return Color("#75D7DE")
+		"SS", "SUPERSOFT", "SUPERMACIO": return Color("#f04c54")
+		"S", "SOFT", "MACIO": return Color("#f4d14c")
+		"M", "MEDIUM", "MÉDIO": return Color("#f0f0e7")
+		"H", "HARD", "DURO": return Color("#c9d0d5")
+		"I", "INTER", "INTERMEDIATE", "INTERMEDIÁRIO": return Color("#50b88b")
+		"W", "WET", "EXTREME", "CHUVA": return Color("#4aa3ed")
 	return Color("#B7C3CC")
 
 static func pending_pit_by_driver(session) -> Dictionary:
