@@ -143,7 +143,7 @@ func _next_portrait() -> void:
 	# The API supplies a thumb URL and a per-file copyright statement.
 	var endpoint: String = "https://commons.wikimedia.org/w/api.php?action=query&format=json&formatversion=2&titles=" \
 		+ name.uri_encode() \
-		+ "&prop=imageinfo&iiprop=url%7Csize%7Cmime%7Cextmetadata&iiurlwidth=%d" % MAX_THUMB_WIDTH
+		+ "&prop=imageinfo&iiprop=url%7Csize%7Cmime%7Cextmetadata&iiurlwidth=" + str(MAX_THUMB_WIDTH)
 	_phase = "metadata"
 	var err: int = _http.request(endpoint, _request_headers(), HTTPClient.METHOD_GET)
 	if err != OK:
