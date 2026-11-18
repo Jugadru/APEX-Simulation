@@ -25,3 +25,13 @@ Importação real Godot 4.7.2 e **16/16 testes automatizados PASS** no GitHub Ac
 
 ## Pacote testado
 O GitHub Actions gerou ZIP fonte com 2.304 arquivos, 14.133.827 bytes e SHA-256 `51176108796e699a3ac669d00713f4b16e0e59ffe44f125965b63c1203dec0c8` (build de código anterior a esta atualização documental). Para baixar o pacote atualizado, usar o artefato mais recente do [PR #23](https://github.com/Quereni/APEX-Simulation/pull/23). Não confundir a aprovação dos testes headless com inspeção visual dos rostos no PC do usuário.
+
+## Auditoria de retomada — 18/11/2026
+
+O trabalho anteriormente bloqueado por `ClientError` na v0.6.6.8 (HUD ReBroadcast 2.0) foi reconstituído a partir dos arquivos e relatórios do próprio repositório. O relatório da v0.6.6.8 registra CRC de 2.710 entradas, importação real no Godot 4.7.2 e testes unitários/integrados da HUD. A revisão v0.6.6.8.1 registra teste de Monza de 53 voltas em modo headless, integração da fila de comandos V21 e o limite de não homologação em GPU real. Essas evidências são históricas e não substituem os testes da versão corrente.
+
+**Achado da revisão v0.6.6.8.11:** `apex_hud_rebroadcast_0668.gd` gerava siglas por três letras do último sobrenome, embora `driver_identity_2012.json` já definisse 24 códigos oficiais exclusivos. A correção passa `get_abbreviation()` para a classificação e reutiliza os códigos nos cards e no rádio. Exemplo: Pedro de la Rosa `DLR` não é confundido com Rosberg `ROS`.
+
+**Cobertura adicional:** o workflow CI ganhou `hud_rebroadcast_0668_unit.gd`, `hud_rebroadcast_0668_integration.gd` e `hud_rebroadcast_06681_pending_orders.gd`; a suite configurada foi de 16 para 19 testes. As verificações de abreviações cobrem os 24 pilotos da grid. A aprovação final da revisão deve ser consultada no [histórico do PR #23](https://github.com/Quereni/APEX-Simulation/pull/23/checks), pois esta nota não antecipa o resultado do último commit.
+
+**Pendências obrigatórias para homologação visual:** inspeção humana de cada enquadramento fotográfico, regressão em GPU Linux Mint real, saves e GPs integrais em pistas adicionais. A `main` não foi alterada e a revisão permanece em branch isolada.

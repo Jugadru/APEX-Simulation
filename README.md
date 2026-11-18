@@ -77,7 +77,7 @@ As capturas, replays e outros arquivos grandes estão no pacote completo da Rele
 O workflow [APEX Core 2 - Godot 4.7.2 CI](.github/workflows/godot-setup.yml) roda em push para `main` e em Pull Requests para `main`. Ele:
 
 1. Instala o Godot 4.7.2 e **importa realmente o projeto**, em modo headless;
-2. Executa seis testes de regressão reais em `tests/` (ordenação Core 2, Driver Dynamics, Racecraft, double stack, replay e modelo 3D);
+2. Executa uma bateria de **19 testes reais** em `tests/`, incluindo Core 2, Driver Dynamics, Racecraft, team orders, retratos/identidade, três testes de HUD ReBroadcast, Pit Wall, replay e modelo 3D;
 3. Verifica o código de saída, o marcador de sucesso e erros reportados; publica logs de diagnóstico.
 
 Para executar localmente no Linux, substitua `godot` pelo caminho do seu executável caso necessário:
