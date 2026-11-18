@@ -1,3 +1,19 @@
+# APEX Motorsport Manager — v0.6.6.8.12 (Core 2)
+
+## Guia histórico da temporada 2012
+
+No menu de preparação, clique em GUIA DA TEMPORADA 2012 — PNEUS / CARROS / CALENDÁRIO. O guia reúne três abas: os seis compostos Pirelli e suas cores originais; as 12 equipes e seus nomes históricos de chassis e motores V8; e as 20 corridas do calendário FIA 2012 com data, volta e pneus de seco nominados no catálogo do próprio APEX.
+
+Os botões ESCOLHER EQUIPE e PREPARAR GP operam os seletores existentes do menu, sem iniciar a corrida. Enquanto uma carreira está ativa, as escolhas são apenas consultivas.
+
+A classificação da HUD ReBroadcast também recebeu as cores reais de 2012: SS vermelho, S amarelo, M branco, H prata, I verde, W azul. Nenhum coeficiente de grip, desgaste, pit, lógica de piloto ou RNG foi alterado.
+
+Nesta versão NÃO foram criados modelos 3D adicionais, pinturas históricas externas nem cópias de imagens de carros; a referência de chassi é textual e colore as equipes a partir dos dados já presentes. O pacote de retratos opcionais da 8.11 continua intacto.
+
+Documentação: APEX_066812_CHANGELOG.md, APEX_066812_RELATORIO_TECNICO.md e APEX_066812_MATRIZ_TESTES.json. Fontes: Pirelli 2012 (https://press.pirelli.com/pirelli-announces-compound-choice-for-the-first-three-races/), chassis (https://www.f1technical.net/f1db/cars/years/2012) e calendário arquivado da FIA (https://www.fia.com/events/fia-formula-one-world-championship/season-2012/calendar).
+
+---
+
 # APEX Motorsport Manager — Core 2 v0.6.6.8.11
 
 ## Driver Identity Pack 2012 — fotografias de pilotos reais (v0.6.6.8.11)

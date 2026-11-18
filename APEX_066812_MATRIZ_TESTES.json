@@ -1,0 +1,47 @@
+[
+  {
+    "test": "Godot 4.7.2 editor import and script parse",
+    "status": "NOT_RUN",
+    "evidence": "GitHub Actions branch PR pending"
+  },
+  {
+    "test": "Original 19 Core 2/HUD/Driver Identity regression scripts",
+    "status": "NOT_RUN",
+    "evidence": "20-script workflow configured"
+  },
+  {
+    "test": "Six historic colours and unchanged two slick nominations",
+    "status": "NOT_RUN",
+    "evidence": "tests/season_2012_066812_test.gd"
+  },
+  {
+    "test": "12 chassis/teams and 20 official FIA dates",
+    "status": "NOT_RUN",
+    "evidence": "tests/season_2012_066812_test.gd"
+  },
+  {
+    "test": "Menu dialogue, 3 tabs and selecting Monza and team",
+    "status": "NOT_RUN",
+    "evidence": "tests/season_2012_066812_test.gd"
+  },
+  {
+    "test": "Snapshot sport state and replay commands unchanged",
+    "status": "NOT_RUN",
+    "evidence": "tests/season_2012_066812_test.gd"
+  },
+  {
+    "test": "24 historical portraits and Wikimedia individual metadata",
+    "status": "NOT_RUN",
+    "evidence": "Optional live network QA"
+  },
+  {
+    "test": "Human visual inspection 24 portraits",
+    "status": "NOT_RUN",
+    "evidence": "Carry-over from 8.11; not implied by automated downloads"
+  },
+  {
+    "test": "Full GP, hardware GPU FPS and legacy long-save validation",
+    "status": "NOT_RUN",
+    "evidence": "Not covered by display-only CI"
+  }
+]
