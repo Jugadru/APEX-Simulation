@@ -145,7 +145,7 @@ func _next_portrait() -> void:
 		+ name.uri_encode() \
 		+ "&prop=imageinfo&iiprop=url%7Csize%7Cmime%7Cextmetadata&iiurlwidth=%d" % MAX_THUMB_WIDTH
 	_phase = "metadata"
-	var err: Error = _http.request(endpoint, _request_headers(), HTTPClient.METHOD_GET)
+	var err: int = _http.request(endpoint, _request_headers(), HTTPClient.METHOD_GET)
 	if err != OK:
 		_skip("Falha de conexão ao consultar metadados")
 
@@ -213,7 +213,7 @@ func _request_completed(result: int, status_code: int, _headers: PackedStringArr
 
 func _request_image() -> void:
 	_phase = "image"
-	var err: Error = _http.request(_image_url, _request_headers(), HTTPClient.METHOD_GET)
+	var err: int = _http.request(_image_url, _request_headers(), HTTPClient.METHOD_GET)
 	if err != OK:
 		_skip("Falha ao baixar a imagem")
 
