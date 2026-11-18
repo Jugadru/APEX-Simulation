@@ -52,6 +52,8 @@ jobs:
           set -euo pipefail
           mkdir -p ci-results
           tests=(
+            'driver_identity_066811_catalog_test.gd|DRIVER_IDENTITY_066811_PASS'
+            'driver_identity_066811_ui_test.gd|DRIVER_IDENTITY_066811_UI_PASS'
             'team_orders_066810_test.gd|TEAM_ORDERS_066810_PASS'
             'team_orders_066810_ui_test.gd|TEAM_ORDERS_066810_UI_PASS'
             'team_radio_06689_advice_test.gd|TEAM_RADIO_06689_PASS'
@@ -82,6 +84,66 @@ jobs:
             fi
             echo "::endgroup::"
           done
+
+
+      - name: Package installable Core 2 source ZIP (photos downloaded opt-in inside game)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          python3 - <<'PY'
+          import hashlib
+          import os
+          import pathlib
+          import subprocess
+          import zipfile
+
+          root = pathlib.Path.cwd()
+          name = "APEX_MOTORSPORT_MANAGER_v0.6.6.8.11_CORE2_DRIVER_IDENTITY_FONTE.zip"
+          prefix = "APEX_MOTORSPORT_MANAGER_v0.6.6.8.11_CORE2_DRIVER_IDENTITY"
+          destination = root / "dist" / name
+          tracked = subprocess.check_output(["git", "ls-files", "-z"]).split(b"\0")
+          count = 0
+          with zipfile.ZipFile(destination, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=6) as out:
+              for raw in tracked:
+                  if not raw:
+                      continue
+                  rel = os.fsdecode(raw).replace("\\", "/")
+                  p = pathlib.PurePosixPath(rel)
+                  if not p.parts or any(k in p.parts for k in (".git", ".godot", "__pycache__")):
+                      continue
+                  if rel.lower().endswith((".zip", ".mp4", ".log", ".apexreplay")) or ".zip.part" in rel.lower():
+                      continue
+                  path = root / rel
+                  if not path.is_file():
+                      continue
+                  if rel.startswith("qa/"):
+                      if path.suffix.lower() not in (".gd", ".uid", ".tscn", ".tres", ".json", ".md", ".txt", ".cfg") or path.stat().st_size > 262144:
+                          continue
+                  if path.stat().st_size > 25000000:
+                      continue
+                  out.write(path, f"{prefix}/{rel}")
+                  count += 1
+          with zipfile.ZipFile(destination) as check:
+              bad = check.testzip()
+              if bad:
+                  raise RuntimeError(f"ZIP CRC invalid: {bad}")
+              assert any(x.endswith("/project.godot") for x in check.namelist())
+              assert any(x.endswith("/data/driver_identity_2012.json") for x in check.namelist())
+          digest = hashlib.sha256(destination.read_bytes()).hexdigest()
+          (root / "dist" / "SHA256.txt").write_text(f"{digest}  {name}\n")
+          print(f"PACKAGED {count} tracked files: {destination.stat().st_size} bytes | SHA256={digest}")
+          PY
+
+      - name: Publish installable version 0.6.6.8.11
+        uses: actions/upload-artifact@v4
+        with:
+          name: APEX-v0.6.6.8.11-Core2-Driver-Identity
+          path: |
+            dist/*.zip
+            dist/SHA256.txt
+          if-no-files-found: error
+          retention-days: 7
 
       - name: Publish logs for diagnosis
         if: always()
