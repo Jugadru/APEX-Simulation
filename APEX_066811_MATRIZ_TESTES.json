@@ -1,42 +1,52 @@
 [
   {
-    "test": "24 original drivers, 12 teams, 2012 numbers & nationalities",
-    "status": "PENDING_CI",
-    "evidence": "tests/driver_identity_066811_catalog_test.gd"
+    "test": "2012 identity catalogue: 24 drivers, 12 teams, historical numbers and flags",
+    "status": "PASS",
+    "evidence": "GitHub Actions 44376594269: 253 catalog checks passed; no sports state modified"
   },
   {
-    "test": "Radio, portraits vs initials, credits, no sports mutation",
-    "status": "PENDING_CI",
-    "evidence": "tests/driver_identity_066811_ui_test.gd"
+    "test": "Race HUD/radio: person portrait, initials fallback, on-screen attribution",
+    "status": "PASS",
+    "evidence": "GitHub Actions 44376594269: 18 UI contract checks passed; replay commands 0; sports snapshot unchanged"
   },
   {
-    "test": "Core 2 legacy regression suite",
-    "status": "PENDING_CI",
-    "evidence": "13 existing deterministic tests in GitHub Actions"
+    "test": "Core 2 / driver dynamics / Pit Wall / replay legacy regression suite",
+    "status": "PASS",
+    "evidence": "16/16 Godot script tests pass including 13 prior system checks; replay 200 ticks at 1x/2x/5x/16x/32x"
   },
   {
-    "test": "Wikimedia per-file license validation",
-    "status": "RUNTIME_GUARD",
-    "evidence": "Check LicenseShortName CC BY-SA 3.0 and Artist Gussisaurio before cache"
+    "test": "Respect Wikimedia rate limits and Retry-After header",
+    "status": "PASS",
+    "evidence": "14 independent deterministic backoff assertions passed; bounded retries and 1.5-second inter-portrait delay"
   },
   {
-    "test": "Individual face framing on 24 photographs",
-    "status": "MANUAL_REVIEW_REQUIRED",
-    "evidence": "Face/portrait framing cannot be guaranteed by source filename or a headless smoke test"
+    "test": "24 live Wikimedia Commons downloads and metadata author/license checks",
+    "status": "PASS",
+    "evidence": "GitHub Actions 44376594269: PORTRAIT_NETWORK_066811_RESULT downloaded=24/24; source_check=metadata_author_license"
   },
   {
-    "test": "Online download of all 24 photos",
+    "test": "Face framing and human-recognizable crop for all 24 photographs",
     "status": "NOT_RUN",
-    "evidence": "Requires network to Commons at game runtime; user opt-in"
+    "evidence": "Both 24/24 review sheets generated in artifact apex-2012-driver-face-review; awaiting manual visual review before marketing as a face-verified portrait pack"
   },
   {
-    "test": "Sporting source changes",
-    "status": "NONE",
-    "evidence": "RaceEngine, RaceSpace, Replay unchanged"
+    "test": "Official racing engine, race space and replay source changes",
+    "status": "PASS",
+    "evidence": "Compare against main has no edits to RaceEngine, RaceSpace, Replay or sporting solver"
   },
   {
-    "test": "Full GP / FPS GPU / multi-season saves",
+    "test": "Godot 4.7.2 headless project import",
+    "status": "PASS",
+    "evidence": "GitHub Actions 44376594269 real editor import and script parse succeeded"
+  },
+  {
+    "test": "Installable complete source ZIP CRC and hash",
+    "status": "PASS",
+    "evidence": "2304 tracked files, 14,133,827 uncompressed? Package ZIP bytes 14,133,827; sha256 51176108796e699a3ac669d00713f4b16e0e59ffe44f125965b63c1203dec0c8"
+  },
+  {
+    "test": "53-lap full GP / GPU FPS / multi-season save-load",
     "status": "NOT_RUN",
-    "evidence": "Presentation-only release, no sporting algorithm changes"
+    "evidence": "Out of scope for this strictly presentation-focused release; independent long-run QA remains"
   }
 ]
