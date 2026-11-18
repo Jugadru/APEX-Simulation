@@ -54,6 +54,7 @@ jobs:
           tests=(
             'driver_identity_066811_catalog_test.gd|DRIVER_IDENTITY_066811_PASS'
             'driver_identity_066811_ui_test.gd|DRIVER_IDENTITY_066811_UI_PASS'
+            'driver_identity_066811_backoff_test.gd|DRIVER_IDENTITY_066811_RETRY_PASS'
             'team_orders_066810_test.gd|TEAM_ORDERS_066810_PASS'
             'team_orders_066810_ui_test.gd|TEAM_ORDERS_066810_UI_PASS'
             'team_radio_06689_advice_test.gd|TEAM_RADIO_06689_PASS'
