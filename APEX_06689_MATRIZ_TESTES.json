@@ -1,0 +1,52 @@
+[
+  {
+    "test": "Importação limpa Godot 4.7.2",
+    "status": "PASS",
+    "evidence": "Godot headless gl_compatibility --import exit 0"
+  },
+  {
+    "test": "Team radio consultive advice",
+    "status": "PASS",
+    "evidence": "28 checks, immutable inputs, teammate timing and gap, rain, pit, V21"
+  },
+  {
+    "test": "Team radio HUD and replay queue",
+    "status": "PASS",
+    "evidence": "11 checks, no sport mutation or command enqueue, V21 preserved"
+  },
+  {
+    "test": "Soul Driver and legacy radio",
+    "status": "PASS",
+    "evidence": "0647 and 0630, 0631, 0634, 0635 exit 0"
+  },
+  {
+    "test": "Core 2 / Driver Dynamics / Racecraft regressions",
+    "status": "PASS",
+    "evidence": "sort 4, dynamics 17+23+12, grip 27, Racecraft 1027, double stack & model 3D"
+  },
+  {
+    "test": "Replay 0660",
+    "status": "PASS",
+    "evidence": "200 ticks 1x/2x/5x/16x/32x, exit 0"
+  },
+  {
+    "test": "Silverstone Spa Monza Singapore 750 ticks vs 8.8",
+    "status": "PASS",
+    "evidence": "All 20 hashes + 4 rankings + event and checkpoint counts identical, Spa BOX V21 protected"
+  },
+  {
+    "test": "Sporting source parity",
+    "status": "PASS",
+    "evidence": "RaceEngine, replay, Soul, defense, dynamics, codec identical to 8.8"
+  },
+  {
+    "test": "Full 53-lap GP / GPU FPS / multiple seasons",
+    "status": "NOT_RUN",
+    "evidence": "Out of scope this release; keep 8.8 rollback"
+  },
+  {
+    "test": "GitHub CI on PR",
+    "status": "PENDING",
+    "evidence": "Must pass before merge"
+  }
+]
