@@ -10,8 +10,8 @@ config_version=5
 
 [application]
 
-config/name="APEX Motorsport Manager v0.6.6.8.8 — Racecraft 2.0"
-config/description="v0.6.6.8.8: defesa antecipada cautelosa sob chuva e pneus gastos; Core 2 permanece oficial."
+config/name="APEX Motorsport Manager v0.6.6.8.9 — Cooperação de Equipe 2.0"
+config/description="v0.6.6.8.9: rádio consultivo compara ritmo e risco dos companheiros; Core 2 e ordens preservados."
 run/main_scene="res://scenes/main.tscn"
 config/use_custom_user_dir=true
 config/custom_user_dir_name="APEX_0650_SOUL_STAFF"
