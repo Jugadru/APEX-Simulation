@@ -42,7 +42,7 @@
   {
     "test": "Installable complete source ZIP CRC and hash",
     "status": "PASS",
-    "evidence": "2304 tracked files, 14,133,827 uncompressed? Package ZIP bytes 14,133,827; sha256 51176108796e699a3ac669d00713f4b16e0e59ffe44f125965b63c1203dec0c8"
+    "evidence": "Prior build: 2304 tracked files, ZIP size 14,133,827 bytes; SHA-256 51176108796e699a3ac669d00713f4b16e0e59ffe44f125965b63c1203dec0c8"
   },
   {
     "test": "53-lap full GP / GPU FPS / multi-season save-load",
