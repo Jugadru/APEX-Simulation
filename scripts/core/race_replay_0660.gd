@@ -4,7 +4,7 @@ const RacecraftAudit = preload("res://scripts/core/racecraft_audit_0662.gd")
 const Engineer = preload("res://scripts/core/race_engineer_0639.gd")
 const STEP := 0.20
 # A replay is tied to the exact sporting rules, not only its Godot runtime.
-const SIMULATION_REVISION := "06688_grip_aware_defense"
+const SIMULATION_REVISION := "066810_team_yield"
 const CHECKPOINT_TICKS := 300
 const MAX_CHECKPOINTS := 9
 # 0666: at most four compressed, RAM-only seek anchors. Never serialized.
@@ -15,7 +15,7 @@ const MAX_TICKS := 400000
 # is compressed. The exported APEX_REPLAY_0660 format remains unchanged.
 const CHECKPOINT_CODEC := FileAccess.COMPRESSION_ZSTD
 const MAX_STATE_BYTES := 128 * 1024 * 1024
-const METHODS := {"set_pace": 2, "set_kers_mode": 2, "set_pit_control_mode": 2, "schedule_pit": 3, "cancel_scheduled_pit": 1, "order_pit": 2, "driver_control": 2, "annotation":4}
+const METHODS := {"set_pace": 2, "set_kers_mode": 2, "set_pit_control_mode": 2, "schedule_pit": 3, "cancel_scheduled_pit": 1, "order_pit": 2, "driver_control": 2, "annotation":4, "authorize_team_yield":2, "cancel_team_yield":1}
 var race
 var tick: int = 0
 var accumulator: float = 0.0
@@ -95,6 +95,12 @@ func valid_command(method: String, args: Array) -> bool:
 		"set_kers_mode": return args[1] in race.RaceKers2012.MODES
 		"set_pit_control_mode": return args[1] in ["IA", "Manual"]
 		"driver_control": return args[1] in ["Manual", "Assistido", "Automático"]
+		"authorize_team_yield": return typeof(args[1]) == TYPE_INT and race.team_yield_eligible(int(args[0]), int(args[1]))
+		"cancel_team_yield":
+			for c in race.player_cars():
+				if int(c.id) == int(args[0]):
+					return int(c.get("team_yield_ticks", 0)) > 0
+			return false
 		"order_pit": return args[1] in race.available_pit_compounds()
 		"schedule_pit": return args[1] in race.available_pit_compounds() and typeof(args[2]) == TYPE_INT and args[2] >= race._next_pit_entry_lap(car) and args[2] < race.lap_count
 	return true
@@ -108,6 +114,11 @@ func enqueue(method: String, args: Array, at_tick: int = -1, origin: String = "M
 	# overwrite for the same driver, before either order reaches RaceEngine.
 	# This is recording-only validation: imported historical commands continue
 	# to replay unchanged, preserving the APEX_REPLAY_0660 archive contract.
+	if method in ["authorize_team_yield", "cancel_team_yield"]:
+		for i in range(cursor, commands.size()):
+			if str(commands[i].get("type", "")) in ["authorize_team_yield", "cancel_team_yield"] \
+					and int(commands[i].get("actor", -1)) == int(args[0]):
+				return false
 	if method == "schedule_pit":
 		for i in range(cursor, commands.size()):
 			var pending: Dictionary = commands[i]
@@ -395,6 +406,7 @@ func load_data(data: Dictionary) -> bool:
 		if typeof(c.actor)!=TYPE_INT or typeof(c.payload[0])!=TYPE_INT or c.actor!=c.payload[0] or typeof(c.origin)!=TYPE_STRING: return fail("Ator inválido.")
 		if c.type in ["set_pace","set_kers_mode","set_pit_control_mode","schedule_pit","order_pit","driver_control","annotation"] and typeof(c.payload[1])!=TYPE_STRING:return fail("Parâmetro inválido.")
 		if c.type=="schedule_pit" and typeof(c.payload[2])!=TYPE_INT:return fail("Volta inválida.")
+		if c.type=="authorize_team_yield" and (typeof(c.payload[1])!=TYPE_INT or c.payload[0]==c.payload[1]):return fail("Ordem de equipe inválida.")
 		if c.type=="annotation" and (typeof(c.payload[2])!=TYPE_STRING or typeof(c.payload[3])!=TYPE_INT):return fail("Anotação inválida.")
 		last_tick=c.tick;last_seq=c.sequence
 	for cp in data.checkpoints:
