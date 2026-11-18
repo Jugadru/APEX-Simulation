@@ -36,6 +36,7 @@ func run() -> void:
 	var snapshot: PackedByteArray = var_to_bytes(game.race.get_state_snapshot())
 	var info_line: String = str(hud.radio_identity_info.text)
 	check(info_line.contains(player_name), "Identity shows name of actual driver")
+	print("DRIVER_066811_UI_DEBUG name=", player_name, " number=", info.get("number", -1), " label=", info_line)
 	check(info_line.contains("#" + str(info.get("number", 0))), "Historical number visible")
 	check(info_line.contains(str(info.get("country", ""))), "Historical country visible")
 	var image = game.portrait_manager.get_photo(player_name)
