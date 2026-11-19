@@ -240,6 +240,15 @@ func _create_ui() -> void:
 		stripe.custom_minimum_size = Vector2(3, 20)
 		stripe.color = MUTED
 		row.add_child(stripe)
+		# 2012 portrait pack — one cached thumbnail per visible ranking row.
+		# This is presentation-only: no race tick, strategy or position changes.
+		var portrait := TextureRect.new()
+		portrait.custom_minimum_size = Vector2(22, 24)
+		portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		portrait.visible = false
+		row.add_child(portrait)
 		var pos := _text(row, "%d" % (i + 1), 13, MUTED)
 		pos.custom_minimum_size.x = 20
 		var driver := _btn(row, "---", _select_grid_car.bind(i), 43)
@@ -259,7 +268,7 @@ func _create_ui() -> void:
 		var detail := _text(row, "—", 12, WHITE)
 		detail.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		detail.custom_minimum_size.x = 66
-		standing_rows.append({"row":row, "stripe":stripe, "pos":pos, "driver":driver,
+		standing_rows.append({"row":row, "stripe":stripe, "portrait":portrait, "pos":pos, "driver":driver,
 			"tyre":tyre, "state":state, "detail":detail})
 
 	weather_box = _panel(self)
@@ -721,6 +730,17 @@ func refresh_hud() -> void:
 		if i >= order.size():
 			continue
 		var car: Dictionary = order[i]
+		var mini: TextureRect = row["portrait"]
+		if host.portrait_manager != null:
+			# The PortraitManager caches textures; the ranking does not decode PNG every tick.
+			var driver_name: String = str(car.get("name", ""))
+			var photo: Texture2D = host.portrait_manager.get_photo(driver_name)
+			if mini.texture != photo:
+				mini.texture = photo
+				mini.tooltip_text = driver_name
+			mini.visible = photo != null
+		elif mini.visible:
+			mini.visible = false
 		var official_abbr: String = ""
 		if host.portrait_manager != null:
 			official_abbr = host.portrait_manager.get_abbreviation(str(car.get("name", "")))
