@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "season": 2012,
+  "locked_at": "2026-11-19",
+  "reference": {
+    "driver": "Lewis Hamilton",
+    "team_2012": "McLaren Mercedes",
+    "number_2012": 4,
+    "country": "GBR",
+    "user_reference_filename": "image(20261119-181643).png",
+    "source_dimensions_measured": false,
+    "note": "Upload dimensions could not be measured in this session. The target output sizes are standardization choices, not the original file's exact pixel size."
+  },
+  "presets": {
+    "race_leaderboard": {
+      "target_width": 384,
+      "target_height": 400,
+      "aspect_ratio": "24:25",
+      "frame": "top of hat/hair to upper chest",
+      "eye_line_y_fraction": 0.28,
+      "face_center_x_fraction": 0.5,
+      "min_head_top_margin_fraction": 0.015,
+      "must_show": [
+        "full cap or hair",
+        "both eyes",
+        "chin",
+        "collar",
+        "both shoulders",
+        "upper chest"
+      ],
+      "must_not_show": [
+        "full body",
+        "large empty sky/background"
+      ],
+      "same_photo_as_menu": true
+    },
+    "race_radio": {
+      "inherit": "race_leaderboard",
+      "same_crop": true,
+      "scale_in_UI": true
+    },
+    "menu_profile": {
+      "target_width": 640,
+      "target_height": 800,
+      "aspect_ratio": "4:5",
+      "frame": "top of hair/cap to waist",
+      "must_show": [
+        "face",
+        "racing suit",
+        "helmet if held in original image"
+      ],
+      "must_not_cut": [
+        "helmet",
+        "hands at waist if central"
+      ],
+      "prefer_same_2012_photo_session": true
+    },
+    "special_fullbody": {
+      "frame": "original full-body photograph; no cropping"
+    }
+  },
+  "rules": {
+    "historical_2012_only": true,
+    "keep_original_face_and_2012_teamwear": true,
+    "keep_gray_studio_background_for_menu": true,
+    "never_replace_photo_with_another_driver": true,
+    "draw_driver_name_country_flag_and_number_as_native_UI_not_photo_pixels": true,
+    "store_master_without_crop": true,
+    "adjust_crop_position_for_each_pilot": true,
+    "do_not_use_same_absolute_pixel_rectangle_for_all_24": true,
+    "public_distribution_requires_verified_rights": true,
+    "unapproved_photo_fallback": "existing initials/abbreviation"
+  },
+  "qa": [
+    "Compare the race close to the user reference uploaded 2026-11-19",
+    "Check 1600x900 and 1920x1080 scale",
+    "Test head and shoulders remain visible on scoreboard",
+    "Test waist and helmet remain visible in player profile",
+    "Confirm number and national flag rendered outside photo",
+    "Run Core 2 pit V21 and replay regression"
+  ]
+}
