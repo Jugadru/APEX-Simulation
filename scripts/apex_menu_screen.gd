@@ -1,4 +1,5 @@
 extends RefCounted
+const MenuBackground = preload("res://scripts/apex_menu_background.gd")
 ## APEX 0.6.2.3 — extracted responsibility; main.gd remains the scene host.
 ## The wrapper preserves legacy signals and callbacks.
 
@@ -10,11 +11,8 @@ const WHITE := Color("#e9f4fd")
 const YELLOW := Color("#ffce76")
 static func _build_menu(host) -> void:
 	host.menu_root = host._full_cover()
-	var shade := ColorRect.new()
-	shade.color = Color(0.01, 0.025, 0.05, 0.96)
-	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	host.menu_root.add_child(shade)
-	var card = host._panel(host.menu_root, Color("#071624"))
+	MenuBackground.install(host.menu_root)
+	var card = host._panel(host.menu_root, Color("#0c111acc"))
 	card.name = "MenuCard"
 	var outer := MarginContainer.new()
 	outer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -34,7 +32,7 @@ static func _build_menu(host) -> void:
 	root.add_child(hero)
 	var hero_panel := PanelContainer.new()
 	hero_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	hero_panel.add_theme_stylebox_override("panel", HudThemeScript.panel(Color("#0a2032"), 18, Color("#204e70"), 16))
+	hero_panel.add_theme_stylebox_override("panel", HudThemeScript.panel(Color("#181b21e8"), 18, Color("#504037"), 16))
 	hero.add_child(hero_panel)
 	var hero_box = host._vbox(hero_panel, 10)
 	host._label(hero_box, "APEX", 44, Color("#ff8126"))
@@ -58,7 +56,7 @@ static func _build_menu(host) -> void:
 	var cfg_panel := PanelContainer.new()
 	cfg_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	cfg_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	cfg_panel.add_theme_stylebox_override("panel", HudThemeScript.panel(Color("#0c1b2b"), 18, Color("#244764"), 18))
+	cfg_panel.add_theme_stylebox_override("panel", HudThemeScript.panel(Color("#171b20ea"), 18, Color("#504037"), 18))
 	root.add_child(cfg_panel)
 	# The form scrolls; the primary action must remain visible at any window height.
 	var menu_column := VBoxContainer.new()
