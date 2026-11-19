@@ -7,6 +7,7 @@ extends Node
 signal status_changed(message: String)
 signal portraits_finished()
 
+const PortraitLocal = preload("res://scripts/apex_portrait_local_2012.gd")
 const MANIFEST := "res://data/driver_identity_2012.json"
 const CACHE_FOLDER := "user://apex_driver_portraits_2012"
 const MAX_IMAGE_BYTES := 2500000
@@ -18,6 +19,7 @@ var status := "Retratos 2012: clique para baixar fotografias individuais (Wikime
 var download_state := "idle"
 var _entries: Dictionary = {}
 var _textures: Dictionary = {}
+var _local_names: Dictionary = {}
 var _requests: Array[String] = []
 var _active_name := ""
 var _image_url := ""
@@ -31,6 +33,8 @@ var _http: HTTPRequest
 
 func _ready() -> void:
 	_load_catalogue()
+	if PortraitLocal.available_count() > 0:
+		status = "APEX Retratos 2012: %d arquivos locais de HUD disponíveis." % PortraitLocal.available_count()
 	_http = HTTPRequest.new()
 	_http.name = "LicensedPortraitRequest"
 	_http.timeout = 20.0
@@ -64,6 +68,8 @@ func get_abbreviation(driver_name: String) -> String:
 	return str(_entries.get(driver_name, {}).get("abbr", ""))
 
 func get_credit(driver_name: String) -> String:
+	if _local_names.has(driver_name) or PortraitLocal.has_texture(driver_name):
+		return "Retrato original fornecido pelo usuário; direitos de redistribuição não verificados."
 	var info: Dictionary = _entries.get(driver_name, {})
 	if info.is_empty():
 		return ""
@@ -71,6 +77,8 @@ func get_credit(driver_name: String) -> String:
 		str(info.get("photographer", "")), str(info.get("license", ""))]
 
 func get_source_url(driver_name: String) -> String:
+	if _local_names.has(driver_name) or PortraitLocal.has_texture(driver_name):
+		return ""
 	var info: Dictionary = _entries.get(driver_name, {})
 	if info.is_empty():
 		return ""
@@ -88,6 +96,11 @@ func has_photo(driver_name: String) -> bool:
 func get_photo(driver_name: String) -> Texture2D:
 	if _textures.has(driver_name):
 		return _textures[driver_name]
+	var bundled: Texture2D = PortraitLocal.get_texture(driver_name, "hud")
+	if bundled != null:
+		_textures[driver_name] = bundled
+		_local_names[driver_name] = true
+		return bundled
 	var path: String = _cache_file(driver_name)
 	if path.is_empty() or not FileAccess.file_exists(path):
 		return null
@@ -99,6 +112,12 @@ func get_photo(driver_name: String) -> Texture2D:
 	var texture := ImageTexture.create_from_image(image)
 	_textures[driver_name] = texture
 	return texture
+
+func get_profile_photo(driver_name: String) -> Texture2D:
+	var local_profile: Texture2D = PortraitLocal.get_texture(driver_name, "profile")
+	if local_profile != null:
+		return local_profile
+	return get_photo(driver_name)
 
 func download_for_team(driver_names: Array[String]) -> void:
 	if download_state == "running":
