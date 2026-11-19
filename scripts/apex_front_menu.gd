@@ -28,11 +28,6 @@ func setup(scene_host) -> void:
     name = "FrontDoor"
     set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
     host.menu_root.add_child(self)
-    var bg := ColorRect.new()
-    bg.color = INK
-    bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
-    bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-    add_child(bg)
     var margin := MarginContainer.new()
     margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
     for side in ["left", "right", "top", "bottom"]:
