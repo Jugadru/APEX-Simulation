@@ -47,3 +47,15 @@ As seguintes **cinco fotografias** têm licença explícita CC BY 2.0 na página
 5. Publicar asset pack **opcional** separado do jogo apenas quando as 24 imagens passarem auditoria de licenças e QA. Se algum piloto falhar, manter siglas sem trocar por imagem errada.
 
 **Nenhuma alteração de código ou extração de mod foi efetuada por esta auditoria.** O PR 8.12 permanece isolado da main e depende da versão 8.11.
+
+## Atualização: referências específicas enviadas para o APEX — Parte 1
+
+**Foto coletiva Sky Sports / “Class of 2012”.** URL fornecida: https://e0.365dm.com/12/05/1600x900/F1-class-of-2012_2773667.jpg . A publicação editorial [Sky Sports, avaliação piloto a piloto de dezembro/2012](https://www.skysports.com/f1/news/8293985/driver-by-driver-review-of-the-season) exibe uma imagem com essa identificação. **Status: referência histórica editorial, NÃO AUTORIZADA para redistribuição no APEX.** O URL do CDN é um endereço de imagem, não um contrato de licenciamento. Também não é suficiente para produzir retratos individuais de qualidade: cortar 24 rostos de uma fotografia 1600×900 resultaria em poucos pixels por pessoa; não usar como fonte de portraits.
+
+**Sebastian Vettel, Bahrein 2012 — arquivo indicado.** https://commons.wikimedia.org/wiki/File:Sebastian_Vettel_2012_Bahrain_GP.jpg . Página individual do Commons verificada: autor Ryan Bayona, data 21/04/2012, 648×864, Creative Commons [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/), revisão de licença histórica do Flickr. **Status: licença fotográfica comprovada e rosto nítido; candidato visual prioritário**, sem status de aprovado até teste em cards/radio com crop real. A fotografia mostra boné Red Bull, rosto em 3/4 e roupa branca identificada com a equipe; não declarar que constitui retrato de lançamento frontal nem que mostra corpo e macacão integral. Créditos obrigatórios e registro da adaptação.
+
+**Fernando Alonso, Lewis Hamilton, Schumacher e demais pilotos.** As descrições de launch, Getty, Ferrari Media, W03/E20 e Melbourne 2012 são indicações de busca, **não** arquivos com permissão concedida. Para cada piloto, buscar fotos autorais em 2012, capturar URL individual, autor, licença e confirmar visualmente antes de incluir. Não fazer download de Getty, Sky, XPB, equipes ou imprensa para incorporar no APEX sem licenciamento específico.
+
+**Local de pesquisa alternativo para completar os 24:** [categoria de pilotos da F1 em 2012 no Wikimedia Commons](https://commons.wikimedia.org/wiki/Category:Formula_One_drivers_in_2012), que lista 25 subcategorias incluindo o substituto Jérôme d'Ambrosio. Verificar cuidadosamente cada arquivo — uma categoria pode misturar imagens de pista, retratos e licenças distintas.
+
+**Regra de aceite no APEX:** pelo menos uma imagem individual lícita, com enquadramento/roupa 2012 verificados, por titular; cenário de visualização 4:5 com foco no rosto; QA em tamanho real no card e rádio; autorização e créditos registradas. Não fazer mudança de arquivos do jogo antes de concluir a curadoria.
