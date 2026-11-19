@@ -2,6 +2,22 @@
 
 **Estado:** especificação aprovada em conversa, 19/11/2026. **Somente documentação**; nenhuma fotografia foi incluída ou redistribuída neste commit. Próxima implementação isolada de retratos, após auditoria de direitos e testes.
 
+## PRESET CANÔNICO SALVO — Hamilton 2012 (19/11/2026)
+
+Arquivo de configuração: [data/portrait_crop_presets_2012.json](../data/portrait_crop_presets_2012.json). Esse preset formaliza o close da fotografia original enviado pelo usuário como image(20261119-181643).png.
+
+| Uso | Tamanho-alvo padronizado | Proporção | Geometria visual aprovada |
+|---|---:|---|---|
+| Classificação da corrida / rádio | **384 × 400 px** | **24:25**, quase quadrada | Boné/cabelo inteiro, olhos perto de 28% da altura, rosto central, ombros e parte de cima do peito, como no close do Hamilton enviado |
+| Perfil do piloto no menu | **640 × 800 px** | **4:5** | Do topo da cabeça até a cintura, incluindo capacete se ele estiver na foto |
+| Visualização especial | Original | Original | Corpo inteiro sem recorte |
+
+**Importante:** 384×400 e 640×800 são dimensões-alvo escolhidas para padronizar o APEX; **não** são medidas declaradas da resolução do arquivo recebido. A ferramenta de inspeção dos pixels não estava disponível para confirmar o tamanho exato do screenshot do usuário. A imagem dele permanece a referência visual. Para evitar cortes errados, ajustar o zoom/foco de cada piloto individualmente; não aplicar o mesmo retângulo de pixels às 24 fotografias. Preservar o original, a face e o uniforme de 2012, e manter nome, bandeira e número como elementos da UI.
+
+**Estado:** padrão e configuração salvos no GitHub, mas nenhuma foto foi inserida no repositório público e nenhum código de processamento do jogo foi alterado. A licença de redistribuição de cada fotografia continua sendo uma condição separada.
+
+---
+
 ## Regra principal
 
 **Usar a mesma fotografia histórica de 2012 como origem para os recortes usados nas telas.** Não substituir a imagem por um retrato moderno, nem criar versões fotorrealistas inventadas. O enquadramento aprovado pelo usuário é o exemplo do **Lewis Hamilton com macacão branco/vermelho Vodafone McLaren de 2012**, em fundo cinza, com o rosto frontal destacado e recorte justo **do topo da cabeça até a parte superior do peito** para a tabela da corrida.
