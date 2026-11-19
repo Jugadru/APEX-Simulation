@@ -1,0 +1,135 @@
+{
+  "version": "APEX portraits 2012 v0.6.6.8.13",
+  "origin": "48 images uploaded by user in three chronological batches on 2026-11-19",
+  "notes": "Mapping based on user-provided batch order and historical roster, not inferred from biometric recognition. Verify manually before distribution.",
+  "hud_size": [
+    384,
+    400
+  ],
+  "profile_size": [
+    640,
+    800
+  ],
+  "drivers": [
+    {
+      "name": "Sebastian Vettel",
+      "fullbody": "image(20261119-165107).png",
+      "headshot": "image(20261119-165135).png"
+    },
+    {
+      "name": "Mark Webber",
+      "fullbody": "image(20261119-165157).png",
+      "headshot": "image(20261119-165218).png"
+    },
+    {
+      "name": "Jenson Button",
+      "fullbody": "image(20261119-165237).png",
+      "headshot": "image(20261119-165254).png"
+    },
+    {
+      "name": "Lewis Hamilton",
+      "fullbody": "image(20261119-165331).png",
+      "headshot": "image(20261119-165400).png"
+    },
+    {
+      "name": "Fernando Alonso",
+      "fullbody": "image(20261119-165508).png",
+      "headshot": "image(20261119-165515).png"
+    },
+    {
+      "name": "Felipe Massa",
+      "fullbody": "image(20261119-165526).png",
+      "headshot": "image(20261119-165536).png"
+    },
+    {
+      "name": "Michael Schumacher",
+      "fullbody": "image(20261119-165555).png",
+      "headshot": "image(20261119-165608).png"
+    },
+    {
+      "name": "Nico Rosberg",
+      "fullbody": "image(20261119-165621).png",
+      "headshot": "image(20261119-165634).png"
+    },
+    {
+      "name": "Kimi Räikkönen",
+      "fullbody": "image(20261119-165705).png",
+      "headshot": "image(20261119-165712).png"
+    },
+    {
+      "name": "Romain Grosjean",
+      "fullbody": "image(20261119-165730).png",
+      "headshot": "image(20261119-165737).png"
+    },
+    {
+      "name": "Paul di Resta",
+      "fullbody": "image(20261119-170100).png",
+      "headshot": "image(20261119-170106).png"
+    },
+    {
+      "name": "Nico Hülkenberg",
+      "fullbody": "image(20261119-170115).png",
+      "headshot": "image(20261119-170121).png"
+    },
+    {
+      "name": "Kamui Kobayashi",
+      "fullbody": "image(20261119-170133).png",
+      "headshot": "image(20261119-170141).png"
+    },
+    {
+      "name": "Sergio Pérez",
+      "fullbody": "image(20261119-170152).png",
+      "headshot": "image(20261119-170159).png"
+    },
+    {
+      "name": "Daniel Ricciardo",
+      "fullbody": "image(20261119-170213).png",
+      "headshot": "image(20261119-170221).png"
+    },
+    {
+      "name": "Jean-Éric Vergne",
+      "fullbody": "image(20261119-170230).png",
+      "headshot": "image(20261119-170237).png"
+    },
+    {
+      "name": "Pastor Maldonado",
+      "fullbody": "image(20261119-170256).png",
+      "headshot": "image(20261119-170303).png"
+    },
+    {
+      "name": "Bruno Senna",
+      "fullbody": "image(20261119-170310).png",
+      "headshot": "image(20261119-170316).png"
+    },
+    {
+      "name": "Heikki Kovalainen",
+      "fullbody": "image(20261119-170324).png",
+      "headshot": "image(20261119-170331).png"
+    },
+    {
+      "name": "Vitaly Petrov",
+      "fullbody": "image(20261119-170340).png",
+      "headshot": "image(20261119-170346).png"
+    },
+    {
+      "name": "Pedro de la Rosa",
+      "fullbody": "image(20261119-170459).png",
+      "headshot": "image(20261119-170507).png"
+    },
+    {
+      "name": "Narain Karthikeyan",
+      "fullbody": "image(20261119-170514).png",
+      "headshot": "image(20261119-170519).png"
+    },
+    {
+      "name": "Timo Glock",
+      "fullbody": "image(20261119-170528).png",
+      "headshot": "image(20261119-170534).png"
+    },
+    {
+      "name": "Charles Pic",
+      "fullbody": "image(20261119-170546).png",
+      "headshot": "image(20261119-170553).png"
+    }
+  ]
+}
