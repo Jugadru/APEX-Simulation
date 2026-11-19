@@ -1,0 +1,81 @@
+{
+  "season": 2012,
+  "purpose": "Only 2012 display metadata: chassis names and race dates. Never modify race physics, tyres, replay or career.",
+  "chassis_by_team": {
+    "Red Bull Racing Renault": {
+      "model": "RB8",
+      "engine": "Renault V8"
+    },
+    "McLaren Mercedes": {
+      "model": "MP4-27",
+      "engine": "Mercedes V8"
+    },
+    "Ferrari": {
+      "model": "F2012",
+      "engine": "Ferrari V8"
+    },
+    "Lotus Renault": {
+      "model": "E20",
+      "engine": "Renault V8"
+    },
+    "Mercedes": {
+      "model": "F1 W03",
+      "engine": "Mercedes V8"
+    },
+    "Sauber Ferrari": {
+      "model": "C31",
+      "engine": "Ferrari V8"
+    },
+    "Force India Mercedes": {
+      "model": "VJM05",
+      "engine": "Mercedes V8"
+    },
+    "Williams Renault": {
+      "model": "FW34",
+      "engine": "Renault V8"
+    },
+    "Toro Rosso Ferrari": {
+      "model": "STR7",
+      "engine": "Ferrari V8"
+    },
+    "Caterham Renault": {
+      "model": "CT01",
+      "engine": "Renault V8"
+    },
+    "Marussia Cosworth": {
+      "model": "MR01",
+      "engine": "Cosworth V8"
+    },
+    "HRT Cosworth": {
+      "model": "F112",
+      "engine": "Cosworth V8"
+    }
+  },
+  "race_dates": {
+    "AUS": "2012-03-18",
+    "MAL": "2012-03-25",
+    "CHN": "2012-04-15",
+    "BHR": "2012-04-22",
+    "ESP": "2012-05-13",
+    "MON": "2012-05-27",
+    "CAN": "2012-06-10",
+    "EUR": "2012-06-24",
+    "GBR": "2012-07-08",
+    "GER": "2012-07-22",
+    "HUN": "2012-07-29",
+    "BEL": "2012-09-02",
+    "ITA": "2012-09-09",
+    "SIN": "2012-09-23",
+    "JPN": "2012-10-07",
+    "KOR": "2012-10-14",
+    "IND": "2012-10-28",
+    "UAE": "2012-11-04",
+    "USA": "2012-11-18",
+    "BRA": "2012-11-25"
+  },
+  "sources": {
+    "tyres": "https://press.pirelli.com/pirelli-announces-compound-choice-for-the-first-three-races/",
+    "chassis": "https://www.f1technical.net/f1db/cars/years/2012",
+    "calendar": "https://www.fia.com/events/fia-formula-one-world-championship/season-2012/calendar"
+  }
+}

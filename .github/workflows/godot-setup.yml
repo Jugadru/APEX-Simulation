@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
+    branches: [main, feature/core2-driver-identity-066811]
   workflow_dispatch:
 
 permissions:
@@ -55,6 +55,7 @@ jobs:
             'driver_identity_066811_catalog_test.gd|DRIVER_IDENTITY_066811_PASS'
             'driver_identity_066811_ui_test.gd|DRIVER_IDENTITY_066811_UI_PASS'
             'driver_identity_066811_backoff_test.gd|DRIVER_IDENTITY_066811_RETRY_PASS'
+            'season_2012_066812_test.gd|SEASON_GUIDE_066812_PASS'
             'hud_rebroadcast_0668_unit.gd|PASS HUD_REBROADCAST_0668_UNIT'
             'hud_rebroadcast_0668_integration.gd|HUD_REBROADCAST_0668_INTEGRATION_PASS'
             'hud_rebroadcast_06681_pending_orders.gd|HUD_06681_PENDING_ORDERS'
@@ -183,8 +184,8 @@ jobs:
           import zipfile
 
           root = pathlib.Path.cwd()
-          name = "APEX_MOTORSPORT_MANAGER_v0.6.6.8.11_CORE2_DRIVER_IDENTITY_FONTE.zip"
-          prefix = "APEX_MOTORSPORT_MANAGER_v0.6.6.8.11_CORE2_DRIVER_IDENTITY"
+          name = "APEX_MOTORSPORT_MANAGER_v0.6.6.8.12_CORE2_TEMPORADA_2012_FONTE.zip"
+          prefix = "APEX_MOTORSPORT_MANAGER_v0.6.6.8.12_CORE2_TEMPORADA_2012"
           destination = root / "dist" / name
           tracked = subprocess.check_output(["git", "ls-files", "-z"]).split(b"\0")
           count = 0
@@ -222,7 +223,7 @@ jobs:
       - name: Publish installable version 0.6.6.8.11
         uses: actions/upload-artifact@v4
         with:
-          name: APEX-v0.6.6.8.11-Core2-Driver-Identity
+          name: APEX-v0.6.6.8.12-Core2-Season-2012
           path: |
             dist/*.zip
             dist/SHA256.txt

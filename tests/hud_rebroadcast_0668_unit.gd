@@ -7,7 +7,10 @@ func _initialize() -> void:
 
 func _check() -> void:
 	assert(Hud.MODES == ["BROADCAST", "COMPACT", "FULL"])
-	assert(Hud.tyre_tint("I") == Color("#42BE89"))
+	assert(Hud.tyre_tint("I") == Color("#50b88b"))
+	assert(Hud.tyre_tint("S") == Color("#f4d14c"))
+	assert(Hud.tyre_tint("SS") == Color("#f04c54"))
+	assert(Hud.tyre_tint("H") == Color("#c9d0d5"))
 	assert(Hud._order_status({"pit_scheduled_lap": 21}) == "V21")
 	assert(Hud._order_status({"pit_request": true, "pit_scheduled_lap": 21}) == "BOX")
 	assert(Hud._order_status({"pit_left": 1.5, "pit_scheduled_lap": 21}) == "PIT")

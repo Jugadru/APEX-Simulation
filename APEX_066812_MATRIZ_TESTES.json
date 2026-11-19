@@ -1,0 +1,47 @@
+[
+  {
+    "test": "Godot 4.7.2 editor import and script parse",
+    "status": "PASS",
+    "evidence": "Actions 44405628481 import succeeded"
+  },
+  {
+    "test": "20 Godot scripted tests including 19 previous Core2/HUD/Identity regressions",
+    "status": "PASS",
+    "evidence": "Actions 44405628481 regression step succeeded"
+  },
+  {
+    "test": "2012 season guide, 6 tyres/12 chassis/20 dates, menu UI, read-only state",
+    "status": "PASS",
+    "evidence": "SEASON_GUIDE_066812_PASS checks=152 no_sporting_mutation=true"
+  },
+  {
+    "test": "Old HUD and queued V21 order regression",
+    "status": "PASS",
+    "evidence": "ReBroadcast checks=34 and queued pit checks=30"
+  },
+  {
+    "test": "Race replay deterministic short run",
+    "status": "PASS",
+    "evidence": "Replay 200 ticks, speeds 1x 2x 5x 16x 32x"
+  },
+  {
+    "test": "24 Wikimedia Commons portrait live downloads & author/license metadata",
+    "status": "PASS",
+    "evidence": "PORTRAIT_NETWORK_066811_RESULT downloaded=24/24"
+  },
+  {
+    "test": "Source ZIP CRC and tracked files",
+    "status": "PASS",
+    "evidence": "Actions 44405628481 packaged 2310 files, 14143134 bytes; SHA-256 7dcc3d0ac14bb6a98209eed82c4a4c6733bfa24b28ab2f2e7cc991d03a530715 (prior doc commit only)"
+  },
+  {
+    "test": "Human visual inspection of 24 portrait crops",
+    "status": "NOT_RUN",
+    "evidence": "Contact sheets available; manual review needed"
+  },
+  {
+    "test": "GPU FPS, four complete GPs and legacy multi-season save QA",
+    "status": "NOT_RUN",
+    "evidence": "Outside 20 scripted tests; not claimed stable"
+  }
+]

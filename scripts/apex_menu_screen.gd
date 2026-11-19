@@ -164,6 +164,8 @@ static func _build_menu(host) -> void:
 	host._button(box, "▰  PLANEJADOR DE STINTS / ANTES DA LARGADA", host._open_pre_race_strategy)
 	host.pre_race_strategy_status = host._label(box, "Opcional: visualize o plano e, em Manual, confirme as primeiras paradas.", 11, MUTED)
 	host.pre_race_strategy_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	host.season_guide_button = host._button(box, "▣  GUIA DA TEMPORADA 2012 — PNEUS / CARROS / CALENDÁRIO", host._show_season_guide)
+	host.season_guide_button.tooltip_text = "Seis pneus históricos, 12 chassis e calendário FIA 2012. Escolha equipe/GP sem começar a corrida."
 	host._button(box, "⚙  OFICINA DO CARRO", host._open_garage)
 	host._button(box, "★  SOUL STAFF 1.0 / GESTÃO DE EQUIPE", host._open_staff)
 	host.portrait_download_button = host._button(box, "↓  BAIXAR RETRATOS DA EQUIPE (WIKIMEDIA)", host._download_team_portraits)
