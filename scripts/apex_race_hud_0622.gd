@@ -1150,10 +1150,10 @@ func _build_radio_window() -> void:
 	radio_only_button = _btn(driver_line, "SÓ ESTE: NÃO", _toggle_radio_driver_filter, 119)
 	radio_only_button.tooltip_text = "Filtrar as mensagens de Equipe e Pilotos pelo piloto selecionado"
 	_refresh_radio_filter_button()
-	# Driver Identity Pack 2012 — portrait is a real person, downloaded by
-	# the user from Wikimedia Commons; otherwise display neutral initials.
+	# Portrait Pack 2012 — prefer locally supplied originals when installed.
+	# Wikimedia download and neutral initials remain safe fallbacks.
 	var identity_row := _line(overlay_content, 10)
-	var identity_frame := _panel(identity_row, Color("#101C2A"))
+	var identity_frame := _panel(identity_row, Color("#181b21"))
 	var identity_box := _column(identity_frame, 1)
 	radio_portrait_texture = TextureRect.new()
 	radio_portrait_texture.custom_minimum_size = Vector2(90, 110)
@@ -1258,9 +1258,9 @@ func _refresh_radio_identity() -> void:
 		str(info.get("abbr", "---")), str(info.get("country", "---"))]
 	if photo != null:
 		detail += "\n" + host.portrait_manager.get_credit(driver_name)
-		radio_portrait_texture.tooltip_text = host.portrait_manager.get_source_url(driver_name)
+		radio_portrait_texture.tooltip_text = host.portrait_manager.get_credit(driver_name) + " " + host.portrait_manager.get_source_url(driver_name)
 	else:
-		detail += "\nFoto ainda não baixada: apenas iniciais, sem carros."
+		detail += "\nRetrato não instalado ou indisponível: iniciais preservadas."
 	radio_identity_info.text = detail
 
 func _radio_driver_changed(_index: int) -> void:
