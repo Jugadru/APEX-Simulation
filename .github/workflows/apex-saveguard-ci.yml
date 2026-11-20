@@ -75,10 +75,61 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          mkdir -p ci_artifacts/saveguard
+          base_home="$RUNNER_TEMP/apex-saveguard-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-base"
+          candidate_home="$RUNNER_TEMP/apex-saveguard-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-candidate"
+          replay_path="$RUNNER_TEMP/apex-saveguard-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}/baseline_replay.apexreplay"
+          mkdir -p "$(dirname "$replay_path")"
+
+          run_scene() {
+            local project="$1"
+            local profile="$2"
+            local scene="$3"
+            local label="$4"
+            (
+              export HOME="$profile"
+              export XDG_DATA_HOME="$HOME/data"
+              export XDG_CONFIG_HOME="$HOME/config"
+              export XDG_CACHE_HOME="$HOME/cache"
+              mkdir -p "$XDG_DATA_HOME" "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME"
+              timeout 150s godot --headless --path "$project" \
+                --script "res://${scene}" > "ci_artifacts/saveguard/${label}.log" 2>&1
+            )
+          }
+
+          run_scene baseline "$base_home" tests/career_0667_20_season_data_stress.gd baseline_career
+          run_scene baseline "$base_home" tests/core_0642_save_migration_test.gd baseline_garage
+
+          export APEX_LEGACY_PATH="$replay_path"
+          export APEX_LEGACY_TICKS=350
+          export APEX_LEGACY_MODE=record
+          run_scene baseline "$base_home" tests/replay_0663_legacy_fixture.gd baseline_replay
+
+          mapfile -t careers < <(find "$base_home/data" -type f -name 'apex_0667_20_season_stress.json' -print)
+          mapfile -t garages < <(find "$base_home/data" -type f -name 'apex_garage_050.json' -print)
+          test "${#careers[@]}" -eq 1
+          test "${#garages[@]}" -eq 1
+          test -s "$replay_path"
+          career="${careers[0]}"
+          garage="${garages[0]}"
+          sha256sum "$career" | cut -d' ' -f1 > ci_artifacts/saveguard/career.sha
+          sha256sum "$garage" | cut -d' ' -f1 > ci_artifacts/saveguard/garage.sha
+          sha256sum "$replay_path" | cut -d' ' -f1 > ci_artifacts/saveguard/replay.sha
+
+          export APEX_LEGACY_MODE=replay
+          run_scene candidate "$candidate_home" tests/replay_0663_legacy_fixture.gd candidate_replay
+          unset APEX_LEGACY_PATH APEX_LEGACY_TICKS APEX_LEGACY_MODE
+
+          export APEX_SAVEGUARD_CAREER="$career"
+          export APEX_SAVEGUARD_GARAGE="$garage"
+          export APEX_SAVEGUARD_REPLAY="$replay_path"
+          export APEX_SAVEGUARD_TICKS=350
+          run_scene candidate "$candidate_home" tests/ci/apex_saveguard_cross_revision.gd candidate_saveguard
+
           python3 candidate/tools/apex_saveguard_ci.py \
             --baseline baseline --candidate candidate \
-            --godot godot \
-            --timeout 150 \
+            --baseline-home "$base_home" \
+            --replay-path "$replay_path" \
             --output ci_artifacts/saveguard
 
       - name: Publicar resumo com limitacoes
