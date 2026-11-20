@@ -13,7 +13,9 @@ import math
 import os
 from pathlib import Path
 import statistics
+import shutil
 import subprocess
+from tempfile import TemporaryDirectory
 import sys
 
 BENCHMARK = Path("tests/high_speed_growth_066723_benchmark.gd")
@@ -138,35 +140,59 @@ def markdown_report(report: dict) -> str:
 
 def run_once(godot: str, project: Path, label: str, index: int,
              ticks: int, out: Path, timeout: int) -> dict:
-    isolation = out / "isolated_user" / f"{label}-{index}"
-    env = os.environ.copy()
-    for key, subdir in (("XDG_DATA_HOME", "data"),
-                        ("XDG_CONFIG_HOME", "config"),
-                        ("XDG_CACHE_HOME", "cache")):
-        directory = isolation / subdir
-        directory.mkdir(parents=True, exist_ok=True)
-        env[key] = str(directory)
-    env["APEX_TICKS"] = str(ticks)
-    # The Godot setup action exposes a shell-launchable shim. Invoke it
-    # through Bash so executable wrappers without a shebang work as in CI.
-    command = [
-        "bash", "-c",
-        '"$1" --headless --path "$2" --script "$3"',
-        "apex-benchmark", godot, str(project),
-        "res://" + BENCHMARK.as_posix(),
-    ]
-    try:
-        proc = subprocess.run(command, env=env, capture_output=True,
-                              text=True, errors="replace", timeout=timeout,
-                              check=False)
-    except subprocess.TimeoutExpired as exc:
-        raise BenchmarkError(f"{label} repetition {index} timed out") from exc
+    exe = shutil.which(godot)
+    if not exe or not Path(exe).is_file():
+        raise BenchmarkError(f"Godot executable not found: {godot}")
+    project = project.resolve(strict=True)
+    if not project.is_dir() or not (project / "project.godot").is_file():
+        raise BenchmarkError(f"Not a Godot project: {project}")
+    if not (project / BENCHMARK).is_file():
+        raise BenchmarkError(f"Benchmark missing from {project}")
+    # Each invocation has a freshly created, disposable user directory.
+    # This also isolates the custom user folder in project.godot.
+    with TemporaryDirectory(prefix=f"apex-ab-{label}-{index}-", dir=out) as user:
+        isolation = Path(user)
+        env = os.environ.copy()
+        env["HOME"] = str(isolation)
+        for key, subdir in (("XDG_DATA_HOME", "data"),
+                            ("XDG_CONFIG_HOME", "config"),
+                            ("XDG_CACHE_HOME", "cache")):
+            directory = isolation / subdir
+            directory.mkdir(parents=True)
+            env[key] = str(directory)
+        env["APEX_TICKS"] = str(ticks)
+        # The Godot installation helper is a shell script shim without an
+        # ELF shebang on Linux. Execute it as a file, with explicit argv;
+        # never interpolate paths in a shell command string.
+        with open(exe, "rb") as stream:
+            elf = stream.read(4) == b"\\x7fELF"
+        command = ([exe] if elf else ["bash", exe]) + [
+            "--headless", "--path", str(project),
+            "--script", "res://" + BENCHMARK.as_posix(),
+        ]
+        try:
+            proc = subprocess.run(
+                command, env=env, capture_output=True, text=True,
+                errors="replace", timeout=timeout, check=False,
+            )
+        except (subprocess.TimeoutExpired, OSError) as exc:
+            raise BenchmarkError(f"{label} repetition {index} could not finish: {exc}") from exc
 
-    log = proc.stdout + "\n" + proc.stderr
+    log = proc.stdout + "\\n" + proc.stderr
     (out / f"{label}-{index}.log").write_text(log, encoding="utf-8")
     if proc.returncode != 0:
         raise BenchmarkError(f"{label} repetition {index} exited {proc.returncode}")
     return parse_growth_log(log, ticks)
+
+
+def verify_warmups(warmups: dict[str, dict], samples: dict[str, list[dict]]) -> None:
+    for label in ("base", "candidate"):
+        if label not in warmups or not samples.get(label):
+            raise BenchmarkError(f"Missing warmup or measured sample: {label}")
+        if warmups[label]["sporting_hash"] != samples[label][0]["sporting_hash"]:
+            raise BenchmarkError(f"NONDETERMINISTIC: {label} warmup hash differs")
+
+
 
 
 def main() -> int:
@@ -187,6 +213,9 @@ def main() -> int:
 
     out = args.output_dir.resolve()
     out.mkdir(parents=True, exist_ok=True)
+    # Never reuse old success/error reports from earlier benchmark attempts.
+    for filename in ("report.json", "report.md", "error.txt"):
+        (out / filename).unlink(missing_ok=True)
     projects = {"base": args.base_dir.resolve(),
                 "candidate": args.candidate_dir.resolve()}
     try:
@@ -198,6 +227,7 @@ def main() -> int:
             source_hashes[label] = hashlib.sha256(script.read_bytes()).hexdigest()
 
         samples = {"base": [], "candidate": []}
+        warmups = {}
         # First iteration warms up both cases. Subsequent runs alternate A/B order.
         for index in range(args.repetitions + 1):
             order = ("base", "candidate") if index % 2 == 0 else ("candidate", "base")
@@ -207,6 +237,9 @@ def main() -> int:
                                     args.ticks, out, args.timeout)
                 if index:
                     samples[label].append(measured)
+                else:
+                    warmups[label] = measured
+        verify_warmups(warmups, samples)
 
         result = summarize(samples["base"], samples["candidate"],
                            source_hashes["base"], source_hashes["candidate"])
