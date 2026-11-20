@@ -3,14 +3,6 @@ name: APEX - Capturas Graficas Automaticas
 on:
   workflow_dispatch:
   pull_request:
-    paths:
-      - 'scenes/**'
-      - 'scripts/**'
-      - 'data/**'
-      - 'assets/**'
-      - 'tests/ci/apex_capture_screenshots.gd'
-      - 'tools/verify_ci_captures.py'
-      - '.github/workflows/apex-capturas-ci.yml'
 
 permissions:
   contents: read
@@ -29,7 +21,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Instalar Godot 4.7.2
-        uses: lihop/godot-setup@v3.0.1
+        uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c # v3.0.1
         with:
           version: 4.7.2-stable
 
