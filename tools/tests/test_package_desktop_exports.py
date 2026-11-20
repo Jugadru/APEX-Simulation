@@ -1,7 +1,6 @@
 """Offline contract tests for Linux/Windows ZIP export verification."""
 from __future__ import annotations
 
-import json
 from pathlib import Path
 import sys
 from tempfile import TemporaryDirectory
