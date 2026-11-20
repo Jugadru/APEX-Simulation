@@ -8,12 +8,12 @@ Third-party addons and test fixtures are intentionally excluded.
 from __future__ import annotations
 
 import argparse
+import asyncio
 from collections import Counter
 import json
 import shutil
 from pathlib import Path
 import re
-import subprocess
 import sys
 from typing import Any
 
@@ -50,27 +50,39 @@ def run_tool(name: str, arguments: list[str], root: Path, reports: Path) -> dict
     executable = Path(executable_name).resolve(strict=True)
     if not executable.is_file():
         raise AuditError(f"{name} does not refer to a file")
-    try:
-        result = subprocess.run(
-            [str(executable), *arguments],
-            cwd=root,
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-            errors="replace",
-            timeout=TOOL_TIMEOUT,
-            check=False,
+    async def invoke_tool() -> tuple[int, str, str]:
+        process = await asyncio.create_subprocess_exec(
+            str(executable), *arguments,
+            cwd=str(root),
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
         )
-    except (OSError, subprocess.TimeoutExpired) as exc:
-        raise AuditError(f"{name} could not run: {exc}") from exc
+        try:
+            stdout, stderr = await asyncio.wait_for(
+                process.communicate(), timeout=TOOL_TIMEOUT
+            )
+        except TimeoutError as exc:
+            process.kill()
+            await process.communicate()
+            raise AuditError(f"{name} exceeded {TOOL_TIMEOUT} seconds") from exc
+        return (
+            int(process.returncode),
+            stdout.decode("utf-8", errors="replace"),
+            stderr.decode("utf-8", errors="replace"),
+        )
 
-    log = result.stdout + ("\n" if result.stdout and result.stderr else "") + result.stderr
+    try:
+        exit_code, stdout, stderr = asyncio.run(invoke_tool())
+    except OSError as exc:
+        raise AuditError(f"{name} could not start: {exc}") from exc
+
+    log = stdout + ("\n" if stdout and stderr else "") + stderr
     (reports / f"{name}.log").write_text(log, encoding="utf-8")
     # Both tools use exit 1 for code/style findings. Unexpected error exits
     # must not be labeled as a successful audit.
-    if result.returncode not in (0, 1):
-        raise AuditError(f"{name} exited unexpectedly with {result.returncode}; see log")
-    return {"exit_code": result.returncode, "log": log}
+    if exit_code not in (0, 1):
+        raise AuditError(f"{name} exited unexpectedly with {exit_code}; see log")
+    return {"exit_code": exit_code, "log": log}
 
 
 def lint_findings(log: str) -> Counter[str]:
