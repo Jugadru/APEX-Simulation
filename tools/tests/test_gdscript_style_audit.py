@@ -36,7 +36,7 @@ class GDScriptAuditContractTests(unittest.TestCase):
 
     def test_only_auditor_executables_allowed(self):
         with TemporaryDirectory() as td:
-            with patch("gdscript_style_audit.subprocess.run") as command:
+            with patch("gdscript_style_audit.asyncio.create_subprocess_exec") as command:
                 with self.assertRaises(AuditError):
                     run_tool("bash", ["-c", "echo no"], Path(td), Path(td))
                 command.assert_not_called()
