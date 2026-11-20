@@ -9,15 +9,11 @@ No personal user save is read or copied and no game code is modified.
 from __future__ import annotations
 
 import argparse
-import asyncio
 import hashlib
 import json
-import os
 from pathlib import Path
 import re
-import shutil
 import sys
-from tempfile import TemporaryDirectory
 from typing import Any
 
 CAREER_SCRIPT = "tests/career_0667_20_season_data_stress.gd"
@@ -90,158 +86,74 @@ def find_exact(home_data: Path, name: str) -> Path:
     return matches[0]
 
 
-def resolve_godot_binary(executable: str) -> str:
-    """Resolve the real Godot ELF, never passing arguments to a shell."""
-    command = shutil.which(executable)
-    if not command:
-        raise SaveGuardError(f"Godot executable not found: {executable}")
-    candidate = Path(command).resolve(strict=True)
-    if not candidate.is_file():
-        raise SaveGuardError("Godot executable path is not a file")
-    with candidate.open("rb") as stream:
-        if stream.read(4) == b"\x7fELF":
-            return str(candidate)
-    # The pinned Godot Setup action exposes a known wrapper without a shebang.
-    for line in candidate.read_text(encoding="utf-8").splitlines():
-        match = re.fullmatch(
-            r'xvfb-run --auto-servernum (/[A-Za-z0-9_./+-]+) "\$@"',
-            line.strip(),
-        )
-        if match:
-            direct = Path(match.group(1)).resolve(strict=True)
-            with direct.open("rb") as stream:
-                if stream.read(4) == b"\x7fELF":
-                    return str(direct)
-    raise SaveGuardError("Expected Godot ELF or verified Godot Setup wrapper")
+def read_ci_log(output: Path, label: str) -> str:
+    """Read a fixed-name CI result; no processes launched by the parser."""
+    if not re.fullmatch(r"[a-z][a-z0-9_]*", label):
+        raise SaveGuardError("Invalid CI log label")
+    path = output / (label + ".log")
+    if not path.is_file() or path.stat().st_size > 20 * 1024 * 1024:
+        raise SaveGuardError("Missing or oversized CI log: " + path.name)
+    return path.read_text(encoding="utf-8", errors="replace")
 
 
-def run_script(project: Path, godot: str, script: str, label: str,
-               output: Path, home: Path, overrides: dict[str, str],
-               timeout: int) -> str:
-    env = os.environ.copy()
-    env.update(overrides)
-    home.mkdir(parents=True, exist_ok=True)
-    env["HOME"] = str(home)
-    for field, folder in (
-        ("XDG_DATA_HOME", "data"), ("XDG_CONFIG_HOME", "config"),
-        ("XDG_CACHE_HOME", "cache"),
-    ):
-        directory = home / folder
-        directory.mkdir(parents=True, exist_ok=True)
-        env[field] = str(directory)
-    cmd = [
-        resolve_godot_binary(godot), "--headless", "--path", str(project),
-        "--script", "res://" + script,
-    ]
-    async def invoke_verified_godot() -> tuple[int, str, str]:
-        # Verified Godot ELF and in-repository scripts from a fixed
-        # allowlist, two CI-managed project revisions, no shell.
-        process = await asyncio.create_subprocess_exec(  # nosemgrep: python.lang.security.audit.dangerous-asyncio-create-exec-audit, python.lang.security.audit.dangerous-asyncio-create-exec-tainted-env-args
-            *cmd, env=env,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-        )
-        try:
-            stdout, stderr = await asyncio.wait_for(
-                process.communicate(), timeout=timeout
-            )
-        except TimeoutError as exc:
-            process.kill()
-            await process.communicate()
-            raise SaveGuardError(f"label: Godot exceeded {timeout} seconds") from exc
-        return (
-            int(process.returncode),
-            stdout.decode("utf-8", errors="replace"),
-            stderr.decode("utf-8", errors="replace"),
-        )
-
-    try:
-        exit_code, stdout, stderr = asyncio.run(invoke_verified_godot())
-    except OSError as exc:
-        raise SaveGuardError(f"label: Godot did not start: {exc}") from exc
-    log = stdout + ("\n" if stdout and stderr else "") + stderr
-    (output / f"{label}.log").write_text(log, encoding="utf-8")
-    if exit_code != 0:
-        raise SaveGuardError(f"{label}: Godot exited {exit_code}; check {label}.log")
-    return log
+def read_snapshot_hash(output: Path, name: str) -> str:
+    if name not in ("career", "garage", "replay"):
+        raise SaveGuardError("Invalid fixture snapshot identity")
+    path = output / (name + ".sha")
+    if not path.is_file():
+        raise SaveGuardError("Missing baseline snapshot: " + path.name)
+    value = path.read_text(encoding="utf-8").strip()
+    if not re.fullmatch(r"[0-9a-f]{64}", value):
+        raise SaveGuardError("Invalid baseline SHA256 snapshot: " + name)
+    return value
 
 
-def execute(base: Path, candidate: Path, godot: str, output: Path,
-            timeout: int) -> dict[str, Any]:
-    output.mkdir(parents=True, exist_ok=True)
-    with TemporaryDirectory(prefix="apex-saveguard-") as temp:
-        temp_root = Path(temp)
-        baseline_home = temp_root / "godot_baseline"
-        candidate_home = temp_root / "godot_candidate"
+def execute(base: Path, candidate: Path, output: Path,
+            baseline_home: Path, replay_path: Path) -> dict[str, Any]:
+    for root in (base, candidate):
+        if not (root / "project.godot").is_file():
+            raise SaveGuardError("One of the selected APEX project revisions is missing")
+    career_log = read_ci_log(output, "baseline_career")
+    stress = marker_json(career_log, "CAREER_20_SEASON_STRESS ")
+    if stress.get("pass") is not True or stress.get("seasons") != 20 or stress.get("races_committed") != 400:
+        raise SaveGuardError("Baseline administrative championship fixture failed")
+    print("APEX_SAVEGUARD_BASELINE_PASS career", flush=True)
 
-        print("APEX_SAVEGUARD_BASELINE_START career", flush=True)
-        career_log = run_script(base, godot, CAREER_SCRIPT, "baseline_career",
-                                output, baseline_home, {}, timeout)
-        stress = marker_json(career_log, "CAREER_20_SEASON_STRESS ")
-        if stress.get("pass") is not True or stress.get("seasons") != 20 or stress.get("races_committed") != 400:
-            raise SaveGuardError("Baseline administrative championship fixture failed")
-        print("APEX_SAVEGUARD_BASELINE_PASS career", flush=True)
+    garage_log = read_ci_log(output, "baseline_garage")
+    if "APEX 0642 SAVE MIGRATION PASS" not in garage_log:
+        raise SaveGuardError("Baseline garage migration fixture failed")
+    print("APEX_SAVEGUARD_BASELINE_PASS garage", flush=True)
 
-        print("APEX_SAVEGUARD_BASELINE_START garage", flush=True)
-        garage_log = run_script(base, godot, GARAGE_SCRIPT, "baseline_garage",
-                                output, baseline_home, {}, timeout)
-        if "APEX 0642 SAVE MIGRATION PASS" not in garage_log:
-            raise SaveGuardError("Baseline garage migration fixture failed")
-        print("APEX_SAVEGUARD_BASELINE_PASS garage", flush=True)
+    fixtures = {
+        key: find_exact(baseline_home / "data", filename)
+        for key, filename in SOURCES.items()
+    }
+    record_log = read_ci_log(output, "baseline_replay")
+    if "LEGACY_RECORD_PASS" not in record_log or not replay_path.is_file():
+        raise SaveGuardError("Baseline replay fixture not recorded")
+    fixtures["replay"] = replay_path
+    print("APEX_SAVEGUARD_BASELINE_PASS replay", flush=True)
 
-        fixtures = {key: find_exact(baseline_home / "data", filename)
-                    for key, filename in SOURCES.items()}
+    expected = {name: read_snapshot_hash(output, name) for name in fixtures}
+    print("APEX_SAVEGUARD_COMPAT_START replay", flush=True)
+    replay_log = read_ci_log(output, "candidate_replay")
+    if "LEGACY_REPLAY_PASS" not in replay_log:
+        raise SaveGuardError("Candidate did not validate baseline replay")
+    print("APEX_SAVEGUARD_COMPAT_PASS replay", flush=True)
 
-        replay_path = temp_root / "baseline_replay.apexreplay"
-        print("APEX_SAVEGUARD_BASELINE_START replay", flush=True)
-        record_log = run_script(
-            base, godot, REPLAY_SCRIPT, "baseline_replay", output,
-            baseline_home, {
-                "APEX_LEGACY_PATH": str(replay_path),
-                "APEX_LEGACY_MODE": "record",
-                "APEX_LEGACY_TICKS": str(REPLAY_TICKS),
-            }, timeout,
-        )
-        if "LEGACY_RECORD_PASS" not in record_log or not replay_path.is_file():
-            raise SaveGuardError("Baseline replay fixture not recorded")
-        fixtures["replay"] = replay_path
-        print("APEX_SAVEGUARD_BASELINE_PASS replay", flush=True)
-
-        before = {name: sha256(path) for name, path in fixtures.items()}
-        print("APEX_SAVEGUARD_COMPAT_START replay", flush=True)
-        replay_log = run_script(
-            candidate, godot, REPLAY_SCRIPT, "candidate_replay", output,
-            candidate_home, {
-                "APEX_LEGACY_PATH": str(replay_path),
-                "APEX_LEGACY_MODE": "replay",
-                "APEX_LEGACY_TICKS": str(REPLAY_TICKS),
-            }, timeout,
-        )
-        if "LEGACY_REPLAY_PASS" not in replay_log:
-            raise SaveGuardError("Candidate did not validate baseline replay")
-        print("APEX_SAVEGUARD_COMPAT_PASS replay", flush=True)
-
-        print("APEX_SAVEGUARD_SANDBOX_START", flush=True)
-        guard_log = run_script(
-            candidate, godot, SAVEGUARD_SCRIPT, "candidate_saveguard",
-            output, candidate_home, {
-                "APEX_SAVEGUARD_CAREER": str(fixtures["career"]),
-                "APEX_SAVEGUARD_GARAGE": str(fixtures["garage"]),
-                "APEX_SAVEGUARD_REPLAY": str(fixtures["replay"]),
-                "APEX_SAVEGUARD_TICKS": str(REPLAY_TICKS),
-            }, timeout,
-        )
-        report = validate_result(marker_json(guard_log, "APEX_SAVEGUARD_RESULT "))
-        after = {name: sha256(path) for name, path in fixtures.items()}
-        if before != after:
-            raise SaveGuardError("One or more baseline fixtures were modified")
-        if before != report["observations"]["source_sha256"]:
-            raise SaveGuardError("Godot and Python baseline SHA256 evidence differs")
-        report["baseline_files_unchanged"] = True
-        report["baseline_source_sha256"] = before
-        report["replay_cross_version_verified"] = True
-        report["baseline_administrative_records"] = 400
-        return report
+    print("APEX_SAVEGUARD_SANDBOX_CHECK", flush=True)
+    guard_log = read_ci_log(output, "candidate_saveguard")
+    report = validate_result(marker_json(guard_log, "APEX_SAVEGUARD_RESULT "))
+    after = {name: sha256(path) for name, path in fixtures.items()}
+    if expected != after:
+        raise SaveGuardError("Baseline fixtures differ from pre-candidate SHA256 snapshots")
+    if expected != report["observations"]["source_sha256"]:
+        raise SaveGuardError("Godot and Python baseline SHA256 evidence differs")
+    report["baseline_files_unchanged"] = True
+    report["baseline_source_sha256"] = expected
+    report["replay_cross_version_verified"] = True
+    report["baseline_administrative_records"] = 400
+    return report
 
 
 def markdown(report: dict[str, Any]) -> str:
@@ -274,15 +186,17 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--baseline", type=Path, required=True)
     ap.add_argument("--candidate", type=Path, required=True)
-    ap.add_argument("--godot", default="godot")
+    ap.add_argument("--baseline-home", type=Path, required=True)
+    ap.add_argument("--replay-path", type=Path, required=True)
     ap.add_argument("--output", type=Path, default=Path("ci_artifacts/saveguard"))
-    ap.add_argument("--timeout", type=int, default=150)
     args = ap.parse_args()
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=True)
     try:
-        report = execute(args.baseline.resolve(), args.candidate.resolve(),
-                         args.godot, output, args.timeout)
+        report = execute(
+            args.baseline.resolve(), args.candidate.resolve(), output,
+            args.baseline_home.resolve(), args.replay_path.resolve()
+        )
         (output / "report.json").write_text(
             json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
         )
