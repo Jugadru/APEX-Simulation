@@ -17,6 +17,8 @@ import math
 import os
 from pathlib import Path
 import re
+import re
+import shutil
 import subprocess
 import sys
 from tempfile import TemporaryDirectory
@@ -60,6 +62,31 @@ def read_linux_rss_bytes(pid: int) -> int | None:
     return int(found.group(1)) * 1024 if found else None
 
 
+def resolve_godot_binary(executable: str) -> str:
+    """Resolve the real Godot ELF, never passing arguments to a shell."""
+    command = shutil.which(executable)
+    if not command:
+        raise EnduranceError(f"Godot executable not found: {executable}")
+    candidate = Path(command).resolve(strict=True)
+    if not candidate.is_file():
+        raise EnduranceError("Godot executable path is not a file")
+    with candidate.open("rb") as stream:
+        if stream.read(4) == b"\x7fELF":
+            return str(candidate)
+    # The pinned Godot Setup action exposes a known wrapper without a shebang.
+    for line in candidate.read_text(encoding="utf-8").splitlines():
+        match = re.fullmatch(
+            r'xvfb-run --auto-servernum (/[A-Za-z0-9_./+-]+) "\$@"',
+            line.strip(),
+        )
+        if match:
+            direct = Path(match.group(1)).resolve(strict=True)
+            with direct.open("rb") as stream:
+                if stream.read(4) == b"\x7fELF":
+                    return str(direct)
+    raise EnduranceError("Expected Godot ELF or verified Godot Setup wrapper")
+
+
 def run_godot(
     root: Path, godot: str, script: str, label: str,
     env_vars: dict[str, str], logs: Path, user_root: Path,
@@ -79,12 +106,9 @@ def run_godot(
         directory.mkdir(parents=True, exist_ok=True)
         env[var] = str(directory)
 
-    # The installed Godot action exposes a shell-compatible launcher, which
-    # can produce "Exec format error" when invoked directly by subprocess.
     command = [
-        "bash", "-c", '"$1" --headless --path "$2" --script "$3"',
-        "apex-endurance", godot, str(root),
-        "res://" + script,
+        resolve_godot_binary(godot), "--headless", "--path", str(root),
+        "--script", "res://" + script,
     ]
     log_file = logs / f"{label}.log"
     started = time.monotonic()
