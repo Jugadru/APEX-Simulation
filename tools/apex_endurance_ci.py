@@ -12,13 +12,13 @@ This does not measure rendered GPU/FPS or simulate 400 full Grand Prix.
 from __future__ import annotations
 
 import argparse
+import asyncio
 import json
 import math
 import os
 from pathlib import Path
 import re
 import shutil
-import subprocess
 import sys
 from tempfile import TemporaryDirectory
 import time
@@ -112,24 +112,33 @@ def run_godot(
     log_file = logs / f"{label}.log"
     started = time.monotonic()
     peak_rss: int | None = None
-    with log_file.open("w", encoding="utf-8", errors="replace") as stream:
-        try:
-            with subprocess.Popen(
-                command, env=env, stdout=stream, stderr=subprocess.STDOUT,
-                text=True,
-            ) as process:
-                while process.poll() is None:
+    async def invoke_verified_godot() -> tuple[int, int | None]:
+        observed_rss: int | None = None
+        with log_file.open("wb") as stream:
+            process = await asyncio.create_subprocess_exec(
+                *command, env=env,
+                stdout=stream, stderr=asyncio.subprocess.STDOUT,
+            )
+            try:
+                while process.returncode is None:
                     memory = read_linux_rss_bytes(process.pid)
                     if memory is not None:
-                        peak_rss = max(peak_rss or 0, memory)
+                        observed_rss = max(observed_rss or 0, memory)
                     if time.monotonic() - started >= timeout_seconds:
-                        process.kill()
-                        process.wait()
-                        raise EnduranceError(f"{label}: timeout after {timeout_seconds}s")
-                    time.sleep(0.07)
-                code = process.returncode
-        except OSError as exc:
-            raise EnduranceError(f"{label}: Godot command could not start: {exc}") from exc
+                        raise EnduranceError(
+                            f"{label}: timeout after {timeout_seconds}s"
+                        )
+                    await asyncio.sleep(0.07)
+                return int(await process.wait()), observed_rss
+            finally:
+                if process.returncode is None:
+                    process.kill()
+                    await process.wait()
+
+    try:
+        code, peak_rss = asyncio.run(invoke_verified_godot())
+    except OSError as exc:
+        raise EnduranceError(f"{label}: Godot command could not start: {exc}") from exc
     duration = time.monotonic() - started
     if code != 0:
         raise EnduranceError(f"{label}: Godot exited with {code}; check {log_file.name}")
