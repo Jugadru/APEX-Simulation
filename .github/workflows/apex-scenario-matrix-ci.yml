@@ -1,0 +1,143 @@
+name: APEX - Scenario Matrix 1.0 (20 circuitos)
+
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: 'smoke: 20 circuitos; full: 20 x 3 climas x 3 modos (180 casos)'
+        required: true
+        type: choice
+        options:
+          - smoke
+          - full
+        default: smoke
+      seed_base:
+        description: 'Semente mestre para casos reproduziveis'
+        required: true
+        type: string
+        default: '12012'
+  pull_request:
+    paths:
+      - 'data/season_2012.json'
+      - 'data/tyres_2012.json'
+      - 'scripts/**'
+      - 'tests/ci/apex_scenario_matrix_probe.gd'
+      - 'tools/apex_scenario_matrix.py'
+      - 'tools/tests/test_apex_scenario_matrix.py'
+      - '.github/workflows/apex-scenario-matrix-ci.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: apex-matrix-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
+jobs:
+  matrix:
+    name: Matrix 2012 / grupo ${{ matrix.shard }} de 4
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    strategy:
+      fail-fast: false
+      # Avoid four simultaneous Godot release downloads on cold runners.
+      max-parallel: 2
+      matrix:
+        shard: [0, 1, 2, 3]
+    env:
+      APEX_MATRIX_PROFILE: ${{ inputs.profile || 'smoke' }}
+      APEX_MATRIX_SEED_BASE: ${{ inputs.seed_base || '12012' }}
+
+    steps:
+      - name: Checkout do APEX
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Preparar Godot 4.7.2
+        timeout-minutes: 15
+        uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c # v3.0.1
+        with:
+          version: 4.7.2-stable
+
+      - name: Validar planejador e agregador com testes Python
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s tools/tests -p 'test_apex_scenario_matrix.py' -v
+
+      - name: Importar projeto Godot real
+        shell: bash
+        run: |
+          set -euo pipefail
+          godot --headless --single-threaded-scene --path . --import > matrix-import.log 2>&1
+          if grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' matrix-import.log; then
+            cat matrix-import.log
+            exit 1
+          fi
+
+      - name: Executar cenarios reais e comparar duas repeticoes
+        shell: bash
+        env:
+          APEX_SHARD: ${{ matrix.shard }}
+        run: |
+          set -euo pipefail
+          out="ci_artifacts/scenario_matrix/shard-${APEX_SHARD}"
+          mkdir -p "$out"
+          args=(--project . --profile "$APEX_MATRIX_PROFILE"
+                --shard "$APEX_SHARD" --shards 4 --seed-base "$APEX_MATRIX_SEED_BASE")
+          python3 tools/apex_scenario_matrix.py plan "${args[@]}" > "$out/plan.tsv"
+          while IFS=$'\t' read -r case_id circuit weather mode seed; do
+            test -n "$case_id"
+            for rep in 1 2; do
+              label="${case_id}_${rep}"
+              echo "APEX_MATRIX_START ${label}"
+              (
+                export HOME="$RUNNER_TEMP/apex-matrix-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${label}"
+                export XDG_DATA_HOME="$HOME/data"
+                export XDG_CONFIG_HOME="$HOME/config"
+                export XDG_CACHE_HOME="$HOME/cache"
+                mkdir -p "$XDG_DATA_HOME" "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME"
+                export APEX_MATRIX_ID="$case_id"
+                export APEX_MATRIX_TRACK="$circuit"
+                export APEX_MATRIX_WEATHER="$weather"
+                export APEX_MATRIX_MODE="$mode"
+                export APEX_MATRIX_SEED="$seed"
+                timeout 150s godot --headless --path . \
+                  --script res://tests/ci/apex_scenario_matrix_probe.gd \
+                  > "$GITHUB_WORKSPACE/$out/${label}.log" 2>&1
+              ) || echo "$label: Godot process failed (see log)" >> "$out/runner_errors.txt"
+            done
+          done < "$out/plan.tsv"
+          python3 tools/apex_scenario_matrix.py validate "${args[@]}" --output "$out"
+          if test -s "$out/runner_errors.txt"; then
+            cat "$out/runner_errors.txt"
+            exit 1
+          fi
+
+      - name: Publicar resumo de cada grupo
+        if: always()
+        shell: bash
+        env:
+          APEX_SHARD: ${{ matrix.shard }}
+        run: |
+          out="ci_artifacts/scenario_matrix/shard-${APEX_SHARD}"
+          if test -f "$out/report.md"; then
+            cat "$out/report.md" >> "$GITHUB_STEP_SUMMARY"
+          elif test -f "$out/error.txt"; then
+            echo '### APEX Scenario Matrix — FAIL / INCONCLUSIVE' >> "$GITHUB_STEP_SUMMARY"
+            cat "$out/error.txt" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo '### APEX Scenario Matrix — INCONCLUSIVE (no report)' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Arquivar logs reais, plano, hashes e relatorios
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: apex-scenario-matrix-${{ matrix.shard }}
+          path: |
+            ci_artifacts/scenario_matrix/shard-${{ matrix.shard }}/
+            matrix-import.log
+          retention-days: 14
+          if-no-files-found: warn
