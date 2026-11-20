@@ -1,0 +1,92 @@
+name: APEX - Portraits 2012 / Real Project QA (experimental)
+
+on:
+  push:
+    branches:
+      - feature/apex-orange-portraits-hud-066815
+    paths:
+      - '.github/workflows/apex-portraits-real-qa.yml'
+      - 'tests/apex_portraits_2012_ci_fixtures_066843.gd'
+      - 'tests/apex_portraits_2012_real_scene_066843.gd'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  real-game-integration:
+    name: Main scene, HUD, radio, pits and replay
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      LIBGL_ALWAYS_SOFTWARE: '1'
+    steps:
+      - name: Checkout experimental APEX branch
+        uses: actions/checkout@v4
+      - name: Install Godot 4.7.2
+        uses: lihop/godot-setup@v3.0.1
+        with:
+          version: 4.7.2-stable
+      - name: Install virtual display and Mesa
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y xvfb libgl1 libgl1-mesa-dri
+      - name: Import FULL project
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p qa/portraits_ci/logs
+          timeout 240s godot --headless --single-threaded-scene --path . --import 2>&1 | tee qa/portraits_ci/logs/import.log
+          if grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' qa/portraits_ci/logs/import.log; then exit 1; fi
+      - name: Regression without downloaded images (fallback)
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 120s godot --headless --path . --script res://tests/apex_portraits_menu_066815_smoke.gd 2>&1 | tee qa/portraits_ci/logs/fallback.log
+          grep -Fq 'APEX_066815_PASS' qa/portraits_ci/logs/fallback.log
+      - name: Existing REAL main scene HUD + radio regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 180s godot --headless --path . --script res://tests/hud_rebroadcast_0668_integration.gd 2>&1 | tee qa/portraits_ci/logs/hud_regression.log
+          grep -Fq 'HUD_REBROADCAST_0668_INTEGRATION_PASS' qa/portraits_ci/logs/hud_regression.log
+          timeout 180s godot --headless --path . --script res://tests/core_0630_driver_radio_smoke_test.gd 2>&1 | tee qa/portraits_ci/logs/radio_regression.log
+          grep -Fq 'RADIO PASS' qa/portraits_ci/logs/radio_regression.log
+      - name: Real engine - scheduled pit V21 and replay determinism
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 240s godot --headless --path . --script res://tests/apex2/test_pit_entry_21.gd 2>&1 | tee qa/portraits_ci/logs/pit_v21.log
+          grep -Fq 'APEX2_PIT_ENTRY_21_PASS' qa/portraits_ci/logs/pit_v21.log
+          timeout 240s godot --headless --path . --script res://tests/apex2/test_replay.gd 2>&1 | tee qa/portraits_ci/logs/replay.log
+          grep -Fq 'APEX2_REPLAY_PASS' qa/portraits_ci/logs/replay.log
+      - name: Generate temporary portrait fixtures - never user photographs
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 120s godot --headless --path . --script res://tests/apex_portraits_2012_ci_fixtures_066843.gd 2>&1 | tee qa/portraits_ci/logs/fixtures.log
+          grep -Fq 'APEX_2012_CI_FIXTURES_READY' qa/portraits_ci/logs/fixtures.log
+          timeout 240s godot --headless --path . --import 2>&1 | tee qa/portraits_ci/logs/import_fixtures.log
+          timeout 120s godot --headless --path . --script res://tests/apex_portraits_2012_strict_066841_smoke.gd 2>&1 | tee qa/portraits_ci/logs/strict_48.log
+          grep -Fq 'APEX_PORTRAIT_PACK_2012_STRICT_PASS' qa/portraits_ci/logs/strict_48.log
+      - name: Launch REAL racing scene and render actual HUD at 1600x900 and 1920x1080
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 240s xvfb-run -a -s '-screen 0 2000x1200x24' godot --path . --rendering-method gl_compatibility --script res://tests/apex_portraits_2012_real_scene_066843.gd 2>&1 | tee qa/portraits_ci/logs/real_hud.log
+          grep -Fq 'APEX_PORTRAITS_REAL_SCENE_PASS' qa/portraits_ci/logs/real_hud.log
+      - name: Silverstone full race audit (GBR)
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 600s godot --headless --path . --script res://tests/auditoria_06496_silverstone.gd -- --code GBR 2>&1 | tee qa/portraits_ci/logs/silverstone.log
+          grep -Fq 'AUDIT_PASS code=GBR' qa/portraits_ci/logs/silverstone.log
+      - name: Upload real scene captures and QA logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apex-portraits-real-ci-qa-066843
+          path: |
+            qa/portraits_ci/
+            qa/06496/silverstone/GBR.json
+          if-no-files-found: warn
