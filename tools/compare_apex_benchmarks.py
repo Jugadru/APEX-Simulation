@@ -12,6 +12,7 @@ import json
 import math
 import os
 from pathlib import Path
+import re
 import statistics
 import shutil
 import subprocess
@@ -138,11 +139,40 @@ def markdown_report(report: dict) -> str:
     return "\n".join(lines)
 
 
+def resolve_godot_binary(godot: str) -> Path:
+    """Resolve the real Godot ELF without invoking a shell.
+
+    Godot Setup v3.0.1 exposes a wrapper script without a shebang. Its
+    Xvfb line references the Godot binary. CPU/headless benchmarks run
+    the verified ELF directly with a fixed argument vector.
+    """
+    resolved = shutil.which(godot)
+    if not resolved:
+        raise BenchmarkError(f"Godot executable not found: {godot}")
+    wrapper = Path(resolved).resolve(strict=True)
+    if not wrapper.is_file():
+        raise BenchmarkError("Godot path is not a file")
+    with wrapper.open("rb") as stream:
+        if stream.read(4) == b"\x7fELF":
+            return wrapper
+
+    source = wrapper.read_text(encoding="utf-8")
+    for line in source.splitlines():
+        match = re.fullmatch(
+            r'xvfb-run --auto-servernum (/[A-Za-z0-9_./+-]+) "\$@"',
+            line.strip(),
+        )
+        if match:
+            executable = Path(match.group(1)).resolve(strict=True)
+            with executable.open("rb") as stream:
+                if stream.read(4) == b"\x7fELF":
+                    return executable
+    raise BenchmarkError("Godot is not a verified ELF or known Godot Setup wrapper")
+
+
 def run_once(godot: str, project: Path, label: str, index: int,
              ticks: int, out: Path, timeout: int) -> dict:
-    exe = shutil.which(godot)
-    if not exe or not Path(exe).is_file():
-        raise BenchmarkError(f"Godot executable not found: {godot}")
+    binary = resolve_godot_binary(godot)
     project = project.resolve(strict=True)
     if not project.is_dir() or not (project / "project.godot").is_file():
         raise BenchmarkError(f"Not a Godot project: {project}")
@@ -161,13 +191,8 @@ def run_once(godot: str, project: Path, label: str, index: int,
             directory.mkdir(parents=True)
             env[key] = str(directory)
         env["APEX_TICKS"] = str(ticks)
-        # The Godot installation helper is a shell script shim without an
-        # ELF shebang on Linux. Execute it as a file, with explicit argv;
-        # never interpolate paths in a shell command string.
-        with open(exe, "rb") as stream:
-            elf = stream.read(4) == b"\x7fELF"
-        command = ([exe] if elf else ["bash", exe]) + [
-            "--headless", "--path", str(project),
+        command = [
+            str(binary), "--headless", "--path", str(project),
             "--script", "res://" + BENCHMARK.as_posix(),
         ]
         try:
