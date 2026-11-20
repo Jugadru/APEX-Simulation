@@ -1,16 +1,14 @@
 """Contract tests for APEX Scenario Matrix 1.0 (no simulated Godot PASS)."""
-import importlib.util
 import json
 from pathlib import Path
+import sys
 import tempfile
 import unittest
 
-
-SOURCE = Path(__file__).resolve().parents[1] / "apex_scenario_matrix.py"
-spec = importlib.util.spec_from_file_location("apex_scenario_matrix", SOURCE)
-matrix = importlib.util.module_from_spec(spec)
-assert spec and spec.loader
-spec.loader.exec_module(matrix)
+# Import project-owned module in the same way as the existing CI test suites.
+# Avoid dynamically executing a file via importlib.spec_from_file_location.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import apex_scenario_matrix as matrix
 
 
 class ScenarioMatrixContractTests(unittest.TestCase):
