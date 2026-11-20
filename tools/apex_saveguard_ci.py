@@ -9,13 +9,13 @@ No personal user save is read or copied and no game code is modified.
 from __future__ import annotations
 
 import argparse
+import asyncio
 import hashlib
 import json
 import os
 from pathlib import Path
 import re
 import shutil
-import subprocess
 import sys
 from tempfile import TemporaryDirectory
 from typing import Any
@@ -133,17 +133,34 @@ def run_script(project: Path, godot: str, script: str, label: str,
         resolve_godot_binary(godot), "--headless", "--path", str(project),
         "--script", "res://" + script,
     ]
-    try:
-        proc = subprocess.run(
-            cmd, check=False, env=env, text=True, capture_output=True,
-            encoding="utf-8", errors="replace", timeout=timeout,
+    async def invoke_verified_godot() -> tuple[int, str, str]:
+        process = await asyncio.create_subprocess_exec(
+            *cmd, env=env,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
         )
-    except (OSError, subprocess.TimeoutExpired) as exc:
-        raise SaveGuardError(f"{label}: Godot failed to execute: {exc}") from exc
-    log = proc.stdout + ("\n" if proc.stdout and proc.stderr else "") + proc.stderr
+        try:
+            stdout, stderr = await asyncio.wait_for(
+                process.communicate(), timeout=timeout
+            )
+        except TimeoutError as exc:
+            process.kill()
+            await process.communicate()
+            raise SaveGuardError(f"label: Godot exceeded {timeout} seconds") from exc
+        return (
+            int(process.returncode),
+            stdout.decode("utf-8", errors="replace"),
+            stderr.decode("utf-8", errors="replace"),
+        )
+
+    try:
+        exit_code, stdout, stderr = asyncio.run(invoke_verified_godot())
+    except OSError as exc:
+        raise SaveGuardError(f"label: Godot did not start: {exc}") from exc
+    log = stdout + ("\n" if stdout and stderr else "") + stderr
     (output / f"{label}.log").write_text(log, encoding="utf-8")
-    if proc.returncode != 0:
-        raise SaveGuardError(f"{label}: Godot exited {proc.returncode}; check {label}.log")
+    if exit_code != 0:
+        raise SaveGuardError(f"{label}: Godot exited {exit_code}; check {label}.log")
     return log
 
 
