@@ -12,6 +12,7 @@ from pathlib import Path, PurePosixPath
 import shutil
 import stat
 import sys
+import tempfile
 import zipfile
 
 PART_BASENAME = "APEX_v0.6.6.8.zip.part"
@@ -48,16 +49,37 @@ def validate_name(name: str) -> tuple[str, ...]:
 
 def main() -> None:
     repo = Path.cwd().resolve()
-    temp = Path(os.environ.get("RUNNER_TEMP", "/tmp"))
-    combined = temp / "apex_v0.6.6.8_combined.zip"
     parts = [repo / (PART_BASENAME + f"{i:03d}") for i in range(EXPECTED_PARTS)]
     missing = [p.name for p in parts if not p.is_file()]
     if missing:
         fail("Partes ausentes: " + ", ".join(missing))
 
+    # Each invocation owns a private directory, including on validation/CRC failure.
+    # An invalid RUNNER_TEMP fails closed rather than falling back elsewhere.
+    try:
+        with tempfile.TemporaryDirectory(
+            prefix="apex-import-", dir=os.environ.get("RUNNER_TEMP") or None
+        ) as temp:
+            import_archive(repo, parts, Path(temp) / "apex_v0.6.6.8_combined.zip")
+    except OSError as exc:
+        fail("Falha no diretório temporário ou na reunião das partes: " + str(exc))
+
+
+def validate_destination(repo: Path, dest: Path) -> None:
+    relative = dest.relative_to(repo)
+    current = repo
+    for segment in relative.parts:
+        current = current / segment
+        if current.is_symlink():
+            fail("Destino contém link simbólico: " + relative.as_posix())
+    if not dest.resolve().is_relative_to(repo):
+        fail("Destino inseguro: " + relative.as_posix())
+
+
+def import_archive(repo: Path, parts: list[Path], combined: Path) -> None:
     digest = hashlib.sha256()
     byte_count = 0
-    with combined.open("wb") as out:
+    with combined.open("xb") as out:
         for part in parts:
             with part.open("rb") as src:
                 while True:
@@ -135,8 +157,7 @@ def main() -> None:
                     fail("Arquivo duplicado no ZIP: " + rel.as_posix())
                 destinations.add(rel.as_posix())
                 dest = repo.joinpath(*relative)
-                if not dest.resolve().is_relative_to(repo):
-                    fail("Destino inseguro: " + rel.as_posix())
+                validate_destination(repo, dest)
                 if dest.exists():
                     skipped.append(rel.as_posix() + " (já existia)")
                     continue
@@ -156,8 +177,9 @@ def main() -> None:
                 )
 
             for info, dest in planned:
+                validate_destination(repo, dest)
                 dest.parent.mkdir(parents=True, exist_ok=True)
-                with archive.open(info, "r") as src, dest.open("wb") as out:
+                with archive.open(info, "r") as src, dest.open("xb") as out:
                     shutil.copyfileobj(src, out, length=CHUNK_SIZE)
                 if dest.stat().st_size != info.file_size:
                     fail("Arquivo incompleto após extração: " + str(dest))
