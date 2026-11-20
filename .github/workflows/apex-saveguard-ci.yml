@@ -11,7 +11,7 @@ on:
       candidate_ref:
         description: 'Revisao candidata que deve importar os saves anteriores'
         required: true
-        default: 'infra/saveguard-cross-version-ci-v1'
+        default: 'main'
         type: string
   pull_request:
     # Include project configuration changes that may affect test behavior.
@@ -42,14 +42,14 @@ jobs:
 
     steps:
       - name: Baixar revisao de referencia
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           path: baseline
           ref: ${{ github.event.pull_request.base.sha || inputs.baseline_ref || 'main' }}
           persist-credentials: false
 
       - name: Baixar revisao candidata
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           path: candidate
           ref: ${{ github.event.pull_request.head.sha || inputs.candidate_ref || github.sha }}
@@ -147,7 +147,7 @@ jobs:
 
       - name: Salvar somente logs e evidencias sem os saves de exemplo
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: apex-saveguard-compatibilidade
           path: |
