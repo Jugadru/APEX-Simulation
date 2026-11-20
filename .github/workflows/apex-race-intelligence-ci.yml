@@ -1,0 +1,98 @@
+name: APEX - Race Intelligence Tester
+
+on:
+  workflow_dispatch:
+  pull_request:
+    # Include project configuration changes that may affect test behavior.
+    paths:
+      - 'project.godot'
+      - 'scripts/**'
+      - 'data/**'
+      - 'tests/ci/apex_race_intelligence_probe.gd'
+      - 'tests/core_0552_tyre_ai_smoke_test.gd'
+      - 'tests/core_0570_ai_director_smoke_test.gd'
+      - 'tests/lap_strategy_06496_auto_gate_test.gd'
+      - 'tests/pitwall_0667_same_tick_regression.gd'
+      - 'tools/apex_race_intelligence_ci.py'
+      - 'tools/tests/test_apex_race_intelligence_ci.py'
+      - '.github/workflows/apex-race-intelligence-ci.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: apex-race-intelligence-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  race-intelligence:
+    name: Pit Wall, chuva, manual e IA / 2012
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Baixar o APEX
+        uses: actions/checkout@v4
+
+      - name: Instalar Godot 4.7.2
+        uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c # v3.0.1
+        with:
+          version: 4.7.2-stable
+
+      - name: Validar contrato do comparador Python
+        run: |
+          python3 -m unittest discover -s tools/tests \
+            -p 'test_apex_race_intelligence_ci.py' -v
+
+      - name: Importar recursos e classes
+        run: godot --headless --path . --import
+
+      - name: Testar estrategia com motor real e 2 repeticoes por cenario
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ci_artifacts/race_intelligence
+          run_scene() {
+            local label="$1"
+            local scene="$2"
+            local scenario="${3:-}"
+            export HOME="$RUNNER_TEMP/apex-rit-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${label}"
+            export XDG_DATA_HOME="$HOME/data"
+            export XDG_CONFIG_HOME="$HOME/config"
+            export XDG_CACHE_HOME="$HOME/cache"
+            mkdir -p "$XDG_DATA_HOME" "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME"
+            APEX_RIT_SCENARIO="$scenario" timeout 150s godot --headless --path . \
+              --script "res://${scene}" > "ci_artifacts/race_intelligence/${label}.log" 2>&1
+          }
+
+          run_scene targeted_tyres tests/core_0552_tyre_ai_smoke_test.gd
+          run_scene targeted_ai_director tests/core_0570_ai_director_smoke_test.gd
+          run_scene targeted_lap_strategy tests/lap_strategy_06496_auto_gate_test.gd
+          run_scene targeted_same_tick_pit tests/pitwall_0667_same_tick_regression.gd
+          for scenario in monza_dry_auto silverstone_wet_auto monza_manual_v7; do
+            for rep in 1 2; do
+              run_scene "${scenario}_${rep}" tests/ci/apex_race_intelligence_probe.gd "$scenario"
+            done
+          done
+          python3 tools/apex_race_intelligence_ci.py \
+            --project . \
+            --output ci_artifacts/race_intelligence
+
+      - name: Publicar resultado e limites
+        if: always()
+        shell: bash
+        run: |
+          if [ -f ci_artifacts/race_intelligence/report.md ]; then
+            cat ci_artifacts/race_intelligence/report.md >> "$GITHUB_STEP_SUMMARY"
+          elif [ -f ci_artifacts/race_intelligence/error.txt ]; then
+            echo '### Race Intelligence Tester: FAIL' >> "$GITHUB_STEP_SUMMARY"
+            cat ci_artifacts/race_intelligence/error.txt >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Guardar todas as evidencias e logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apex-race-intelligence-relatorios
+          path: ci_artifacts/race_intelligence/
+          retention-days: 14
+          if-no-files-found: warn
