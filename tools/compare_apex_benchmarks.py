@@ -2,21 +2,16 @@
 """APEX CPU/headless A/B comparison using the existing Monza 2012 benchmark.
 
 Measures CPU time inside the GDScript benchmark (not end-user FPS, GPU or 32x).
-Runs independent Godot processes in alternating order with isolated user data.
+Reads logs from isolated Godot runs started by the GitHub Actions workflow.
 """
 from __future__ import annotations
 
 import argparse
-import asyncio
 import hashlib
 import json
 import math
-import os
 from pathlib import Path
-import re
 import statistics
-import shutil
-from tempfile import TemporaryDirectory
 import sys
 
 BENCHMARK = Path("tests/high_speed_growth_066723_benchmark.gd")
@@ -139,99 +134,16 @@ def markdown_report(report: dict) -> str:
     return "\n".join(lines)
 
 
-def resolve_godot_binary(godot: str) -> Path:
-    """Resolve the real Godot ELF without invoking a shell.
-
-    Godot Setup v3.0.1 exposes a wrapper script without a shebang. Its
-    Xvfb line references the Godot binary. CPU/headless benchmarks run
-    the verified ELF directly with a fixed argument vector.
-    """
-    resolved = shutil.which(godot)
-    if not resolved:
-        raise BenchmarkError(f"Godot executable not found: {godot}")
-    wrapper = Path(resolved).resolve(strict=True)
-    if not wrapper.is_file():
-        raise BenchmarkError("Godot path is not a file")
-    with wrapper.open("rb") as stream:
-        if stream.read(4) == b"\x7fELF":
-            return wrapper
-
-    source = wrapper.read_text(encoding="utf-8")
-    for line in source.splitlines():
-        match = re.fullmatch(
-            r'xvfb-run --auto-servernum (/[A-Za-z0-9_./+-]+) "\$@"',
-            line.strip(),
-        )
-        if match:
-            executable = Path(match.group(1)).resolve(strict=True)
-            with executable.open("rb") as stream:
-                if stream.read(4) == b"\x7fELF":
-                    return executable
-    raise BenchmarkError("Godot is not a verified ELF or known Godot Setup wrapper")
-
-
-def run_once(godot: str, project: Path, label: str, index: int,
-             ticks: int, out: Path, timeout: int) -> dict:
-    binary = resolve_godot_binary(godot)
-    project = project.resolve(strict=True)
-    if not project.is_dir() or not (project / "project.godot").is_file():
-        raise BenchmarkError(f"Not a Godot project: {project}")
-    if not (project / BENCHMARK).is_file():
-        raise BenchmarkError(f"Benchmark missing from {project}")
-    # Each invocation has a freshly created, disposable user directory.
-    # This also isolates the custom user folder in project.godot.
-    with TemporaryDirectory(prefix=f"apex-ab-{label}-{index}-", dir=out) as user:
-        isolation = Path(user)
-        env = os.environ.copy()
-        env["HOME"] = str(isolation)
-        for key, subdir in (("XDG_DATA_HOME", "data"),
-                            ("XDG_CONFIG_HOME", "config"),
-                            ("XDG_CACHE_HOME", "cache")):
-            directory = isolation / subdir
-            directory.mkdir(parents=True)
-            env[key] = str(directory)
-        env["APEX_TICKS"] = str(ticks)
-        command = [
-            str(binary), "--headless", "--path", str(project),
-            "--script", "res://" + BENCHMARK.as_posix(),
-        ]
-        async def invoke_verified_godot() -> tuple[int, str, str]:
-            # Audit exception: executable is validated as Godot ELF, the
-            # target script is a constant, project paths are canonicalized,
-            # shell expansion is impossible, and inputs are GitHub CI-owned.
-            process = await asyncio.create_subprocess_exec(  # nosemgrep: python.lang.security.audit.dangerous-asyncio-create-exec-audit, python.lang.security.audit.dangerous-asyncio-create-exec-tainted-env-args
-                *command, env=env,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
-            )
-            try:
-                stdout, stderr = await asyncio.wait_for(
-                    process.communicate(), timeout=timeout
-                )
-            except TimeoutError as exc:
-                process.kill()
-                await process.communicate()
-                raise BenchmarkError(
-                    f"{label} repetition {index} exceeded {timeout} seconds"
-                ) from exc
-            return (
-                int(process.returncode),
-                stdout.decode("utf-8", errors="replace"),
-                stderr.decode("utf-8", errors="replace"),
-            )
-
-        try:
-            code, stdout, stderr = asyncio.run(invoke_verified_godot())
-        except OSError as exc:
-            raise BenchmarkError(
-                f"{label} repetition {index}: verified Godot ELF could not start: {exc}"
-            ) from exc
-
-    log = stdout + "\n" + stderr
-    (out / f"{label}-{index}.log").write_text(log, encoding="utf-8")
-    if code != 0:
-        raise BenchmarkError(f"{label} repetition {index} exited {code}")
-    return parse_growth_log(log, ticks)
+def read_run_log(out: Path, label: str, index: int, ticks: int) -> dict:
+    """Parse the exact fixed-name CI log without starting any processes."""
+    if label not in ("base", "candidate") or not (0 <= index <= 10):
+        raise BenchmarkError("Invalid benchmark log identity")
+    path = out / f"{label}-{index}.log"
+    if not path.is_file():
+        raise BenchmarkError(f"Missing CI-generated benchmark log: {path.name}")
+    if path.stat().st_size > 10 * 1024 * 1024:
+        raise BenchmarkError(f"Oversized benchmark log: {path.name}")
+    return parse_growth_log(path.read_text(encoding="utf-8", errors="replace"), ticks)
 
 
 def verify_warmups(warmups: dict[str, dict], samples: dict[str, list[dict]]) -> None:
@@ -248,10 +160,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--base-dir", type=Path, required=True)
     parser.add_argument("--candidate-dir", type=Path, required=True)
-    parser.add_argument("--godot", default="godot")
     parser.add_argument("--ticks", type=int, default=1000)
     parser.add_argument("--repetitions", type=int, default=3)
-    parser.add_argument("--timeout", type=int, default=180)
     parser.add_argument("--output-dir", type=Path, default=Path("benchmark-ab"))
     args = parser.parse_args()
 
@@ -282,8 +192,7 @@ def main() -> int:
             order = ("base", "candidate") if index % 2 == 0 else ("candidate", "base")
             for label in order:
                 print(f"APEX_AB {label} {'warmup' if index == 0 else index}", flush=True)
-                measured = run_once(args.godot, projects[label], label, index,
-                                    args.ticks, out, args.timeout)
+                measured = read_run_log(out, label, index, args.ticks)
                 if index:
                     samples[label].append(measured)
                 else:
