@@ -207,6 +207,15 @@ def _markdown(data: dict[str, Any]) -> str:
         )
     lines.extend([
         "", f"Avisos informativos: **{len(data['warnings'])}**.",
+    ])
+    if data["warnings"]:
+        lines.extend(["", "#### Anomalias para revisar (WARN, não FAIL)"])
+        for warning in data["warnings"]:
+            # Keep the GitHub Actions Markdown summary readable even for bad data.
+            name = str(warning["scenario"]).replace("|", "/").replace("\\n", " ")
+            reason = str(warning["message"]).replace("|", "/").replace("\\n", " ")
+            lines.append(f"- **{name}**: {reason}")
+    lines.extend([
         "Não há medição de GPU/FPS, corrida de distância oficial ou "
         "validação visual. Este laboratório procura inconsistências "
         "e não comprova realismo de estratégia.",
