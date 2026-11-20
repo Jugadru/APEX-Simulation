@@ -40,7 +40,7 @@ def gp_fixture(track: str = "ITA", weather: str = "Seco") -> dict:
 
 def career_fixture() -> str:
     return "CAREER_20_SEASON_STRESS " + json.dumps({
-        "pass": True, "seasons": 20, "races_committed": 400,
+        "pass": True, "seasons": 20, "races_committed": 400,  # nosec B105: pass is a test-result flag
         "errors": [], "checks": 1500, "last_save_bytes": 23456,
     })
 
