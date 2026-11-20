@@ -1,0 +1,131 @@
+name: APEX - Exportacao Linux e Windows
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'project.godot'
+      - 'scripts/**'
+      - 'scenes/**'
+      - 'assets/**'
+      - 'data/**'
+      - 'export_presets.cfg'
+      - '.github/workflows/apex-export-desktop.yml'
+      - 'tools/package_desktop_exports.py'
+      - 'tools/tests/test_package_desktop_exports.py'
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+jobs:
+  export-pc:
+    name: Exportar desktop Godot 4.7.2
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+
+    steps:
+      - name: Baixar projeto
+        uses: actions/checkout@v4
+
+      - name: Instalar Godot e export templates oficiais
+        uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c # v3.0.1
+        with:
+          version: 4.7.2-stable
+          export-templates: true
+
+      - name: Conferir versao e presets
+        run: |
+          set -euo pipefail
+          godot --version
+          grep -q 'name="APEX Linux x86_64"' export_presets.cfg
+          grep -q 'name="APEX Windows x86_64"' export_presets.cfg
+          test -f data/season_2012.json
+
+      - name: Testar empacotador
+        run: |
+          python3 -m unittest discover -s tools/tests \
+            -p 'test_package_desktop_exports.py' -v
+
+      - name: Importar os recursos
+        run: godot --headless --path . --import
+
+      - name: Exportar jogo para Linux x86_64
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p builds/linux builds/windows ci_artifacts
+          godot --headless --path . \
+            --export-release "APEX Linux x86_64" \
+            builds/linux/APEX_Motorsport_Manager.x86_64 \
+            2>&1 | tee ci_artifacts/export-linux.log
+          test -s builds/linux/APEX_Motorsport_Manager.x86_64
+          test -s builds/linux/APEX_Motorsport_Manager.pck
+
+      - name: Exportar jogo para Windows x86_64
+        shell: bash
+        run: |
+          set -euo pipefail
+          godot --headless --path . \
+            --export-release "APEX Windows x86_64" \
+            builds/windows/APEX_Motorsport_Manager.exe \
+            2>&1 | tee ci_artifacts/export-windows.log
+          test -s builds/windows/APEX_Motorsport_Manager.exe
+          test -s builds/windows/APEX_Motorsport_Manager.pck
+
+      - name: Validar binarios e compactar
+        run: |
+          python3 tools/package_desktop_exports.py \
+            --builds builds --output dist \
+            --godot-version 4.7.2-stable
+
+      - name: Smoke de inicializacao Linux sem tela
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x builds/linux/APEX_Motorsport_Manager.x86_64
+          timeout 90s builds/linux/APEX_Motorsport_Manager.x86_64 \
+            --headless --quit-after 120 \
+            2>&1 | tee ci_artifacts/linux-runtime-smoke.log
+          echo 'APEX_EXPORT_LINUX_SMOKE_PASS'
+
+      - name: Relatorio da exportacao
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo '### APEX - Exportacao automatica Linux e Windows'
+            echo ''
+            echo 'Preset Godot 4.7.2-stable, x86_64, modo release.'
+            echo 'Artefatos ZIP incluem executavel e arquivo PCK (quando os testes passam).'
+            echo ''
+            echo 'Windows: build gerado, sem execucao no Windows, sem assinatura digital.'
+            echo 'Linux: teste simples de inicializacao headless, nao substitui testes graficos no PC.'
+            echo ''
+            if [ -f dist/error.txt ]; then cat dist/error.txt; fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Salvar ZIPs e hashes
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apex-pc-linux-windows-godot-4-7-2
+          path: |
+            dist/*.zip
+            dist/manifest.json
+          retention-days: 14
+          if-no-files-found: error
+          compression-level: 0
+
+      - name: Guardar logs para diagnostico
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apex-pc-export-logs
+          path: |
+            ci_artifacts/*.log
+            dist/error.txt
+          retention-days: 14
+          if-no-files-found: warn
