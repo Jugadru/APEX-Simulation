@@ -9,12 +9,12 @@ No edits to game scripts, saves, physics or player configuration.
 from __future__ import annotations
 
 import argparse
+import asyncio
 import json
 import os
 from pathlib import Path
 import re
 import shutil
-import subprocess
 import sys
 from tempfile import TemporaryDirectory
 from typing import Any
@@ -132,17 +132,34 @@ def run_godot(
         resolve_godot_binary(executable), "--headless", "--path", str(root),
         "--script", "res://" + script,
     ]
-    try:
-        result = subprocess.run(
-            command, text=True, capture_output=True, env=env, timeout=timeout,
-            check=False, encoding="utf-8", errors="replace",
+    async def invoke_verified_godot() -> tuple[int, str, str]:
+        process = await asyncio.create_subprocess_exec(
+            *command, env=env,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
         )
-    except (subprocess.TimeoutExpired, OSError) as exc:
-        raise IntelligenceError(f"{label}: Godot did not finish: {exc}") from exc
-    log = result.stdout + ("\n" if result.stdout and result.stderr else "") + result.stderr
+        try:
+            stdout, stderr = await asyncio.wait_for(
+                process.communicate(), timeout=timeout
+            )
+        except TimeoutError as exc:
+            process.kill()
+            await process.communicate()
+            raise IntelligenceError(f"label: Godot exceeded {timeout} seconds") from exc
+        return (
+            int(process.returncode),
+            stdout.decode("utf-8", errors="replace"),
+            stderr.decode("utf-8", errors="replace"),
+        )
+
+    try:
+        exit_code, stdout, stderr = asyncio.run(invoke_verified_godot())
+    except OSError as exc:
+        raise IntelligenceError(f"label: Godot did not start: {exc}") from exc
+    log = stdout + ("\n" if stdout and stderr else "") + stderr
     (output / (label + ".log")).write_text(log, encoding="utf-8")
-    if result.returncode:
-        raise IntelligenceError(f"{label}: Godot exit {result.returncode}; check log")
+    if exit_code:
+        raise IntelligenceError(f"{label}: Godot exit {exit_code}; check log")
     return log
 
 
