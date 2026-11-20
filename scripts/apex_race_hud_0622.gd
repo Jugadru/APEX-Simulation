@@ -65,6 +65,8 @@ var radio_response_label: Label
 var radio_portrait_texture: TextureRect
 var radio_portrait_placeholder: Label
 var radio_identity_info: Label
+var driver_profile_panel_2012: PanelContainer
+var driver_profile_photo_2012: TextureRect
 var radio_history: RichTextLabel
 var radio_category: int = 0
 var radio_category_buttons: Array[Button] = []
@@ -969,6 +971,7 @@ func _close_window() -> void:
 	large_area.hide()
 
 func _open_window(which: String) -> void:
+	_close_profile_2012()
 	if active_window == which:
 		_close_window()
 		return
@@ -1167,6 +1170,10 @@ func _build_radio_window() -> void:
 	radio_identity_info.custom_minimum_size = Vector2(260, 60)
 	radio_identity_info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_refresh_radio_identity()
+	var profile_button: Button = _btn(identity_row, "VER PERFIL", _show_profile_2012, 122)
+	profile_button.tooltip_text = "Abrir o retrato completo 640×800 do piloto selecionado; sem alterar a corrida"
+	profile_button.custom_minimum_size.y = 32.0
+	profile_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	var questions := _line(overlay_content, 5)
 	for topic in ["pneus", "ritmo", "trafego", "box"]:
 		var button := _btn(questions, str(EngineerInteractive.QUESTIONS[topic]), _ask_engineer.bind(topic))
@@ -1228,6 +1235,60 @@ func _set_radio_category(index: int) -> void:
 		b.add_theme_color_override("font_color", ACCENT if active else WHITE)
 	_refresh_radio_filter_button()
 	_refresh_interactive_history()
+
+func _show_profile_2012() -> void:
+	# A foto 640x800 é um recurso local de apresentação, nunca um dado esportivo.
+	if host == null or host.race == null or host.portrait_manager == null or radio_driver_picker == null:
+		return
+	var selected: int = radio_driver_picker.selected
+	if selected < 0 or selected >= radio_driver_ids.size():
+		return
+	var driver_id: int = radio_driver_ids[selected]
+	var driver_name: String = ""
+	for car in host.race.player_cars():
+		if int(car.get("id", -1)) == driver_id:
+			driver_name = str(car.get("name", ""))
+			break
+	if driver_name.is_empty():
+		return
+	var image: Texture2D = host.portrait_manager.get_profile_photo(driver_name)
+	if image == null:
+		return
+	_close_profile_2012()
+	var p: PanelContainer = _panel(self, Color("#111923"))
+	p.name = "DriverProfile2012"
+	p.z_index = 100
+	p.mouse_filter = Control.MOUSE_FILTER_STOP
+	p.set_anchors_preset(Control.PRESET_CENTER)
+	p.offset_left = -220.0
+	p.offset_right = 220.0
+	p.offset_top = -335.0
+	p.offset_bottom = 335.0
+	var body: VBoxContainer = _column(p, 8)
+	var title_line: HBoxContainer = _line(body, 8)
+	var header: Label = _text(title_line, driver_name + "  •  2012", 17, ACCENT)
+	header.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_btn(title_line, "×", _close_profile_2012, 32)
+	var photo: TextureRect = TextureRect.new()
+	photo.name = "ProfileImage"
+	photo.texture = image
+	photo.custom_minimum_size = Vector2(390, 505)
+	photo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	photo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	photo.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	photo.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body.add_child(photo)
+	_text(body, "Fotografia original fornecida pelo usuário. Uso e direitos de distribuição ainda em revisão.", 10, MUTED).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	var actions: HBoxContainer = _line(body, 6)
+	_btn(actions, "FECHAR PERFIL", _close_profile_2012, 160)
+	driver_profile_panel_2012 = p
+	driver_profile_photo_2012 = photo
+
+func _close_profile_2012() -> void:
+	if is_instance_valid(driver_profile_panel_2012):
+		driver_profile_panel_2012.queue_free()
+	driver_profile_panel_2012 = null
+	driver_profile_photo_2012 = null
 
 func _refresh_radio_identity() -> void:
 	if radio_portrait_texture == null or not is_instance_valid(radio_portrait_texture):
