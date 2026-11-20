@@ -22,7 +22,7 @@ concurrency:
 jobs:
   pitwall-intelligence:
     name: Analisar escolhas do Pit Wall / 2012, sem modificar IA
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 35
 
     steps:
