@@ -165,7 +165,7 @@ def run_once(godot: str, project: Path, label: str, index: int,
         # ELF shebang on Linux. Execute it as a file, with explicit argv;
         # never interpolate paths in a shell command string.
         with open(exe, "rb") as stream:
-            elf = stream.read(4) == b"\\x7fELF"
+            elf = stream.read(4) == b"\x7fELF"
         command = ([exe] if elf else ["bash", exe]) + [
             "--headless", "--path", str(project),
             "--script", "res://" + BENCHMARK.as_posix(),
@@ -178,7 +178,7 @@ def run_once(godot: str, project: Path, label: str, index: int,
         except (subprocess.TimeoutExpired, OSError) as exc:
             raise BenchmarkError(f"{label} repetition {index} could not finish: {exc}") from exc
 
-    log = proc.stdout + "\\n" + proc.stderr
+    log = proc.stdout + "\n" + proc.stderr
     (out / f"{label}-{index}.log").write_text(log, encoding="utf-8")
     if proc.returncode != 0:
         raise BenchmarkError(f"{label} repetition {index} exited {proc.returncode}")
