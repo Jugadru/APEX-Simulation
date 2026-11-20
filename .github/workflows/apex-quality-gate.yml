@@ -55,24 +55,32 @@ jobs:
       APEX_PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr_number || '0' }}
       APEX_BASE_SHA: ${{ github.event.pull_request.base.sha || inputs.base_sha || '' }}
     steps:
-      - name: Baixar candidato exato
+      - name: Baixar ferramenta confiavel da base do PR
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha || github.sha }}
+          path: gate
+          persist-credentials: false
+
+      - name: Baixar candidato exato em diretorio separado
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          path: candidate
           persist-credentials: false
 
       - name: Verificar 10 pipelines instalados e aprovados no mesmo commit
         shell: bash
         run: |
           set -euo pipefail
-          python3 tools/apex_quality_gate.py \
+          python3 gate/tools/apex_quality_gate.py \
             --repository "$GITHUB_REPOSITORY" \
             --sha "$APEX_TARGET_SHA" \
             --mode "$APEX_MODE" \
             --wait-seconds 90 \
             --pr-number "$APEX_PR_NUMBER" \
             --base-sha "$APEX_BASE_SHA" \
-            --project . \
+            --project candidate \
             --output ci_artifacts/quality_gate
 
       - name: Exibir resultado e pendencias
