@@ -40,7 +40,9 @@ e, se houver, um rival controlado pela IA. Registra:
 - Histórico de paradas: volta, composto anterior/novo, fonte da ordem,
   fila de box, atraso por incidente e posição antes/depois.
 - Eventos de rádio já existentes (`driver_radio`, `engineer_reply`,
-  `radio`, `strategy`, `team_coordination`, `double_stack`).
+  `radio`, `strategy`, `team_coordination`, `double_stack`), coletados
+  do histórico completo `race.telemetry.event_history` em vez do buffer
+  de até 140 mensagens da HUD.
 
 O teste **não chama novas ordens de box ou corrige estratégias**. Apenas
 o caso manual agenda V7 no início como estímulo controlado do laboratório.
