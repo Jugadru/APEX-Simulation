@@ -1,0 +1,119 @@
+name: APEX - Seguranca Python (Bandit + CodeQL opcional)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/scripts/**/*.py'
+      - 'tools/**/*.py'
+      - '.github/workflows/apex-seguranca-python.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/scripts/**/*.py'
+      - 'tools/**/*.py'
+      - '.github/workflows/apex-seguranca-python.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  python-security:
+    name: Bandit / auditoria gratuita informativa
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Baixar codigo do APEX
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Instalar analisador Python
+        run: python -m pip install --disable-pip-version-check 'bandit==1.9.4'
+
+      - name: Testar gerador de relatorios
+        run: |
+          python -m unittest discover -s tools/tests \
+            -p 'test_security_bandit_report.py' -v
+
+      - name: Auditar Python sem modificar codigo
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ci_artifacts/security
+          set +e
+          bandit --quiet --recursive .github/scripts tools \
+            --exclude tools/tests \
+            --format json --output ci_artifacts/security/bandit.json \
+            2>&1 | tee ci_artifacts/security/bandit.log
+          result=${PIPESTATUS[0]}
+          set -e
+          # 0 = clean; 1 = findings, which are reported as advisory.
+          # Other exit codes or missing results mean the scanner did NOT complete.
+          if [ "$result" -gt 1 ]; then
+            echo "::error::Bandit failed with exit code $result"
+            exit "$result"
+          fi
+          test -s ci_artifacts/security/bandit.json
+          python tools/security_bandit_report.py \
+            ci_artifacts/security/bandit.json \
+            --output-dir ci_artifacts/security
+          git diff --exit-code -- .github/scripts tools tests
+
+      - name: Exibir relatorio de seguranca
+        if: always()
+        shell: bash
+        env:
+          APEX_CODEQL_ENABLED: ${{ vars.APEX_ENABLE_CODEQL }}
+        run: |
+          if [ -f ci_artifacts/security/report.md ]; then
+            cat ci_artifacts/security/report.md >> "$GITHUB_STEP_SUMMARY"
+          elif [ -f ci_artifacts/security/error.txt ]; then
+            echo '### Bandit nao concluiu a verificacao' >> "$GITHUB_STEP_SUMMARY"
+            cat ci_artifacts/security/error.txt >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ "$APEX_CODEQL_ENABLED" = "true" ]; then
+            echo 'CodeQL: habilitado por variavel; veja o job CodeQL.' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'CodeQL: **nao executado**; repositorio privado requer GitHub Code Security e variavel APEX_ENABLE_CODEQL=true.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Salvar auditoria em artefatos
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apex-seguranca-python-bandit
+          path: ci_artifacts/security/
+          retention-days: 14
+          if-no-files-found: warn
+
+  codeql-python:
+    name: CodeQL Python / necessita GitHub Code Security
+    # Repository is private. No CodeQL analysis is attempted until the owner
+    # explicitly confirms license/availability by setting this variable.
+    if: ${{ vars.APEX_ENABLE_CODEQL == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+
+    steps:
+      - name: Baixar codigo do APEX
+        uses: actions/checkout@v4
+
+      - name: Preparar CodeQL para Python
+        uses: github/codeql-action/init@v4
+        with:
+          languages: python
+          queries: security-extended
+
+      - name: Analisar e publicar achados do CodeQL
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: '/language:python'
