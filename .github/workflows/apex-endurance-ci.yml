@@ -62,11 +62,44 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          mkdir -p ci_artifacts/endurance
+          test -x /usr/bin/time
+          output="$PWD/ci_artifacts/endurance"
+          run_endurance() {
+            local label="$1"
+            local script="$2"
+            local track="${3:-}"
+            local weather="${4:-}"
+            local seed="${5:-}"
+            (
+              export HOME="$RUNNER_TEMP/apex-endurance-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${label}"
+              export XDG_DATA_HOME="$HOME/data"
+              export XDG_CONFIG_HOME="$HOME/config"
+              export XDG_CACHE_HOME="$HOME/cache"
+              mkdir -p "$XDG_DATA_HOME" "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME"
+              export APEX_TICKS="$APEX_GROWTH_TICKS"
+              export APEX_TRACK="$track"
+              export APEX_WEATHER="$weather"
+              export APEX_SEED="$seed"
+              export APEX_BENCH_OUTPUT="$output/${label}.json"
+              /usr/bin/time -f '%e %M' -o "$output/${label}.metrics" \
+                timeout 450s godot --headless --path . --script "res://${script}" \
+                > "$output/${label}.log" 2>&1
+            )
+          }
+
+          run_endurance growth_monza_1 tests/high_speed_growth_066723_benchmark.gd
+          run_endurance growth_monza_2 tests/high_speed_growth_066723_benchmark.gd
+          run_endurance full_gp_ITA_1 tests/ci/apex_full_gp_endurance.gd ITA Seco 660
+          run_endurance full_gp_ITA_2 tests/ci/apex_full_gp_endurance.gd ITA Seco 660
+          run_endurance full_gp_GBR_1 tests/ci/apex_full_gp_endurance.gd GBR 'Chuva intensa' 661
+          run_endurance full_gp_GBR_2 tests/ci/apex_full_gp_endurance.gd GBR 'Chuva intensa' 661
+          run_endurance career_admin_1 tests/career_0667_20_season_data_stress.gd
+          run_endurance career_admin_2 tests/career_0667_20_season_data_stress.gd
+
           python3 tools/apex_endurance_ci.py \
             --project . \
-            --godot godot \
             --growth-ticks "$APEX_GROWTH_TICKS" \
-            --per-run-timeout 450 \
             --output ci_artifacts/endurance
 
       - name: Resumir resultados
