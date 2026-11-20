@@ -51,7 +51,9 @@ def run_tool(name: str, arguments: list[str], root: Path, reports: Path) -> dict
     if not executable.is_file():
         raise AuditError(f"{name} does not refer to a file")
     async def invoke_tool() -> tuple[int, str, str]:
-        process = await asyncio.create_subprocess_exec(
+            # Allowed tool names are restricted to gdlint/gdformat and the
+            # installed executable is resolved before spawning; no shell.
+        process = await asyncio.create_subprocess_exec(  # nosemgrep: python.lang.security.audit.dangerous-asyncio-create-exec-audit
             str(executable), *arguments,
             cwd=str(root),
             stdout=asyncio.subprocess.PIPE,
