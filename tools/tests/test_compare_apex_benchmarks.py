@@ -4,10 +4,9 @@ from pathlib import Path
 import sys
 import unittest
 from tempfile import TemporaryDirectory
-from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from compare_apex_benchmarks import BenchmarkError, parse_growth_log, summarize, verify_warmups, resolve_godot_binary
+from compare_apex_benchmarks import BenchmarkError, parse_growth_log, read_run_log, summarize, verify_warmups
 
 
 def make_log(ticks=500, block_ms=250.0, sporting_hash="stable"):
@@ -58,33 +57,21 @@ class BenchmarkComparatorTests(unittest.TestCase):
         with self.assertRaises(BenchmarkError):
             verify_warmups({}, {"base": [sample], "candidate": [sample]})
 
-    def test_direct_elf_binary_is_accepted(self):
+    def test_ci_log_is_parsed_without_external_command(self):
         with TemporaryDirectory() as td:
-            binary = Path(td) / "godot"
-            binary.write_bytes(b"\x7fELF" + b"\x00" * 20)
-            with patch("compare_apex_benchmarks.shutil.which", return_value=str(binary)):
-                self.assertEqual(resolve_godot_binary("godot"), binary)
+            root = Path(td)
+            (root / "base-0.log").write_text(make_log(), encoding="utf-8")
+            self.assertEqual(read_run_log(root, "base", 0, 500)["ticks"], 500)
 
-    def test_setup_wrapper_points_to_verified_elf(self):
+    def test_missing_log_rejected(self):
         with TemporaryDirectory() as td:
-            home = Path(td)
-            binary = home / "Godot_v4.x-stable_linux.x86_64"
-            binary.write_bytes(b"\x7fELF" + b"\x00" * 20)
-            wrapper = home / "godot-wrapper"
-            wrapper.write_text('set -e\nxvfb-run --auto-servernum ' +
-                               str(binary) + ' "$@"\n', encoding="utf-8")
-            with patch("compare_apex_benchmarks.shutil.which", return_value=str(wrapper)):
-                self.assertEqual(resolve_godot_binary("godot"), binary)
+            with self.assertRaisesRegex(BenchmarkError, "Missing CI-generated"):
+                read_run_log(Path(td), "candidate", 2, 500)
 
-    def test_unsafe_wrapper_rejected_without_running_shell(self):
+    def test_untrusted_label_rejected(self):
         with TemporaryDirectory() as td:
-            home = Path(td)
-            wrapper = home / "godot-wrapper"
-            wrapper.write_text('xvfb-run --auto-servernum /tmp/godot;bad "$@"\n',
-                               encoding="utf-8")
-            with patch("compare_apex_benchmarks.shutil.which", return_value=str(wrapper)):
-                with self.assertRaises(BenchmarkError):
-                    resolve_godot_binary("godot")
+            with self.assertRaisesRegex(BenchmarkError, "Invalid benchmark log identity"):
+                read_run_log(Path(td), "../outside", 0, 500)
 
     def test_identical_hash_and_script_allows_comparison(self):
         base = [parse_growth_log(make_log(block_ms=250), 500) for _ in range(3)]
