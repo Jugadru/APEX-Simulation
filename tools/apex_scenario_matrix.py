@@ -212,8 +212,8 @@ def _markdown(data: dict[str, Any]) -> str:
         lines.extend(["", "#### Anomalias para revisar (WARN, não FAIL)"])
         for warning in data["warnings"]:
             # Keep the GitHub Actions Markdown summary readable even for bad data.
-            name = str(warning["scenario"]).replace("|", "/").replace("\\n", " ")
-            reason = str(warning["message"]).replace("|", "/").replace("\\n", " ")
+            name = str(warning["scenario"]).replace("|", "/").replace(chr(10), " ")
+            reason = str(warning["message"]).replace("|", "/").replace(chr(10), " ")
             lines.append(f"- **{name}**: {reason}")
     lines.extend([
         "Não há medição de GPU/FPS, corrida de distância oficial ou "
