@@ -27,8 +27,19 @@ def summarize(data: object) -> dict:
     if data["errors"]:
         raise ReportError("Bandit reported files that it could not analyze: "
                           + str(len(data["errors"])))
-    if not isinstance(data.get("metrics"), dict):
+    metrics = data.get("metrics")
+    if not isinstance(metrics, dict):
         raise ReportError("Bandit JSON is missing scan metrics")
+    totals = metrics.get("_totals")
+    if not isinstance(totals, dict) or not isinstance(totals.get("loc"), int) or totals["loc"] <= 0:
+        raise ReportError("Bandit scan did not prove that Python lines were analyzed")
+    scanned = [
+        name for name, record in metrics.items()
+        if name != "_totals" and isinstance(record, dict)
+        and isinstance(record.get("loc"), int) and record["loc"] >= 0
+    ]
+    if not scanned:
+        raise ReportError("Bandit metrics contain no scanned Python file entries")
 
     results = data["results"]
     severity = Counter({"HIGH": 0, "MEDIUM": 0, "LOW": 0, "UNDEFINED": 0})
@@ -53,7 +64,8 @@ def summarize(data: object) -> dict:
             {"rule": rule, "count": count}
             for rule, count in rules.most_common(10)
         ],
-        "metrics": data["metrics"].get("_totals", {}),
+        "metrics": totals,
+        "files_scanned": len(scanned),
         "limitations": [
             "Bandit does not analyze GDScript or run Godot.",
             "Findings are possible vulnerabilities, not verified exploits.",
