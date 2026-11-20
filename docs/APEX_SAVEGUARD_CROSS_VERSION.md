@@ -73,3 +73,6 @@ de arquivos incoerentes nem perda inadvertida de dados.
 Adiciona apenas workflow, script Python, testes GDScript e Python e
 documentação. Física, IA, garagem, campeonatos e replay de produção ficam
 inalterados. Merge somente após testes verdes e revisão manual.
+
+
+**Execução segura em CI:** os cinco comandos Godot são executados diretamente no GitHub Actions, usando diretórios HOME/XDG isolados. O Python apenas confere logs reais e snapshots SHA256 dos três arquivos-base, gravados antes dos testes na candidata. Os saves e replays de exemplo não são publicados como artefatos.
