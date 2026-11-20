@@ -19,7 +19,7 @@ on:
       - 'scenes/**'
       - 'assets/**'
       - 'data/**'
-      - 'tests/ci/**'
+      - 'tests/ci/apex_capture_screenshots.gd'
       - 'tools/visual_regression_ab.py'
       - 'tools/tests/test_visual_regression_ab.py'
       - '.github/workflows/apex-regressao-visual-ab.yml'
