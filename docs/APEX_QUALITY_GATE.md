@@ -13,7 +13,7 @@ uma execução ignorada/skipped ou o histórico verde de PR ainda não integrado
 
 | Modo | Quando | Resultado BLOCKED |
 |---|---|---|
-| `audit` | PRs (padrão) ou execução manual | Relatório verdadeiro; job de auditoria conclui normalmente, mas **não autoriza merge** |
+| `audit` | Todos os PRs (padrão) ou execução manual | Relatório verdadeiro; job de auditoria conclui normalmente, mas **não autoriza merge** |
 | `enforce` | Execução manual `Actions → APEX - Quality Gate 1.0 → Run workflow` | Job termina com código 1; não é possível considerar o candidato READY |
 
 **Importante:** o GitHub não irá impedir o botão de merge só por existir um
@@ -55,10 +55,27 @@ avisos, vulnerabilidades ou erros de estilo.
   não teve sucesso; skipped não conta.
 - `PASSED`: workflow e job correspondente concluídos com sucesso.
 
+Ao escolher uma execução, prioriza a **hora do início da tentativa mais
+recente**, inclusive quando um workflow antigo for reexecutado após outro,
+e não apenas a data em que a execução foi criada. Dados da API ausentes,
+malformados ou fora do host HTTPS oficial `api.github.com` causam erro ou
+bloqueio, não aprovação.
+
 Para os **comparadores** A/B, regressão visual e SaveGuard, o Gate aceita
-somente runs de `pull_request`: em uma execução manual, as opções padrão
-de `baseline_ref`/`candidate_ref` podem produzir um relatório válido
-sobre outra revisão, que seria falso-positivo para a revisão corrente.
+somente runs de `pull_request` vinculados ao **mesmo número do PR, SHA do
+candidato e SHA da base**. Uma execução de outro PR ou contra outra base
+é considerada sem evidência, mesmo que seu próprio job esteja verde.
+Na execução manual é necessário informar `pr_number` e `base_sha` para
+que essas três comparações sejam elegíveis; sem esse contexto, o Gate
+bloqueia por segurança. Executar os comparadores manualmente não é prova
+de que suas opções `baseline_ref`/`candidate_ref` coincidam com o PR.
+
+O Gate audita **todos os PRs**, sem filtro de caminhos, e pode repetir
+a consulta durante até **90 segundos** enquanto houver jobs pendentes
+ou ainda não iniciados. Depois desse limite mantém `NO_RUN`/`PENDING`
+e informa a pendência; reexecute a auditoria quando os workflows terminarem.
+Nunca repete automaticamente workflows de terceiros nem considera jobs
+não executados como aprovação.
 
 ## Dependências e integração
 
