@@ -52,12 +52,18 @@ func _run() -> void:
         ck(hud.radio_portrait_texture != null and hud.radio_portrait_texture.visible,"radio portrait bound")
         hud._close_window()
         ck(state_before == var_to_bytes(game.race.get_state_snapshot()),"no sporting mutations from UI")
+        # A cena abre a corrida pausada para o jogador decidir a estrategia.
+        # Avancar diretamente no teste sem liberar a simulacao nao move o relogio.
+        # Sem comandos de jogo: apenas desbloqueia o tick para o QA.
+        game.race.running = true
+        var start_clock: float = float(game.race.clock)
         for i in range(100):
             game.race.step(0.2)
             if i % 10 == 0:
                 hud.refresh_hud()
-            await process_frame
-        ck(game.race.clock >= 19.9,"race advanced 20 in-game seconds")
+        ck(float(game.race.clock) >= start_clock + 19.9,"race advanced 20 in-game seconds")
+        # Apenas quadros suficientes para gerar o framebuffer (llvmpipe e lento).
+        for i in range(3): await process_frame
         await RenderingServer.frame_post_draw
         var screenshot := root.get_texture().get_image()
         var found: Vector2i = screenshot.get_size()
