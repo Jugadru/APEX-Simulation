@@ -134,7 +134,9 @@ def run_script(project: Path, godot: str, script: str, label: str,
         "--script", "res://" + script,
     ]
     async def invoke_verified_godot() -> tuple[int, str, str]:
-        process = await asyncio.create_subprocess_exec(
+        # Verified Godot ELF and in-repository scripts from a fixed
+        # allowlist, two CI-managed project revisions, no shell.
+        process = await asyncio.create_subprocess_exec(  # nosemgrep: python.lang.security.audit.dangerous-asyncio-create-exec-audit, python.lang.security.audit.dangerous-asyncio-create-exec-tainted-env-args
             *cmd, env=env,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
