@@ -13,7 +13,7 @@ def fixture(results=None, errors=None):
     return {
         "results": [] if results is None else results,
         "errors": [] if errors is None else errors,
-        "metrics": {"_totals": {"loc": 42}},
+        "metrics": {"_totals": {"loc": 42}, "tools/report.py": {"loc": 42}},
     }
 
 
@@ -44,6 +44,24 @@ class SecurityReportTests(unittest.TestCase):
     def test_missing_metrics_must_not_pass(self):
         with self.assertRaises(ReportError):
             summarize({"results": [], "errors": []})
+
+    def test_empty_metrics_never_claim_clean(self):
+        report = fixture()
+        report["metrics"] = {}
+        with self.assertRaises(ReportError):
+            summarize(report)
+
+    def test_zero_line_scan_rejected(self):
+        report = fixture()
+        report["metrics"]["_totals"]["loc"] = 0
+        with self.assertRaises(ReportError):
+            summarize(report)
+
+    def test_no_per_file_scan_evidence_rejected(self):
+        report = fixture()
+        del report["metrics"]["tools/report.py"]
+        with self.assertRaises(ReportError):
+            summarize(report)
 
     def test_invalid_finding_must_not_pass(self):
         with self.assertRaises(ReportError):
