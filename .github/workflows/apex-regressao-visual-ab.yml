@@ -1,0 +1,157 @@
+name: APEX - Regressao Visual A-B
+
+on:
+  workflow_dispatch:
+    inputs:
+      baseline_ref:
+        description: 'Versao de referencia com a fixture de capturas da melhoria 3'
+        required: true
+        default: 'main'
+        type: string
+      candidate_ref:
+        description: 'Versao candidata com a mesma fixture de capturas'
+        required: true
+        default: 'infra/visual-regression-main-integration'
+        type: string
+  pull_request:
+    paths:
+      - 'scripts/**'
+      - 'scenes/**'
+      - 'assets/**'
+      - 'data/**'
+      - 'tests/ci/**'
+      - 'tools/visual_regression_ab.py'
+      - 'tools/tests/test_visual_regression_ab.py'
+      - '.github/workflows/apex-regressao-visual-ab.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  visual-ab:
+    name: Comparar HUD 2D e corrida 3D / Silverstone 2012
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      LIBGL_ALWAYS_SOFTWARE: '1'
+      GALLIUM_DRIVER: llvmpipe
+      PYTHONUNBUFFERED: '1'
+
+    steps:
+      - name: Baixar versao de referencia
+        uses: actions/checkout@v4
+        with:
+          path: baseline
+          ref: ${{ github.event.pull_request.base.sha || inputs.baseline_ref || 'main' }}
+          persist-credentials: false
+
+      - name: Baixar versao candidata
+        uses: actions/checkout@v4
+        with:
+          path: candidate
+          ref: ${{ github.event.pull_request.head.sha || inputs.candidate_ref || github.sha }}
+          persist-credentials: false
+
+      - name: Preparar Godot 4.7.2
+        uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c # v3.0.1
+        with:
+          version: 4.7.2-stable
+
+      - name: Instalar ambiente grafico e Pillow
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb libgl1 libgl1-mesa-dri
+          python3 -m pip install --disable-pip-version-check 'Pillow==11.3.0'
+
+      - name: Testar algoritmo de regressao visual
+        run: |
+          python3 -m unittest discover -s candidate/tools/tests \
+            -p 'test_visual_regression_ab.py' -v
+
+      - name: Verificar fixture identica nas duas versoes
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s baseline/tests/ci/apex_capture_screenshots.gd
+          test -s candidate/tests/ci/apex_capture_screenshots.gd
+          cmp baseline/tests/ci/apex_capture_screenshots.gd \
+              candidate/tests/ci/apex_capture_screenshots.gd
+          echo 'APEX_VISUAL_AB_SAME_FIXTURE'
+
+      - name: Importar projeto de referencia
+        run: godot --headless --path baseline --import
+
+      - name: Importar projeto candidato
+        run: godot --headless --path candidate --import
+
+      - name: Gerar imagens reais da versao de referencia
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p visual-regression/baseline baseline/ci_artifacts/screenshots
+          export HOME="$RUNNER_TEMP/apex-visual-base"
+          export XDG_DATA_HOME="$HOME/data"
+          export XDG_CONFIG_HOME="$HOME/config"
+          export XDG_CACHE_HOME="$HOME/cache"
+          mkdir -p "$HOME" "$XDG_DATA_HOME" "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME"
+          xvfb-run -a -s '-screen 0 1920x1080x24' \
+            godot --path baseline \
+              --rendering-method gl_compatibility \
+              --rendering-driver opengl3 \
+              --script res://tests/ci/apex_capture_screenshots.gd \
+            2>&1 | tee visual-regression/baseline/capture.log
+          grep -q 'APEX_CAPTURE_CI_PASS' visual-regression/baseline/capture.log
+          python3 baseline/tools/verify_ci_captures.py baseline/ci_artifacts/screenshots
+          cp baseline/ci_artifacts/screenshots/*.png visual-regression/baseline/
+          cp baseline/ci_artifacts/screenshots/manifest.json visual-regression/baseline/
+
+      - name: Gerar imagens reais da versao candidata
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p visual-regression/candidate candidate/ci_artifacts/screenshots
+          export HOME="$RUNNER_TEMP/apex-visual-candidate"
+          export XDG_DATA_HOME="$HOME/data"
+          export XDG_CONFIG_HOME="$HOME/config"
+          export XDG_CACHE_HOME="$HOME/cache"
+          mkdir -p "$HOME" "$XDG_DATA_HOME" "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME"
+          xvfb-run -a -s '-screen 0 1920x1080x24' \
+            godot --path candidate \
+              --rendering-method gl_compatibility \
+              --rendering-driver opengl3 \
+              --script res://tests/ci/apex_capture_screenshots.gd \
+            2>&1 | tee visual-regression/candidate/capture.log
+          grep -q 'APEX_CAPTURE_CI_PASS' visual-regression/candidate/capture.log
+          python3 candidate/tools/verify_ci_captures.py candidate/ci_artifacts/screenshots
+          cp candidate/ci_artifacts/screenshots/*.png visual-regression/candidate/
+          cp candidate/ci_artifacts/screenshots/manifest.json visual-regression/candidate/
+
+      - name: Comparar pixels e produzir imagens de diferencas
+        run: |
+          python3 candidate/tools/visual_regression_ab.py \
+            --baseline baseline/ci_artifacts/screenshots \
+            --candidate candidate/ci_artifacts/screenshots \
+            --baseline-project baseline \
+            --candidate-project candidate \
+            --output visual-regression/differences
+
+      - name: Publicar resumo
+        if: always()
+        shell: bash
+        run: |
+          if [ -f visual-regression/differences/report.md ]; then
+            cat visual-regression/differences/report.md >> "$GITHUB_STEP_SUMMARY"
+          elif [ -f visual-regression/differences/error.txt ]; then
+            echo '### APEX: regressao visual nao concluiu a comparacao' >> "$GITHUB_STEP_SUMMARY"
+            cat visual-regression/differences/error.txt >> "$GITHUB_STEP_SUMMARY"
+          fi
+          echo 'Verifique os PNGs antes/depois e os mapas vermelhos nos artefatos.' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Salvar imagens base, candidatas, diffs e relatorios
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apex-regressao-visual-ab
+          path: visual-regression/
+          retention-days: 14
+          if-no-files-found: warn
