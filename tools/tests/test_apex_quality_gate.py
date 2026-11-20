@@ -1,7 +1,6 @@
 """Offline unit tests: Quality Gate must never approve stale/missing CI."""
 from __future__ import annotations
 
-import io
 import json
 from pathlib import Path
 import sys
@@ -216,7 +215,7 @@ class QualityGateTests(unittest.TestCase):
 
     def test_api_rejects_untrusted_endpoint_before_network(self):
         api = GitHubAPI("Quereni/APEX-Simulation", "test-token")
-        with patch("apex_quality_gate.request.urlopen") as network:
+        with patch("apex_quality_gate.client.HTTPSConnection") as network:
             with self.assertRaises(GateError):
                 api.get("https://evil.example.com/steal")
             with self.assertRaises(GateError):
@@ -224,17 +223,42 @@ class QualityGateTests(unittest.TestCase):
             network.assert_not_called()
 
     def test_api_reports_network_failure(self):
-        from urllib.error import URLError
         api = GitHubAPI("Quereni/APEX-Simulation", "test-token")
-        with patch("apex_quality_gate.request.urlopen", side_effect=URLError("offline")):
+        with patch("apex_quality_gate.client.HTTPSConnection") as connection:
+            connection.return_value.request.side_effect = OSError("offline")
             with self.assertRaisesRegex(GateError, "unavailable"):
                 api.runs(SHA)
 
     def test_api_rejects_malformed_response(self):
         api = GitHubAPI("Quereni/APEX-Simulation", "test-token")
         body = '{"workflow_runs": "not an array"}'
-        with patch("apex_quality_gate.request.urlopen", return_value=io.BytesIO(body.encode())):
+        with patch("apex_quality_gate.client.HTTPSConnection") as connection:
+            response = connection.return_value.getresponse.return_value
+            response.status = 200
+            response.read.return_value = body.encode()
             with self.assertRaisesRegex(GateError, "Unexpected"):
+                api.runs(SHA)
+
+    def test_github_connection_uses_only_pinned_https_host(self):
+        api = GitHubAPI("Quereni/APEX-Simulation", "test-token")
+        with patch("apex_quality_gate.client.HTTPSConnection") as constructor:
+            response = constructor.return_value.getresponse.return_value
+            response.status = 200
+            response.read.return_value = b'{"workflow_runs": []}'
+            self.assertEqual(api.runs(SHA), [])
+            constructor.assert_called_once_with("api.github.com", timeout=20)
+            args, kwargs = constructor.return_value.request.call_args
+            self.assertEqual(args[0], "GET")
+            self.assertTrue(args[1].startswith("/repos/Quereni/APEX-Simulation/actions/runs?"))
+            self.assertNotIn("http://", args[1])
+            self.assertIn("Authorization", kwargs["headers"])
+
+    def test_api_http_error_fails_closed(self):
+        api = GitHubAPI("Quereni/APEX-Simulation", "test-token")
+        with patch("apex_quality_gate.client.HTTPSConnection") as constructor:
+            response = constructor.return_value.getresponse.return_value
+            response.status = 403
+            with self.assertRaisesRegex(GateError, "HTTP 403"):
                 api.runs(SHA)
 
     def test_pr_context_requires_valid_number_and_base(self):
