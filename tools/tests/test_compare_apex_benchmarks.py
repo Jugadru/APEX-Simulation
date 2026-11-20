@@ -5,7 +5,7 @@ import sys
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from compare_apex_benchmarks import BenchmarkError, parse_growth_log, summarize
+from compare_apex_benchmarks import BenchmarkError, parse_growth_log, summarize, verify_warmups
 
 
 def make_log(ticks=500, block_ms=250.0, sporting_hash="stable"):
@@ -38,6 +38,23 @@ class BenchmarkComparatorTests(unittest.TestCase):
     def test_non_finite_measurement_rejected(self):
         with self.assertRaises(BenchmarkError):
             parse_growth_log(make_log(block_ms=float("nan")), 500)
+
+    def test_warmup_matching_measured_hash_passes(self):
+        sample = parse_growth_log(make_log(), 500)
+        verify_warmups({"base": sample, "candidate": sample},
+                       {"base": [sample], "candidate": [sample]})
+
+    def test_warmup_different_hash_is_not_silently_discarded(self):
+        warmup = parse_growth_log(make_log(sporting_hash="warmup"), 500)
+        measured = parse_growth_log(make_log(sporting_hash="measured"), 500)
+        with self.assertRaisesRegex(BenchmarkError, "NONDETERMINISTIC"):
+            verify_warmups({"base": warmup, "candidate": measured},
+                           {"base": [measured], "candidate": [measured]})
+
+    def test_missing_warmup_rejected(self):
+        sample = parse_growth_log(make_log(), 500)
+        with self.assertRaises(BenchmarkError):
+            verify_warmups({}, {"base": [sample], "candidate": [sample]})
 
     def test_identical_hash_and_script_allows_comparison(self):
         base = [parse_growth_log(make_log(block_ms=250), 500) for _ in range(3)]
