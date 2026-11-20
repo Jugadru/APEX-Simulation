@@ -6,6 +6,7 @@ from pathlib import Path
 import sys
 from tempfile import TemporaryDirectory
 import unittest
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from apex_endurance_ci import (
@@ -13,6 +14,7 @@ from apex_endurance_ci import (
     parse_full_gp, parse_growth, read_linux_rss_bytes, write_report,
 )
 
+from apex_endurance_ci import resolve_godot_binary
 
 def growth_fixture(ticks: int = 1000, stable_hash: str = "same") -> str:
     rows = [
@@ -108,6 +110,33 @@ class EnduranceContractTests(unittest.TestCase):
             }, folder)
             self.assertIn("PASS", (folder / "report.md").read_text(encoding="utf-8"))
             self.assertTrue((folder / "report.json").is_file())
+
+    def test_verified_godot_elf_and_setup_wrapper(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            binary = root / "Godot_v4.7.2-stable_linux.x86_64"
+            binary.write_bytes(b"\x7fELF" + b"\x00" * 20)
+            wrapper = root / "godot-wrapper"
+            wrapper.write_text(
+                'set -e\nxvfb-run --auto-servernum ' + str(binary) + ' "$@"\n',
+                encoding="utf-8",
+            )
+            with patch("apex_endurance_ci.shutil.which", return_value=str(wrapper)):
+                self.assertEqual(resolve_godot_binary("godot"), str(binary))
+            with patch("apex_endurance_ci.shutil.which", return_value=str(binary)):
+                self.assertEqual(resolve_godot_binary("godot"), str(binary))
+
+    def test_untrusted_shell_line_must_be_rejected(self):
+        with TemporaryDirectory() as td:
+            wrapper = Path(td) / "godot-wrapper"
+            wrapper.write_text(
+                'xvfb-run --auto-servernum /tmp/godot;rm -rf . "$@"\n',
+                encoding="utf-8",
+            )
+            with patch("apex_endurance_ci.shutil.which", return_value=str(wrapper)):
+                with self.assertRaises(EnduranceError):
+                    resolve_godot_binary("godot")
+
 
 
 if __name__ == "__main__":
