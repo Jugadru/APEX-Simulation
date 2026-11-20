@@ -54,7 +54,27 @@ jobs:
         run: godot --headless --path candidate --import
 
       - name: Rodar benchmarks alternados
+        shell: bash
         run: |
+          set -euo pipefail
+          mkdir -p benchmark-ab
+          for index in 0 1 2 3; do
+            if (( index % 2 == 0 )); then
+              order=(base candidate)
+            else
+              order=(candidate base)
+            fi
+            for label in "${order[@]}"; do
+              export HOME="$RUNNER_TEMP/apex-ab-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${label}-${index}"
+              export XDG_DATA_HOME="$HOME/data"
+              export XDG_CONFIG_HOME="$HOME/config"
+              export XDG_CACHE_HOME="$HOME/cache"
+              mkdir -p "$XDG_DATA_HOME" "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME"
+              APEX_TICKS=1000 godot --headless --path "$label" \
+                --script res://tests/high_speed_growth_066723_benchmark.gd \
+                > "benchmark-ab/${label}-${index}.log" 2>&1
+            done
+          done
           python3 candidate/tools/compare_apex_benchmarks.py \
             --base-dir base \
             --candidate-dir candidate \
