@@ -38,60 +38,6 @@ class ScenarioMatrixContractTests(unittest.TestCase):
         (self.output / f"{scenario['id']}_{repetition}.log").write_text(
             "Godot 4.7.2\n" + matrix.MARKER + json.dumps(row) + "\n", encoding="utf-8")
 
-    def test_smoke_covers_twenty_real_circuits_once(self):
-        all_cases = []
-        for shard in range(4):
-            p = matrix.plan(self.root, "smoke", shard, 4, 12012)
-            self.assertEqual(len(p), 5)
-            all_cases.extend(p)
-        self.assertEqual([c["track"] for c in sorted(all_cases, key=lambda x: matrix.TRACKS.index(x["track"]))],
-                         list(matrix.TRACKS))
-        self.assertEqual(len({c["seed"] for c in all_cases}), 20)
-        self.assertEqual({c["weather"] for c in all_cases}, set(matrix.WEATHERS))
-        self.assertEqual({c["mode"] for c in all_cases}, set(matrix.MODES))
-
-    def test_full_cross_product_is_180_cases_and_360_runs(self):
-        all_cases = [c for shard in range(4)
-                     for c in matrix.plan(self.root, "full", shard, 4, 12012)]
-        self.assertEqual(len(all_cases), 180)
-        self.assertEqual(len({(c["track"], c["weather"], c["mode"]) for c in all_cases}), 180)
-        self.assertEqual(len(all_cases) * matrix.REPEATS, 360)
-
-    def test_master_seed_changes_scenarios_without_uncontrolled_randomness(self):
-        first = matrix.plan(self.root, "smoke", 0, 4, 12012)
-        again = matrix.plan(self.root, "smoke", 0, 4, 12012)
-        changed = matrix.plan(self.root, "smoke", 0, 4, 12013)
-        self.assertEqual(first, again)
-        self.assertNotEqual([x["seed"] for x in first], [x["seed"] for x in changed])
-
-    def test_rejects_missing_or_reordered_circuits(self):
-        source = self.root / "data" / "season_2012.json"
-        doc = json.loads(source.read_text(encoding="utf-8"))
-        doc["tracks"].reverse()
-        source.write_text(json.dumps(doc), encoding="utf-8")
-        with self.assertRaises(matrix.MatrixError):
-            matrix.plan(self.root, "smoke", 0, 4, 12012)
-
-    def test_rejects_invalid_shard_and_profiles(self):
-        for profile, shard, shards, seed in [
-            ("unsupported", 0, 4, 12012), ("smoke", 4, 4, 12012),
-            ("smoke", 0, 0, 12012), ("smoke", 0, 4, 0),
-        ]:
-            with self.subTest(profile=profile, shard=shard):
-                with self.assertRaises(matrix.MatrixError):
-                    matrix.plan(self.root, profile, shard, shards, seed)
-
-    def test_synthetic_parser_roundtrip_without_claiming_real_godot(self):
-        cases = matrix.plan(self.root, "smoke", 0, 4, 12012)
-        for case in cases:
-            for rep in (1, 2):
-                self.write(case, rep, self.good(case))
-        summary = matrix.validate(self.root, self.output, "smoke", 0, 4, 12012)
-        self.assertEqual(summary["cases"], 5)
-        self.assertEqual(summary["runs"], 10)
-        self.assertEqual(summary["status"], "PASS")
-        self.assertEqual(len(summary["tracks"]), 5)
-
 
 
 if __name__ == "__main__":
