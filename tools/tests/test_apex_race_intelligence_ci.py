@@ -6,14 +6,13 @@ from pathlib import Path
 import sys
 from tempfile import TemporaryDirectory
 import unittest
-from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from apex_race_intelligence_ci import (
     IntelligenceError, check_repeated, markdown, parse_marker, validate_probe,
 )
 
-from apex_race_intelligence_ci import resolve_godot_binary
+from apex_race_intelligence_ci import read_ci_log
 
 def good(scenario="monza_dry_auto"):
     return {
@@ -96,31 +95,21 @@ class IntelligenceReportTests(unittest.TestCase):
         self.assertIn("observacionais", txt)
         self.assertIn("tyres", txt)
 
-    def test_verified_godot_elf_and_setup_wrapper(self):
+    def test_reads_logs_produced_by_ci(self):
         with TemporaryDirectory() as td:
-            root = Path(td)
-            binary = root / "Godot_v4.7.2-stable_linux.x86_64"
-            binary.write_bytes(b"\x7fELF" + b"\x00" * 20)
-            wrapper = root / "godot-wrapper"
-            wrapper.write_text(
-                'set -e\nxvfb-run --auto-servernum ' + str(binary) + ' "$@"\n',
-                encoding="utf-8",
-            )
-            with patch("apex_race_intelligence_ci.shutil.which", return_value=str(wrapper)):
-                self.assertEqual(resolve_godot_binary("godot"), str(binary))
-            with patch("apex_race_intelligence_ci.shutil.which", return_value=str(binary)):
-                self.assertEqual(resolve_godot_binary("godot"), str(binary))
+            output = Path(td)
+            (output / "targeted_tyres.log").write_text("APEX v0.5.5.2 PASS\n", encoding="utf-8")
+            self.assertIn("PASS", read_ci_log(output, "targeted_tyres"))
 
-    def test_untrusted_shell_line_must_be_rejected(self):
+    def test_missing_log_rejected(self):
         with TemporaryDirectory() as td:
-            wrapper = Path(td) / "godot-wrapper"
-            wrapper.write_text(
-                'xvfb-run --auto-servernum /tmp/godot;rm -rf . "$@"\n',
-                encoding="utf-8",
-            )
-            with patch("apex_race_intelligence_ci.shutil.which", return_value=str(wrapper)):
-                with self.assertRaises(IntelligenceError):
-                    resolve_godot_binary("godot")
+            with self.assertRaisesRegex(IntelligenceError, "Missing CI-generated"):
+                read_ci_log(Path(td), "monza_manual_v7_2")
+
+    def test_invalid_label_rejected(self):
+        with TemporaryDirectory() as td:
+            with self.assertRaisesRegex(IntelligenceError, "Invalid CI run label"):
+                read_ci_log(Path(td), "../anything")
 
 
 
