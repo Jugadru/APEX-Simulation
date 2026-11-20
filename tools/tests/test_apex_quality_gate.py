@@ -1,24 +1,29 @@
 """Offline unit tests: Quality Gate must never approve stale/missing CI."""
 from __future__ import annotations
 
+import io
 import json
 from pathlib import Path
 import sys
 from tempfile import TemporaryDirectory
 import unittest
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from apex_quality_gate import (
-    GateError, REQUIREMENTS, Requirement, assess, assess_requirement,
+    GateError, GitHubAPI, REQUIREMENTS, assess, assess_requirement,
     markdown_report, run_gate, select_run, validate_identity,
 )
 
 SHA = "a" * 40
 OTHER = "b" * 40
+BASE = "c" * 40
+PR = 27
 
 
 def run_for(req, sha=SHA, event="pull_request", conclusion="success",
-            status="completed", run_id=1):
+            status="completed", run_id=1, pr_number=PR, base_sha=BASE,
+            started_at=None, run_attempt=1):
     return {
         "id": run_id,
         "head_sha": sha,
@@ -27,7 +32,11 @@ def run_for(req, sha=SHA, event="pull_request", conclusion="success",
         "status": status,
         "conclusion": conclusion,
         "created_at": f"2026-11-19T12:{run_id:02d}:00Z",
-        "run_attempt": 1,
+        "run_attempt": run_attempt,
+        "run_started_at": started_at or f"2026-11-19T12:{run_id:02d}:00Z",
+        "pull_requests": [
+            {"number": pr_number, "base": {"sha": base_sha}, "head": {"sha": sha}}
+        ] if event == "pull_request" else [],
         "html_url": f"https://github.com/example/apex/actions/runs/{run_id}",
     }
 
@@ -117,7 +126,7 @@ class QualityGateTests(unittest.TestCase):
     def test_all_ten_true_jobs_required_for_ready(self):
         runs = [run_for(req, run_id=i + 1) for i, req in enumerate(REQUIREMENTS)]
         jobs = {i + 1: success_job(req) for i, req in enumerate(REQUIREMENTS)}
-        result = assess({req.workflow for req in REQUIREMENTS}, runs, SHA, lambda idx: jobs[idx])
+        result = assess({req.workflow for req in REQUIREMENTS}, runs, SHA, lambda idx: jobs[idx], pr_number=PR, base_sha=BASE)
         self.assertEqual(result["status"], "READY")
         self.assertEqual(result["passed"], 10)
         self.assertEqual(result["total"], 10)
@@ -125,7 +134,7 @@ class QualityGateTests(unittest.TestCase):
     def test_missing_one_blocks_full_matrix(self):
         runs = [run_for(req, run_id=i + 1) for i, req in enumerate(REQUIREMENTS[:-1])]
         jobs = {i + 1: success_job(req) for i, req in enumerate(REQUIREMENTS[:-1])}
-        result = assess({req.workflow for req in REQUIREMENTS}, runs, SHA, lambda idx: jobs[idx])
+        result = assess({req.workflow for req in REQUIREMENTS}, runs, SHA, lambda idx: jobs[idx], pr_number=PR, base_sha=BASE)
         self.assertEqual(result["status"], "BLOCKED")
         self.assertEqual(result["passed"], 9)
         self.assertEqual(result["checks"][-1]["status"], "NO_RUN")
@@ -159,10 +168,81 @@ class QualityGateTests(unittest.TestCase):
                 (folder / req.workflow).write_text("name: test\n", encoding="utf-8")
             runs = [run_for(req, run_id=i + 1) for i, req in enumerate(REQUIREMENTS)]
             jobs = {i + 1: success_job(req) for i, req in enumerate(REQUIREMENTS)}
-            status, report = run_gate(root, "Quereni/APEX-Simulation", SHA, "enforce", root / "out", StubAPI(runs, jobs))
+            status, report = run_gate(root, "Quereni/APEX-Simulation", SHA, "enforce", root / "out", StubAPI(runs, jobs), PR, BASE)
             self.assertEqual(status, 0)
             self.assertEqual(report["status"], "READY")
             self.assertIn("10/10", markdown_report(report, "enforce"))
+
+    def test_comparison_requires_same_pr_and_base(self):
+        req = REQUIREMENTS[1]
+        wrong_pr = run_for(req, pr_number=8)
+        wrong_base = run_for(req, base_sha=OTHER)
+        for item in (wrong_pr, wrong_base):
+            row = assess_requirement(
+                req, {req.workflow}, [item], SHA,
+                lambda _: success_job(req), PR, BASE
+            )
+            self.assertEqual(row["status"], "NO_RUN")
+        correct = assess_requirement(
+            req, {req.workflow}, [run_for(req)], SHA,
+            lambda _: success_job(req), PR, BASE
+        )
+        self.assertEqual(correct["status"], "PASSED")
+
+    def test_comparison_requires_context_even_for_correct_pr_run(self):
+        req = REQUIREMENTS[1]
+        row = assess_requirement(
+            req, {req.workflow}, [run_for(req)], SHA, lambda _: success_job(req)
+        )
+        self.assertEqual(row["status"], "NO_RUN")
+
+    def test_rerun_of_older_run_started_later_overrides_newer(self):
+        req = REQUIREMENTS[0]
+        old_rerun = run_for(
+            req, run_id=1, run_attempt=3, started_at="2026-11-19T14:00:00Z",
+            conclusion="failure"
+        )
+        newer = run_for(
+            req, run_id=2, started_at="2026-11-19T13:00:00Z",
+            conclusion="success"
+        )
+        selected = select_run([newer, old_rerun], req, SHA)
+        self.assertEqual(selected["id"], 1)
+        row = assess_requirement(
+            req, {req.workflow}, [old_rerun, newer], SHA,
+            lambda _: success_job(req)
+        )
+        self.assertEqual(row["status"], "FAILED")
+
+    def test_api_rejects_untrusted_endpoint_before_network(self):
+        api = GitHubAPI("Quereni/APEX-Simulation", "test-token")
+        with patch("apex_quality_gate.request.urlopen") as network:
+            with self.assertRaises(GateError):
+                api.get("https://evil.example.com/steal")
+            with self.assertRaises(GateError):
+                api.get("/actions/runs/1/../../secrets")
+            network.assert_not_called()
+
+    def test_api_reports_network_failure(self):
+        from urllib.error import URLError
+        api = GitHubAPI("Quereni/APEX-Simulation", "test-token")
+        with patch("apex_quality_gate.request.urlopen", side_effect=URLError("offline")):
+            with self.assertRaisesRegex(GateError, "unavailable"):
+                api.runs(SHA)
+
+    def test_api_rejects_malformed_response(self):
+        api = GitHubAPI("Quereni/APEX-Simulation", "test-token")
+        body = '{"workflow_runs": "not an array"}'
+        with patch("apex_quality_gate.request.urlopen", return_value=io.BytesIO(body.encode())):
+            with self.assertRaisesRegex(GateError, "Unexpected"):
+                api.runs(SHA)
+
+    def test_pr_context_requires_valid_number_and_base(self):
+        from apex_quality_gate import validate_pr_context
+        validate_pr_context(PR, BASE)
+        for pr, base in ((PR, ""), (0, BASE), (-1, ""), (PR, "main")):
+            with self.assertRaises(GateError):
+                validate_pr_context(pr, base)
 
     def test_diagnostics_distinguish_codeql_and_informational_checks(self):
         report = assess(set(), [], SHA, lambda _: [])
