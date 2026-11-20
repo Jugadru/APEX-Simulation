@@ -95,6 +95,24 @@ O verificador de contrato também pode ser executado localmente:
 python3 -m unittest discover -s tools/tests -p test_apex_pitwall_intelligence.py -v
 ```
 
+**Rota alternativa independente do GitHub Actions**, para quando o runner
+remoto estiver bloqueado: em um **checkout completo do APEX**, com Godot
+4.7.2 e Python 3 disponíveis no Linux, executar:
+
+```bash
+GODOT_BIN=/caminho/para/Godot_v4.7.2-stable_linux.x86_64 \\
+  bash tools/run_pitwall_local.sh
+```
+
+O script valida a versão, roda os testes de contrato, importa o projeto
+no Godot, executa os quatro cenários duas vezes com `HOME/XDG` isolados,
+então usa **o mesmo analisador Python** para comparar hashes/decisões e
+produzir `ci_artifacts/pitwall_intelligence_local/report.json` e
+`report.md`. Falhas não são convertidas em PASS; logs ficam no diretório
+de saída. **Executar somente o binário Godot, sem o checkout do jogo, não
+constitui prova.** Uma execução local PASS também não deve ser confundida
+com CI verde no commit final.
+
 Para aceitar merge: novo teste Godot PASS, contratos Python PASS,
 Codacy 0 novos problemas e regressões da branch aplicáveis PASS.
 Não editar a IA real para fazer um teste artificial passar.
