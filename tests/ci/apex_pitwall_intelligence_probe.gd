@@ -152,7 +152,9 @@ func _run() -> void:
         errors.append("Manual V7 order was anticipated, lost or duplicated")
     var radio: Array = []
     var event_counts: Dictionary = {}
-    for event in race.events:
+    # Race.events is a 140-item HUD buffer; the observer retains the complete
+    # immutable event history for forensic review across the whole race.
+    for event in race.telemetry.event_history:
         var kind: String = str(event.get("type", ""))
         event_counts[kind] = int(event_counts.get(kind, 0)) + 1
         if kind in ["driver_radio", "engineer_reply", "radio", "strategy", "team_coordination", "double_stack"]:
