@@ -196,7 +196,10 @@ def run_once(godot: str, project: Path, label: str, index: int,
             "--script", "res://" + BENCHMARK.as_posix(),
         ]
         async def invoke_verified_godot() -> tuple[int, str, str]:
-            process = await asyncio.create_subprocess_exec(
+            # Audit exception: executable is validated as Godot ELF, the
+            # target script is a constant, project paths are canonicalized,
+            # shell expansion is impossible, and inputs are GitHub CI-owned.
+            process = await asyncio.create_subprocess_exec(  # nosemgrep: python.lang.security.audit.dangerous-asyncio-create-exec-audit, python.lang.security.audit.dangerous-asyncio-create-exec-tainted-env-args
                 *command, env=env,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
