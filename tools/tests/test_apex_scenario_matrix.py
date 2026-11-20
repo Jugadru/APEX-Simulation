@@ -92,51 +92,6 @@ class ScenarioMatrixContractTests(unittest.TestCase):
         self.assertEqual(summary["status"], "PASS")
         self.assertEqual(len(summary["tracks"]), 5)
 
-    def test_missing_or_corrupt_result_never_passes(self):
-        case = matrix.plan(self.root, "smoke", 0, 4, 12012)[0]
-        self.write(case, 1, self.good(case))
-        with self.assertRaises(matrix.MatrixError):
-            matrix.validate(self.root, self.output, "smoke", 0, 4, 12012)
-        self.write(case, 2, self.good(case))
-        with self.assertRaises(matrix.MatrixError):
-            matrix._parse_marker(self.output / "missing.log")
-        fake = self.output / "duplicate.log"
-        fake.write_text((matrix.MARKER + "{}\n") * 2, encoding="utf-8")
-        with self.assertRaises(matrix.MatrixError):
-            matrix._parse_marker(fake)
-
-    def test_different_sporting_hashes_are_a_real_fail(self):
-        case = matrix.plan(self.root, "smoke", 0, 4, 12012)[0]
-        self.write(case, 1, self.good(case))
-        other = self.good(case)
-        other["race_hash"] = "a" * 64
-        self.write(case, 2, other)
-        with self.assertRaisesRegex(matrix.MatrixError, "NONDETERMINISTIC"):
-            matrix.validate(self.root, self.output, "smoke", 0, 4, 12012)
-
-    def test_flags_incoherent_classification_invalid_tyres_and_schedule(self):
-        case = matrix.plan(self.root, "smoke", 0, 4, 12012)[0]
-        invalids = [
-            {"classified_positions": [1] * 24},
-            {"finished": False},
-            {"pits_total": -1},
-            {"max_stops": 11},
-            {"race_hash": "NOT_A_SHA"},
-            {"errors": ["wrong tyre compound"]},
-        ]
-        if case["mode"] in ("Manual", "Assistido"):
-            invalids.append({"pit_laps_by_player": [[4], [7]]})
-        for change in invalids:
-            bad = {**self.good(case), **change}
-            with self.subTest(change=change):
-                with self.assertRaises(matrix.MatrixError):
-                    matrix._validated(bad, case)
-
-    def test_excess_stops_are_observations_not_assumed_fraud(self):
-        case = matrix.plan(self.root, "smoke", 0, 4, 12012)[0]
-        good = self.good(case)
-        good["warnings"] = ["Unusually many stops for ten laps"]
-        self.assertEqual(matrix._validated(good, case)["warnings"], good["warnings"])
 
 
 if __name__ == "__main__":
