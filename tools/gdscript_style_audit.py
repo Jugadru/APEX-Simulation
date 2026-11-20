@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Non-mutating GDScript Toolkit audit for the APEX first-party source.
 
-Runs gdlint and gdformat --check on tracked scripts/**/*.gd files.
+Runs gdlint and gdformat --check on first-party scripts/**/*.gd files.
 Historical findings are advisory; broken tools or missing reports are errors.
 Third-party addons and test fixtures are intentionally excluded.
 """
@@ -10,7 +10,7 @@ from __future__ import annotations
 import argparse
 from collections import Counter
 import json
-import os
+import shutil
 from pathlib import Path
 import re
 import subprocess
@@ -28,30 +28,31 @@ class AuditError(Exception):
 
 
 def tracked_scripts(root: Path) -> list[str]:
-    command = ["git", "ls-files", "--cached", "--", "scripts"]
-    process = subprocess.run(
-        command, cwd=root, text=True, capture_output=True, check=False, timeout=30
+    """Enumerate first-party GDScript files; no external git commands."""
+    source = root / "scripts"
+    if not source.is_dir():
+        raise AuditError("scripts/ directory not found")
+    files = sorted(
+        path.relative_to(root).as_posix()
+        for path in source.rglob("*.gd")
+        if path.is_file() and not path.is_symlink()
     )
-    if process.returncode:
-        raise AuditError("git ls-files failed: " + process.stderr.strip())
-    paths = sorted(
-        {
-            line
-            for line in process.stdout.splitlines()
-            if line.startswith("scripts/")
-            and line.endswith(".gd")
-            and (root / line).is_file()
-        }
-    )
-    if not paths:
-        raise AuditError("No tracked scripts/**/*.gd files to inspect")
-    return paths
-
+    if not files:
+        raise AuditError("No first-party scripts/**/*.gd files to inspect")
+    return files
 
 def run_tool(name: str, arguments: list[str], root: Path, reports: Path) -> dict[str, Any]:
+    if name not in ("gdlint", "gdformat"):
+        raise AuditError("Only gdlint or gdformat can be executed")
+    executable_name = shutil.which(name)
+    if not executable_name:
+        raise AuditError(f"Missing {name} executable")
+    executable = Path(executable_name).resolve(strict=True)
+    if not executable.is_file():
+        raise AuditError(f"{name} does not refer to a file")
     try:
         result = subprocess.run(
-            [name, *arguments],
+            [str(executable), *arguments],
             cwd=root,
             capture_output=True,
             text=True,
@@ -88,7 +89,7 @@ def summarize(
         ),
         "mode": "INFORMATIONAL",
         "tool_version": version,
-        "scope": "tracked first-party scripts/**/*.gd (no addons or test fixtures)",
+        "scope": "first-party scripts/**/*.gd (no addons or test fixtures)",
         "files_scanned": len(files),
         "gdlint_exit_code": lint["exit_code"],
         "gdlint_diagnostic_lines": sum(matches.values()),
