@@ -33,6 +33,7 @@ class ScenarioMatrixContractTests(unittest.TestCase):
             "pits_total": 2, "max_stops": 1,
             "pit_laps_by_player": [[6], [7]] if scenario["mode"] != "IA" else [[], []],
             "wetness_peak": 0.58 if scenario["weather"] == "Chuva intensa" else 0.0,
+            "disqualified": 0,
 
         }
 
