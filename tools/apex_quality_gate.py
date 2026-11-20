@@ -9,7 +9,7 @@ Only GitHub Actions read permissions are needed.
 from __future__ import annotations
 
 import argparse
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 import json
 import os
 from pathlib import Path
@@ -63,11 +63,27 @@ class GitHubAPI:
     def __init__(self, repo: str, token: str):
         if not token:
             raise GateError("GITHUB_TOKEN not set; cannot verify current checks")
+        if not REPO_RE.fullmatch(repo):
+            raise GateError("Invalid owner/repo")
         self.repo = repo
         self.token = token
 
     def get(self, suffix: str) -> Any:
+        if not re.fullmatch(
+            r"/actions/runs(?:\?head_sha=[0-9a-fA-F]{40}&per_page=100&page=[1-4]|/[0-9]+/jobs\?per_page=100)",
+            suffix,
+        ):
+            raise GateError("Blocked unexpected GitHub API endpoint")
         url = "https://api.github.com/repos/" + self.repo + suffix
+        destination = parse.urlsplit(url)
+        if (
+            destination.scheme != "https"
+            or destination.hostname != "api.github.com"
+            or destination.port is not None
+            or destination.username is not None
+            or destination.password is not None
+        ):
+            raise GateError("Blocked non-HTTPS or non-GitHub API URL")
         headers = {
             "Authorization": "Bearer " + self.token,
             "Accept": "application/vnd.github+json",
@@ -81,6 +97,8 @@ class GitHubAPI:
             raise GateError("GitHub Actions evidence unavailable: " + str(exc)) from exc
 
     def runs(self, sha: str) -> list[dict]:
+        if not SHA_RE.fullmatch(sha):
+            raise GateError("Invalid SHA for GitHub Actions query")
         result: list[dict] = []
         for page in range(1, 5):
             query = parse.urlencode({"head_sha": sha, "per_page": 100, "page": page})
@@ -103,7 +121,35 @@ class GitHubAPI:
         return rows
 
 
-def select_run(runs: list[dict], requirement: Requirement, sha: str) -> dict | None:
+def validate_pr_context(pr_number: int, base_sha: str) -> None:
+    if pr_number < 0 or (bool(pr_number) != bool(base_sha)):
+        raise GateError("PR number and base SHA must be given together")
+    if base_sha and not SHA_RE.fullmatch(base_sha):
+        raise GateError("PR base must be an exact 40-character SHA")
+
+
+def belongs_to_pr(run: dict, pr_number: int, base_sha: str, sha: str) -> bool:
+    if pr_number <= 0 or not base_sha or run.get("event") != "pull_request":
+        return False
+    linked = run.get("pull_requests", [])
+    if not isinstance(linked, list):
+        return False
+    return any(
+        isinstance(pr, dict)
+        and pr.get("number") == pr_number
+        and isinstance(pr.get("base"), dict)
+        and pr["base"].get("sha") == base_sha
+        and isinstance(pr.get("head"), dict)
+        and pr["head"].get("sha") == sha
+        for pr in linked
+    )
+
+
+def select_run(
+    runs: list[dict], requirement: Requirement, sha: str,
+    pr_number: int = 0, base_sha: str = ""
+) -> dict | None:
+    validate_pr_context(pr_number, base_sha)
     candidates = []
     for run in runs:
         if not isinstance(run, dict) or run.get("head_sha") != sha:
@@ -111,18 +157,28 @@ def select_run(runs: list[dict], requirement: Requirement, sha: str) -> dict | N
         filename = str(run.get("path", "")).split("@", 1)[0].rsplit("/", 1)[-1]
         if filename != requirement.workflow:
             continue
-        if requirement.comparison and run.get("event") != "pull_request":
+        if requirement.comparison and not belongs_to_pr(run, pr_number, base_sha, sha):
             continue
+        # Never borrow results from another PR when auditing a PR.
+        if run.get("event") == "pull_request" and pr_number:
+            if not belongs_to_pr(run, pr_number, base_sha, sha):
+                continue
         candidates.append(run)
     return max(
         candidates,
-        key=lambda r: (str(r.get("created_at", "")), int(r.get("run_attempt", 0)), int(r.get("id", 0))),
+        # Older run may be retried after a newer run was created.
+        key=lambda r: (
+            str(r.get("run_started_at") or r.get("created_at") or ""),
+            int(r.get("run_attempt", 0)),
+            int(r.get("id", 0)),
+        ),
         default=None,
     )
 
 
 def assess_requirement(req: Requirement, installed: set[str],
-                       runs: list[dict], sha: str, jobs_loader) -> dict:
+                       runs: list[dict], sha: str, jobs_loader,
+                       pr_number: int = 0, base_sha: str = "") -> dict:
     info = {
         "number": req.number, "key": req.key, "workflow": req.workflow,
         "area": req.area, "job": req.job, "status": "MISSING_WORKFLOW",
@@ -131,7 +187,7 @@ def assess_requirement(req: Requirement, installed: set[str],
     if req.workflow not in installed:
         info["note"] = "Workflow not installed in the checked-out candidate revision"
         return info
-    run = select_run(runs, req, sha)
+    run = select_run(runs, req, sha, pr_number, base_sha)
     if run is None:
         info["status"] = "NO_RUN"
         info["note"] = (
@@ -162,19 +218,26 @@ def assess_requirement(req: Requirement, installed: set[str],
 
 
 def assess(installed: set[str], runs: list[dict], sha: str, jobs_loader,
-           checks: tuple[Requirement, ...] = REQUIREMENTS) -> dict:
-    details = [assess_requirement(req, installed, runs, sha, jobs_loader) for req in checks]
+           checks: tuple[Requirement, ...] = REQUIREMENTS,
+           pr_number: int = 0, base_sha: str = "") -> dict:
+    validate_pr_context(pr_number, base_sha)
+    details = [
+        assess_requirement(req, installed, runs, sha, jobs_loader, pr_number, base_sha)
+        for req in checks
+    ]
     passed = sum(item["status"] == "PASSED" for item in details)
     return {
         "status": "READY" if passed == len(details) else "BLOCKED",
         "candidate_sha": sha,
+        "pr_number": pr_number if pr_number > 0 else None,
+        "pr_base_sha": base_sha or None,
         "passed": passed,
         "total": len(details),
         "checks": details,
         "codeql": "OPTIONAL_NOT_COUNTED: private GitHub Code Security license not assumed",
         "limitations": [
             "Evidence must originate from the exact candidate commit.",
-            "Benchmark, visual comparison and SaveGuard only accept pull_request runs whose candidate is the checked SHA.",
+            "Benchmark, visual comparison and SaveGuard require matching PR number, candidate SHA and PR base SHA.",
             "A successful historical branch run cannot approve an unmerged main branch.",
             "GDScript Toolkit and Bandit are informational by their current policies, even when their jobs pass.",
             "This script does not enable branch protection or auto-merge; GitHub admins must configure required checks separately.",
@@ -214,13 +277,16 @@ def markdown_report(data: dict, mode: str) -> str:
 
 
 def run_gate(root: Path, repository: str, sha: str, mode: str,
-             output: Path, api: GitHubAPI) -> tuple[int, dict]:
+             output: Path, api: GitHubAPI,
+             pr_number: int = 0, base_sha: str = "") -> tuple[int, dict]:
     validate_identity(repository, sha)
+    validate_pr_context(pr_number, base_sha)
     workflow_dir = root / ".github" / "workflows"
     installed = {path.name for path in workflow_dir.glob("*.yml")} | {
         path.name for path in workflow_dir.glob("*.yaml")
     }
-    report = assess(installed, api.runs(sha), sha, api.jobs)
+    report = assess(installed, api.runs(sha), sha, api.jobs,
+                    pr_number=pr_number, base_sha=base_sha)
     report["mode"] = mode
     report["repository"] = repository
     output.mkdir(parents=True, exist_ok=True)
@@ -238,6 +304,8 @@ def main() -> int:
     parser.add_argument("--repository", default=os.environ.get("GITHUB_REPOSITORY", ""))
     parser.add_argument("--sha", default=os.environ.get("GITHUB_SHA", ""))
     parser.add_argument("--mode", choices=("audit", "enforce"), default="audit")
+    parser.add_argument("--pr-number", type=int, default=0)
+    parser.add_argument("--base-sha", default="")
     parser.add_argument("--project", type=Path, default=Path("."))
     parser.add_argument("--output", type=Path, default=Path("ci_artifacts/quality_gate"))
     args = parser.parse_args()
@@ -245,10 +313,11 @@ def main() -> int:
     output.mkdir(parents=True, exist_ok=True)
     try:
         validate_identity(args.repository, args.sha)
+        validate_pr_context(args.pr_number, args.base_sha)
         api = GitHubAPI(args.repository, os.environ.get("GITHUB_TOKEN", ""))
         code, report = run_gate(
             args.project.resolve(), args.repository, args.sha, args.mode,
-            output, api
+            output, api, args.pr_number, args.base_sha
         )
         print(
             "APEX_QUALITY_GATE_" + report["status"],
