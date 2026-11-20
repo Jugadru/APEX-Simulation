@@ -8,6 +8,8 @@ on:
       - '.github/workflows/apex-portraits-real-qa.yml'
       - 'tests/apex_portraits_2012_ci_fixtures_066843.gd'
       - 'tests/apex_portraits_2012_real_scene_066843.gd'
+      - 'tests/apex_portraits_2012_profile_viewer_066844.gd'
+      - 'scripts/apex_race_hud_0622.gd'
   workflow_dispatch:
 
 permissions:
@@ -69,6 +71,12 @@ jobs:
           timeout 240s godot --headless --path . --import 2>&1 | tee qa/portraits_ci/logs/import_fixtures.log
           timeout 120s godot --headless --path . --script res://tests/apex_portraits_2012_strict_066841_smoke.gd 2>&1 | tee qa/portraits_ci/logs/strict_48.log
           grep -Fq 'APEX_PORTRAIT_PACK_2012_STRICT_PASS' qa/portraits_ci/logs/strict_48.log
+      - name: Verify the 640x800 profile popup in real game using temporary fixtures
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 120s godot --headless --path . --script res://tests/apex_portraits_2012_profile_viewer_066844.gd 2>&1 | tee qa/portraits_ci/logs/profile_viewer.log
+          grep -Fq 'APEX_PROFILE_VIEWER_066844_PASS' qa/portraits_ci/logs/profile_viewer.log
       - name: Launch REAL racing scene and render actual HUD at 1600x900 and 1920x1080
         shell: bash
         run: |
