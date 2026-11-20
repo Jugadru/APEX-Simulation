@@ -9,6 +9,7 @@ Only GitHub Actions read permissions are needed.
 from __future__ import annotations
 
 import argparse
+from http import client
 from dataclasses import dataclass
 import json
 import os
@@ -17,7 +18,7 @@ import re
 import sys
 import time
 from typing import Any
-from urllib import error, parse, request
+from urllib import parse
 
 SHA_RE = re.compile(r"^[0-9a-fA-F]{40}$")
 REPO_RE = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
@@ -70,32 +71,34 @@ class GitHubAPI:
         self.token = token
 
     def get(self, suffix: str) -> Any:
+        # Pin the remote hostname at TLS connection time. Never follow HTTP
+        # redirects or accept a caller-provided host, scheme, or arbitrary path.
         if not re.fullmatch(
             r"/actions/runs(?:\?head_sha=[0-9a-fA-F]{40}&per_page=100&page=[1-4]|/[0-9]+/jobs\?per_page=100)",
             suffix,
         ):
             raise GateError("Blocked unexpected GitHub API endpoint")
-        url = "https://api.github.com/repos/" + self.repo + suffix
-        destination = parse.urlsplit(url)
-        if (
-            destination.scheme != "https"
-            or destination.hostname != "api.github.com"
-            or destination.port is not None
-            or destination.username is not None
-            or destination.password is not None
-        ):
-            raise GateError("Blocked non-HTTPS or non-GitHub API URL")
+        path = "/repos/" + self.repo + suffix
         headers = {
             "Authorization": "Bearer " + self.token,
             "Accept": "application/vnd.github+json",
             "X-GitHub-Api-Version": "2022-11-28",
             "User-Agent": "APEX-Quality-Gate/1.0",
         }
+        conn = client.HTTPSConnection("api.github.com", timeout=20)
         try:
-            with request.urlopen(request.Request(url, headers=headers), timeout=20) as response:
-                return json.load(response)
-        except (error.HTTPError, error.URLError, TimeoutError, ValueError) as exc:
+            conn.request("GET", path, headers=headers)
+            response = conn.getresponse()
+            if response.status != 200:
+                raise GateError(f"GitHub API rejected evidence request: HTTP {response.status}")
+            data = response.read(16 * 1024 * 1024 + 1)
+            if len(data) > 16 * 1024 * 1024:
+                raise GateError("GitHub Actions evidence exceeded size budget")
+            return json.loads(data)
+        except (client.HTTPException, OSError, ValueError) as exc:
             raise GateError("GitHub Actions evidence unavailable: " + str(exc)) from exc
+        finally:
+            conn.close()
 
     def runs(self, sha: str) -> list[dict]:
         if not SHA_RE.fullmatch(sha):
