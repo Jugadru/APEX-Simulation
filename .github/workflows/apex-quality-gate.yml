@@ -69,6 +69,7 @@ jobs:
             --repository "$GITHUB_REPOSITORY" \
             --sha "$APEX_TARGET_SHA" \
             --mode "$APEX_MODE" \
+            --wait-seconds 90 \
             --pr-number "$APEX_PR_NUMBER" \
             --base-sha "$APEX_BASE_SHA" \
             --project . \
