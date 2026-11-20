@@ -108,6 +108,19 @@ class PitWallAnalyzerContracts(unittest.TestCase):
         with self.assertRaisesRegex(analyzer.PitWallAnalyzerError, "NONDETERMINISTIC"):
             analyzer.same_run(first, second)
 
+    def test_full_radio_history_over_140_events_remains_auditable(self):
+        # Core 2 HUD keeps a small rolling buffer, but telemetry is unbounded.
+        # Verify the analyzer does not silently truncate meaningful evidence.
+        case = self.fixture()
+        case["radio"] = [
+            {"type": "strategy", "car_id": 5, "time": float(i),
+             "message": "Strategic event %d" % i}
+            for i in range(150)
+        ]
+        case["event_counts"] = {"strategy": 150}
+        validated = analyzer.validate_result(case, "ita_dry_auto", self.nom)
+        self.assertEqual(len(analyzer.analyze_case(validated)["evidence"]["radio_events"]), 150)
+
     def test_broken_classification_manual_order_and_tyre_are_failures(self):
         for patch in (
             {"classified": 23}, {"finished": False}, {"steps": 1800},
