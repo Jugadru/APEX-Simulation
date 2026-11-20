@@ -3,9 +3,11 @@ import json
 from pathlib import Path
 import sys
 import unittest
+from tempfile import TemporaryDirectory
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from compare_apex_benchmarks import BenchmarkError, parse_growth_log, summarize, verify_warmups
+from compare_apex_benchmarks import BenchmarkError, parse_growth_log, summarize, verify_warmups, resolve_godot_binary
 
 
 def make_log(ticks=500, block_ms=250.0, sporting_hash="stable"):
@@ -55,6 +57,34 @@ class BenchmarkComparatorTests(unittest.TestCase):
         sample = parse_growth_log(make_log(), 500)
         with self.assertRaises(BenchmarkError):
             verify_warmups({}, {"base": [sample], "candidate": [sample]})
+
+    def test_direct_elf_binary_is_accepted(self):
+        with TemporaryDirectory() as td:
+            binary = Path(td) / "godot"
+            binary.write_bytes(b"\x7fELF" + b"\x00" * 20)
+            with patch("compare_apex_benchmarks.shutil.which", return_value=str(binary)):
+                self.assertEqual(resolve_godot_binary("godot"), binary)
+
+    def test_setup_wrapper_points_to_verified_elf(self):
+        with TemporaryDirectory() as td:
+            home = Path(td)
+            binary = home / "Godot_v4.x-stable_linux.x86_64"
+            binary.write_bytes(b"\x7fELF" + b"\x00" * 20)
+            wrapper = home / "godot-wrapper"
+            wrapper.write_text('set -e\nxvfb-run --auto-servernum ' +
+                               str(binary) + ' "$@"\n', encoding="utf-8")
+            with patch("compare_apex_benchmarks.shutil.which", return_value=str(wrapper)):
+                self.assertEqual(resolve_godot_binary("godot"), binary)
+
+    def test_unsafe_wrapper_rejected_without_running_shell(self):
+        with TemporaryDirectory() as td:
+            home = Path(td)
+            wrapper = home / "godot-wrapper"
+            wrapper.write_text('xvfb-run --auto-servernum /tmp/godot;bad "$@"\n',
+                               encoding="utf-8")
+            with patch("compare_apex_benchmarks.shutil.which", return_value=str(wrapper)):
+                with self.assertRaises(BenchmarkError):
+                    resolve_godot_binary("godot")
 
     def test_identical_hash_and_script_allows_comparison(self):
         base = [parse_growth_log(make_log(block_ms=250), 500) for _ in range(3)]
