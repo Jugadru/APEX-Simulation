@@ -39,13 +39,38 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || inputs.candidate_ref || github.sha }}
           persist-credentials: false
 
+      - name: Escolher comparador de CI para branches historicas
+        shell: bash
+        run: |
+          set -euo pipefail
+          base_tool=base/tools/compare_apex_benchmarks.py
+          base_tests=base/tools/tests/test_compare_apex_benchmarks.py
+          candidate_tool=candidate/tools/compare_apex_benchmarks.py
+          candidate_tests=candidate/tools/tests/test_compare_apex_benchmarks.py
+          if [[ -f "$candidate_tool" || -f "$candidate_tests" ]]; then
+            # A candidate that modifies or partially carries the comparator
+            # MUST include both files; never mask incomplete code.
+            test -s "$candidate_tool"
+            test -s "$candidate_tests"
+            tool_root=candidate
+          else
+            # Older PR branches predate the comparator. Run the already
+            # merged, trusted CI tooling from the PR baseline instead.
+            test -s "$base_tool"
+            test -s "$base_tests"
+            tool_root=base
+            echo "Comparator unavailable on historical candidate: using baseline CI tooling." >> "$GITHUB_STEP_SUMMARY"
+          fi
+          echo "APEX_AB_TOOLS_ROOT=$tool_root" >> "$GITHUB_ENV"
+          echo "APEX A/B comparator source: $tool_root" >> "$GITHUB_STEP_SUMMARY"
+
       - name: Preparar Godot 4.7.2
         uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c # v3.0.1
         with:
           version: 4.7.2-stable
 
       - name: Testar o comparador sem Godot
-        run: python3 -m unittest discover -s candidate/tools/tests -p 'test_compare_apex_benchmarks.py' -v
+        run: python3 -m unittest discover -s "$APEX_AB_TOOLS_ROOT/tools/tests" -p 'test_compare_apex_benchmarks.py' -v
 
       - name: Importar referencia
         run: godot --headless --path base --import
@@ -75,7 +100,7 @@ jobs:
                 > "benchmark-ab/${label}-${index}.log" 2>&1
             done
           done
-          python3 candidate/tools/compare_apex_benchmarks.py \
+          python3 "$APEX_AB_TOOLS_ROOT/tools/compare_apex_benchmarks.py" \
             --base-dir base \
             --candidate-dir candidate \
             --ticks 1000 \
