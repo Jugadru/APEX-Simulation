@@ -6,10 +6,12 @@ from pathlib import Path
 import sys
 from tempfile import TemporaryDirectory
 import unittest
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from apex_saveguard_ci import SaveGuardError, find_exact, marker_json, markdown, validate_result
 
+from apex_saveguard_ci import resolve_godot_binary
 
 def example():
     return {
@@ -95,6 +97,33 @@ class SaveGuardContracts(unittest.TestCase):
 
     def test_documentation_does_not_claim_auto_restore(self):
         self.assertIn("não o restaura sozinha", markdown({**example(), "checks": 42}))
+
+    def test_verified_godot_elf_and_setup_wrapper(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            binary = root / "Godot_v4.7.2-stable_linux.x86_64"
+            binary.write_bytes(b"\x7fELF" + b"\x00" * 20)
+            wrapper = root / "godot-wrapper"
+            wrapper.write_text(
+                'set -e\nxvfb-run --auto-servernum ' + str(binary) + ' "$@"\n',
+                encoding="utf-8",
+            )
+            with patch("apex_saveguard_ci.shutil.which", return_value=str(wrapper)):
+                self.assertEqual(resolve_godot_binary("godot"), str(binary))
+            with patch("apex_saveguard_ci.shutil.which", return_value=str(binary)):
+                self.assertEqual(resolve_godot_binary("godot"), str(binary))
+
+    def test_untrusted_shell_line_must_be_rejected(self):
+        with TemporaryDirectory() as td:
+            wrapper = Path(td) / "godot-wrapper"
+            wrapper.write_text(
+                'xvfb-run --auto-servernum /tmp/godot;rm -rf . "$@"\n',
+                encoding="utf-8",
+            )
+            with patch("apex_saveguard_ci.shutil.which", return_value=str(wrapper)):
+                with self.assertRaises(SaveGuardError):
+                    resolve_godot_binary("godot")
+
 
 
 if __name__ == "__main__":
