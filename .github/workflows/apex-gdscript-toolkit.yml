@@ -34,8 +34,24 @@ jobs:
             -p 'test_gdscript_style_audit.py' -v
 
       - name: Auditar scripts proprios sem alterar arquivos
+        shell: bash
         run: |
+          set -euo pipefail
+          mkdir -p ci_artifacts/gdscript-toolkit
+          mapfile -d '' gd_files < <(find scripts -type f -name '*.gd' -print0 | LC_ALL=C sort -z)
+          test "${#gd_files[@]}" -gt 0
+
+          gdlint --version > ci_artifacts/gdscript-toolkit/version.log 2>&1
+          set +e
+          gdlint "${gd_files[@]}" > ci_artifacts/gdscript-toolkit/gdlint.log 2>&1
+          lint_status=$?
+          gdformat --check "${gd_files[@]}" > ci_artifacts/gdscript-toolkit/gdformat.log 2>&1
+          format_status=$?
+          set -e
+
           python tools/gdscript_style_audit.py \
+            --gdlint-status "$lint_status" \
+            --gdformat-status "$format_status" \
             --output-dir ci_artifacts/gdscript-toolkit
           git diff --exit-code -- scripts
 
