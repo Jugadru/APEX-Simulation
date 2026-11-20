@@ -15,6 +15,7 @@ import os
 from pathlib import Path
 import re
 import sys
+import time
 from typing import Any
 from urllib import error, parse, request
 
@@ -306,6 +307,10 @@ def main() -> int:
     parser.add_argument("--mode", choices=("audit", "enforce"), default="audit")
     parser.add_argument("--pr-number", type=int, default=0)
     parser.add_argument("--base-sha", default="")
+    parser.add_argument(
+        "--wait-seconds", type=int, default=0,
+        help="Bounded retry for still-pending workflows (never treats missing as success)",
+    )
     parser.add_argument("--project", type=Path, default=Path("."))
     parser.add_argument("--output", type=Path, default=Path("ci_artifacts/quality_gate"))
     args = parser.parse_args()
@@ -315,10 +320,25 @@ def main() -> int:
         validate_identity(args.repository, args.sha)
         validate_pr_context(args.pr_number, args.base_sha)
         api = GitHubAPI(args.repository, os.environ.get("GITHUB_TOKEN", ""))
-        code, report = run_gate(
-            args.project.resolve(), args.repository, args.sha, args.mode,
-            output, api, args.pr_number, args.base_sha
-        )
+        if not 0 <= args.wait_seconds <= 180:
+            raise GateError("wait-seconds must be between 0 and 180")
+        deadline = time.monotonic() + args.wait_seconds
+        while True:
+            code, report = run_gate(
+                args.project.resolve(), args.repository, args.sha, args.mode,
+                output, api, args.pr_number, args.base_sha
+            )
+            # Never wait when dependent workflows are not installed; report
+            # the correct MISSING_WORKFLOW state immediately.
+            statuses = {item["status"] for item in report["checks"]}
+            if (
+                report["status"] == "READY"
+                or "MISSING_WORKFLOW" in statuses
+                or not statuses.intersection({"NO_RUN", "PENDING"})
+                or time.monotonic() >= deadline
+            ):
+                break
+            time.sleep(min(15.0, max(0.0, deadline - time.monotonic())))
         print(
             "APEX_QUALITY_GATE_" + report["status"],
             json.dumps({"mode": args.mode, "sha": args.sha, "passed": report["passed"],
