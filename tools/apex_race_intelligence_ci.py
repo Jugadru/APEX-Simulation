@@ -12,6 +12,8 @@ import argparse
 import json
 import os
 from pathlib import Path
+import re
+import shutil
 import subprocess
 import sys
 from tempfile import TemporaryDirectory
@@ -84,6 +86,31 @@ def check_repeated(first: dict[str, Any], second: dict[str, Any]) -> None:
             )
 
 
+def resolve_godot_binary(executable: str) -> str:
+    """Resolve the real Godot ELF, never passing arguments to a shell."""
+    command = shutil.which(executable)
+    if not command:
+        raise IntelligenceError(f"Godot executable not found: {executable}")
+    candidate = Path(command).resolve(strict=True)
+    if not candidate.is_file():
+        raise IntelligenceError("Godot executable path is not a file")
+    with candidate.open("rb") as stream:
+        if stream.read(4) == b"\x7fELF":
+            return str(candidate)
+    # The pinned Godot Setup action exposes a known wrapper without a shebang.
+    for line in candidate.read_text(encoding="utf-8").splitlines():
+        match = re.fullmatch(
+            r'xvfb-run --auto-servernum (/[A-Za-z0-9_./+-]+) "\$@"',
+            line.strip(),
+        )
+        if match:
+            direct = Path(match.group(1)).resolve(strict=True)
+            with direct.open("rb") as stream:
+                if stream.read(4) == b"\x7fELF":
+                    return str(direct)
+    raise IntelligenceError("Expected Godot ELF or verified Godot Setup wrapper")
+
+
 def run_godot(
     root: Path, executable: str, script: str, label: str,
     output: Path, home: Path, extra_env: dict[str, str], timeout: int,
@@ -101,10 +128,9 @@ def run_godot(
         p = home / subdir
         p.mkdir(parents=True, exist_ok=True)
         env[var] = str(p)
-    # godot-setup provides a shell launcher, not necessarily an ELF binary.
     command = [
-        "bash", "-c", '"$1" --headless --path "$2" --script "$3"',
-        "apex-rit", executable, str(root), "res://" + script,
+        resolve_godot_binary(executable), "--headless", "--path", str(root),
+        "--script", "res://" + script,
     ]
     try:
         result = subprocess.run(
