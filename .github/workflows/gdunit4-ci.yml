@@ -19,6 +19,7 @@ jobs:
       # A acao oficial gerencia o Godot e publica resultados da suite.
       # GdUnit4 6.x requer --ignoreHeadlessMode para execucao headless.
       # SHA do action v1 verificado no repositorio oficial antes da integracao.
+      # Auditoria Quality Gate usa a main atual, sem depender do SHA base legado.
       - name: Executar GdUnit4
         uses: godot-gdunit-labs/gdUnit4-action@379a0b1e41f07246c3d58b7e253bc4f1b90094c9 # v1
         with:
