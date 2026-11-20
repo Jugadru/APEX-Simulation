@@ -12,7 +12,9 @@ on:
           - '10000'
         default: '6000'
   pull_request:
+    # Include project configuration changes that may affect test behavior.
     paths:
+      - 'project.godot'
       - 'scripts/**'
       - 'data/**'
       - 'tests/high_speed_growth_066723_benchmark.gd'
@@ -42,7 +44,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Instalar Godot 4.7.2
-        uses: lihop/godot-setup@v3.0.1
+        uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c # v3.0.1
         with:
           version: 4.7.2-stable
 
