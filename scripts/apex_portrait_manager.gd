@@ -7,6 +7,7 @@ extends Node
 signal status_changed(message: String)
 signal portraits_finished()
 
+const PortraitLocal = preload("res://scripts/apex_portrait_local_2012.gd")
 const MANIFEST := "res://data/driver_identity_2012.json"
 const CACHE_FOLDER := "user://apex_driver_portraits_2012"
 const MAX_IMAGE_BYTES := 2500000
@@ -17,7 +18,9 @@ const MAX_TRANSIENT_RETRIES := 4
 var status := "Retratos 2012: clique para baixar fotografias individuais (Wikimedia Commons)."
 var download_state := "idle"
 var _entries: Dictionary = {}
+var _entries_by_slug: Dictionary = {}
 var _textures: Dictionary = {}
+var _local_names: Dictionary = {}
 var _requests: Array[String] = []
 var _active_name := ""
 var _image_url := ""
@@ -31,6 +34,8 @@ var _http: HTTPRequest
 
 func _ready() -> void:
 	_load_catalogue()
+	if PortraitLocal.available_count() > 0:
+		status = "APEX Retratos 2012: %d arquivos locais de HUD disponíveis." % PortraitLocal.available_count()
 	_http = HTTPRequest.new()
 	_http.name = "LicensedPortraitRequest"
 	_http.timeout = 20.0
@@ -42,6 +47,7 @@ func _ready() -> void:
 
 func _load_catalogue() -> void:
 	_entries.clear()
+	_entries_by_slug.clear()
 	if not FileAccess.file_exists(MANIFEST):
 		status = "Catálogo 2012 indisponível; iniciais preservadas."
 		return
@@ -55,29 +61,39 @@ func _load_catalogue() -> void:
 		var name: String = str(item.get("name", ""))
 		if not name.is_empty():
 			_entries[name] = item.duplicate(true)
+			_entries_by_slug[PortraitLocal.driver_id(name)] = item.duplicate(true)
+
+func _entry_for(driver_name: String) -> Dictionary:
+	if _entries.has(driver_name):
+		return _entries[driver_name]
+	return _entries_by_slug.get(PortraitLocal.driver_id(driver_name), {})
 
 func get_info(driver_name: String) -> Dictionary:
-	return _entries.get(driver_name, {}).duplicate(true)
+	return _entry_for(driver_name).duplicate(true)
 
 func get_abbreviation(driver_name: String) -> String:
 	# The curated 2012 code is authoritative; unknown drivers use a UI fallback.
-	return str(_entries.get(driver_name, {}).get("abbr", ""))
+	return str(_entry_for(driver_name).get("abbr", ""))
 
 func get_credit(driver_name: String) -> String:
-	var info: Dictionary = _entries.get(driver_name, {})
+	if _local_names.has(driver_name) or PortraitLocal.has_texture(driver_name):
+		return "Retrato original fornecido pelo usuário; direitos de redistribuição não verificados."
+	var info: Dictionary = _entry_for(driver_name)
 	if info.is_empty():
 		return ""
 	return "Foto: %s · %s · Wikimedia Commons" % [
 		str(info.get("photographer", "")), str(info.get("license", ""))]
 
 func get_source_url(driver_name: String) -> String:
-	var info: Dictionary = _entries.get(driver_name, {})
+	if _local_names.has(driver_name) or PortraitLocal.has_texture(driver_name):
+		return ""
+	var info: Dictionary = _entry_for(driver_name)
 	if info.is_empty():
 		return ""
 	return "https://commons.wikimedia.org/wiki/File:" + str(info.get("source_file", "")).replace(" ", "_").uri_encode()
 
 func _cache_file(driver_name: String) -> String:
-	var entry: Dictionary = _entries.get(driver_name, {})
+	var entry: Dictionary = _entry_for(driver_name)
 	if entry.is_empty():
 		return ""
 	return CACHE_FOLDER + "/driver_%02d.jpg" % int(entry.get("number", 0))
@@ -88,6 +104,11 @@ func has_photo(driver_name: String) -> bool:
 func get_photo(driver_name: String) -> Texture2D:
 	if _textures.has(driver_name):
 		return _textures[driver_name]
+	var bundled: Texture2D = PortraitLocal.get_texture(driver_name, "hud")
+	if bundled != null:
+		_textures[driver_name] = bundled
+		_local_names[driver_name] = true
+		return bundled
 	var path: String = _cache_file(driver_name)
 	if path.is_empty() or not FileAccess.file_exists(path):
 		return null
@@ -100,6 +121,12 @@ func get_photo(driver_name: String) -> Texture2D:
 	_textures[driver_name] = texture
 	return texture
 
+func get_profile_photo(driver_name: String) -> Texture2D:
+	var local_profile: Texture2D = PortraitLocal.get_texture(driver_name, "profile")
+	if local_profile != null:
+		return local_profile
+	return get_photo(driver_name)
+
 func download_for_team(driver_names: Array[String]) -> void:
 	if download_state == "running":
 		status_changed.emit("Download de retratos já está em andamento.")
@@ -111,7 +138,7 @@ func download_for_team(driver_names: Array[String]) -> void:
 	_requests.clear()
 	var added: Dictionary = {}
 	for name in driver_names:
-		if added.has(name) or not _entries.has(name):
+		if added.has(name) or _entry_for(name).is_empty():
 			continue
 		added[name] = true
 		if not has_photo(name):
@@ -148,7 +175,7 @@ func _next_portrait() -> void:
 	_active_name = _requests.pop_front()
 	_transient_retries = 0
 	_image_url = ""
-	var info: Dictionary = _entries.get(_active_name, {})
+	var info: Dictionary = _entry_for(_active_name)
 	var name: String = "File:" + str(info.get("source_file", ""))
 	# The API supplies a thumb URL and a per-file copyright statement.
 	var endpoint: String = "https://commons.wikimedia.org/w/api.php?action=query&format=json&formatversion=2&titles=" \

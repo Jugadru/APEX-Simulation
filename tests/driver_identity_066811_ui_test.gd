@@ -55,7 +55,8 @@ func run() -> void:
 	check(hud.radio_portrait_placeholder.visible == (image == null), "Initials on missing photo")
 	check(hud.radio_portrait_placeholder.text == str(info.get("abbr", "---")), "Official initials in radio fallback")
 	if image != null:
-		check(str(hud.radio_identity_info.text).contains("Gussisaurio"), "Photo visible with attribution")
+		var photo_credit: String = game.portrait_manager.get_credit(player_name)
+		check(not photo_credit.is_empty() and str(hud.radio_identity_info.text).contains(photo_credit), "Photo visible with correct source attribution")
 	else:
 		check(str(hud.radio_identity_info.text).contains("apenas iniciais"), "No-photo state never shows a vehicle")
 	check(game.replay_session.commands.size() == 0, "No sports command created by identity UI")

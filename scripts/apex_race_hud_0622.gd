@@ -65,6 +65,8 @@ var radio_response_label: Label
 var radio_portrait_texture: TextureRect
 var radio_portrait_placeholder: Label
 var radio_identity_info: Label
+var driver_profile_panel_2012: PanelContainer
+var driver_profile_photo_2012: TextureRect
 var radio_history: RichTextLabel
 var radio_category: int = 0
 var radio_category_buttons: Array[Button] = []
@@ -240,6 +242,15 @@ func _create_ui() -> void:
 		stripe.custom_minimum_size = Vector2(3, 20)
 		stripe.color = MUTED
 		row.add_child(stripe)
+		# 2012 portrait pack — one cached thumbnail per visible ranking row.
+		# This is presentation-only: no race tick, strategy or position changes.
+		var portrait := TextureRect.new()
+		portrait.custom_minimum_size = Vector2(22, 24)
+		portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		portrait.visible = false
+		row.add_child(portrait)
 		var pos := _text(row, "%d" % (i + 1), 13, MUTED)
 		pos.custom_minimum_size.x = 20
 		var driver := _btn(row, "---", _select_grid_car.bind(i), 43)
@@ -259,7 +270,7 @@ func _create_ui() -> void:
 		var detail := _text(row, "—", 12, WHITE)
 		detail.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		detail.custom_minimum_size.x = 66
-		standing_rows.append({"row":row, "stripe":stripe, "pos":pos, "driver":driver,
+		standing_rows.append({"row":row, "stripe":stripe, "portrait":portrait, "pos":pos, "driver":driver,
 			"tyre":tyre, "state":state, "detail":detail})
 
 	weather_box = _panel(self)
@@ -721,6 +732,17 @@ func refresh_hud() -> void:
 		if i >= order.size():
 			continue
 		var car: Dictionary = order[i]
+		var mini: TextureRect = row["portrait"]
+		if host.portrait_manager != null:
+			# The PortraitManager caches textures; the ranking does not decode PNG every tick.
+			var driver_name: String = str(car.get("name", ""))
+			var photo: Texture2D = host.portrait_manager.get_photo(driver_name)
+			if mini.texture != photo:
+				mini.texture = photo
+				mini.tooltip_text = driver_name
+			mini.visible = photo != null
+		elif mini.visible:
+			mini.visible = false
 		var official_abbr: String = ""
 		if host.portrait_manager != null:
 			official_abbr = host.portrait_manager.get_abbreviation(str(car.get("name", "")))
@@ -949,6 +971,7 @@ func _close_window() -> void:
 	large_area.hide()
 
 func _open_window(which: String) -> void:
+	_close_profile_2012()
 	if active_window == which:
 		_close_window()
 		return
@@ -1130,10 +1153,10 @@ func _build_radio_window() -> void:
 	radio_only_button = _btn(driver_line, "SÓ ESTE: NÃO", _toggle_radio_driver_filter, 119)
 	radio_only_button.tooltip_text = "Filtrar as mensagens de Equipe e Pilotos pelo piloto selecionado"
 	_refresh_radio_filter_button()
-	# Driver Identity Pack 2012 — portrait is a real person, downloaded by
-	# the user from Wikimedia Commons; otherwise display neutral initials.
+	# Portrait Pack 2012 — prefer locally supplied originals when installed.
+	# Wikimedia download and neutral initials remain safe fallbacks.
 	var identity_row := _line(overlay_content, 10)
-	var identity_frame := _panel(identity_row, Color("#101C2A"))
+	var identity_frame := _panel(identity_row, Color("#181b21"))
 	var identity_box := _column(identity_frame, 1)
 	radio_portrait_texture = TextureRect.new()
 	radio_portrait_texture.custom_minimum_size = Vector2(90, 110)
@@ -1147,6 +1170,10 @@ func _build_radio_window() -> void:
 	radio_identity_info.custom_minimum_size = Vector2(260, 60)
 	radio_identity_info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_refresh_radio_identity()
+	var profile_button: Button = _btn(identity_row, "VER PERFIL", _show_profile_2012, 122)
+	profile_button.tooltip_text = "Abrir o retrato completo 640×800 do piloto selecionado; sem alterar a corrida"
+	profile_button.custom_minimum_size.y = 32.0
+	profile_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	var questions := _line(overlay_content, 5)
 	for topic in ["pneus", "ritmo", "trafego", "box"]:
 		var button := _btn(questions, str(EngineerInteractive.QUESTIONS[topic]), _ask_engineer.bind(topic))
@@ -1209,6 +1236,60 @@ func _set_radio_category(index: int) -> void:
 	_refresh_radio_filter_button()
 	_refresh_interactive_history()
 
+func _show_profile_2012() -> void:
+	# A foto 640x800 é um recurso local de apresentação, nunca um dado esportivo.
+	if host == null or host.race == null or host.portrait_manager == null or radio_driver_picker == null:
+		return
+	var selected: int = radio_driver_picker.selected
+	if selected < 0 or selected >= radio_driver_ids.size():
+		return
+	var driver_id: int = radio_driver_ids[selected]
+	var driver_name: String = ""
+	for car in host.race.player_cars():
+		if int(car.get("id", -1)) == driver_id:
+			driver_name = str(car.get("name", ""))
+			break
+	if driver_name.is_empty():
+		return
+	var image: Texture2D = host.portrait_manager.get_profile_photo(driver_name)
+	if image == null:
+		return
+	_close_profile_2012()
+	var p: PanelContainer = _panel(self, Color("#111923"))
+	p.name = "DriverProfile2012"
+	p.z_index = 100
+	p.mouse_filter = Control.MOUSE_FILTER_STOP
+	p.set_anchors_preset(Control.PRESET_CENTER)
+	p.offset_left = -220.0
+	p.offset_right = 220.0
+	p.offset_top = -335.0
+	p.offset_bottom = 335.0
+	var body: VBoxContainer = _column(p, 8)
+	var title_line: HBoxContainer = _line(body, 8)
+	var header: Label = _text(title_line, driver_name + "  •  2012", 17, ACCENT)
+	header.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_btn(title_line, "×", _close_profile_2012, 32)
+	var photo: TextureRect = TextureRect.new()
+	photo.name = "ProfileImage"
+	photo.texture = image
+	photo.custom_minimum_size = Vector2(390, 505)
+	photo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	photo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	photo.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	photo.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body.add_child(photo)
+	_text(body, "Fotografia original fornecida pelo usuário. Uso e direitos de distribuição ainda em revisão.", 10, MUTED).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	var actions: HBoxContainer = _line(body, 6)
+	_btn(actions, "FECHAR PERFIL", _close_profile_2012, 160)
+	driver_profile_panel_2012 = p
+	driver_profile_photo_2012 = photo
+
+func _close_profile_2012() -> void:
+	if is_instance_valid(driver_profile_panel_2012):
+		driver_profile_panel_2012.queue_free()
+	driver_profile_panel_2012 = null
+	driver_profile_photo_2012 = null
+
 func _refresh_radio_identity() -> void:
 	if radio_portrait_texture == null or not is_instance_valid(radio_portrait_texture):
 		return
@@ -1238,9 +1319,9 @@ func _refresh_radio_identity() -> void:
 		str(info.get("abbr", "---")), str(info.get("country", "---"))]
 	if photo != null:
 		detail += "\n" + host.portrait_manager.get_credit(driver_name)
-		radio_portrait_texture.tooltip_text = host.portrait_manager.get_source_url(driver_name)
+		radio_portrait_texture.tooltip_text = host.portrait_manager.get_credit(driver_name) + " " + host.portrait_manager.get_source_url(driver_name)
 	else:
-		detail += "\nFoto ainda não baixada: apenas iniciais, sem carros."
+		detail += "\nRetrato não instalado ou indisponível: iniciais preservadas."
 	radio_identity_info.text = detail
 
 func _radio_driver_changed(_index: int) -> void:
