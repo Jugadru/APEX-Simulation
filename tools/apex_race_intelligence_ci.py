@@ -9,14 +9,10 @@ No edits to game scripts, saves, physics or player configuration.
 from __future__ import annotations
 
 import argparse
-import asyncio
 import json
-import os
 from pathlib import Path
 import re
-import shutil
 import sys
-from tempfile import TemporaryDirectory
 from typing import Any
 
 PROBE = "tests/ci/apex_race_intelligence_probe.gd"
@@ -86,124 +82,52 @@ def check_repeated(first: dict[str, Any], second: dict[str, Any]) -> None:
             )
 
 
-def resolve_godot_binary(executable: str) -> str:
-    """Resolve the real Godot ELF, never passing arguments to a shell."""
-    command = shutil.which(executable)
-    if not command:
-        raise IntelligenceError(f"Godot executable not found: {executable}")
-    candidate = Path(command).resolve(strict=True)
-    if not candidate.is_file():
-        raise IntelligenceError("Godot executable path is not a file")
-    with candidate.open("rb") as stream:
-        if stream.read(4) == b"\x7fELF":
-            return str(candidate)
-    # The pinned Godot Setup action exposes a known wrapper without a shebang.
-    for line in candidate.read_text(encoding="utf-8").splitlines():
-        match = re.fullmatch(
-            r'xvfb-run --auto-servernum (/[A-Za-z0-9_./+-]+) "\$@"',
-            line.strip(),
-        )
-        if match:
-            direct = Path(match.group(1)).resolve(strict=True)
-            with direct.open("rb") as stream:
-                if stream.read(4) == b"\x7fELF":
-                    return str(direct)
-    raise IntelligenceError("Expected Godot ELF or verified Godot Setup wrapper")
+def read_ci_log(output: Path, label: str) -> str:
+    """Read CI-generated Godot log; no process execution from report parser."""
+    if not re.fullmatch(r"[a-z][a-z0-9_]*", label):
+        raise IntelligenceError("Invalid CI run label")
+    path = output / (label + ".log")
+    if not path.is_file():
+        raise IntelligenceError(f"Missing CI-generated Godot log: {path.name}")
+    if path.stat().st_size > 16 * 1024 * 1024:
+        raise IntelligenceError(f"Oversized Godot log: {path.name}")
+    return path.read_text(encoding="utf-8", errors="replace")
 
 
-def run_godot(
-    root: Path, executable: str, script: str, label: str,
-    output: Path, home: Path, extra_env: dict[str, str], timeout: int,
-) -> str:
-    output.mkdir(parents=True, exist_ok=True)
-    env = os.environ.copy()
-    env.update(extra_env)
-    home.mkdir(parents=True, exist_ok=True)
-    env["HOME"] = str(home)
-    for var, subdir in (
-        ("XDG_DATA_HOME", "data"),
-        ("XDG_CONFIG_HOME", "config"),
-        ("XDG_CACHE_HOME", "cache"),
-    ):
-        p = home / subdir
-        p.mkdir(parents=True, exist_ok=True)
-        env[var] = str(p)
-    command = [
-        resolve_godot_binary(executable), "--headless", "--path", str(root),
-        "--script", "res://" + script,
-    ]
-    async def invoke_verified_godot() -> tuple[int, str, str]:
-        # Verified Godot ELF, fixed scenario scripts, isolated HOME/XDG,
-        # no shell expansion or arbitrary command execution.
-        process = await asyncio.create_subprocess_exec(  # nosemgrep: python.lang.security.audit.dangerous-asyncio-create-exec-audit, python.lang.security.audit.dangerous-asyncio-create-exec-tainted-env-args
-            *command, env=env,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-        )
-        try:
-            stdout, stderr = await asyncio.wait_for(
-                process.communicate(), timeout=timeout
-            )
-        except TimeoutError as exc:
-            process.kill()
-            await process.communicate()
-            raise IntelligenceError(f"label: Godot exceeded {timeout} seconds") from exc
-        return (
-            int(process.returncode),
-            stdout.decode("utf-8", errors="replace"),
-            stderr.decode("utf-8", errors="replace"),
-        )
-
-    try:
-        exit_code, stdout, stderr = asyncio.run(invoke_verified_godot())
-    except OSError as exc:
-        raise IntelligenceError(f"label: Godot did not start: {exc}") from exc
-    log = stdout + ("\n" if stdout and stderr else "") + stderr
-    (output / (label + ".log")).write_text(log, encoding="utf-8")
-    if exit_code:
-        raise IntelligenceError(f"{label}: Godot exit {exit_code}; check log")
-    return log
-
-
-def execute(root: Path, godot: str, output: Path, timeout: int) -> dict[str, Any]:
+def execute(root: Path, output: Path) -> dict[str, Any]:
+    if not (root / "project.godot").is_file():
+        raise IntelligenceError("APEX project.godot missing")
     observations: dict[str, Any] = {"status": "PASS", "scenarios": {}, "targeted": {}}
-    with TemporaryDirectory(prefix="apex-rit-") as directory:
-        tmp = Path(directory)
-        for name, script, marker in SMOKE_TESTS:
-            print(f"APEX_RIT_TARGETED_START {name}", flush=True)
-            log = run_godot(root, godot, script, "targeted_" + name, output,
-                            tmp / ("targeted_" + name), {}, timeout)
-            if marker not in log:
-                raise IntelligenceError(f"{name}: missing existing test PASS marker")
-            if name == "same_tick_pit":
-                evidence = parse_marker(log, marker)
-                if evidence.get("pass") is not True or evidence.get("errors") != []:
-                    raise IntelligenceError(f"{name}: scheduled-pit test failed")
-            observations["targeted"][name] = "PASS"
-            print(f"APEX_RIT_TARGETED_PASS {name}", flush=True)
-        for scenario in SCENARIOS:
-            values = []
-            for rep in (1, 2):
-                label = f"{scenario}_{rep}"
-                print(f"APEX_RIT_SCENARIO_START {label}", flush=True)
-                log = run_godot(
-                    root, godot, PROBE, label, output, tmp / label,
-                    {"APEX_RIT_SCENARIO": scenario}, timeout,
-                )
-                evidence = validate_probe(parse_marker(log, "APEX_RIT_RESULT "), scenario)
-                values.append(evidence)
-                print(f"APEX_RIT_SCENARIO_PASS {label} hash={evidence['hash']}", flush=True)
-            check_repeated(values[0], values[1])
-            observations["scenarios"][scenario] = {
-                "runs": 2, "hash": values[0]["hash"],
-                "pits_total": values[0]["pits_total"],
-                "on_track_pass_events": values[0]["on_track_pass_events"],
-                "radio_events": values[0]["radio_events"],
-                "ai_plan_samples": values[0]["ai_plan_samples"],
-                "manual_v7_pits": values[0]["manual_v7_pits"],
-                "wetness_peak": values[0]["wetness_peak"],
-                "steps": values[0]["steps"],
-            }
+    for name, script, marker in SMOKE_TESTS:
+        print(f"APEX_RIT_TARGETED_CHECK {name}", flush=True)
+        log = read_ci_log(output, "targeted_" + name)
+        if marker not in log:
+            raise IntelligenceError(f"{name}: missing existing test PASS marker")
+        if name == "same_tick_pit":
+            evidence = parse_marker(log, marker)
+            if evidence.get("pass") is not True or evidence.get("errors") != []:
+                raise IntelligenceError(f"{name}: scheduled-pit test failed")
+        observations["targeted"][name] = "PASS"
+        print(f"APEX_RIT_TARGETED_PASS {name}", flush=True)
+    for scenario in SCENARIOS:
+        values = []
+        for rep in (1, 2):
+            label = f"{scenario}_{rep}"
+            log = read_ci_log(output, label)
+            evidence = validate_probe(parse_marker(log, "APEX_RIT_RESULT "), scenario)
+            values.append(evidence)
+            print(f"APEX_RIT_SCENARIO_PASS {label} hash={evidence['hash']}", flush=True)
+        check_repeated(values[0], values[1])
+        observations["scenarios"][scenario] = {
+            "runs": 2, "hash": values[0]["hash"],
+            "pits_total": values[0]["pits_total"],
+            "on_track_pass_events": values[0]["on_track_pass_events"],
+            "radio_events": values[0]["radio_events"],
+            "ai_plan_samples": values[0]["ai_plan_samples"],
+            "manual_v7_pits": values[0]["manual_v7_pits"],
+            "wetness_peak": values[0]["wetness_peak"],
+            "steps": values[0]["steps"],
+        }
     observations["limitations"] = [
         "10-lap headless simulation; not a full race season or proof of strategic quality.",
         "Overtaking, radio and pit frequency are measured, not automatically scored as realism.",
@@ -242,14 +166,12 @@ def markdown(report: dict[str, Any]) -> str:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--project", type=Path, default=Path("."))
-    ap.add_argument("--godot", default="godot")
     ap.add_argument("--output", type=Path, default=Path("ci_artifacts/race_intelligence"))
-    ap.add_argument("--timeout", type=int, default=150)
     args = ap.parse_args()
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=True)
     try:
-        result = execute(args.project.resolve(), args.godot, output, args.timeout)
+        result = execute(args.project.resolve(), output)
         (output / "report.json").write_text(
             json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
         )
