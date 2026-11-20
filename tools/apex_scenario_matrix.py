@@ -202,7 +202,7 @@ def _markdown(data: dict[str, Any]) -> str:
     for item in data["results"]:
         lines.append(
             f"| {item['track']} | {item['weather']} | {item['mode']} | "
-            f"{item['seed']} | \`{item['race_hash'][:12]}\` | "
+            f"{item['seed']} | `{item['race_hash'][:12]}` | "
             f"{item['pits_total']} | {len(item['warnings'])} |"
         )
     lines.extend([
