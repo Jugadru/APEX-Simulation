@@ -13,6 +13,8 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
+import shutil
 import subprocess
 import sys
 from tempfile import TemporaryDirectory
@@ -88,6 +90,31 @@ def find_exact(home_data: Path, name: str) -> Path:
     return matches[0]
 
 
+def resolve_godot_binary(executable: str) -> str:
+    """Resolve the real Godot ELF, never passing arguments to a shell."""
+    command = shutil.which(executable)
+    if not command:
+        raise SaveGuardError(f"Godot executable not found: {executable}")
+    candidate = Path(command).resolve(strict=True)
+    if not candidate.is_file():
+        raise SaveGuardError("Godot executable path is not a file")
+    with candidate.open("rb") as stream:
+        if stream.read(4) == b"\x7fELF":
+            return str(candidate)
+    # The pinned Godot Setup action exposes a known wrapper without a shebang.
+    for line in candidate.read_text(encoding="utf-8").splitlines():
+        match = re.fullmatch(
+            r'xvfb-run --auto-servernum (/[A-Za-z0-9_./+-]+) "\$@"',
+            line.strip(),
+        )
+        if match:
+            direct = Path(match.group(1)).resolve(strict=True)
+            with direct.open("rb") as stream:
+                if stream.read(4) == b"\x7fELF":
+                    return str(direct)
+    raise SaveGuardError("Expected Godot ELF or verified Godot Setup wrapper")
+
+
 def run_script(project: Path, godot: str, script: str, label: str,
                output: Path, home: Path, overrides: dict[str, str],
                timeout: int) -> str:
@@ -102,11 +129,9 @@ def run_script(project: Path, godot: str, script: str, label: str,
         directory = home / folder
         directory.mkdir(parents=True, exist_ok=True)
         env[field] = str(directory)
-    # Godot setup may expose a shell wrapper rather than a directly
-    # executable ELF file. Use bash to launch it consistently in CI.
     cmd = [
-        "bash", "-c", '"$1" --headless --path "$2" --script "$3"',
-        "apex-saveguard", godot, str(project), "res://" + script,
+        resolve_godot_binary(godot), "--headless", "--path", str(project),
+        "--script", "res://" + script,
     ]
     try:
         proc = subprocess.run(
