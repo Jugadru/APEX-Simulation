@@ -6,7 +6,6 @@ from pathlib import Path
 import sys
 from tempfile import TemporaryDirectory
 import unittest
-from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from apex_endurance_ci import (
@@ -14,7 +13,7 @@ from apex_endurance_ci import (
     parse_full_gp, parse_growth, read_linux_rss_bytes, write_report,
 )
 
-from apex_endurance_ci import resolve_godot_binary
+from apex_endurance_ci import read_ci_run
 
 def growth_fixture(ticks: int = 1000, stable_hash: str = "same") -> str:
     rows = [
@@ -111,32 +110,41 @@ class EnduranceContractTests(unittest.TestCase):
             self.assertIn("PASS", (folder / "report.md").read_text(encoding="utf-8"))
             self.assertTrue((folder / "report.json").is_file())
 
-    def test_verified_godot_elf_and_setup_wrapper(self):
+    def test_valid_gnu_time_metrics_are_read(self):
         with TemporaryDirectory() as td:
-            root = Path(td)
-            binary = root / "Godot_v4.7.2-stable_linux.x86_64"
-            binary.write_bytes(b"\x7fELF" + b"\x00" * 20)
-            wrapper = root / "godot-wrapper"
-            wrapper.write_text(
-                'set -e\nxvfb-run --auto-servernum ' + str(binary) + ' "$@"\n',
-                encoding="utf-8",
-            )
-            with patch("apex_endurance_ci.shutil.which", return_value=str(wrapper)):
-                self.assertEqual(resolve_godot_binary("godot"), str(binary))
-            with patch("apex_endurance_ci.shutil.which", return_value=str(binary)):
-                self.assertEqual(resolve_godot_binary("godot"), str(binary))
+            out = Path(td)
+            (out / "growth_monza_1.log").write_text(growth_fixture(), encoding="utf-8")
+            (out / "growth_monza_1.metrics").write_text("12.50 65536\n", encoding="utf-8")
+            info = read_ci_run(out, "growth_monza_1")
+            self.assertEqual(info["peak_rss_bytes_observed"], 65536 * 1024)
+            self.assertEqual(info["wall_seconds"], 12.5)
 
-    def test_untrusted_shell_line_must_be_rejected(self):
+    def test_missing_endurance_metrics_rejected(self):
         with TemporaryDirectory() as td:
-            wrapper = Path(td) / "godot-wrapper"
-            wrapper.write_text(
-                'xvfb-run --auto-servernum /tmp/godot;rm -rf . "$@"\n',
-                encoding="utf-8",
-            )
-            with patch("apex_endurance_ci.shutil.which", return_value=str(wrapper)):
-                with self.assertRaises(EnduranceError):
-                    resolve_godot_binary("godot")
+            (Path(td) / "career_admin_1.log").write_text(career_fixture(), encoding="utf-8")
+            with self.assertRaisesRegex(EnduranceError, "missing real-Godot"):
+                read_ci_run(Path(td), "career_admin_1")
 
+    def test_invalid_endurance_metrics_rejected(self):
+        with TemporaryDirectory() as td:
+            out = Path(td)
+            (out / "full_gp_ITA_1.log").write_text("some result", encoding="utf-8")
+            (out / "full_gp_ITA_1.metrics").write_text("bad 2048\n", encoding="utf-8")
+            with self.assertRaisesRegex(EnduranceError, "invalid time or RSS"):
+                read_ci_run(out, "full_gp_ITA_1")
+
+    def test_endurance_metrics_reject_budget_exceeded(self):
+        with TemporaryDirectory() as td:
+            out = Path(td)
+            (out / "full_gp_GBR_2.log").write_text("some result", encoding="utf-8")
+            (out / "full_gp_GBR_2.metrics").write_text("10.5 2200000\n", encoding="utf-8")
+            with self.assertRaisesRegex(EnduranceError, "exceeds 2 GiB"):
+                read_ci_run(out, "full_gp_GBR_2")
+
+    def test_invalid_endurance_label_rejected(self):
+        with TemporaryDirectory() as td:
+            with self.assertRaisesRegex(EnduranceError, "Invalid endurance"):
+                read_ci_run(Path(td), "../anything")
 
 
 if __name__ == "__main__":
