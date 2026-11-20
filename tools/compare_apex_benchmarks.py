@@ -7,6 +7,7 @@ Runs independent Godot processes in alternating order with isolated user data.
 from __future__ import annotations
 
 import argparse
+import asyncio
 import hashlib
 import json
 import math
@@ -15,7 +16,6 @@ from pathlib import Path
 import re
 import statistics
 import shutil
-import subprocess
 from tempfile import TemporaryDirectory
 import sys
 
@@ -195,18 +195,39 @@ def run_once(godot: str, project: Path, label: str, index: int,
             str(binary), "--headless", "--path", str(project),
             "--script", "res://" + BENCHMARK.as_posix(),
         ]
-        try:
-            proc = subprocess.run(
-                command, env=env, capture_output=True, text=True,
-                errors="replace", timeout=timeout, check=False,
+        async def invoke_verified_godot() -> tuple[int, str, str]:
+            process = await asyncio.create_subprocess_exec(
+                *command, env=env,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
             )
-        except (subprocess.TimeoutExpired, OSError) as exc:
-            raise BenchmarkError(f"{label} repetition {index} could not finish: {exc}") from exc
+            try:
+                stdout, stderr = await asyncio.wait_for(
+                    process.communicate(), timeout=timeout
+                )
+            except TimeoutError as exc:
+                process.kill()
+                await process.communicate()
+                raise BenchmarkError(
+                    f"{label} repetition {index} exceeded {timeout} seconds"
+                ) from exc
+            return (
+                int(process.returncode),
+                stdout.decode("utf-8", errors="replace"),
+                stderr.decode("utf-8", errors="replace"),
+            )
 
-    log = proc.stdout + "\n" + proc.stderr
+        try:
+            code, stdout, stderr = asyncio.run(invoke_verified_godot())
+        except OSError as exc:
+            raise BenchmarkError(
+                f"{label} repetition {index}: verified Godot ELF could not start: {exc}"
+            ) from exc
+
+    log = stdout + "\n" + stderr
     (out / f"{label}-{index}.log").write_text(log, encoding="utf-8")
-    if proc.returncode != 0:
-        raise BenchmarkError(f"{label} repetition {index} exited {proc.returncode}")
+    if code != 0:
+        raise BenchmarkError(f"{label} repetition {index} exited {code}")
     return parse_growth_log(log, ticks)
 
 
