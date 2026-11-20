@@ -121,3 +121,34 @@ Não editar a IA real para fazer um teste artificial passar.
 A atualização adiciona somente fixture, relatório/analisador, testes,
 workflow e documentação. Reverter o commit remove o laboratório;
 nenhum save de jogador é migrado ou modificado.
+
+
+## Regressões locais complementares (sem GitHub Actions)
+
+Depois de executar o laboratório da 13ª melhoria e revisar os seis
+`PIT_QUEUE` como hipóteses, uma validação adicional pode ser rodada em
+um **checkout atualizado desta mesma branch**:
+
+```bash
+GODOT_BIN="$HOME/Downloads/Godot_v4.7.2-stable_linux.x86_64" bash tools/run_pitwall_regressions_local.sh
+```
+
+O executor roda seis arquivos de contratos Python, verifica a importação
+Godot 4.7.2, executa **os mesmos 14 scripts e marcadores obrigatórios**
+listados em `.github/workflows/godot-setup.yml` (Core 2) e conclui um
+benchmark de 500 ticks com verificação de `GROWTH_DONE`. Gera registros
+e `report.md` em `ci_artifacts/pitwall_regressions_local/`. **Qualquer
+ausência de arquivo, erro de importação, marcador faltante ou falha de
+execução cancela o PASS.**
+
+Esse executor é complementar e **não substitui** GdUnit4, Codacy,
+Bandit/GDScript em suas versões reais, o Quality Gate remoto que consulta
+os checks do SHA, A/B contra a `main`, ou uma revisão da UI gráfica.
+Não descreva regressões parciais como homologação de todas as verificações.
+O Godot do usuário é executado em um ambiente separado do GitHub Actions,
+sem implicar desbloqueio de faturamento no GitHub.
+
+A análise dos relatórios locais deve separar `PIT_QUEUE` observável
+de erro confirmado na decisão da IA. Se os demais testes não puderem
+ser reproduzidos, manter o PR em draft ou registrar explicitamente o
+aceite excepcional com os gaps restantes, nunca forjar CI verde.
