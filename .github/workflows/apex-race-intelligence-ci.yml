@@ -31,7 +31,7 @@ jobs:
     timeout-minutes: 25
     steps:
       - name: Baixar o APEX
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Instalar Godot 4.7.2
         uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c # v3.0.1
@@ -90,7 +90,7 @@ jobs:
 
       - name: Guardar todas as evidencias e logs
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: apex-race-intelligence-relatorios
           path: ci_artifacts/race_intelligence/
