@@ -24,7 +24,7 @@ Nenhum conteúdo do ZIP é executado.
 - A pasta de Downloads correspondia à branch
   `infra/pitwall-intelligence-analyzer-13-v1`; suas funcionalidades não foram
   incorporadas. A main já contém o importador e os utilitários de auditoria.
-- O código e os testes do patch validado foram preservados; este relatório foi
+- O código do importador do patch validado foi preservado; este relatório foi
   atualizado para refletir a integração no clone legítimo.
 
 ## Arquivos do PR
@@ -102,3 +102,22 @@ da integração. As verificações Godot/GdUnit4/regressões exigidas pelo AGENT
 continuam necessárias antes de aprovar a atualização completa. Não habilitar
 merge automático. Reverter o commit isolado restaura o comportamento anterior,
 inclusive B108 e o risco do nome temporário fixo.
+
+## Acompanhamento remoto e ajustes de testes
+
+Os seis jobs Actions do SHA inicial terminaram em FAILURE antes de iniciar:
+GitHub reportou pagamentos recentes falhos ou necessidade de aumentar o limite
+em Billing & plans. Isso é bloqueio de infraestrutura, não falha executada do
+Bandit/Godot. CodeQL e auditoria Quality Gate ficaram SKIPPED.
+
+Codacy identificou quatro anotações apenas no novo teste: três associadas a
+`subprocess` e uma ao desempacotamento em `assertNotEqual`. O teste agora executa
+somente o script confiável do repositório via `runpy.run_path(..., run_name='__main__')`,
+em diretório temporário real, com ambiente e stdout isolados, e verifica também
+o resumo persistido. Mantém cobertura do entry point, mas não cria processo CLI
+isolado. A comparação de diretórios usa dois argumentos explícitos e verifica
+primeiro a quantidade observada. Nenhuma regra de scanner foi desabilitada.
+
+Após esses ajustes: os mesmos 36 testes locais e Bandit foram reexecutados;
+resultados nos logs locais. O merge depende da recuperação do Actions e da
+validação dos checks necessários; nenhuma alteração de cobrança foi realizada.

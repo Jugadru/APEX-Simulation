@@ -1,13 +1,12 @@
 """Importer security regressions; all imports run in disposable worktrees."""
-from contextlib import redirect_stdout
+from contextlib import chdir, redirect_stdout
 import hashlib
 import importlib.util
 import io
 import os
 from pathlib import Path
+import runpy
 import stat
-import subprocess
-import sys
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -56,14 +55,15 @@ class ImportArchiveTests(unittest.TestCase):
         self.assertEqual(exc.exception.code, 1)
         self.assertEqual(list(self.runner.iterdir()), [])
 
-    def test_success_cli_digest_and_cleanup(self):
+    def test_success_entrypoint_digest_and_cleanup(self):
         raw = self.package()
-        result = subprocess.run([sys.executable, str(SCRIPT)], cwd=self.repo,
-                                env={**os.environ, 'RUNNER_TEMP': str(self.runner),
-                                     'GITHUB_STEP_SUMMARY': str(self.base / 'summary.md')},
-                                capture_output=True, text=True, timeout=20)
-        self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn(hashlib.sha256(raw).hexdigest(), result.stdout)
+        summary = self.base / 'summary.md'
+        env = {'RUNNER_TEMP': str(self.runner), 'GITHUB_STEP_SUMMARY': str(summary)}
+        # Execute only our trusted entry point; archive contents are never code.
+        with patch.dict(os.environ, env, clear=True), chdir(self.repo), redirect_stdout(self.output):
+            runpy.run_path(str(SCRIPT), run_name='__main__')
+        self.assertIn(hashlib.sha256(raw).hexdigest(), self.output.getvalue())
+        self.assertEqual(summary.read_text(), self.output.getvalue())
         self.assertEqual((self.repo / 'scripts/main.gd').read_bytes(), self.entries[1][1])
         self.assertEqual(list(self.runner.iterdir()), [])
         self.assertEqual(len(list(self.repo.glob('*.part*'))), 5)
@@ -78,7 +78,8 @@ class ImportArchiveTests(unittest.TestCase):
         with patch.object(importer, 'import_archive', side_effect=inspect):
             self.run_import()
             self.run_import()
-        self.assertNotEqual(*observed)
+        self.assertEqual(len(observed), 2)
+        self.assertNotEqual(observed[0], observed[1])
         self.assertTrue(all(not path.exists() for path in observed))
 
     def test_system_temp_fallback(self):
