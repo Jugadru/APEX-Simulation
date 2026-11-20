@@ -9,6 +9,7 @@ on:
       - 'data/**'
       - 'tests/ci/apex_pitwall_intelligence_probe.gd'
       - 'tools/apex_pitwall_intelligence.py'
+      - 'tools/run_pitwall_local.sh'
       - 'tools/tests/test_apex_pitwall_intelligence.py'
       - '.github/workflows/apex-pitwall-intelligence-ci.yml'
 
@@ -37,50 +38,14 @@ jobs:
         with:
           version: 4.7.2-stable
 
-      - name: Testar classificador e integridade dos registros Python
-        run: |
-          set -euo pipefail
-          python3 -m unittest discover -s tools/tests \
-            -p 'test_apex_pitwall_intelligence.py' -v
-
-      - name: Importar o projeto real no Godot
-        run: |
-          set -euo pipefail
-          godot --headless --path . --import > pitwall-import.log 2>&1
-          if grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' pitwall-import.log; then
-            cat pitwall-import.log
-            exit 1
-          fi
-
-      - name: Coletar decisoes e executar duas repeticoes por cenario
+      - name: Validar contratos, importar Godot e executar oito simulacoes reais
         shell: bash
+        env:
+          GODOT_BIN: godot
+          APEX_PITWALL_OUTPUT: ci_artifacts/pitwall_intelligence
         run: |
           set -euo pipefail
-          output="$PWD/ci_artifacts/pitwall_intelligence"
-          mkdir -p "$output"
-          run_case() {
-            local name="$1"
-            local rep="$2"
-            local label="${name}_${rep}"
-            (
-              export HOME="$RUNNER_TEMP/apex-pitwall-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${label}"
-              export XDG_DATA_HOME="$HOME/data"
-              export XDG_CONFIG_HOME="$HOME/config"
-              export XDG_CACHE_HOME="$HOME/cache"
-              mkdir -p "$XDG_DATA_HOME" "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME"
-              export APEX_PITWALL_SCENARIO="$name"
-              timeout 180s godot --headless --path . \
-                --script res://tests/ci/apex_pitwall_intelligence_probe.gd \
-                > "$output/${label}.log" 2>&1
-            )
-          }
-          for scenario in ita_dry_auto gbr_wet_auto bra_variable_auto ita_manual_v7; do
-            for rep in 1 2; do
-              echo "APEX_PITWALL_ANALYZER_START ${scenario}_${rep}"
-              run_case "$scenario" "$rep"
-            done
-          done
-          python3 tools/apex_pitwall_intelligence.py --project . --output "$output"
+          bash tools/run_pitwall_local.sh
 
       - name: Publicar analise com ressalvas
         if: always()
@@ -102,6 +67,5 @@ jobs:
           name: apex-pitwall-intelligence-report
           path: |
             ci_artifacts/pitwall_intelligence/
-            pitwall-import.log
           retention-days: 14
           if-no-files-found: warn
