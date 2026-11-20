@@ -14,8 +14,10 @@ on:
         default: 'infra/saveguard-cross-version-ci-v1'
         type: string
   pull_request:
+    # Include project configuration changes that may affect test behavior.
     branches: [main]
     paths:
+      - 'project.godot'
       - 'scripts/**'
       - 'tests/ci/apex_saveguard_cross_revision.gd'
       - 'tests/career_0667_20_season_data_stress.gd'
@@ -54,7 +56,7 @@ jobs:
           persist-credentials: false
 
       - name: Preparar Godot 4.7.2
-        uses: lihop/godot-setup@v3.0.1
+        uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c # v3.0.1
         with:
           version: 4.7.2-stable
 
