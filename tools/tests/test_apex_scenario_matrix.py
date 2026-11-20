@@ -34,10 +34,6 @@ class ScenarioMatrixContractTests(unittest.TestCase):
             "on_track_pass_events": 5,
         }
 
-    def write(self, scenario, repetition, row):
-        (self.output / f"{scenario['id']}_{repetition}.log").write_text(
-            "Godot 4.7.2\n" + matrix.MARKER + json.dumps(row) + "\n", encoding="utf-8")
-
 
 
 if __name__ == "__main__":
