@@ -71,6 +71,7 @@ static func answer(topic: String, car_id: int, snapshot: Dictionary, advice: Dic
                 reply += " Atrás vem %s, a %.2fs." % [str(behind.get("name", "outro carro")), maxf(0.0, float(behind.get("interval", 0.0)))]
         "box":
             var current_lap: int = int(car.get("laps_done", 0))
+            var booked_future: bool = booked > current_lap and booked < int(snapshot.get("lap_count", 0))
             var compound: String = str(advice.get("compound", ""))
             var window: int = int(advice.get("planned_pit_lap", 0))
             var future_window: bool = window > current_lap and window < int(snapshot.get("lap_count", 0))
@@ -80,6 +81,15 @@ static func answer(topic: String, car_id: int, snapshot: Dictionary, advice: Dic
                 reply = "Já estamos no procedimento de boxes. Vamos acompanhar a saída."
             elif bool(car.get("pit_request", false)):
                 reply = "A chamada de box já foi feita. Aguarde a entrada."
+            elif booked_future:
+                # Explicit scheduled orders take priority over tactical advice.
+                # This answer has no authority to enqueue, reschedule or cancel a pit.
+                reply = "BOX V%d está agendado. Esta consulta não antecipa nem cancela a parada." % booked
+                if bool(advice.get("pit_now", false)):
+                    var suggestion: String = " para %s" % compound if compound != "" else ""
+                    reply += " A telemetria sugere reavaliar o box%s, mas só uma nova ordem explícita pode alterar V%d." % [suggestion, booked]
+                if wetness >= 0.38 and tire not in ["Intermediário", "Chuva"]:
+                    reply += " Pista com %.0f%% de umidade e pneus %s: atenção à aderência." % [wetness * 100.0, tire]
             elif bool(advice.get("pit_now", false)):
                 reply = "Os dados indicam que vale avaliar o box agora%s." % (" para %s" % compound if compound != "" else "")
             elif future_window:
@@ -89,8 +99,8 @@ static func answer(topic: String, car_id: int, snapshot: Dictionary, advice: Dic
                 reply = "Não vejo vantagem confirmada em chamar o box neste instante. Vamos reavaliar na próxima volta."
             if remaining > 0:
                 reply += " Desgaste %.0f%%; restam %d voltas." % [wear, remaining]
-            if booked > current_lap and booked < int(snapshot.get("lap_count", 0)):
+            if booked_future and (bool(car.get("pit_request", false)) or float(car.get("pit_left", 0.0)) > 0.0):
                 reply += " Sua ordem para V%d continua registrada." % booked
-            elif manual and remaining > 0 and not bool(car.get("pit_request", false)):
+            elif manual and remaining > 0 and not bool(car.get("pit_request", false)) and not booked_future:
                 reply += " Se decidir parar, preciso de sua confirmação."
     return {"question": str(QUESTIONS[topic]), "reply": reply, "car_name": str(car.get("name", "Piloto")), "car_id": car_id}
