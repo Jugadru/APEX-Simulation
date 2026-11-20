@@ -100,8 +100,7 @@ remoto estiver bloqueado: em um **checkout completo do APEX**, com Godot
 4.7.2 e Python 3 disponíveis no Linux, executar:
 
 ```bash
-GODOT_BIN=/caminho/para/Godot_v4.7.2-stable_linux.x86_64 \\
-  bash tools/run_pitwall_local.sh
+GODOT_BIN=/caminho/para/Godot_v4.7.2-stable_linux.x86_64 bash tools/run_pitwall_local.sh
 ```
 
 O script valida a versão, roda os testes de contrato, importa o projeto
