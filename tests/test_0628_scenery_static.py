@@ -57,7 +57,7 @@ class Scenery0628(unittest.TestCase):
                 self.assertTrue((ROOT/dep).is_file(),f'{gd}: {dep}')
 
     def test_native_smoke_and_release_files(self):
-        for path in ('tests/core_0628_scenery_smoke_test.gd','linux/validar_0628.sh','README_0628.md','CHANGELOG_0628.md'):
+        for path in ('tests/core_0628_scenery_smoke_test.gd','linux/validar_0628.sh','docs/arquivo/guias/README_antigos/README_0628.md','docs/arquivo/changelogs/CHANGELOG_0628.md'):
             self.assertTrue((ROOT/path).is_file(),path)
         self.assertIn('v0.6.2.8',(ROOT/'project.godot').read_text())
 

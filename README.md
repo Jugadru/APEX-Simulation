@@ -6,7 +6,7 @@ Na janela **RÁDIO**, primeiro escolha o piloto que está atrás e use **COMPARA
 
 Não há ultrapassagem automática, cancelamento de BOX V21, alteração de pneus, ritmo ou prioridade de pit. Quando a manobra não é segura, o sistema recusa a ordem. Como comandos e estado esportivo foram atualizados, replays gravados nas regras anteriores **não carregam na 8.10**; mantenha a 8.9 para reproduzi-los. O formato dos saves de carreira não foi migrado.
 
-[Relatório 8.10](APEX_066810_RELATORIO_TECNICO.md) · [Matriz de testes 8.10](APEX_066810_MATRIZ_TESTES.json) · [Changelog 8.10](APEX_066810_CHANGELOG.md)
+[Relatório 8.10](docs/arquivo/relatorios/APEX_066810_RELATORIO_TECNICO.md) · [Matriz de testes 8.10](docs/arquivo/qualidade/APEX_066810_MATRIZ_TESTES.json) · [Changelog 8.10](docs/arquivo/changelogs/APEX_066810_CHANGELOG.md)
 
 ---
 
@@ -16,7 +16,7 @@ O sistema Soul 2.0 já permite ao piloto pedir uma revisão da ordem de equipe q
 
 **A ação é somente consultiva:** não ordena ultrapassagem, não altera velocidade, pneus, Pit Wall, regras esportivas, RNG, saves ou replay. Um BOX V21 previamente marcado continua agendado. Replays da 8.8 permanecem sob o mesmo motor esportivo.
 
-[Relatório v8.9](APEX_06689_RELATORIO_TECNICO.md) · [Matriz de testes v8.9](APEX_06689_MATRIZ_TESTES.json) · [Changelog v8.9](APEX_06689_CHANGELOG.md)
+[Relatório v8.9](docs/arquivo/relatorios/APEX_06689_RELATORIO_TECNICO.md) · [Matriz de testes v8.9](docs/arquivo/qualidade/APEX_06689_MATRIZ_TESTES.json) · [Changelog v8.9](docs/arquivo/changelogs/APEX_06689_CHANGELOG.md)
 
 ---
 
@@ -26,7 +26,7 @@ A novidade é uma decisão de **defesa antecipada** mais prudente quando a pista
 
 **Replay:** como uma decisão real da simulação mudou na chuva, novos registros usam `simulation_revision = 06688_grip_aware_defense`. Replays sob regras anteriores são **recusados explicitamente**, não reproduzidos com hashes incompatíveis. Faça backup de saves e replays antes de trocar de versão. O Core 2 continua único motor esportivo oficial; Next Engine suspensa.
 
-[Relatório v8.8](APEX_06688_RELATORIO_TECNICO.md) · [Matriz de testes](APEX_06688_MATRIZ_TESTES.json) · [Changelog](APEX_06688_CHANGELOG.md)
+[Relatório v8.8](docs/arquivo/relatorios/APEX_06688_RELATORIO_TECNICO.md) · [Matriz de testes](docs/arquivo/qualidade/APEX_06688_MATRIZ_TESTES.json) · [Changelog](docs/arquivo/changelogs/APEX_06688_CHANGELOG.md)
 
 ---
 
@@ -35,7 +35,7 @@ Simulador de gestão de automobilismo criado em **Godot 4.7.2**. A branch `main`
 
 ## Novidade Driver Dynamics 2.0
 
-Em **RÁDIO > DISCUTIR STINT**, o piloto compara a última volta com a melhor volta e avalia desgaste, temperatura e tolerância fictícia ao risco. Pode pedir revisão da janela por perda de ritmo ou sugerir ficar mais uma volta quando o rendimento está estável. O engenheiro pondera a telemetria e preserva o BOX manual V21. **Este diálogo não altera ordens, física ou replay.** Relatório: [v0.6.6.8.7](APEX_06687_RELATORIO_TECNICO.md).
+Em **RÁDIO > DISCUTIR STINT**, o piloto compara a última volta com a melhor volta e avalia desgaste, temperatura e tolerância fictícia ao risco. Pode pedir revisão da janela por perda de ritmo ou sugerir ficar mais uma volta quando o rendimento está estável. O engenheiro pondera a telemetria e preserva o BOX manual V21. **Este diálogo não altera ordens, física ou replay.** Relatório: [v0.6.6.8.7](docs/arquivo/relatorios/APEX_06687_RELATORIO_TECNICO.md).
 
 ## Abrir o jogo
 
@@ -49,9 +49,9 @@ O projeto inclui corrida com 24 carros, 3D, HUD ReBroadcast, Pit Wall, replay de
 ## Versão completa e histórico
 
 - [Release-base Core 2 v0.6.6.8.6 (ZIP original)](https://github.com/Quereni/APEX-Simulation/releases/tag/Versions)
-- [Relatório técnico v0.6.6.8.7](APEX_06687_RELATORIO_TECNICO.md)
-- [Matriz histórica de testes](APEX_06687_MATRIZ_TESTES.json)
-- [Changelog da versão](APEX_06687_CHANGELOG.md)
+- [Relatório técnico v0.6.6.8.7](docs/arquivo/relatorios/APEX_06687_RELATORIO_TECNICO.md)
+- [Matriz histórica de testes](docs/arquivo/qualidade/APEX_06687_MATRIZ_TESTES.json)
+- [Changelog da versão](docs/arquivo/changelogs/APEX_06687_CHANGELOG.md)
 - [Referência histórica: replay v0.6.6.0](docs/REPLAY_0660_USO.md)
 
 As capturas, replays e outros arquivos grandes estão no pacote completo da Release; a árvore Git contém o código-fonte e testes leves.
@@ -81,3 +81,10 @@ godot --headless --single-threaded-scene --path . --script res://tests/car_model
 ## Documentação histórica
 
 Os relatórios e planos das versões anteriores continuam disponíveis na pasta `docs/`. O APEX 2 experimental não deve substituir o Core 2 sem aprovação e regressões específicas.
+
+
+## Documentação histórica organizada
+
+Os **325 documentos e manifestos históricos** que estavam na raiz foram agrupados em [`docs/arquivo/`](docs/arquivo/README.md), com inventário dos caminhos originais e hashes preservados.
+
+O código, `project.godot`, saves e arquivos de importação permanecem nos caminhos necessários ao jogo. Use o histórico apenas como referência de versões anteriores; a documentação de cada versão pode descrever caminhos antigos.
