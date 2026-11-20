@@ -34,7 +34,7 @@ class ScenarioMatrixContractTests(unittest.TestCase):
             "race_hash": "f" * 64, "pits_total": 2, "max_stops": 1,
             "pit_laps_by_player": [[6], [7]] if scenario["mode"] != "IA" else [[], []],
             "disqualified": 0, "wetness_peak": 0.58 if scenario["weather"] == "Chuva intensa" else 0.0,
-            "on_track_pass_events": 5,
+            "on_track_pass_events": 5,  # nosec B105: sporting overtakes, not a password
         }
 
     def write(self, scenario, repetition, row):
@@ -134,6 +134,21 @@ class ScenarioMatrixContractTests(unittest.TestCase):
             with self.subTest(change=change):
                 with self.assertRaises(matrix.MatrixError):
                     matrix._validated(bad, case)
+
+    def test_markdown_shows_warning_reasons(self):
+        case = matrix.plan(self.root, "smoke", 0, 4, 12012)[0]
+        row = self.good(case)
+        warning = "Unusually many stops for ten laps"
+        row["warnings"] = [warning]
+        summary = {
+            "status": "WARN", "profile": "smoke", "shard": 0,
+            "shards": 4, "cases": 1, "runs": 2,
+            "tracks": [case["track"]], "results": [row],
+            "warnings": [{"scenario": case["id"], "message": warning}],
+        }
+        output = matrix._markdown(summary)
+        self.assertIn(warning, output)
+        self.assertIn(case["id"], output)
 
     def test_excess_stops_are_observations_not_assumed_fraud(self):
         case = matrix.plan(self.root, "smoke", 0, 4, 12012)[0]
