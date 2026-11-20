@@ -12,16 +12,11 @@ This does not measure rendered GPU/FPS or simulate 400 full Grand Prix.
 from __future__ import annotations
 
 import argparse
-import asyncio
 import json
 import math
-import os
 from pathlib import Path
 import re
-import shutil
 import sys
-from tempfile import TemporaryDirectory
-import time
 from typing import Any
 
 GROWTH = "tests/high_speed_growth_066723_benchmark.gd"
@@ -61,98 +56,34 @@ def read_linux_rss_bytes(pid: int) -> int | None:
     return int(found.group(1)) * 1024 if found else None
 
 
-def resolve_godot_binary(executable: str) -> str:
-    """Resolve the real Godot ELF, never passing arguments to a shell."""
-    command = shutil.which(executable)
-    if not command:
-        raise EnduranceError(f"Godot executable not found: {executable}")
-    candidate = Path(command).resolve(strict=True)
-    if not candidate.is_file():
-        raise EnduranceError("Godot executable path is not a file")
-    with candidate.open("rb") as stream:
-        if stream.read(4) == b"\x7fELF":
-            return str(candidate)
-    # The pinned Godot Setup action exposes a known wrapper without a shebang.
-    for line in candidate.read_text(encoding="utf-8").splitlines():
-        match = re.fullmatch(
-            r'xvfb-run --auto-servernum (/[A-Za-z0-9_./+-]+) "\$@"',
-            line.strip(),
-        )
-        if match:
-            direct = Path(match.group(1)).resolve(strict=True)
-            with direct.open("rb") as stream:
-                if stream.read(4) == b"\x7fELF":
-                    return str(direct)
-    raise EnduranceError("Expected Godot ELF or verified Godot Setup wrapper")
-
-
-def run_godot(
-    root: Path, godot: str, script: str, label: str,
-    env_vars: dict[str, str], logs: Path, user_root: Path,
-    timeout_seconds: int,
-) -> dict[str, Any]:
-    logs.mkdir(parents=True, exist_ok=True)
-    user_root.mkdir(parents=True, exist_ok=True)
-    env = os.environ.copy()
-    env.update(env_vars)
-    env["HOME"] = str(user_root)
-    for var, name in (
-        ("XDG_DATA_HOME", "data"),
-        ("XDG_CONFIG_HOME", "config"),
-        ("XDG_CACHE_HOME", "cache"),
-    ):
-        directory = user_root / name
-        directory.mkdir(parents=True, exist_ok=True)
-        env[var] = str(directory)
-
-    command = [
-        resolve_godot_binary(godot), "--headless", "--path", str(root),
-        "--script", "res://" + script,
-    ]
-    log_file = logs / f"{label}.log"
-    started = time.monotonic()
-    peak_rss: int | None = None
-    async def invoke_verified_godot() -> tuple[int, int | None]:
-        observed_rss: int | None = None
-        with log_file.open("wb") as stream:
-            # Verified Godot ELF, fixed in-repository scenario scripts,
-            # canonical project path, isolated CI profile, no shell.
-            process = await asyncio.create_subprocess_exec(  # nosemgrep: python.lang.security.audit.dangerous-asyncio-create-exec-audit, python.lang.security.audit.dangerous-asyncio-create-exec-tainted-env-args
-                *command, env=env,
-                stdout=stream, stderr=asyncio.subprocess.STDOUT,
-            )
-            try:
-                while process.returncode is None:
-                    memory = read_linux_rss_bytes(process.pid)
-                    if memory is not None:
-                        observed_rss = max(observed_rss or 0, memory)
-                    if time.monotonic() - started >= timeout_seconds:
-                        raise EnduranceError(
-                            f"{label}: timeout after {timeout_seconds}s"
-                        )
-                    await asyncio.sleep(0.07)
-                return int(await process.wait()), observed_rss
-            finally:
-                if process.returncode is None:
-                    process.kill()
-                    await process.wait()
-
+def read_ci_run(output: Path, label: str) -> dict[str, Any]:
+    """Validate a fixed-name log and GNU time metrics from the CI runner."""
+    if not re.fullmatch(r"(growth_monza|full_gp_ITA|full_gp_GBR|career_admin)_[12]", label):
+        raise EnduranceError("Invalid endurance run identity")
+    log = output / f"{label}.log"
+    metrics = output / f"{label}.metrics"
+    if not log.is_file() or not metrics.is_file():
+        raise EnduranceError(f"{label}: missing real-Godot CI log or time metrics")
+    if log.stat().st_size > 20 * 1024 * 1024:
+        raise EnduranceError(f"{label}: oversized Godot log")
+    fields = metrics.read_text(encoding="utf-8").strip().split()
+    if len(fields) != 2:
+        raise EnduranceError(f"{label}: invalid GNU time metadata")
     try:
-        code, peak_rss = asyncio.run(invoke_verified_godot())
-    except OSError as exc:
-        raise EnduranceError(f"{label}: Godot command could not start: {exc}") from exc
-    duration = time.monotonic() - started
-    if code != 0:
-        raise EnduranceError(f"{label}: Godot exited with {code}; check {log_file.name}")
-    if peak_rss is not None and peak_rss > MEMORY_BUDGET_BYTES:
-        raise EnduranceError(
-            f"{label}: observed process RSS {peak_rss} exceeds 2 GiB budget"
-        )
+        wall_seconds = float(fields[0])
+        peak_rss_kb = int(fields[1])
+    except (TypeError, ValueError) as exc:
+        raise EnduranceError(f"{label}: invalid time or RSS metadata") from exc
+    if not math.isfinite(wall_seconds) or wall_seconds < 0 or peak_rss_kb < 0:
+        raise EnduranceError(f"{label}: invalid process metrics")
+    peak_rss = peak_rss_kb * 1024
+    if peak_rss > MEMORY_BUDGET_BYTES:
+        raise EnduranceError(f"{label}: observed maximum RSS exceeds 2 GiB")
     return {
-        "log_file": log_file.name,
-        "wall_seconds": round(duration, 4),
+        "log_file": log.name,
+        "wall_seconds": round(wall_seconds, 4),
         "peak_rss_bytes_observed": peak_rss,
-        "rss_scope": "best-effort sampled process RSS on Linux, not GPU/VRAM",
+        "rss_scope": "GNU time maximum RSS on Linux; not GPU/VRAM, best effort",
     }
 
 
@@ -289,85 +220,63 @@ def write_report(report: dict[str, Any], output: Path) -> None:
     (output / "report.md").write_text("\n".join(lines), encoding="utf-8")
 
 
-def execute(root: Path, output: Path, godot: str, growth_ticks: int, timeout: int) -> dict:
+def execute(root: Path, output: Path, growth_ticks: int) -> dict:
     if growth_ticks < 1000 or growth_ticks % 250:
         raise EnduranceError("Growth ticks must be a multiple of 250 and >= 1000")
+    if not (root / "project.godot").is_file():
+        raise EnduranceError("APEX project.godot missing")
     output.mkdir(parents=True, exist_ok=True)
     scenarios: dict[str, list[dict]] = {}
     warnings = []
-    with TemporaryDirectory(prefix="apex-endurance-") as isolated:
-        temp = Path(isolated)
+    for rep in (1, 2):
+        label = f"growth_monza_{rep}"
+        run = read_ci_run(output, label)
+        log = (output / run["log_file"]).read_text(encoding="utf-8", errors="replace")
+        record = {**parse_growth(log, growth_ticks), **run}
+        scenarios.setdefault("growth_monza", []).append(record)
+        print(f"APEX_ENDURANCE_RUN_DONE {label} hash={record['sporting_hash']}", flush=True)
+        if record["static_growth_bytes"] > 256 * 1024**2:
+            warnings.append(f"{label}: static memory grew >256 MiB; inspect telemetry and replay retention")
+        if record["last_to_first_block_cpu_ratio"] > 3.0:
+            warnings.append(f"{label}: last 250-tick block >3x the first block; inspect profiler")
+    check_repetitions("growth_monza", *scenarios["growth_monza"],
+                      ("ticks", "sporting_hash", "samples"))
+
+    for circuit, weather, seed in (
+        ("ITA", "Seco", 660),
+        ("GBR", "Chuva intensa", 661),
+    ):
+        name = f"full_gp_{circuit}"
         for rep in (1, 2):
-            label = f"growth_monza_{rep}"
-            print(f"APEX_ENDURANCE_START {label}", flush=True)
-            run = run_godot(
-                root, godot, GROWTH, label, {"APEX_TICKS": str(growth_ticks)},
-                output, temp / label, timeout,
-            )
+            label = f"{name}_{rep}"
+            file = output / f"{label}.json"
+            run = read_ci_run(output, label)
             log = (output / run["log_file"]).read_text(encoding="utf-8", errors="replace")
-            record = {**parse_growth(log, growth_ticks), **run}
-            scenarios.setdefault("growth_monza", []).append(record)
+            marker = marker_json(log, "APEX_FULL_GP_DONE ")
+            if not file.is_file():
+                raise EnduranceError(f"{label}: missing exported GP JSON")
+            try:
+                gp = json.loads(file.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError) as exc:
+                raise EnduranceError(f"{label}: GP JSON was not readable") from exc
+            record = {**parse_full_gp(gp, circuit, weather, seed), **run}
+            if marker.get("hash") != record["sporting_hash"] or marker.get("finished") is not True:
+                raise EnduranceError(f"{label}: stdout/JSON GP result mismatch")
+            scenarios.setdefault(name, []).append(record)
             print(f"APEX_ENDURANCE_RUN_DONE {label} hash={record['sporting_hash']}", flush=True)
-            if record["static_growth_bytes"] > 256 * 1024**2:
-                warnings.append(f"{label}: static memory grew >256 MiB; inspect telemetry and replay retention")
-            if record["last_to_first_block_cpu_ratio"] > 3.0:
-                warnings.append(f"{label}: last 250-tick block >3x the first block; inspect profiler")
+        check_repetitions(name, *scenarios[name],
+                          ("track", "weather", "seed", "ticks", "laps",
+                           "sporting_hash", "finished_cars", "manual_pit_orders", "pit_history"))
 
-        check_repetitions(
-            "growth_monza", *scenarios["growth_monza"],
-            ("ticks", "sporting_hash", "samples"),
-        )
-
-        for circuit, weather, seed in (
-            ("ITA", "Seco", 660),
-            ("GBR", "Chuva intensa", 661),
-        ):
-            name = f"full_gp_{circuit}"
-            for rep in (1, 2):
-                label = f"{name}_{rep}"
-                file = output / f"{label}.json"
-                env = {
-                    "APEX_TRACK": circuit,
-                    "APEX_SEED": str(seed),
-                    "APEX_WEATHER": weather,
-                    "APEX_BENCH_OUTPUT": str(file),
-                }
-                print(f"APEX_ENDURANCE_START {label}", flush=True)
-                run = run_godot(
-                    root, godot, FULL_GP, label, env, output, temp / label, timeout
-                )
-                log = (output / run["log_file"]).read_text(encoding="utf-8", errors="replace")
-                marker = marker_json(log, "APEX_FULL_GP_DONE ")
-                if not file.is_file():
-                    raise EnduranceError(f"{label}: missing exported GP JSON")
-                try:
-                    gp = json.loads(file.read_text(encoding="utf-8"))
-                except (OSError, json.JSONDecodeError) as exc:
-                    raise EnduranceError(f"{label}: GP JSON was not readable") from exc
-                record = {**parse_full_gp(gp, circuit, weather, seed), **run}
-                if (marker.get("hash") != record["sporting_hash"]
-                        or marker.get("finished") is not True):
-                    raise EnduranceError(f"{label}: stdout/JSON GP result mismatch")
-                scenarios.setdefault(name, []).append(record)
-                print(f"APEX_ENDURANCE_RUN_DONE {label} hash={record['sporting_hash']}", flush=True)
-            check_repetitions(
-                name, *scenarios[name],
-                ("track", "weather", "seed", "ticks", "laps", "sporting_hash", "finished_cars", "manual_pit_orders", "pit_history"),
-            )
-
-        for rep in (1, 2):
-            label = f"career_admin_{rep}"
-            print(f"APEX_ENDURANCE_START {label}", flush=True)
-            run = run_godot(root, godot, CAREER, label, {}, output, temp / label, timeout)
-            log = (output / run["log_file"]).read_text(encoding="utf-8", errors="replace")
-            record = {**parse_career(log), **run}
-            scenarios.setdefault("career_admin", []).append(record)
-            print(f"APEX_ENDURANCE_RUN_DONE {label} rounds={record['administrative_rounds']}", flush=True)
-        check_repetitions(
-            "career_admin", *scenarios["career_admin"],
-            ("seasons", "administrative_rounds", "checks", "last_save_bytes"),
-        )
-
+    for rep in (1, 2):
+        label = f"career_admin_{rep}"
+        run = read_ci_run(output, label)
+        log = (output / run["log_file"]).read_text(encoding="utf-8", errors="replace")
+        record = {**parse_career(log), **run}
+        scenarios.setdefault("career_admin", []).append(record)
+        print(f"APEX_ENDURANCE_RUN_DONE {label} rounds={record['administrative_rounds']}", flush=True)
+    check_repetitions("career_admin", *scenarios["career_admin"],
+                      ("seasons", "administrative_rounds", "checks", "last_save_bytes"))
     return {
         "status": "PASS",
         "godot": "4.7.2-stable",
@@ -384,16 +293,13 @@ def execute(root: Path, output: Path, godot: str, growth_ticks: int, timeout: in
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--project", type=Path, default=Path("."))
-    parser.add_argument("--godot", default="godot")
     parser.add_argument("--output", type=Path, default=Path("ci_artifacts/endurance"))
     parser.add_argument("--growth-ticks", type=int, default=6000)
-    parser.add_argument("--per-run-timeout", type=int, default=450)
     args = parser.parse_args()
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=True)
     try:
-        report = execute(args.project.resolve(), output, args.godot,
-                         args.growth_ticks, args.per_run_timeout)
+        report = execute(args.project.resolve(), output, args.growth_ticks)
         write_report(report, output)
         print("APEX_ENDURANCE_PASS", json.dumps({
             "growth_ticks": args.growth_ticks,
