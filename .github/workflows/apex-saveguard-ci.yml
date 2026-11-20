@@ -1,0 +1,159 @@
+name: APEX - SaveGuard Compatibilidade
+
+on:
+  workflow_dispatch:
+    inputs:
+      baseline_ref:
+        description: 'Revisao anterior que produz saves (main por padrao)'
+        required: true
+        default: 'main'
+        type: string
+      candidate_ref:
+        description: 'Revisao candidata que deve importar os saves anteriores'
+        required: true
+        default: 'main'
+        type: string
+  pull_request:
+    # Include project configuration changes that may affect test behavior.
+    branches: [main]
+    paths:
+      - 'project.godot'
+      - 'scripts/**'
+      - 'tests/ci/apex_saveguard_cross_revision.gd'
+      - 'tests/career_0667_20_season_data_stress.gd'
+      - 'tests/core_0642_save_migration_test.gd'
+      - 'tests/replay_0663_legacy_fixture.gd'
+      - 'tools/apex_saveguard_ci.py'
+      - 'tools/tests/test_apex_saveguard_ci.py'
+      - '.github/workflows/apex-saveguard-ci.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: apex-saveguard-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  compatibility:
+    name: Saves / Replay / corrupcao — baseline vs candidata
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Baixar revisao de referencia
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          path: baseline
+          ref: ${{ github.event.pull_request.base.sha || inputs.baseline_ref || 'main' }}
+          persist-credentials: false
+
+      - name: Baixar revisao candidata
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          path: candidate
+          ref: ${{ github.event.pull_request.head.sha || inputs.candidate_ref || github.sha }}
+          persist-credentials: false
+
+      - name: Preparar Godot 4.7.2
+        uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c # v3.0.1
+        with:
+          version: 4.7.2-stable
+
+      - name: Testar contratos de relatórios
+        run: |
+          python3 -m unittest discover -s candidate/tools/tests \
+            -p 'test_apex_saveguard_ci.py' -v
+
+      - name: Importar recursos da revisao de referencia
+        run: godot --headless --path baseline --import
+
+      - name: Importar recursos da versao candidata
+        run: godot --headless --path candidate --import
+
+      - name: Gerar fixtures reais na base e conferir na candidata
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ci_artifacts/saveguard
+          base_home="$RUNNER_TEMP/apex-saveguard-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-base"
+          candidate_home="$RUNNER_TEMP/apex-saveguard-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-candidate"
+          replay_path="$RUNNER_TEMP/apex-saveguard-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}/baseline_replay.apexreplay"
+          mkdir -p "$(dirname "$replay_path")"
+
+          run_scene() {
+            local project="$1"
+            local profile="$2"
+            local scene="$3"
+            local label="$4"
+            (
+              export HOME="$profile"
+              export XDG_DATA_HOME="$HOME/data"
+              export XDG_CONFIG_HOME="$HOME/config"
+              export XDG_CACHE_HOME="$HOME/cache"
+              mkdir -p "$XDG_DATA_HOME" "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME"
+              timeout 150s godot --headless --path "$project" \
+                --script "res://${scene}" > "ci_artifacts/saveguard/${label}.log" 2>&1
+            )
+          }
+
+          run_scene baseline "$base_home" tests/career_0667_20_season_data_stress.gd baseline_career
+          run_scene baseline "$base_home" tests/core_0642_save_migration_test.gd baseline_garage
+
+          export APEX_LEGACY_PATH="$replay_path"
+          export APEX_LEGACY_TICKS=350
+          export APEX_LEGACY_MODE=record
+          run_scene baseline "$base_home" tests/replay_0663_legacy_fixture.gd baseline_replay
+
+          mapfile -t careers < <(find "$base_home/data" -type f -name 'apex_0667_20_season_stress.json' -print)
+          mapfile -t garages < <(find "$base_home/data" -type f -name 'apex_garage_050.json' -print)
+          test "${#careers[@]}" -eq 1
+          test "${#garages[@]}" -eq 1
+          test -s "$replay_path"
+          career="${careers[0]}"
+          garage="${garages[0]}"
+          sha256sum "$career" | cut -d' ' -f1 > ci_artifacts/saveguard/career.sha
+          sha256sum "$garage" | cut -d' ' -f1 > ci_artifacts/saveguard/garage.sha
+          sha256sum "$replay_path" | cut -d' ' -f1 > ci_artifacts/saveguard/replay.sha
+
+          export APEX_LEGACY_MODE=replay
+          run_scene candidate "$candidate_home" tests/replay_0663_legacy_fixture.gd candidate_replay
+          unset APEX_LEGACY_PATH APEX_LEGACY_TICKS APEX_LEGACY_MODE
+
+          export APEX_SAVEGUARD_CAREER="$career"
+          export APEX_SAVEGUARD_GARAGE="$garage"
+          export APEX_SAVEGUARD_REPLAY="$replay_path"
+          export APEX_SAVEGUARD_TICKS=350
+          run_scene candidate "$candidate_home" tests/ci/apex_saveguard_cross_revision.gd candidate_saveguard
+
+          python3 candidate/tools/apex_saveguard_ci.py \
+            --baseline baseline --candidate candidate \
+            --baseline-home "$base_home" \
+            --replay-path "$replay_path" \
+            --output ci_artifacts/saveguard
+
+      - name: Publicar resumo com limitacoes
+        if: always()
+        shell: bash
+        run: |
+          if [ -f ci_artifacts/saveguard/report.md ]; then
+            cat ci_artifacts/saveguard/report.md >> "$GITHUB_STEP_SUMMARY"
+          elif [ -f ci_artifacts/saveguard/error.txt ]; then
+            echo '### APEX SaveGuard — Falha / Incompatibilidade' >> "$GITHUB_STEP_SUMMARY"
+            cat ci_artifacts/saveguard/error.txt >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo '### APEX SaveGuard — Nenhum relatorio gerado' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Salvar somente logs e evidencias sem os saves de exemplo
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: apex-saveguard-compatibilidade
+          path: |
+            ci_artifacts/saveguard/*.log
+            ci_artifacts/saveguard/report.json
+            ci_artifacts/saveguard/report.md
+            ci_artifacts/saveguard/error.txt
+          retention-days: 14
+          if-no-files-found: warn
