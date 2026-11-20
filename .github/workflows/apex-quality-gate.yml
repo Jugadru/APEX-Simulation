@@ -1,0 +1,98 @@
+name: APEX - Quality Gate 1.0
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'AUDIT so informa; ENFORCE reprova se qualquer evidencia obrigatoria faltar'
+        required: true
+        type: choice
+        default: audit
+        options:
+          - audit
+          - enforce
+      pr_number:
+        description: 'Opcional: numero do PR para comparar baseline e candidato'
+        required: false
+        type: string
+      base_sha:
+        description: 'Opcional: SHA completo da base do PR para comparacoes'
+        required: false
+        type: string
+  # Every PR must be audited, even if it touches files outside scripts/data.
+  pull_request:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: apex-quality-gate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-gate-unit:
+    name: Quality Gate / testes de contrato
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Baixar APEX
+        uses: actions/checkout@v4
+      - name: Exercitar criterio fail-closed sem depender de rede
+        run: |
+          python3 -m unittest discover -s tools/tests \
+            -p 'test_apex_quality_gate.py' -v
+
+  quality-gate-evidence:
+    name: Quality Gate / auditoria por SHA
+    needs: quality-gate-unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      APEX_TARGET_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      APEX_MODE: ${{ inputs.mode || 'audit' }}
+      APEX_PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr_number || '0' }}
+      APEX_BASE_SHA: ${{ github.event.pull_request.base.sha || inputs.base_sha || '' }}
+    steps:
+      - name: Baixar candidato exato
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      - name: Verificar 10 pipelines instalados e aprovados no mesmo commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/apex_quality_gate.py \
+            --repository "$GITHUB_REPOSITORY" \
+            --sha "$APEX_TARGET_SHA" \
+            --mode "$APEX_MODE" \
+            --wait-seconds 90 \
+            --pr-number "$APEX_PR_NUMBER" \
+            --base-sha "$APEX_BASE_SHA" \
+            --project . \
+            --output ci_artifacts/quality_gate
+
+      - name: Exibir resultado e pendencias
+        if: always()
+        shell: bash
+        run: |
+          if [ -f ci_artifacts/quality_gate/report.md ]; then
+            cat ci_artifacts/quality_gate/report.md >> "$GITHUB_STEP_SUMMARY"
+          elif [ -f ci_artifacts/quality_gate/error.txt ]; then
+            echo '### APEX Quality Gate — erro na coleta de evidencias' >> "$GITHUB_STEP_SUMMARY"
+            cat ci_artifacts/quality_gate/error.txt >> "$GITHUB_STEP_SUMMARY"
+          fi
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo 'IMPORTANTE: a auditoria nao autoriza merge e nao configura branch protection.' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Guardar matriz de verificacao
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apex-quality-gate-matriz
+          path: ci_artifacts/quality_gate/
+          retention-days: 14
+          if-no-files-found: warn
