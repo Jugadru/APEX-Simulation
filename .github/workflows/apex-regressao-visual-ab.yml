@@ -19,7 +19,10 @@ on:
       - 'scenes/**'
       - 'assets/**'
       - 'data/**'
-      - 'tests/ci/**'
+      # Only the screenshot fixture affects visual A/B. Other tests/ci scripts
+      # (endurance, SaveGuard, AI) must not trigger visual comparison on old PRs.
+      - 'tests/ci/apex_capture_screenshots.gd'
+      - 'tools/verify_ci_captures.py'
       - 'tools/visual_regression_ab.py'
       - 'tools/tests/test_visual_regression_ab.py'
       - '.github/workflows/apex-regressao-visual-ab.yml'
