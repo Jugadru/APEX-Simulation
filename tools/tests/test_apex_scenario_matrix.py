@@ -31,6 +31,7 @@ class ScenarioMatrixContractTests(unittest.TestCase):
             "steps": 210, "finished": True, "finish_results_validated": True,
             "finished_cars": 24, "classified_positions": list(range(1, 25)),
             "pits_total": 2, "max_stops": 1,
+            "pit_laps_by_player": [[6], [7]] if scenario["mode"] != "IA" else [[], []],
 
         }
 
