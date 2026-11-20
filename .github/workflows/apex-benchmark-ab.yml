@@ -39,28 +39,55 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || inputs.candidate_ref || github.sha }}
           persist-credentials: false
 
-      - name: Escolher comparador de CI para branches historicas
+      - name: Checkout de ferramentas confiaveis da main atual
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          path: ci-tooling
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+          sparse-checkout: tools
+          sparse-checkout-cone-mode: true
+
+      - name: Selecionar comparador e testar politica de compatibilidade
         shell: bash
         run: |
           set -euo pipefail
-          base_tool=base/tools/compare_apex_benchmarks.py
-          base_tests=base/tools/tests/test_compare_apex_benchmarks.py
-          candidate_tool=candidate/tools/compare_apex_benchmarks.py
-          candidate_tests=candidate/tools/tests/test_compare_apex_benchmarks.py
-          if [[ -f "$candidate_tool" || -f "$candidate_tests" ]]; then
-            # A candidate that modifies or partially carries the comparator
-            # MUST include both files; never mask incomplete code.
-            test -s "$candidate_tool"
-            test -s "$candidate_tests"
-            tool_root=candidate
-          else
-            # Older PR branches predate the comparator. Run the already
-            # merged, trusted CI tooling from the PR baseline instead.
-            test -s "$base_tool"
-            test -s "$base_tests"
-            tool_root=base
-            echo "Comparator unavailable on historical candidate: using baseline CI tooling." >> "$GITHUB_STEP_SUMMARY"
+          choose_root() {
+            local candidate_root="$1"
+            local trusted_root="$2"
+            local candidate_tool="$candidate_root/tools/compare_apex_benchmarks.py"
+            local candidate_tests="$candidate_root/tools/tests/test_compare_apex_benchmarks.py"
+            local trusted_tool="$trusted_root/tools/compare_apex_benchmarks.py"
+            local trusted_tests="$trusted_root/tools/tests/test_compare_apex_benchmarks.py"
+            if [[ -e "$candidate_tool" || -e "$candidate_tests" ]]; then
+              # Candidate carries comparator: both scripts must be complete.
+              test -s "$candidate_tool" && test -s "$candidate_tests" || return 1
+              printf '%s' "$candidate_root"
+            else
+              # The historical PR base SHA may predate the comparator too.
+              # Use independent, current main tooling; never trust stale base.
+              test -s "$trusted_tool" && test -s "$trusted_tests" || return 1
+              printf '%s' "$trusted_root"
+            fi
+          }
+
+          # Run a focused contract smoke with a synthetic legacy checkout,
+          # a partial implementation (must reject), and a complete candidate.
+          scratch="$(mktemp -d)"
+          trap 'rm -rf "$scratch"' EXIT
+          mkdir -p "$scratch/legacy" "$scratch/partial/tools" "$scratch/current/tools/tests"
+          test "$(choose_root "$scratch/legacy" ci-tooling)" = "ci-tooling"
+          printf 'partial\n' > "$scratch/partial/tools/compare_apex_benchmarks.py"
+          if choose_root "$scratch/partial" ci-tooling >/dev/null; then
+            echo "::error::Partial comparator was incorrectly accepted"
+            exit 1
           fi
+          cp ci-tooling/tools/compare_apex_benchmarks.py "$scratch/current/tools/"
+          cp ci-tooling/tools/tests/test_compare_apex_benchmarks.py "$scratch/current/tools/tests/"
+          test "$(choose_root "$scratch/current" ci-tooling)" = "$scratch/current"
+          echo "APEX_AB_TOOL_SELECTION_TESTS_PASS"
+
+          tool_root="$(choose_root candidate ci-tooling)"
           echo "APEX_AB_TOOLS_ROOT=$tool_root" >> "$GITHUB_ENV"
           echo "APEX A/B comparator source: $tool_root" >> "$GITHUB_STEP_SUMMARY"
 
