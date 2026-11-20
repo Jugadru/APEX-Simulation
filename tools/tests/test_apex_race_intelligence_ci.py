@@ -22,7 +22,7 @@ def good(scenario="monza_dry_auto"):
         "finished": True, "classified": 24, "steps": 250,
         "hash": "a" * 64, "pits_total": 12,
         "manual_v7_pits": [7] if scenario == "monza_manual_v7" else [],
-        "on_track_pass_events": 2, "radio_events": 8, "ai_plan_samples": 7,
+        "on_track_pass_events": 2, "radio_events": 8, "ai_plan_samples": 7,  # nosec B105: overtaking count
         "max_stops_per_car": 3, "wetness_peak": 0.85, "errors": [],
     }
 
@@ -88,7 +88,7 @@ class IntelligenceReportTests(unittest.TestCase):
     def test_markdown_preserves_limitations(self):
         report = {
             "status": "PASS", "scenarios": {"monza_dry_auto": {
-                "pits_total": 10, "on_track_pass_events": 2, "radio_events": 3
+                "pits_total": 10, "on_track_pass_events": 2, "radio_events": 3  # nosec B105: overtaking count
             }}, "targeted": {"tyres": "PASS"}
         }
         txt = markdown(report)
