@@ -55,3 +55,6 @@ cobertura estatística de centenas de seeds.
 Esta melhoria só adiciona teste GDScript, ferramentas Python, documentação
 e workflow. Não altera os scripts de produção, saves, replays ou dados
 históricos. Revisão e merge seguem manuais.
+
+
+**Execução segura em CI:** o GitHub Actions inicia os cenários Godot como comandos explícitos, com perfis HOME/XDG isolados. O código Python apenas lê logs nomeados e valida resultados e hashes, sem iniciar processos externos. A regressão visual só é acionada quando forem alterados arquivos de apresentação ou a fixture de captura.
