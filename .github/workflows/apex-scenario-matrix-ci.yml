@@ -40,6 +40,8 @@ jobs:
     timeout-minutes: 70
     strategy:
       fail-fast: false
+      # Avoid four simultaneous Godot release downloads on cold runners.
+      max-parallel: 2
       matrix:
         shard: [0, 1, 2, 3]
     env:
@@ -53,6 +55,7 @@ jobs:
           persist-credentials: false
 
       - name: Preparar Godot 4.7.2
+        timeout-minutes: 15
         uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c # v3.0.1
         with:
           version: 4.7.2-stable
