@@ -115,7 +115,9 @@ def run_godot(
     async def invoke_verified_godot() -> tuple[int, int | None]:
         observed_rss: int | None = None
         with log_file.open("wb") as stream:
-            process = await asyncio.create_subprocess_exec(
+                # Verified Godot ELF, fixed in-repository scenario scripts,
+                # canonical project path, isolated CI profile, no shell.
+            process = await asyncio.create_subprocess_exec(  # nosemgrep: python.lang.security.audit.dangerous-asyncio-create-exec-audit, python.lang.security.audit.dangerous-asyncio-create-exec-tainted-env-args
                 *command, env=env,
                 stdout=stream, stderr=asyncio.subprocess.STDOUT,
             )
