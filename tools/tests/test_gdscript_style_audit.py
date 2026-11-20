@@ -5,10 +5,9 @@ from pathlib import Path
 import sys
 import unittest
 from tempfile import TemporaryDirectory
-from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from gdscript_style_audit import AuditError, lint_findings, run_tool, summarize, to_markdown, tracked_scripts
+from gdscript_style_audit import AuditError, lint_findings, read_audit_logs, summarize, to_markdown, tracked_scripts
 
 
 class GDScriptAuditContractTests(unittest.TestCase):
@@ -34,18 +33,35 @@ class GDScriptAuditContractTests(unittest.TestCase):
             (source / "shortcut.gd").symlink_to(root / "outside.gd")
             self.assertEqual(tracked_scripts(root), ["scripts/core/race.gd"])
 
-    def test_only_auditor_executables_allowed(self):
+    def test_report_parser_reads_existing_ci_logs(self):
         with TemporaryDirectory() as td:
-            with patch("gdscript_style_audit.asyncio.create_subprocess_exec") as command:
-                with self.assertRaises(AuditError):
-                    run_tool("bash", ["-c", "echo no"], Path(td), Path(td))
-                command.assert_not_called()
+            root = Path(td)
+            (root / "version.log").write_text("gdlint 4.5.0\n", encoding="utf-8")
+            (root / "gdlint.log").write_text("scripts/race.gd:2: Error: sample\n", encoding="utf-8")
+            (root / "gdformat.log").write_text("would reformat\n", encoding="utf-8")
+            lint, formatting, version = read_audit_logs(root, 1, 1)
+            self.assertEqual(version, "gdlint 4.5.0")
+            self.assertEqual(lint["exit_code"], 1)
+            self.assertEqual(formatting["exit_code"], 1)
 
-    def test_missing_gdlint_is_an_error(self):
+    def test_missing_ci_logs_are_rejected(self):
         with TemporaryDirectory() as td:
-            with patch("gdscript_style_audit.shutil.which", return_value=None):
-                with self.assertRaisesRegex(AuditError, "Missing"):
-                    run_tool("gdlint", ["--version"], Path(td), Path(td))
+            with self.assertRaisesRegex(AuditError, "Missing"):
+                read_audit_logs(Path(td), 0, 0)
+
+    def test_invalid_exit_status_rejected_without_running_commands(self):
+        with TemporaryDirectory() as td:
+            with self.assertRaisesRegex(AuditError, "Unexpected"):
+                read_audit_logs(Path(td), 123, 0)
+
+    def test_empty_finding_logs_are_rejected(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "version.log").write_text("gdlint 4.5.0\n", encoding="utf-8")
+            (root / "gdlint.log").write_text("", encoding="utf-8")
+            (root / "gdformat.log").write_text("", encoding="utf-8")
+            with self.assertRaisesRegex(AuditError, "Missing version or tool findings"):
+                read_audit_logs(root, 1, 1)
 
     def test_clean_requires_two_successes(self):
         result = summarize(
