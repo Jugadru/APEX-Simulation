@@ -6,12 +6,11 @@ from pathlib import Path
 import sys
 from tempfile import TemporaryDirectory
 import unittest
-from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from apex_saveguard_ci import SaveGuardError, find_exact, marker_json, markdown, validate_result
 
-from apex_saveguard_ci import resolve_godot_binary
+from apex_saveguard_ci import read_ci_log, read_snapshot_hash
 
 def example():
     return {
@@ -98,31 +97,30 @@ class SaveGuardContracts(unittest.TestCase):
     def test_documentation_does_not_claim_auto_restore(self):
         self.assertIn("não o restaura sozinha", markdown({**example(), "checks": 42}))
 
-    def test_verified_godot_elf_and_setup_wrapper(self):
+    def test_existing_ci_logs_are_read(self):
         with TemporaryDirectory() as td:
             root = Path(td)
-            binary = root / "Godot_v4.7.2-stable_linux.x86_64"
-            binary.write_bytes(b"\x7fELF" + b"\x00" * 20)
-            wrapper = root / "godot-wrapper"
-            wrapper.write_text(
-                'set -e\nxvfb-run --auto-servernum ' + str(binary) + ' "$@"\n',
-                encoding="utf-8",
-            )
-            with patch("apex_saveguard_ci.shutil.which", return_value=str(wrapper)):
-                self.assertEqual(resolve_godot_binary("godot"), str(binary))
-            with patch("apex_saveguard_ci.shutil.which", return_value=str(binary)):
-                self.assertEqual(resolve_godot_binary("godot"), str(binary))
+            (root / "baseline_replay.log").write_text("LEGACY_RECORD_PASS\n", encoding="utf-8")
+            self.assertIn("LEGACY_RECORD_PASS", read_ci_log(root, "baseline_replay"))
 
-    def test_untrusted_shell_line_must_be_rejected(self):
+    def test_missing_ci_logs_cannot_pass(self):
         with TemporaryDirectory() as td:
-            wrapper = Path(td) / "godot-wrapper"
-            wrapper.write_text(
-                'xvfb-run --auto-servernum /tmp/godot;rm -rf . "$@"\n',
-                encoding="utf-8",
-            )
-            with patch("apex_saveguard_ci.shutil.which", return_value=str(wrapper)):
-                with self.assertRaises(SaveGuardError):
-                    resolve_godot_binary("godot")
+            with self.assertRaises(SaveGuardError):
+                read_ci_log(Path(td), "candidate_saveguard")
+
+    def test_untrusted_log_labels_rejected(self):
+        with TemporaryDirectory() as td:
+            with self.assertRaisesRegex(SaveGuardError, "Invalid CI log label"):
+                read_ci_log(Path(td), "../outside")
+
+    def test_snapshot_hash_requires_64_hex_characters(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "career.sha").write_text("a" * 64 + "\n", encoding="utf-8")
+            self.assertEqual(read_snapshot_hash(root, "career"), "a" * 64)
+            (root / "career.sha").write_text("not a real sha", encoding="utf-8")
+            with self.assertRaises(SaveGuardError):
+                read_snapshot_hash(root, "career")
 
 
 
