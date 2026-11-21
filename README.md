@@ -4,15 +4,15 @@ Simulador de gestão de automobilismo com equipes, estratégias, desenvolvimento
 
 ## 📥 Baixar o jogo — v0.6.6.9.1
 
-### [⬇ Baixar ZIPs para Windows e Linux — v0.6.6.9.1](https://github.com/Jugadru/APEX-Simulation/actions/runs/44931027285/artifacts/14717628112)
+### [⬇ Baixar ZIPs CORRIGIDOS para Windows e Linux — v0.6.6.9.1](https://github.com/Jugadru/APEX-Simulation/actions/runs/44934421047/artifacts/14718572939)
 
-Esse link abre o **artefato de build da versão v0.6.6.9.1**: dentro dele estão os ZIPs de **Windows x86_64** e **Linux x86_64**, ambos com o executável e o arquivo `.pck`, gerados no Godot 4.7.2. Extraia o arquivo externo do GitHub Actions e, em seguida, o ZIP do seu sistema operacional. Pode ser necessário entrar na sua conta GitHub para baixar o artefato.
+Esse link abre o **artefato de build corrigido da versão v0.6.6.9.1**: dentro dele estão os ZIPs de **Windows x86_64** e **Linux x86_64**, ambos com o executável e o arquivo `.pck`, gerados no Godot 4.7.2. **Verificação realizada nos dois `.pck`: ambos contêm a identificação v0.6.6.9.1 e não contêm mais a identificação v0.6.6.8.10.** Extraia o arquivo externo do GitHub Actions e, em seguida, o ZIP do seu sistema operacional. Pode ser necessário entrar na sua conta GitHub para baixar o artefato.
 
-**Atenção: download temporário.** O GitHub Actions mantém esse artefato até **05/12/2026**. Ele foi gerado a partir do commit candidato `35055bdc34fb2f76d49c4596e0b9119d681b5da9`, cujo conteúdo (árvore Git) é **idêntico** ao commit integrado à `main` `d95e79628062b62b2cd3f253c1ee557c20fdc698`. Build validado no PR #65 (16/16 workflows, Quality Gate READY 10/10). A publicação de uma Release permanente **v0.6.6.9.1** ainda não foi realizada.
+**Atenção: download temporário.** O GitHub Actions mantém esse artefato até **05/12/2026**. O ZIP corrigido foi gerado a partir do commit `61101ee3f53494340111715a6a782e297934fd53` ([PR #67](https://github.com/Jugadru/APEX-Simulation/pull/67)), com exportação Linux/Windows e checagem da identificação interna aprovadas. A otimização v0.6.6.9.1 anterior passou 16/16 workflows no [PR #65](https://github.com/Jugadru/APEX-Simulation/pull/65). A correção da identificação ainda está em revisão/CI e **não é uma nova Release pública permanente**.
 
-### [⬇ Baixar ZIP do código-fonte v0.6.6.9.1 — Godot 4.7.2](https://github.com/Jugadru/APEX-Simulation/archive/d95e79628062b62b2cd3f253c1ee557c20fdc698.zip)
+### [⬇ Baixar ZIP do código-fonte corrigido v0.6.6.9.1 — Godot 4.7.2](https://github.com/Jugadru/APEX-Simulation/archive/61101ee3f53494340111715a6a782e297934fd53.zip)
 
-Esse segundo link é **permanente** enquanto o commit permanecer acessível no repositório. Use-o para **editar o jogo no Godot**; não substitui os executáveis de Windows/Linux.
+Esse segundo link aponta para o **commit exato que gerou os executáveis corrigidos**. Use-o para **editar o jogo no Godot**; não substitui os executáveis de Windows/Linux. O commit permanecerá acessível enquanto estiver disponível no histórico do GitHub.
 
 ### [⬇ Última Release pública permanente — v0.6.6.8.10](https://github.com/Jugadru/APEX-Simulation/releases/tag/v0.6.6.8.10-core2-current)
 
