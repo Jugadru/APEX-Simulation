@@ -87,16 +87,16 @@ jobs:
           match = re.search(r'^config/name="([^"]+)"', project, re.MULTILINE)
           assert match, 'Missing application/config/name in project.godot'
           expected = match.group(1).encode('utf-8')
-          assert b'v0.6.6.9.3' in expected, 'The candidate must carry release v0.6.6.9.3'
-          old = b"APEX Motorsport Manager v0.6.6.9.2"
-          much_older = b"APEX Motorsport Manager v0.6.6.9.1"
+          assert b'v0.6.6.9.4' in expected, 'The candidate must carry release v0.6.6.9.4'
+          old = b"APEX Motorsport Manager v0.6.6.9.3"
+          much_older = b"APEX Motorsport Manager v0.6.6.9.2"
           for platform in ("linux", "windows"):
               pck = Path("builds") / platform / "APEX_Motorsport_Manager.pck"
               data = pck.read_bytes()
               assert expected in data, f"{platform}: wrong application/config/name in PCK"
               assert old not in data, f"{platform}: old 9.1 application/config/name in PCK"
               assert much_older not in data, f"{platform}: old 8.10 application/config/name in PCK"
-              print(f"APEX_BUILD_ID_06693_PASS {platform} {expected.decode()}")
+              print(f"APEX_BUILD_ID_06694_PASS {platform} {expected.decode()}")
           PY
 
       - name: Validar binarios e compactar
