@@ -73,11 +73,20 @@ static func overlaps(a: Dictionary,b: Dictionary) -> bool:
 	return true
 
 static func swept(a0: Dictionary,a1: Dictionary,b0: Dictionary,b1: Dictionary) -> bool:
-	# Continuous SAT on relative motion. Includes the projection of both
-	# endpoint orientations, so fast frames cannot tunnel through a rival.
-	if overlaps(a0,b0): return overlaps(a1,b1)
+	# 06691: conservative visual broadphase for the relative linear sweep.
+	# Track3D supplies unit directions. Each car fits in a circumscribed
+	# radius sqrt(2.8^2+1.4^2) < 3.14; combined reach < 6.27.
+	# Use 7 map units for a safety margin, before the original exact SAT.
+	# If both endpoints stay on the same far side of an axis, their linear
+	# relative path cannot collide. A crossing path must still run exact SAT.
 	var start: Vector2 = a0.position-b0.position
-	var velocity: Vector2 = (a1.position-b1.position)-start
+	var finish: Vector2 = a1.position-b1.position
+	if (start.x > 7.0 and finish.x > 7.0) or (start.x < -7.0 and finish.x < -7.0) \
+			or (start.y > 7.0 and finish.y > 7.0) or (start.y < -7.0 and finish.y < -7.0):
+		return false
+	# Original collision/continuous SAT algorithm below is deliberately intact.
+	if overlaps(a0,b0): return overlaps(a1,b1)
+	var velocity: Vector2 = finish-start
 	var closest := clampf(-start.dot(velocity)/maxf(.000001,velocity.length_squared()),0,1)
 	if (start+velocity*closest).length_squared()>40.0: return false
 	var enter := 0.0
