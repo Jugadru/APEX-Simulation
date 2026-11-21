@@ -86,7 +86,8 @@ static func evaluate(car: Dictionary, context: Dictionary) -> Dictionary:
 	var target: float = base_lap + 1.55 - gain - (float(car["car_rating"]) - 80.0) * 0.058 - (float(car["skill"]) - 80.0) * 0.036 + float(tyre["delta"]) + float(pace["delta"]) + penalty + traffic + drs + kers_bonus + fuel + rain_penalty + float(wet_tyre["penalty"]) + float(crossover.get("extra_penalty", 0.0)) + grip_cost
 	# Improvement 14: launch is a transient traction/reaction cost on actual pace.
 	# No RNG, grid-place bonus, or permanent effects on the lap time model.
-	target += RaceLaunch14.pace_cost(car, float(context.get("clock", RaceLaunch14.PHASE_SECONDS)), rain_wetness)
+	if bool(context.get("launch_enabled", true)):
+		target += RaceLaunch14.pace_cost(car, float(context.get("clock", RaceLaunch14.PHASE_SECONDS)), rain_wetness)
 	target = clampf(target, maxf(58.0, base_lap * 0.80), maxf(205.0, base_lap * 2.20))
 	return {"target": target, "wear_factor": wear_factor, "heat": tyre_heat,
 		"traffic": traffic, "drs": drs, "kers": kers_bonus, "fuel": fuel, "gain": gain, "penalty": penalty,
