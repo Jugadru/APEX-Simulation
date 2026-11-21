@@ -1166,7 +1166,9 @@ func _announce_soul_requests() -> void:
 			radio_reactive_toast.tooltip_text = reason + " · Clique para abrir o rádio."
 			radio_reactive_toast_until = Time.get_ticks_msec() + 9000
 			radio_reactive_toast.show()
-		if host.commentary != null:
+		# Soul3 requests are already published as deterministic driver_radio
+		# events by RaceEngine. Keep the toast but avoid duplicate commentary.
+		if host.commentary != null and str((car.get("driver_soul", {}) as Dictionary).get("version", "")) != "3.0":
 			host.commentary.add_soul_spontaneous(float(host.race.clock), name, message,
 				"Pedido recebido para análise, nenhuma ordem foi executada.", car_id)
 		if active_window == "radio":
