@@ -29,7 +29,7 @@ INVARIANT_FIELDS = (
     "id", "track", "weather", "mode", "seed", "laps", "steps",
     "finished", "finish_results_validated", "finished_cars",
     "classified_positions", "race_hash", "pits_total", "max_stops",
-    "pit_laps_by_player", "disqualified", "wetness_peak",
+    "pit_laps_by_player", "disqualified", "disqualification_evidence", "wetness_peak",
     "on_track_pass_events",
 )
 
@@ -127,6 +127,19 @@ def _validated(obj: dict[str, Any], scenario: dict[str, Any]) -> dict[str, Any]:
             raise MatrixError(f"{name}: invalid {key}")
     if obj["max_stops"] > 10 or obj["pits_total"] > 240 or obj["disqualified"] > 24:
         raise MatrixError(f"{name}: impossible stop/disqualification count")
+    dq = obj.get("disqualification_evidence")
+    if (not isinstance(dq, list) or len(dq) != obj["disqualified"]
+            or any(not isinstance(item, dict) or type(item.get("car_id")) is not int
+                   or item["car_id"] < 0 or not isinstance(item.get("driver"), str)
+                   or not isinstance(item.get("team"), str)
+                   or not isinstance(item.get("used_tires"), list)
+                   or any(not isinstance(t, str) for t in item["used_tires"])
+                   or type(item.get("tyre_rule_violation")) is not bool
+                   or not isinstance(item.get("tire"), str)
+                   or type(item.get("stops")) is not int or item["stops"] < 0
+                   for item in dq)
+            or len({item["car_id"] for item in dq}) != len(dq)):
+        raise MatrixError(f"{name}: invalid per-car disqualification evidence")
     lap_lists = obj.get("pit_laps_by_player")
     if (not isinstance(lap_lists, list) or len(lap_lists) != 2
             or any(not isinstance(laps, list) for laps in lap_lists)
@@ -172,6 +185,12 @@ def validate(project: Path, output: Path, profile: str, shard: int,
         {"scenario": x["id"], "message": message}
         for x in rows for message in x["warnings"]
     ]
+    for row in rows:
+        for entry in row["disqualification_evidence"]:
+            print("APEX_MATRIX_DQ_EVIDENCE", json.dumps({
+                "scenario": row["id"], "track": row["track"],
+                "seed": row["seed"], **entry,
+            }, ensure_ascii=False), flush=True)
     return {
         "status": "PASS" if not warnings else "WARN",
         "profile": profile, "shard": shard, "shards": shards,

@@ -64,9 +64,16 @@ func _run() -> void:
         if not race.set_pit_control_mode(driver_id, "Manual" if manual_mode else "IA"):
             errors.append("Failed to select pit control mode")
     if manual_mode:
-        var target: String = "Chuva" if weather == "Chuva intensa" else str(race.available_pit_compounds()[1])
+        # Each player's scheduled dry stop must change to the *other* nominated
+        # slick. The old single target for both Ferrari cars caused artificial
+        # 2012 tyre-rule DQs when a driver already started on that compound.
+        var nominated: Array = race.available_pit_compounds()
         for i in range(player_ids.size()):
             var target_lap: int = 6 + i
+            var initial: String = str(race.player_cars()[i].get("tire", ""))
+            var target: String = "Chuva" if weather == "Chuva intensa" else (
+                str(nominated[0]) if initial == str(nominated[1]) else str(nominated[1])
+            )
             if not race.schedule_pit(player_ids[i], target, target_lap):
                 errors.append("Manual schedule V%d rejected" % target_lap)
 
@@ -100,6 +107,7 @@ func _run() -> void:
 
     var finished_cars: int = 0
     var disqualified: int = 0
+    var dq_evidence: Array[Dictionary] = []
     var positions: Array[int] = []
     var tyres: Array = race.available_pit_compounds()
     var ranked: Array = race.get_sorted()
@@ -110,6 +118,16 @@ func _run() -> void:
             finished_cars += 1
         if bool(car.get("disqualified", false)):
             disqualified += 1
+            # Read-only evidence: identify regulated car, used compounds and stops.
+            dq_evidence.append({
+                "car_id": int(car.get("id", -1)),
+                "driver": str(car.get("name", car.get("driver", ""))),
+                "team": str(car.get("team", "")),
+                "used_tires": car.get("used_tires", []).duplicate(true),
+                "tyre_rule_violation": bool(car.get("tyre_rule_violation", false)),
+                "tire": str(car.get("tire", "")),
+                "stops": int(car.get("stops", 0)),
+            })
         positions.append(int(car.get("position", -1)))
         var wear: float = float(car.get("wear", -1.0))
         var best: float = float(car.get("best_lap", 0.0))
@@ -124,6 +142,7 @@ func _run() -> void:
             errors.append("Compound is not allowed for this 2012 circuit")
 
     positions.sort()
+    dq_evidence.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return int(a["car_id"]) < int(b["car_id"]))
     if not race.finished or not race.finish_results_validated:
         errors.append("Race did not finish or validate before bounded timeout")
     if finished_cars != 24 or positions != range(1, 25):
@@ -140,6 +159,10 @@ func _run() -> void:
                 pit_laps_by_player[i].append(lap)
     if manual_mode and pit_laps_by_player != [[6], [7]]:
         errors.append("Manual scheduled stop was early, late or duplicated")
+    if manual_mode and weather == "Seco":
+        for car in ranked:
+            if player_ids.has(int(car.get("id", -1))) and bool(car.get("disqualified", false)):
+                errors.append("Manual/assisted fixture violated 2012 dry tyre rule for car " + str(car.get("id", -1)))
     if max_stops_observed >= 4 or pit_history.size() > 30:
         warnings.append("Unusually many stops for ten laps; inspect tyre/weather traces")
     if disqualified > 0:
@@ -161,6 +184,7 @@ func _run() -> void:
         "race_hash": Codec.sporting_hash(race, {}),
         "pits_total": pit_history.size(), "max_stops": max_stops_observed,
         "pit_laps_by_player": pit_laps_by_player, "disqualified": disqualified,
+        "disqualification_evidence": dq_evidence,
         "wetness_peak": snappedf(wetness_peak, 0.000001),
         "on_track_pass_events": pass_events,
         "errors": errors, "warnings": warnings,
