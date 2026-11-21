@@ -28,6 +28,7 @@ const WetPhysics = preload("res://scripts/core/race_wet_physics.gd")
 const RaceKers2012 = preload("res://scripts/core/race_kers_2012.gd")
 const RaceDrs2012 = preload("res://scripts/core/race_drs_2012.gd")
 const TrackDynamics = preload("res://scripts/core/race_track_dynamics.gd")
+const WeatherSetup15 = preload("res://scripts/core/race_weather_setup_15.gd")
 const TyreThermal = preload("res://scripts/core/race_tyre_thermal.gd")
 ## Continuous race simulator with track-dependent parameters.
 ## Coefficients are experimental gameplay balancing, not official FIA telemetry.
@@ -178,6 +179,7 @@ func _start_grid() -> void:
 			"color": driver["color"], "skill": driver["skill"], "car_rating": driver["car_rating"],
 			"grid": i + 1, "race_lane":0.0, "progress": -maxf(0.0018,6.6/float(space_profile.length)) * i, "laps_done": 0,
 			"pace": "Normal", "tire": compound, "wear": 0.0, "stint_laps": 0,
+			"race_setup_15": WeatherSetup15.neutral(),
 			"tyre_heat": 0.0, "attack_charge": 0.0, "track_wear_factor": tyre_severity() * (1.0 + float((int(driver["id"]) % 7) - 3) * 0.022),
 			"combat_state": Combat.CLEAR, "combat_target_id": -1, "combat_duel_time": 0.0,
 			"combat_cooldown": 0.0, "combat_attempts": 0, "combat_passes": 0,
@@ -219,6 +221,16 @@ func _start_grid() -> void:
 		_last_ranks[driver["id"]] = i + 1
 	leader_id = int(cars[0]["id"])
 	_event("grid", -1, "GRID 2012: %d carros em %s. %d voltas / %.3f km." % [cars.size(), track_name, lap_count, race_km], 10)
+
+## Configurable only before green flag; no mutation of a live Grand Prix.
+func configure_pre_race_setup(car_id: int, settings: Dictionary) -> bool:
+	if running or finished or clock > 0.0 or not WeatherSetup15.valid(settings):
+		return false
+	for car in cars:
+		if int(car.get("id", -1)) == car_id and str(car.get("team", "")) == team_name:
+			car["race_setup_15"] = settings.duplicate(true)
+			return true
+	return false
 
 func available_pit_compounds() -> Array:
 	# Exactly two nominated 2012 slicks plus both all-weather tyres.

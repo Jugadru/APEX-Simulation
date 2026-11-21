@@ -4,7 +4,8 @@ const RacecraftAudit = preload("res://scripts/core/racecraft_audit_0662.gd")
 const Engineer = preload("res://scripts/core/race_engineer_0639.gd")
 const STEP := 0.20
 # A replay is tied to the exact sporting rules, not only its Godot runtime.
-const SIMULATION_REVISION := "014_launch_v1"
+const SIMULATION_REVISION := "015_weather_setup_v1"
+const PREVIOUS_SIMULATION_REVISION := "014_launch_v1"
 const LEGACY_SIMULATION_REVISION := "066810_team_yield"
 const CHECKPOINT_TICKS := 300
 const MAX_CHECKPOINTS := 9
@@ -392,7 +393,7 @@ func load_data(data: Dictionary) -> bool:
 	# v0.6.6.0 recordings have different physics and must not be replayed under
 	# v0.6.6.1 rules: silently accepting them would mislabel desync as corruption.
 	var archive_revision: String = str(data.get("simulation_revision", ""))
-	if archive_revision not in [SIMULATION_REVISION, LEGACY_SIMULATION_REVISION]:
+	if archive_revision not in [SIMULATION_REVISION, PREVIOUS_SIMULATION_REVISION, LEGACY_SIMULATION_REVISION]:
 		error = "Replay de outra revisão da simulação. Use a versão que o gravou."
 		return false
 	if data.get("format") != "APEX_REPLAY_0660" or data.get("runtime") != Engine.get_version_info().string or data.get("step") != STEP:
