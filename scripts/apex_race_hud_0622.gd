@@ -6,6 +6,7 @@ extends Control
 const MiniMap = preload("res://scripts/apex_mini_map.gd")
 const HudSkin = preload("res://scripts/apex_race_hud_skin_ui01.gd")
 const ReBroadcast = preload("res://scripts/apex_hud_rebroadcast_0668.gd")
+const HudStandingMetric = preload("res://scripts/presentation/apex_hud_standings_metric.gd")
 const Stints = preload("res://scripts/apex_strategy_planner_0620.gd")
 const EngineerInteractive = preload("res://scripts/core/race_engineer_interactive.gd")
 const DriverPerception = preload("res://scripts/core/race_driver_perception_0633.gd")
@@ -740,23 +741,10 @@ func refresh_hud() -> void:
 		_update_window_data()
 
 func _standing_value(sorted_cars: Array, idx: int) -> String:
-	var car: Dictionary = sorted_cars[idx]
+	# Public HUD adapter: metric selection and sports data remain unchanged.
 	var final: bool = host != null and host.race != null and bool(host.race.finished)
-	match metric_index:
-		0: return "—" if idx == 0 else (str(car.get("interval_label", "")) if final else "+%.2fs" % float(car.get("interval", 0.0)))
-		1: return "—" if idx == 0 else (str(car.get("gap_label", "")) if final else "+%.2fs" % float(car.get("gap", 0.0)))
-		2: return str(int(car.get("stops", 0)))
-		3: return host._format_lap(float(car.get("best_lap", 9999.0)))
-		4: return "%s %d" % [_compound(str(car.get("tire", "Médio"))), int(car.get("stint_laps", 0))]
-		5:
-			if idx >= sorted_cars.size() - 1:
-				return "—"
-			var behind: Dictionary = sorted_cars[idx + 1]
-			return str(behind.get("interval_label", "")) if final else "+%.2fs" % float(behind.get("interval", 0.0))
-		6:
-			var last_time: float = float(car.get("last_lap", 0.0))
-			return host._format_lap(last_time) if last_time > 0.0 and last_time < 9999.0 else "—"
-	return "—"
+	return HudStandingMetric.value(sorted_cars, idx, metric_index, final,
+		Callable(self, "_compound"), Callable(host, "_format_lap"))
 
 func _compound(tire: String) -> String:
 	return str(host.race.tyre_code(tire)) if host != null and host.race != null else tire.left(1)
