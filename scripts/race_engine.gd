@@ -2,6 +2,7 @@ extends RefCounted
 const Perf = preload("res://scripts/debug/apex_perf_trace_0657.gd")
 
 const TelemetryScript = preload("res://scripts/apex_telemetry.gd")
+const RaceStandingsText = preload("res://scripts/presentation/race_standings_text.gd")
 const Rules = preload("res://scripts/core/race_rules.gd")
 const RacePerformance = preload("res://scripts/core/race_performance.gd")
 const RaceSpace = preload("res://scripts/core/race_space_0655.gd")
@@ -1322,10 +1323,5 @@ func _event(kind: String, driver_id: int, message: String, priority: int) -> voi
 		events.pop_front()
 
 func standings_text(limit: int = 24) -> String:
-	var output := ""
-	var order := get_sorted()
-	for i in range(mini(limit, order.size())):
-		var c = order[i]
-		var gap := (str(c.get("gap_label", "")) if finished else ("LÍDER" if i == 0 else "+%.1fs" % float(c["gap"])))
-		output += "%02d  %-18s  %-5s %s\n" % [i + 1, c["name"], tyre_code(str(c["tire"])), gap]
-	return output
+	# Compatibility wrapper: old callers keep the same API and sorting contract.
+	return RaceStandingsText.format(get_sorted(), finished, limit, Callable(self, "tyre_code"))
