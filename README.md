@@ -4,13 +4,17 @@ Simulador de gestão de automobilismo com equipes, estratégias, desenvolvimento
 
 ## 📥 Baixar o jogo
 
-### [⬇ Baixar APEX Core 2 v0.6.6.8.6 — ZIP completo (121 MB)](https://github.com/Jugadru/APEX-Simulation/releases/download/Versions/APEX_MOTORSPORT_MANAGER_v0.6.6.8.6_CORE2_RACE_STABILITY_COMPLETO.zip)
+### [⬇ Baixar o APEX Core 2 — última Release pública](https://github.com/Jugadru/APEX-Simulation/releases/latest)
 
-[Ver a página do download](https://github.com/Jugadru/APEX-Simulation/releases/tag/Versions) · [Como abrir](#abrir-o-jogo) · [Guia das pastas](#guia-das-pastas)
+A publicação **v0.6.6.8.10** passa por um pipeline que recompila a `main`, confere Godot 4.7.2, testes, hashes e pacotes para Windows/Linux. O link acima abre sempre a **última Release realmente publicada**, e não um rascunho. Confira o nome da versão exibida antes de baixar.
 
-**Versão do download:** v0.6.6.8.6. O código da branch `main` contém alterações posteriores; este ZIP não inclui automaticamente essas mudanças. Para abrir o projeto, extraia o pacote e importe o `project.godot` no **Godot 4.7.2**, seguindo as instruções abaixo. O download é um pacote do projeto, não um instalador Windows/Linux.
+**Para jogar:** baixe o ZIP `windows_x86_64` ou `linux_x86_64` da Release, descompacte e execute o binário correspondente. No Linux, pode ser necessário dar permissão de execução (`chmod +x APEX_Motorsport_Manager.x86_64`). O pacote `Godot_source.zip` é destinado a abrir ou editar o projeto no Godot 4.7.2, não é um instalador.
 
-O repositório é público. O acesso aos arquivos anexados à Release pode depender das condições de publicação e disponibilidade do próprio arquivo; caso o download não esteja acessível, utilize a árvore pública do código-fonte e consulte as Releases.
+**Versão histórica preservada:** [v0.6.6.8.6 — ZIP completo do projeto](https://github.com/Jugadru/APEX-Simulation/releases/download/Versions/APEX_MOTORSPORT_MANAGER_v0.6.6.8.6_CORE2_RACE_STABILITY_COMPLETO.zip). Esse pacote **não** contém automaticamente as alterações recentes da `main`.
+
+[Como abrir no Godot](#abrir-o-jogo) · [Histórico de Releases](https://github.com/Jugadru/APEX-Simulation/releases) · [Guia das pastas](#guia-das-pastas)
+
+Os pacotes e seus hashes são publicados apenas após as validações do pipeline. Se a Release atual ainda não aparecer, não considere a publicação concluída.
 
 ## Guia das pastas
 
