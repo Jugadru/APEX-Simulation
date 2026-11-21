@@ -1,8 +1,22 @@
-# APEX Motorsport Manager — Core 2 (código integrado até v0.6.6.9.1)
+# APEX Motorsport Manager — Core 2 (v0.6.6.9.2)
 
 Simulador de gestão de automobilismo com equipes, estratégias, desenvolvimento de carros e corridas em 3D. O **Core 2** é o motor esportivo oficial deste repositório.
 
-## 📥 Baixar o jogo — v0.6.6.9.1
+## 📥 Baixar o jogo — v0.6.6.9.2
+
+### [⬇ Baixar APEX v0.6.6.9.2 — Windows e Linux](https://github.com/Jugadru/APEX-Simulation/actions/runs/44938862417/artifacts/14720252805)
+
+**Novo pacote corrigido para PC**, compilado com o Godot 4.7.2. O link abre um artefato do GitHub Actions contendo os ZIPs separados de **Windows x86_64** e **Linux x86_64**. Baixe o arquivo externo, extraia o ZIP da sua plataforma e execute o programa mantendo o `.pck` ao lado. Pode ser necessário estar conectado à conta GitHub.
+
+**Atenção: download temporário, disponível até 05/12/2026.** Windows e Linux foram exportados e testados quanto à integridade; os dois `.pck` contêm `APEX Motorsport Manager v0.6.6.9.2`, e não contêm as identificações antigas 9.1 ou 8.10. O executável Linux concluiu um teste simples de inicialização; **não houve medição de FPS na GPU do computador do jogador**. Nenhuma Release pública permanente v9.2 foi publicada.
+
+### [⬇ ZIP do código-fonte exato da v0.6.6.9.2 — Godot 4.7.2](https://github.com/Jugadru/APEX-Simulation/archive/6cabc598ef2318ccf497accadde924c4cd89848c.zip)
+
+Esse ZIP é o projeto-fonte do **commit `6cabc598ef2318ccf497accadde924c4cd89848c` que gerou os executáveis**, destinado a abrir no Godot. Para jogar, utilize os ZIPs executáveis acima.
+
+**Melhoria v9.2:** cache dos nomes de propriedades usados pelo hash determinístico do replay. A/B da candidata observou cerca de **1,38% menos tempo de CPU** por cenário esportivo, sem divergências de hash nos testes. Isso **não equivale a uma velocidade efetiva de 32× garantida** no modo 2D. A HUD do Codex/Work não foi modificada.
+
+## 📦 Versão anterior — v0.6.6.9.1
 
 ### [⬇ Baixar ZIPs CORRIGIDOS para Windows e Linux — v0.6.6.9.1](https://github.com/Jugadru/APEX-Simulation/actions/runs/44934421047/artifacts/14718572939)
 
