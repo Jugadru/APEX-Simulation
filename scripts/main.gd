@@ -260,7 +260,9 @@ func _ready() -> void:
 	var preview := get_node_or_null("EditorPreview")
 	if preview != null:
 		preview.hide()
-	get_window().title = "APEX Motorsport Manager — v0.6.6.8.10 / Core 2 Cooperação de Equipe 2.0 • Replay F9"
+	# Use the packaged project identity as the only source for the version label.
+	# Presentation metadata only; never changes sporting state or replay.
+	get_window().title = "%s / Core 2 • Replay F9" % str(ProjectSettings.get_setting("application/config/name", "APEX Motorsport Manager"))
 	_load_season_data()
 	_load_hud_prefs()
 	garage = GarageScript.new()
