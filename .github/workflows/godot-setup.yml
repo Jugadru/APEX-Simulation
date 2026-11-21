@@ -67,6 +67,7 @@ jobs:
             'standings_refactor_test.gd|STANDINGS_REFACTOR_PASS'
             'hud_metric_refactor_test.gd|HUD_METRIC_REFACTOR_PASS'
             'hud_ranking_panel_refactor_test.gd|HUD_RANKING_PANEL_REFACTOR_PASS'
+            'hud_pitwall_quick_panel_refactor_test.gd|HUD_PITWALL_QUICK_PANEL_REFACTOR_PASS'
             'racecraft_0662_test.gd|RACECRAFT_0662_UNIT_PASS'
             'pit_incidents_double_stack_test.gd|APEX INCIDENT DOUBLE STACK OK'
             'replay_0660_test.gd|REPLAY_UNIT_PASS'
