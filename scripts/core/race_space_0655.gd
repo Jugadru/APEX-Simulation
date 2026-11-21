@@ -113,7 +113,7 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 		var tactic: Dictionary = DriverDynamics.choose(driver,ahead,gap,advantage,limit,track,weather)
 		# Blue flags are decisions about a physical backmarker, not a sporting
 		# position override. A safe early yield uses the existing corridor solver.
-		var traffic: Dictionary = DriverTraffic.evaluate(c, ahead, gap, limit, weather) if traffic_enabled else {"lapping": false, "yield_early": false}
+		var traffic: Dictionary = DriverTraffic.evaluate(c, ahead, gap, limit, weather, float(tactic.attack_goal)) if traffic_enabled else {"lapping": false, "yield_early": false}
 		if bool(traffic.lapping):
 			tactic["defense"] = false
 			if bool(traffic.yield_early) and int(d.defending) < 0:
