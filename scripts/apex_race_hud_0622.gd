@@ -10,6 +10,7 @@ const HudStandingMetric = preload("res://scripts/presentation/apex_hud_standings
 const HudRankingPanel = preload("res://scripts/presentation/apex_hud_ranking_panel.gd")
 const HudPitWallQuickPanel = preload("res://scripts/presentation/apex_hud_pitwall_quick_panel.gd")
 const HudWeatherPanel = preload("res://scripts/presentation/apex_hud_weather_panel.gd")
+const HudMiniMapPanel = preload("res://scripts/presentation/apex_hud_minimap_panel.gd")
 const Stints = preload("res://scripts/apex_strategy_planner_0620.gd")
 const EngineerInteractive = preload("res://scripts/core/race_engineer_interactive.gd")
 const DriverPerception = preload("res://scripts/core/race_driver_perception_0633.gd")
@@ -232,17 +233,13 @@ func _create_ui() -> void:
 	weather_line = weather_ui["weather_line"]
 	weather_box.minimum_size_changed.connect(layout_hud, CONNECT_DEFERRED)
 
-	map_box = _panel(self)
-	var map_column := _column(map_box, 2)
-	var map_heading := _line(map_column, 5)
-	var mini_heading := _text(map_heading, "MINIMAPA", 11, ACCENT)
-	mini_heading.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_btn(map_heading, "2D ↗", _set_view.bind(0), 52)
-	minimap = MiniMap.new()
-	minimap.custom_minimum_size = Vector2(190, 143)
-	minimap.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	minimap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	map_column.add_child(minimap)
+	# UI-only minimap assembly; HUD retains track ownership and layout.
+	var map_ui: Dictionary = HudMiniMapPanel.build(self, MiniMap,
+		Callable(self, "_panel"), Callable(self, "_column"),
+		Callable(self, "_line"), Callable(self, "_text"),
+		Callable(self, "_btn"), Callable(self, "_set_view"))
+	map_box = map_ui["map_box"]
+	minimap = map_ui["minimap"]
 
 	# FULL-only quick links; builder keeps the original actions and node hierarchy.
 	pit_quick_panel = HudPitWallQuickPanel.build(self, Callable(self, "_panel"),
