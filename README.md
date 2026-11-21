@@ -1,20 +1,28 @@
-# APEX Motorsport Manager — Core 2 v0.6.6.8.10
+# APEX Motorsport Manager — Core 2 (código integrado até v0.6.6.9.1)
 
 Simulador de gestão de automobilismo com equipes, estratégias, desenvolvimento de carros e corridas em 3D. O **Core 2** é o motor esportivo oficial deste repositório.
 
-## 📥 Baixar o jogo
+## 📥 Baixar o jogo — v0.6.6.9.1
 
-### [⬇ Baixar o APEX Core 2 — última Release pública](https://github.com/Jugadru/APEX-Simulation/releases/latest)
+### [⬇ Baixar ZIPs para Windows e Linux — v0.6.6.9.1](https://github.com/Jugadru/APEX-Simulation/actions/runs/44931027285/artifacts/14717628112)
 
-A publicação **v0.6.6.8.10** passa por um pipeline que recompila a `main`, confere Godot 4.7.2, testes, hashes e pacotes para Windows/Linux. O link acima abre sempre a **última Release realmente publicada**, e não um rascunho. Confira o nome da versão exibida antes de baixar.
+Esse link abre o **artefato de build da versão v0.6.6.9.1**: dentro dele estão os ZIPs de **Windows x86_64** e **Linux x86_64**, ambos com o executável e o arquivo `.pck`, gerados no Godot 4.7.2. Extraia o arquivo externo do GitHub Actions e, em seguida, o ZIP do seu sistema operacional. Pode ser necessário entrar na sua conta GitHub para baixar o artefato.
 
-**Para jogar:** baixe o ZIP `windows_x86_64` ou `linux_x86_64` da Release, descompacte e execute o binário correspondente. No Linux, pode ser necessário dar permissão de execução (`chmod +x APEX_Motorsport_Manager.x86_64`). O pacote `Godot_source.zip` é destinado a abrir ou editar o projeto no Godot 4.7.2, não é um instalador.
+**Atenção: download temporário.** O GitHub Actions mantém esse artefato até **05/12/2026**. Ele foi gerado a partir do commit candidato `35055bdc34fb2f76d49c4596e0b9119d681b5da9`, cujo conteúdo (árvore Git) é **idêntico** ao commit integrado à `main` `d95e79628062b62b2cd3f253c1ee557c20fdc698`. Build validado no PR #65 (16/16 workflows, Quality Gate READY 10/10). A publicação de uma Release permanente **v0.6.6.9.1** ainda não foi realizada.
 
-**Versão histórica preservada:** [v0.6.6.8.6 — ZIP completo do projeto](https://github.com/Jugadru/APEX-Simulation/releases/download/Versions/APEX_MOTORSPORT_MANAGER_v0.6.6.8.6_CORE2_RACE_STABILITY_COMPLETO.zip). Esse pacote **não** contém automaticamente as alterações recentes da `main`.
+### [⬇ Baixar ZIP do código-fonte v0.6.6.9.1 — Godot 4.7.2](https://github.com/Jugadru/APEX-Simulation/archive/d95e79628062b62b2cd3f253c1ee557c20fdc698.zip)
+
+Esse segundo link é **permanente** enquanto o commit permanecer acessível no repositório. Use-o para **editar o jogo no Godot**; não substitui os executáveis de Windows/Linux.
+
+### [⬇ Última Release pública permanente — v0.6.6.8.10](https://github.com/Jugadru/APEX-Simulation/releases/tag/v0.6.6.8.10-core2-current)
+
+A Release pública acima é da **v0.6.6.8.10**, **não** contém a otimização 3D da v0.6.6.9.1. Serve como alternativa estável de download quando o artefato temporário expirar, até que a versão 9.1 seja publicada oficialmente.
+
+**Para jogar:** descompacte o ZIP específico de Windows ou Linux e execute o programa; no Linux, talvez seja preciso `chmod +x APEX_Motorsport_Manager.x86_64`. Os pacotes de desktop são exportações para PC, sem teste nativo de execução no Windows ou medição de FPS na GPU do usuário.
+
+**Versão histórica preservada:** [v0.6.6.8.6 — ZIP completo do projeto](https://github.com/Jugadru/APEX-Simulation/releases/download/Versions/APEX_MOTORSPORT_MANAGER_v0.6.6.8.6_CORE2_RACE_STABILITY_COMPLETO.zip). Esse pacote não contém as atualizações recentes da `main`.
 
 [Como abrir no Godot](#abrir-o-jogo) · [Histórico de Releases](https://github.com/Jugadru/APEX-Simulation/releases) · [Guia das pastas](#guia-das-pastas)
-
-Os pacotes e seus hashes são publicados apenas após as validações do pipeline. Se a Release atual ainda não aparecer, não considere a publicação concluída.
 
 ## Guia das pastas
 
