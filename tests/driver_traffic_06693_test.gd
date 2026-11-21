@@ -53,10 +53,17 @@ func run() -> void:
 	var season: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/season_2012.json"))
 	var engine = Race.new(season.teams, "Ferrari", 66093, {}, season.tracks[0], {})
 	const Codec = preload("res://scripts/core/race_state_codec_0660.gd")
+	const Soul2 = preload("res://scripts/core/race_driver_soul_0647.gd")
+	# Build a genuine pre-9.4 style checkpoint: Soul 2.0 and old tactical rules.
+	for item in engine.cars:
+		item["driver_soul"] = Soul2.initial(item)
 	var recorded = Replay.new()
 	recorded.attach(engine)
-	verify(not Codec.capture(engine).engine.has("driver_traffic_enabled"), "Session-only traffic switch stays out of legacy checkpoint schema")
 	engine.driver_traffic_enabled = false
+	engine.driver_soul3_enabled = false
+	recorded.checkpoints = [recorded.checkpoint()]
+	verify(not Codec.capture(engine).engine.has("driver_traffic_enabled"), "Traffic session toggle stays out of legacy checkpoint schema")
+	verify(not Codec.capture(engine).engine.has("driver_soul3_enabled"), "Soul3 session toggle stays out of legacy checkpoint schema")
 	for step in range(35):
 		verify(recorded.step_tick(), "Baseline-style race records deterministically")
 	var legacy: Dictionary = recorded.export_data()
