@@ -10,8 +10,8 @@ config_version=5
 
 [application]
 
-config/name="APEX Motorsport Manager v0.6.6.9.1 — Core 2"
-config/description="v0.6.6.9.1: Core 2 com otimização de ocupação visual 3D; regras esportivas e replay preservados."
+config/name="APEX Motorsport Manager v0.6.6.9.2 — Core 2"
+config/description="v0.6.6.9.2: otimização do hash esportivo e medição de desempenho sustentado em 32x; replay preservado."
 run/main_scene="res://scenes/main.tscn"
 config/use_custom_user_dir=true
 config/custom_user_dir_name="APEX_0650_SOUL_STAFF"

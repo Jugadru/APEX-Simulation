@@ -125,6 +125,25 @@ jobs:
           assert data["unique_positions"] == 24, data
           assert data["live_ticks"] == data["replay_ticks"], data
           assert len(data["sport_hash"]) == 64, data
+          # 06692: the same 53-lap run must document beginning/middle/end.
+          # No performance threshold: CI VM contention is not native FPS.
+          windows = data.get("live_cpu_windows_06692", [])
+          assert len(windows) >= 10, len(windows)
+          assert windows[0]["start_tick"] == 0, windows[0]
+          assert windows[-1]["end_tick"] == data["live_ticks"], windows[-1]
+          for prev, curr in zip(windows, windows[1:]):
+              assert prev["end_tick"] == curr["start_tick"], (prev, curr)
+          for row in windows:
+              assert row["cpu_ms_per_tick"] > 0, row
+              assert row["simulated_per_wall_second"] > 0, row
+          early, mid, late = windows[0], windows[len(windows)//2], windows[-1]
+          print("APEX_SUSTAINED_06692_PASS", json.dumps({
+              "live_ticks": data["live_ticks"], "windows": len(windows),
+              "early_cpu_ms_tick": early["cpu_ms_per_tick"],
+              "middle_cpu_ms_tick": mid["cpu_ms_per_tick"],
+              "final_cpu_ms_tick": late["cpu_ms_per_tick"],
+              "final_over_early_ratio": late["cpu_ms_per_tick"]/early["cpu_ms_per_tick"],
+              "limitations": "headless wall/CPU GP time, not physical GPU FPS or 32x UI effective speed"}))
           print("APEX_MONZA53_REPLAY_06690_PASS", data["live_ticks"], data["sport_hash"])
           PY
 
