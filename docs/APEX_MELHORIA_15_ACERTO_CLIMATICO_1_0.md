@@ -26,3 +26,6 @@ Fundamentar uma primeira decisão de preparação pré-corrida do piloto com tr�
 
 ## Rollback
 Reverter a PR. Nenhuma migração obrigatória: na ausência da chave, `RacePerformance` retorna o efeito neutro por compatibilidade.
+
+## Replays e evolução da física
+Novos replays declaram `015_weather_setup_v1`, pois ajustes não neutros podem afetar hashes. O leitor reconhece também `014_launch_v1` (largada com setup neutro na versão anterior) e `066810_team_yield` (física de largada antiga). Somente o último usa o modo de reprodução legado sem custo de largada. O SaveGuard deve confirmar a leitura do replay real gravado na `main` com revisão 14, sem aceitar revisões arbitrárias.
