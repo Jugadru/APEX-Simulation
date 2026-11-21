@@ -173,12 +173,39 @@ jobs:
                   cases = {x['code']: x for x in report['results']}
                   assert set(cases) == {'GBR', 'MON', 'BEL', 'SIN'}
                   data[label].append(cases)
+          import re
+          def revision(project):
+              script = Path(project, 'scripts/core/race_replay_0660.gd').read_text(encoding='utf-8')
+              found = re.search(r'^const SIMULATION_REVISION := "([^"]+)"', script, re.MULTILINE)
+              assert found, f'{project}: missing sporting revision'
+              return found.group(1)
+          revisions = {label: revision(label) for label in ('base', 'candidate')}
+          equivalent = revisions['base'] == revisions['candidate']
           timing = {'mean_us', 'p95_us', 'p99_us', 'max_us'}
-          for index in range(3):
+          def sporting(case):
+              return {k:v for k,v in case.items() if k not in timing}
+          for label in ('base', 'candidate'):
               for track in ('GBR', 'MON', 'BEL', 'SIN'):
-                  lhs = {k:v for k,v in data['base'][index][track].items() if k not in timing}
-                  rhs = {k:v for k,v in data['candidate'][index][track].items() if k not in timing}
-                  assert lhs == rhs, (track, index, lhs, rhs)
+                  # The same revision, repeated with the same initial conditions,
+                  # MUST reproduce identical physical statistics.
+                  reference = sporting(data[label][0][track])
+                  for index in (1, 2):
+                      assert sporting(data[label][index][track]) == reference, (
+                          'within-revision nondeterminism', label, track, index)
+                  for case in (rep[track] for rep in data[label]):
+                      assert case['collisions'] == 0 and not case['collisions_detail'], (label, track, 'collision')
+                      assert case['resynced'] == 0 and case['max_resync_step_meters'] == 0, (label, track, 'resync')
+                      assert case['max_stationary'] <= 2 and not case['long_holds'], (label, track, 'stalled')
+                      assert case['lag_count'] == 0 and case['max_progress_lag'] < 0.001, (label, track, 'lag')
+          if equivalent:
+              for index in range(3):
+                  for track in ('GBR', 'MON', 'BEL', 'SIN'):
+                      lhs = sporting(data['base'][index][track])
+                      rhs = sporting(data['candidate'][index][track])
+                      assert lhs == rhs, (track, index, lhs, rhs)
+          # When the sporting rules change, exact poses are NOT a meaningful
+          # cross-version equivalence contract. Keep strict independent safety
+          # and within-version determinism, and disclose incomparability.
           times = {
               label: [sum(case['mean_us'] for case in rep.values()) for rep in data[label]]
               for label in ('base', 'candidate')
@@ -186,12 +213,15 @@ jobs:
           b = statistics.median(times['base'])
           c = statistics.median(times['candidate'])
           delta = (c / b - 1.0) * 100.0
-          result = {'status': 'COMPARABLE', 'visual_equal': True, 'cases': 4,
+          result = {'status': 'COMPARABLE' if equivalent else 'INCOMPARABLE_SPORTING_REVISION',
+                    'visual_equal': True if equivalent else None,
+                    'safety_pass': True, 'within_revision_determinism': True,
+                    'sporting_revisions': revisions, 'cases': 4,
                     'repetitions': 3, 'base_mean_us_sum': times['base'],
                     'candidate_mean_us_sum': times['candidate'],
                     'baseline_median_us_sum': b, 'candidate_median_us_sum': c,
                     'delta_percent': delta,
-                    'limitations': 'headless CPU per visual update, not GPU FPS; three repeats; machine noise'}
+                    'limitations': 'headless CPU per visual update, not GPU FPS; three repeats; sporting rules may differ; machine noise'}
           Path('benchmark-ab/visual_occupancy_06691.json').write_text(json.dumps(result, indent=2))
           print('APEX_VISUAL_OCCUPANCY_06691_AB', json.dumps(result))
           with open('/dev/null', 'w') as _:
