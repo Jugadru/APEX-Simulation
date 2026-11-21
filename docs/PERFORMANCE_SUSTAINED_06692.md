@@ -30,3 +30,7 @@ CI headless CPU throughput is **not** Windows/Linux native GPU FPS, frame pacing
 ## Rollback
 
 Revert the cached field lookup in `race_state_codec_0660.gd`; `sporting_hash` can immediately return to `fields(..., false)` with no save/replay migration. The profiler section and diagnostic test modifications can be reverted independently. This proposal changes no gameplay assets or HUD Work branches.
+
+## Version and distribution integrity
+
+`project.godot` now identifies the game as **v0.6.6.9.2**; `main.gd` and the front-menu footer already read that setting dynamically. The Windows/Linux export workflow checks the packaged `.pck` contents for `APEX Motorsport Manager v0.6.6.9.2` and rejects the old 9.1 and 8.10 application identities. This avoids repeating the stale ZIP title problem experienced in v9.1. No rename of the existing `APEX_0650_SOUL_STAFF` user-data directory: saves remain compatible. A new README download link should point to the final validated v9.2 artifact after merge; the existing 9.1 download must remain until that validation.
