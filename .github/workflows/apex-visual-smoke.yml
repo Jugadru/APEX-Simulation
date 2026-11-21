@@ -3,6 +3,9 @@ name: APEX - Teste Grafico
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - 'tests/performance_baseline_06690.gd'
 
 jobs:
   teste-visual:

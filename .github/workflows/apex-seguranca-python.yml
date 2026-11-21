@@ -11,6 +11,7 @@ on:
   pull_request:
     branches: [main]
     paths:
+      - 'tests/performance_baseline_06690.gd'
       - '.github/scripts/**/*.py'
       - 'tools/**/*.py'
       - '.github/workflows/apex-seguranca-python.yml'
