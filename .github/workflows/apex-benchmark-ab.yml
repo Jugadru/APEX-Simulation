@@ -100,10 +100,10 @@ jobs:
         run: python3 -m unittest discover -s "$APEX_AB_TOOLS_ROOT/tools/tests" -p 'test_compare_apex_benchmarks.py' -v
 
       - name: Importar referencia
-        run: godot --headless --path base --import
+        run: godot --headless --single-threaded-scene --path base --import
 
       - name: Importar candidata
-        run: godot --headless --path candidate --import
+        run: godot --headless --single-threaded-scene --path candidate --import
 
       - name: Rodar benchmarks alternados
         shell: bash
