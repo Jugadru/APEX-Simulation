@@ -4,13 +4,13 @@ Simulador de gestão de automobilismo com equipes, estratégias, desenvolvimento
 
 ## 📥 Baixar o jogo
 
-### [⬇ Baixar APEX Core 2 v0.6.6.8.6 — ZIP completo (121 MB)](https://github.com/Quereni/APEX-Simulation/releases/download/Versions/APEX_MOTORSPORT_MANAGER_v0.6.6.8.6_CORE2_RACE_STABILITY_COMPLETO.zip)
+### [⬇ Baixar APEX Core 2 v0.6.6.8.6 — ZIP completo (121 MB)](https://github.com/Jugadru/APEX-Simulation/releases/download/Versions/APEX_MOTORSPORT_MANAGER_v0.6.6.8.6_CORE2_RACE_STABILITY_COMPLETO.zip)
 
-[Ver a página do download](https://github.com/Quereni/APEX-Simulation/releases/tag/Versions) · [Como abrir](#abrir-o-jogo) · [Guia das pastas](#guia-das-pastas)
+[Ver a página do download](https://github.com/Jugadru/APEX-Simulation/releases/tag/Versions) · [Como abrir](#abrir-o-jogo) · [Guia das pastas](#guia-das-pastas)
 
 **Versão do download:** v0.6.6.8.6. O código da branch `main` contém alterações posteriores; este ZIP não inclui automaticamente essas mudanças. Para abrir o projeto, extraia o pacote e importe o `project.godot` no **Godot 4.7.2**, seguindo as instruções abaixo. O download é um pacote do projeto, não um instalador Windows/Linux.
 
-O repositório é privado: é necessário estar conectado ao GitHub com uma conta que tenha acesso para baixar o arquivo.
+O repositório é público. O acesso aos arquivos anexados à Release pode depender das condições de publicação e disponibilidade do próprio arquivo; caso o download não esteja acessível, utilize a árvore pública do código-fonte e consulte as Releases.
 
 ## Guia das pastas
 
@@ -76,7 +76,7 @@ O projeto inclui corrida com 24 carros, 3D, HUD ReBroadcast, Pit Wall, replay de
 
 ## Versão completa e histórico
 
-- [Release-base Core 2 v0.6.6.8.6 (ZIP original)](https://github.com/Quereni/APEX-Simulation/releases/tag/Versions)
+- [Release-base Core 2 v0.6.6.8.6 (ZIP original)](https://github.com/Jugadru/APEX-Simulation/releases/tag/Versions)
 - [Relatório técnico v0.6.6.8.7](docs/arquivo/relatorios/APEX_06687_RELATORIO_TECNICO.md)
 - [Matriz histórica de testes](docs/arquivo/qualidade/APEX_06687_MATRIZ_TESTES.json)
 - [Changelog da versão](docs/arquivo/changelogs/APEX_06687_CHANGELOG.md)
