@@ -80,3 +80,17 @@ Statuses at the moment this document was created: Godot import **NOT_RUN**; new 
 ## Next release
 
 Do **not** proceed automatically to v0.6.6.9.1. Use the measured Baseline 2.0 data to determine whether High-Speed Scheduler needs a specific bounded change, while preserving all ticks and hashes.
+
+## Additional validation implemented for this PR
+
+The CI changes associated with Performance Baseline 2.0 add only PR-specific triggers for the new benchmark file to existing workflows. This does not make the workflows mandatory for all other PRs. For this diagnostic PR, the goal is to execute 16 applicable pipelines (all of the current repository workflows other than publishing the public release), not to claim 13/13 based on merely listing workflow files.
+
+`tests/performance_baseline_native_06690.gd` is the **windowed** benchmark. It creates a real Godot window under Xvfb/llvmpipe, runs official Silverstone with 24 cars and the real main scene, and measures actual elapsed-time 1×/10×/16×/32× simulations in automatic 3D/2D presentation at **both** 1600×900 and 1920×1080. It records observed FPS (actual frames divided by wall time), actual sporting acceleration (fixed 0.2 s ticks divided by wall time), p50/p95/p99 rendered frame intervals, frame CPU cost, scheduler CPU limits, telemetry counters, and profiler scopes. It does not add another renderer, scheduler or racing engine. Its virtual software graphics device does **not** substitute for native GPU testing on the owner's PC.
+
+The graphic baseline is run from the existing `apex-capturas-ci.yml` after the screenshot capture. Its 8 scenarios produce `ci_artifacts/screenshots/native_baseline_06690.json` and a text log; nonzero exit or invalid report fails the job.
+
+The existing `tests/long_race_full_0663.gd` has been included in `apex-endurance-ci.yml`, with a 900 s wall timeout for its full Monza 53-lap recording and **integral deterministic replay**. A valid result requires 24 finished cars, unique positions, equal tick counts and the stored sport hash, with `full_replay_verified=true`. Its JSON and log are uploaded as workflow artifacts.
+
+The A/B workflow compares main and the exact PR SHA. Do not claim a performance win from negligible timing differences, or from any result without equal sporting hashes. Repeated benchmark runs, full 20-track scenarios (as applicable), saves, Pit Wall and a complete 16-workflow status matrix are still required before moving this PR out of draft. The Quality Gate runs in AUDIT by default and its job exit code alone does not assert readiness: verify its `readiness` report and ensure each check finished for the same SHA.
+
+**Rollback**: merge nothing until gates are satisfied. To abandon this version, close draft PR #64; main `fef1ceed6604fc97c9bb8a34b71cd4e5c931da2d` is unchanged. No save or replay migration applies, because formats and sporting scripts are unchanged.

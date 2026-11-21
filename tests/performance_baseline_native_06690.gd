@@ -65,7 +65,7 @@ func _run() -> void:
 			var last_started: int = Time.get_ticks_usec()
 			for i in range(WARMUP_FRAMES):
 				var now: int = Time.get_ticks_usec()
-				var delta: float = clampf(float(now - last_started) / 1000000.0, 0.0001, 0.25)
+				var delta: float = maxf(float(now - last_started) / 1000000.0, 0.0001)
 				last_started = now
 				host._process(delta)
 				await RenderingServer.frame_post_draw
@@ -80,7 +80,7 @@ func _run() -> void:
 			var cpu_limited_frames: int = 0
 			for i in range(SAMPLE_FRAMES):
 				var frame_started: int = Time.get_ticks_usec()
-				var delta: float = clampf(float(frame_started - last_started) / 1000000.0, 0.0001, 0.25)
+				var delta: float = maxf(float(frame_started - last_started) / 1000000.0, 0.0001)
 				last_started = frame_started
 				host._process(delta)
 				cpu_us.append(Time.get_ticks_usec() - frame_started)
