@@ -81,5 +81,4 @@ static func attack_bias(car: Dictionary, weather: Dictionary) -> float:
 			-0.085, 0.16)
 
 static func summary(car: Dictionary) -> String:
-	var soul: Dictionary = car.get("driver_soul", {})
 	return Soul2.summary(car)
