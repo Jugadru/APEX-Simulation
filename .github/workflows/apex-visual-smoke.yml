@@ -6,6 +6,7 @@ on:
   pull_request:
     paths:
       - 'tests/performance_baseline_06690.gd'
+      - 'scripts/apex_racecraft_0654.gd'
 
 jobs:
   teste-visual:

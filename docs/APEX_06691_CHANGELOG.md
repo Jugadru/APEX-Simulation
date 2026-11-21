@@ -12,3 +12,7 @@ Status: DRAFT / aguardando benchmarks.
 **Não comprova ainda:** FPS em GPU física, ganho real em 32×, melhoria estatisticamente robusta. O resultado medido, favorável ou não, deve ser anotado antes de liberar o merge.
 
 Base de desenvolvimento: `60537e348a5dd1eb6c55d60f6c144bb689221529`. Não é uma Release.
+
+## Evidências iniciais
+
+A/B visual CPU (3 repetições por versão, 4 pistas, 125 atualizações cada): **−2,73%** em mediana na soma do custo médio visual por pista; resultados não temporais visualmente idênticos. Teste de equivalência: 16.005 casos, 0 divergências. O delta esportivo do A/B de 1.000 ticks foi −0,316%, compatível com ruído. **Não é ganho de FPS nem garantia de aceleração 32×**. O commit final ainda exige repetição completa da CI e Quality Gate READY. Extensão dos gatilhos da auditoria Python para PRs de GDScript e do visual smoke para o código visual modificado.
