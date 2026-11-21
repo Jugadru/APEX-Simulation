@@ -134,6 +134,74 @@ jobs:
             --repetitions 3 \
             --output-dir benchmark-ab
 
+      - name: A-B ocupacao visual (4 pistas, 24 carros; poses iguais)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p benchmark-ab
+          for index in 0 1 2; do
+            if (( index % 2 == 0 )); then
+              order=(base candidate)
+            else
+              order=(candidate base)
+            fi
+            for label in "${order[@]}"; do
+              export HOME="$RUNNER_TEMP/apex-visual-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${label}-${index}"
+              export XDG_DATA_HOME="$HOME/data"
+              export XDG_CONFIG_HOME="$HOME/config"
+              export XDG_CACHE_HOME="$HOME/cache"
+              mkdir -p "$XDG_DATA_HOME" "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME"
+              timeout 240s godot --headless --single-threaded-scene --path "$label" \
+                --script res://tests/visual_stutter_06672_benchmark.gd \
+                > "benchmark-ab/visual-${label}-${index}.log" 2>&1
+              grep -Fq 'VISUAL_STUTTER_06672_BENCHMARK' "benchmark-ab/visual-${label}-${index}.log"
+            done
+          done
+          python3 - <<'PY'
+          import json, statistics
+          from pathlib import Path
+          markers = 'VISUAL_STUTTER_06672_BENCHMARK '
+          data = {}
+          for label in ('base', 'candidate'):
+              data[label] = []
+              for index in range(3):
+                  log = Path(f'benchmark-ab/visual-{label}-{index}.log').read_text()
+                  rows = [line.split(markers, 1)[1].strip() for line in log.splitlines() if markers in line]
+                  assert len(rows) == 1, (label, index, len(rows))
+                  report = json.loads(rows[0])
+                  assert report['failures'] == 0, (label, index, report['failures'])
+                  cases = {x['code']: x for x in report['results']}
+                  assert set(cases) == {'GBR', 'MON', 'BEL', 'SIN'}
+                  data[label].append(cases)
+          timing = {'mean_us', 'p95_us', 'p99_us', 'max_us'}
+          for index in range(3):
+              for track in ('GBR', 'MON', 'BEL', 'SIN'):
+                  lhs = {k:v for k,v in data['base'][index][track].items() if k not in timing}
+                  rhs = {k:v for k,v in data['candidate'][index][track].items() if k not in timing}
+                  assert lhs == rhs, (track, index, lhs, rhs)
+          times = {
+              label: [sum(case['mean_us'] for case in rep.values()) for rep in data[label]]
+              for label in ('base', 'candidate')
+          }
+          b = statistics.median(times['base'])
+          c = statistics.median(times['candidate'])
+          delta = (c / b - 1.0) * 100.0
+          result = {'status': 'COMPARABLE', 'visual_equal': True, 'cases': 4,
+                    'repetitions': 3, 'base_mean_us_sum': times['base'],
+                    'candidate_mean_us_sum': times['candidate'],
+                    'baseline_median_us_sum': b, 'candidate_median_us_sum': c,
+                    'delta_percent': delta,
+                    'limitations': 'headless CPU per visual update, not GPU FPS; three repeats; machine noise'}
+          Path('benchmark-ab/visual_occupancy_06691.json').write_text(json.dumps(result, indent=2))
+          print('APEX_VISUAL_OCCUPANCY_06691_AB', json.dumps(result))
+          with open('/dev/null', 'w') as _:
+              pass
+          # Do not convert random small CPU noise into a false performance claim.
+          # Very large candidate slowdown is a regression to investigate.
+          if delta > 20.0:
+              raise SystemExit('Visual occupancy A/B slowdown exceeds 20%')
+          PY
+
       - name: Mostrar resumo A-B
         if: always()
         shell: bash

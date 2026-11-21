@@ -58,6 +58,8 @@ jobs:
             'radio_0668101_booked_pit_advice_test.gd|RADIO_0668101_BOOKED_PIT_PASS'
             'team_radio_06689_ui_test.gd|TEAM_RADIO_UI_06689_PASS'
             'racecraft_06688_grip_defense_test.gd|RACECRAFT_06688_GRIP_PASS'
+            'racecraft_0654_test.gd|RACECRAFT_PASS'
+            'racecraft_broadphase_06691_test.gd|RACECRAFT_BROADPHASE_06691_PASS'
             'driver_dynamics_06687_tyre_judgement_test.gd|DRIVER_DYNAMICS_06687_PASS'
             'driver_dynamics_06687_ui_test.gd|DRIVER_DYNAMICS_06687_UI_PASS'
             'core2_06686_sort_contract.gd|CORE2_06686_SORT_CONTRACT_PASS'
