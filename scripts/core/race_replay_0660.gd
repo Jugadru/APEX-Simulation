@@ -2,6 +2,7 @@ extends RefCounted
 const Codec = preload("res://scripts/core/race_state_codec_0660.gd")
 const RacecraftAudit = preload("res://scripts/core/racecraft_audit_0662.gd")
 const Engineer = preload("res://scripts/core/race_engineer_0639.gd")
+const Perf = preload("res://scripts/debug/apex_perf_trace_0657.gd")
 const STEP := 0.20
 # A replay is tied to the exact sporting rules, not only its Godot runtime.
 const SIMULATION_REVISION := "015_weather_setup_v1"
@@ -210,7 +211,10 @@ func step_tick() -> bool:
 	race._engineer_advice_cache = ui_cache
 	applying = false
 	tick += 1
+	# 06692: diagnostic only; measured inside the actual tick pipeline.
+	var perf_hash_started: int = Perf.begin() if Perf.enabled else 0
 	var value := Codec.sporting_hash(race,policy)
+	if Perf.enabled: Perf.end(&"replay.sporting_hash", perf_hash_started)
 	if playback:
 		if tick > hashes.size() or value != hashes[tick-1]:
 			first_divergence = tick

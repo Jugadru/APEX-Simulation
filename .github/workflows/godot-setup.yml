@@ -75,6 +75,7 @@ jobs:
             'racecraft_0662_test.gd|RACECRAFT_0662_UNIT_PASS'
             'pit_incidents_double_stack_test.gd|APEX INCIDENT DOUBLE STACK OK'
             'replay_0660_test.gd|REPLAY_UNIT_PASS'
+            'hash_cache_06692_test.gd|APEX_HASH_CACHE_06692_PASS'
             'car_model_smoke_test.gd|APEX CAR MODEL TEST OK'
           )
           for entry in "${tests[@]}"; do

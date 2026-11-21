@@ -34,6 +34,11 @@ func run() -> void:
 	assert(s.enqueue("order_pit",[id,compound],3))
 	assert(s.enqueue("order_pit",[other,compound],3))
 	var start: int = Time.get_ticks_usec()
+	# 06692: per-window wall/CPU throughput across a real full-distance GP.
+	# Times observe completed ticks only; this code never changes race state.
+	var block_start_tick: int = 0
+	var block_start_us: int = start
+	var live_cpu_windows: Array = []
 	var report: Dictionary = {"scenario":"Monza 53 laps","track":"ITA","seed":660,"weather":"Seco","scheduled_laps":53,"recording_format":Replay.SIMULATION_REVISION,
 		"full_live_finished":false,"full_replay_verified":false,"sport_hash":""}
 	var seen: Dictionary = {}
@@ -44,9 +49,35 @@ func run() -> void:
 		for car in engine.player_cars():
 			if float(car.pit_left)>0.0: seen[str(car.get("pit_stage",""))] = true
 		if s.tick%2000==0:
+			var now_us: int = Time.get_ticks_usec()
+			var ticks_in_window: int = s.tick - block_start_tick
+			var elapsed_us: int = now_us - block_start_us
+			live_cpu_windows.append({
+				"start_tick": block_start_tick, "end_tick": s.tick,
+				"cpu_ms_per_tick": float(elapsed_us)/1000.0/maxi(1,ticks_in_window),
+				"simulated_per_wall_second": float(ticks_in_window)*Replay.STEP/maxf(0.000001,float(elapsed_us)/1000000.0),
+				"leader_lap": engine.lap,
+				"telemetry_positions": engine.telemetry.position_history.size(),
+				"checkpoints": s.checkpoints.size(),
+				"godot_static_bytes": int(Performance.get_monitor(Performance.MEMORY_STATIC))
+			})
+			block_start_tick = s.tick
+			block_start_us = now_us
 			print("LRP_FULL_LIVE ",JSON.stringify({"ticks":s.tick,"leader_lap":engine.lap,"sim_seconds":engine.clock,
-				"wall_seconds":float(Time.get_ticks_usec()-start)/1000000.0,
+				"wall_seconds":float(now_us-start)/1000000.0,
 				"positions_sampled":engine.telemetry.position_history.size(),"checkpoints":s.checkpoints.size()}))
+	if s.tick > block_start_tick:
+		var final_elapsed_us: int = Time.get_ticks_usec() - block_start_us
+		var final_ticks: int = s.tick - block_start_tick
+		live_cpu_windows.append({
+			"start_tick": block_start_tick, "end_tick": s.tick,
+			"cpu_ms_per_tick": float(final_elapsed_us)/1000.0/maxi(1,final_ticks),
+			"simulated_per_wall_second": float(final_ticks)*Replay.STEP/maxf(0.000001,float(final_elapsed_us)/1000000.0),
+			"leader_lap": engine.lap, "telemetry_positions": engine.telemetry.position_history.size(),
+			"checkpoints": s.checkpoints.size(),
+			"godot_static_bytes": int(Performance.get_monitor(Performance.MEMORY_STATIC))
+		})
+	report.live_cpu_windows_06692 = live_cpu_windows
 	report.live_seconds=float(Time.get_ticks_usec()-start)/1000000.0
 	report.live_ticks=s.tick
 	report.full_live_finished=bool(engine.finished)
