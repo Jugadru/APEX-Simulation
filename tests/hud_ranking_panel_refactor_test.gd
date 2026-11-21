@@ -1,7 +1,7 @@
 extends SceneTree
 ## Refactor 03: construction, layout, callback and row contract in real Godot.
 const Hud = preload("res://scripts/apex_race_hud_0622.gd")
-const Skin = preload("res://scripts/apex_race_hud_skin_ui01.gd")
+const HudSkinTest = preload("res://scripts/apex_race_hud_skin_ui01.gd")
 const Ranking = preload("res://scripts/presentation/apex_hud_ranking_panel.gd")
 
 func _initialize() -> void:
@@ -13,8 +13,8 @@ func _fail(why: String) -> void:
 
 func _run() -> void:
 	var hud = Hud.new()
-	var idle: StyleBoxFlat = Skin.button_style("rank")
-	var selected: StyleBoxFlat = Skin.button_style("rank_selected")
+	var idle: StyleBoxFlat = HudSkinTest.button_style("rank")
+	var selected: StyleBoxFlat = HudSkinTest.button_style("rank_selected")
 	var result: Dictionary = Ranking.build(hud, idle, selected,
 		Callable(hud, "_panel"), Callable(hud, "_column"), Callable(hud, "_line"),
 		Callable(hud, "_text"), Callable(hud, "_btn"),
