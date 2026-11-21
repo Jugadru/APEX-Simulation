@@ -1,6 +1,6 @@
 # APEX v0.6.6.9.2 — Sustained 32× / sporting-hash field caching
 
-Status: **CANDIDATE / tests pending.** One principal change: cache stable *field names* during sporting replay hashing. No changes in HUD screens, pace, tyres, strategies, pit, weather, RNG, fixed-step scheduler, save formats or race rules. This branch is independent of the Work/Codex HUD effort.
+Status: **VALIDATED / INTEGRATED** — PR #70, commit `4c9d05db2fe1fff4c4048bfe46c2f0714940a67b`. QA 15/15 PASS, Quality Gate READY 10/10. One principal change: cache stable *field names* during sporting replay hashing. No changes in HUD screens, pace, tyres, strategies, pit, weather, RNG, fixed-step scheduler, save formats or race rules. This branch is independent of the Work/Codex HUD effort.
 
 ## Context and hypothesis
 
@@ -34,3 +34,38 @@ Revert the cached field lookup in `race_state_codec_0660.gd`; `sporting_hash` ca
 ## Version and distribution integrity
 
 `project.godot` now identifies the game as **v0.6.6.9.2**; `main.gd` and the front-menu footer already read that setting dynamically. The Windows/Linux export workflow checks the packaged `.pck` contents for `APEX Motorsport Manager v0.6.6.9.2` and rejects the old 9.1 and 8.10 application identities. This avoids repeating the stale ZIP title problem experienced in v9.1. No rename of the existing `APEX_0650_SOUL_STAFF` user-data directory: saves remain compatible. A new README download link should point to the final validated v9.2 artifact after merge; the existing 9.1 download must remain until that validation.
+
+## Resultados reais de validação — 21/11/2026
+
+**Evidências e escopo:** os dados abaixo vêm da CI do **SHA exato** `6cabc598ef2318ccf497accadde924c4cd89848c`, cuja árvore de arquivos é idêntica à do merge na `main`. Godot **4.7.2**, F1 2012, 24 carros. [PR #70](https://github.com/Jugadru/APEX-Simulation/pull/70), [A/B](https://github.com/Jugadru/APEX-Simulation/actions/runs/44938862536), [Endurance](https://github.com/Jugadru/APEX-Simulation/actions/runs/44938862442), [Quality Gate](https://github.com/Jugadru/APEX-Simulation/actions/runs/44938862525).
+
+- **15/15 workflows de PR PASS**, incluindo quatro grupos da matriz 20 circuitos, Core 2, GdUnit4, SaveGuard, Race Intelligence, Pit Wall, testes gráficos, benchmark e exportação Windows/Linux. O grupo 1 da matriz foi repetido com sucesso após falha intermitente no Godot durante o import, antes de qualquer cenário.
+- Quality Gate reexecutado depois dos demais testes: `APEX_QUALITY_GATE_READY`, `passed=10`, `total=10`, no mesmo SHA.
+- Teste específico: 2.400 ticks em Monza seca e Spa molhada, **0 divergências** entre hash otimizado, hash registrado e algoritmo anterior sem cache.
+- A/B pareado da CPU esportiva (1.000 ticks, mesmo seed): diferença **−1,38479%**, estado esportivo equivalente. Pequena melhoria observada; não afirmar significância estatística ou equivalência de ganho em FPS.
+- Prova integral Monza 53 voltas: **24.409 ticks, 24/24 carros concluídos**, replay integral validado, hash esportivo idêntico ao da v9.1: `dc8b4f2c8b08a741a7db37eac20083ae3e84cee6d95ac6d98841a9f811b75486`.
+- Duração live observada, CI headless: **v9.1 210,765137 s**; **v9.2 206,804104 s** (−1,88%). Replay: **v9.1 223,693526 s**; **v9.2 225,885846 s** (+0,98%). São apenas execuções em VM, não constituem teste estatístico nem diagnóstico de desempenho do PC do jogador.
+
+### Degradação de desempenho ao longo da corrida — observação reproduzida
+
+`tests/long_race_full_0663.gd` registrou **13 janelas contíguas**, das quais 12 têm 2.000 ticks completos e a última tem só 409 ticks. Estes são tempos CPU/parede da simulação headless **sem renderização**, não multiplicador efetivo da UI.
+
+| Intervalo de ticks | Volta do líder ao fim | ms/tick (CPU/parede) | Segundos simulados por segundo de parede |
+|---|---:|---:|---:|
+| 0–2.000 | 5 | 7,521 | 26,59× |
+| 6.000–8.000 | 19 | 8,291 | 24,12× |
+| 12.000–14.000 | 33 | 8,611 | 23,23× |
+| 18.000–20.000 | 46 | 8,855 | 22,59× |
+| 20.000–22.000 | 50 | 9,558 | 20,93× |
+| 22.000–24.000 | 53 | 9,487 | 21,08× |
+
+O bloco **24.000–24.409** terminou a 5,628 ms/tick, mas não é comparável diretamente com blocos completos: apenas 409 ticks e parte dos carros já havia terminado.
+
+A memória estática reportada pelo Godot nas janelas passou de aproximadamente 55 MB para 75 MB, enquanto o histórico de posições cresceu de 960 para 11.520 registros entre as janelas inicial e final completa. Essa correlação **não identifica isoladamente a causa**: custo de checkpoints, ordenação/estado esportivo, histórico, decisões, renderização e ruído de VM requerem profiling discriminado. Não atribuir a queda especificamente ao hash sem novas provas.
+
+**Conclusão:** a v9.2 reduz modestamente o custo do hash sem mudar replay ou regras. A velocidade de cerca de **21× perto do final** é reproduzida no teste headless de Monza e **não está resolvida**. Alcançar **28–32× no 2D do computador do jogador** continua sendo objetivo posterior; não retirar ticks nem enfraquecer a física para forçar a velocidade indicada.
+
+### Distribuição
+
+[Artefato Windows/Linux v9.2](https://github.com/Jugadru/APEX-Simulation/actions/runs/44938862417/artifacts/14720252805), validade até **05/12/2026**. Ambos os `.pck` foram inspecionados: contêm `APEX Motorsport Manager v0.6.6.9.2`, não as identidades 9.1/8.10. ZIPs íntegros e inicialização Linux headless exit 0. Não foi publicada Release pública nem realizada aferição de FPS na GPU física do jogador. O diretório dos saves continua `APEX_0650_SOUL_STAFF`.
+
