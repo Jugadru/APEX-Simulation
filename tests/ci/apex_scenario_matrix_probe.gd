@@ -100,6 +100,7 @@ func _run() -> void:
 
     var finished_cars: int = 0
     var disqualified: int = 0
+    var dq_evidence: Array[Dictionary] = []
     var positions: Array[int] = []
     var tyres: Array = race.available_pit_compounds()
     var ranked: Array = race.get_sorted()
@@ -110,6 +111,16 @@ func _run() -> void:
             finished_cars += 1
         if bool(car.get("disqualified", false)):
             disqualified += 1
+            # Read-only evidence: identify regulated car, used compounds and stops.
+            dq_evidence.append({
+                "car_id": int(car.get("id", -1)),
+                "driver": str(car.get("name", car.get("driver", ""))),
+                "team": str(car.get("team", "")),
+                "used_tires": car.get("used_tires", []).duplicate(true),
+                "tyre_rule_violation": bool(car.get("tyre_rule_violation", false)),
+                "tire": str(car.get("tire", "")),
+                "stops": int(car.get("stops", 0)),
+            })
         positions.append(int(car.get("position", -1)))
         var wear: float = float(car.get("wear", -1.0))
         var best: float = float(car.get("best_lap", 0.0))
@@ -124,6 +135,7 @@ func _run() -> void:
             errors.append("Compound is not allowed for this 2012 circuit")
 
     positions.sort()
+    dq_evidence.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return int(a["car_id"]) < int(b["car_id"]))
     if not race.finished or not race.finish_results_validated:
         errors.append("Race did not finish or validate before bounded timeout")
     if finished_cars != 24 or positions != range(1, 25):
@@ -161,6 +173,7 @@ func _run() -> void:
         "race_hash": Codec.sporting_hash(race, {}),
         "pits_total": pit_history.size(), "max_stops": max_stops_observed,
         "pit_laps_by_player": pit_laps_by_player, "disqualified": disqualified,
+        "disqualification_evidence": dq_evidence,
         "wetness_peak": snappedf(wetness_peak, 0.000001),
         "on_track_pass_events": pass_events,
         "errors": errors, "warnings": warnings,
