@@ -222,8 +222,7 @@ func _start_grid() -> void:
 	leader_id = int(cars[0]["id"])
 	_event("grid", -1, "GRID 2012: %d carros em %s. %d voltas / %.3f km." % [cars.size(), track_name, lap_count, race_km], 10)
 
-## Configurable only before green flag. Never change setup during a running GP.
-## Returns false for rival/car mismatch, invalid values and late calls.
+## Configurable only before green flag; no mutation of a live Grand Prix.
 func configure_pre_race_setup(car_id: int, settings: Dictionary) -> bool:
 	if running or finished or clock > 0.0 or not WeatherSetup15.valid(settings):
 		return false
@@ -595,7 +594,14 @@ func _advance(dt: float) -> void:
 	for i in range(old_order.size()):
 		var old_car: Dictionary = old_order[i]
 		gaps[old_car["id"]] = 999.0 if i == 0 else maxf(0.0, (float(old_order[i - 1]["progress"]) - float(old_car["progress"])) * base_lap)
-	var context: Dictionary = {"gap": 999.0, "lap": lap,
+	# Replays recorded before Improvement 14 must retain their original physics.
+	# Session metadata lives outside sporting state/checkpoints and has no RNG effect.
+	var launch_legacy: bool = false
+	if command_session != null:
+		var attached_session: Object = command_session.get_ref()
+		if attached_session != null:
+			launch_legacy = bool(attached_session.get("legacy_launch_physics"))
+	var context: Dictionary = {"gap": 999.0, "lap": lap, "clock": clock, "launch_enabled": not launch_legacy,
 		"race_laps": lap_count, "base_lap": base_lap,
 		"upgrades": team_upgrades, "player_car": false, "track": track,
 		"tyre_specs": tyre_specs, "tyre_track_severity": tyre_severity(),

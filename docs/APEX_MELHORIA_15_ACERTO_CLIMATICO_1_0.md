@@ -1,7 +1,7 @@
 # Melhoria 15 — Acerto climático pré-corrida 1.0
 
 ## Relação com a Melhoria 14
-A PR #52 (largada) ainda está Draft. Este incremento foi isolado numa branch criada a partir de `main` para evitar inserir a versão 14 antes de sua aprovação. **Não integrar a PR 15 antes de fechar os testes da PR 14.** Caso as duas PRs modifiquem os mesmos arquivos, rebasear a 15 sobre `main` atualizado e reexecutar toda a CI. Não suprimir conflicts com substituição integral.
+A PR #52 (largada) é a base da integração. A branch da melhoria 15 foi reconciliada com a revisão corrigida da 14, preservando as duas funcionalidades em um novo commit de integração. **Não integrar a PR 15 antes de fechar os testes da PR 14.** Caso as duas PRs modifiquem os mesmos arquivos, rebasear a 15 sobre `main` atualizado e reexecutar toda a CI. Não suprimir conflicts com substituição integral.
 
 ## Objetivo
 Fundamentar uma primeira decisão de preparação pré-corrida do piloto com três variáveis abstratas independentes, capazes de produzir trade-offs diferentes de desempenho e desgaste conforme as condições REAIS do asfalto. Foco em backend do Core 2 e teste Godot; interface de garagem/STAFF, qualificação e previsão imperfeita ficam para incrementos posteriores.

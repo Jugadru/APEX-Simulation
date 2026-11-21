@@ -4,7 +4,8 @@ const RacecraftAudit = preload("res://scripts/core/racecraft_audit_0662.gd")
 const Engineer = preload("res://scripts/core/race_engineer_0639.gd")
 const STEP := 0.20
 # A replay is tied to the exact sporting rules, not only its Godot runtime.
-const SIMULATION_REVISION := "066810_team_yield"
+const SIMULATION_REVISION := "014_launch_v1"
+const LEGACY_SIMULATION_REVISION := "066810_team_yield"
 const CHECKPOINT_TICKS := 300
 const MAX_CHECKPOINTS := 9
 # 0666: at most four compressed, RAM-only seek anchors. Never serialized.
@@ -26,6 +27,9 @@ var cursor: int = 0
 var sequence: int = 0
 var applying: bool = false
 var playback: bool = false
+# Session-only switch; never enters a checkpoint or sporting hash.
+# Legacy archives continue under the exact pre-launch race pace contract.
+var legacy_launch_physics: bool = false
 var policy: Dictionary = {"modes": {}, "fingerprints": {}, "staff": {}}
 var checkpoints: Array = []
 var hot_seek_checkpoints: Array = []
@@ -39,6 +43,7 @@ var racecraft_audit_enabled: bool = true
 var racecraft_audit = RacecraftAudit.new()
 
 func attach(engine, modes: Dictionary = {}, staff: Dictionary = {}) -> void:
+	legacy_launch_physics = false
 	race = engine
 	race.command_session = weakref(self)
 	policy = {"modes": modes.duplicate(true), "fingerprints": {}, "staff": staff.duplicate(true)}
@@ -339,7 +344,7 @@ func export_data() -> Dictionary:
 	var legacy: Array = _export_checkpoints()
 	if legacy.is_empty():
 		return {}
-	return {"format":"APEX_REPLAY_0660", "simulation_revision": SIMULATION_REVISION, "runtime":Engine.get_version_info().string, "step":STEP, "end_tick":end_tick, "commands":commands.duplicate(true), "hashes":hashes.duplicate(), "checkpoints":legacy}
+	return {"format":"APEX_REPLAY_0660", "simulation_revision": LEGACY_SIMULATION_REVISION if legacy_launch_physics else SIMULATION_REVISION, "runtime":Engine.get_version_info().string, "step":STEP, "end_tick":end_tick, "commands":commands.duplicate(true), "hashes":hashes.duplicate(), "checkpoints":legacy}
 
 # 0664 Replay Session Fork 1.0: only for locally recorded sessions.
 # The in-memory replay is copied from the recorder's *packed* checkpoints;
@@ -370,6 +375,7 @@ func load_live_session(recorded) -> bool:
 	hashes = recorded.hashes.duplicate()
 	checkpoints = recorded.checkpoints.duplicate(true)
 	end_tick = recorded.end_tick
+	legacy_launch_physics = bool(recorded.legacy_launch_physics)
 	playback = true
 	if not seek(0):
 		# No half-initialized playback should be exposed to the HUD.
@@ -385,7 +391,8 @@ func load_data(data: Dictionary) -> bool:
 	# Validate before touching this session; caller creates a fresh controller.
 	# v0.6.6.0 recordings have different physics and must not be replayed under
 	# v0.6.6.1 rules: silently accepting them would mislabel desync as corruption.
-	if data.get("simulation_revision", "") != SIMULATION_REVISION:
+	var archive_revision: String = str(data.get("simulation_revision", ""))
+	if archive_revision not in [SIMULATION_REVISION, LEGACY_SIMULATION_REVISION]:
 		error = "Replay de outra revisão da simulação. Use a versão que o gravou."
 		return false
 	if data.get("format") != "APEX_REPLAY_0660" or data.get("runtime") != Engine.get_version_info().string or data.get("step") != STEP:
@@ -428,6 +435,7 @@ func load_data(data: Dictionary) -> bool:
 	for i in range(1, data.checkpoints.size()):
 		checkpoints.append(_packed_checkpoint(data.checkpoints[i].duplicate(true)))
 	end_tick=data.end_tick
+	legacy_launch_physics = archive_revision == LEGACY_SIMULATION_REVISION
 	playback=true
 	return seek(0)
 
