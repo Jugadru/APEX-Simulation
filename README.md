@@ -1,20 +1,28 @@
-# APEX Motorsport Manager — Core 2 (v0.6.6.9.2)
+# APEX Motorsport Manager — Core 2 (v0.6.6.9.3)
 
 Simulador de gestão de automobilismo com equipes, estratégias, desenvolvimento de carros e corridas em 3D. O **Core 2** é o motor esportivo oficial deste repositório.
 
-## 📥 Baixar o jogo — v0.6.6.9.2
+## 📥 Baixar o jogo — v0.6.6.9.3
+
+### [⬇ Baixar APEX v0.6.6.9.3 — Windows e Linux](https://github.com/Jugadru/APEX-Simulation/actions/runs/44944744266/artifacts/14722189740)
+
+Pacote compilado com o **Godot 4.7.2**, validado na [PR #73](https://github.com/Jugadru/APEX-Simulation/pull/73) e integrado à `main`. O artefato do GitHub Actions contém ZIPs separados de **Windows x86_64** e **Linux x86_64**; extraia o ZIP correspondente ao seu sistema operacional, mantendo o executável e o arquivo `.pck` na mesma pasta. Pode ser necessário entrar na conta GitHub.
+
+**Download temporário, disponível até 05/12/2026.** Ambos os `.pck` foram verificados com a identificação `APEX Motorsport Manager v0.6.6.9.3`. Houve teste de inicialização simples no Linux; não houve medição de FPS na GPU do computador do jogador nem teste de execução em Windows real. Não existe Release pública permanente da v9.3.
+
+### [⬇ ZIP do código-fonte integrado v0.6.6.9.3 — Godot 4.7.2](https://github.com/Jugadru/APEX-Simulation/archive/52ece869120b979dabb777de22a2be4acf0dd0a1.zip)
+
+O código-fonte oficial da v9.3 está na `main` no commit `52ece869120b979dabb777de22a2be4acf0dd0a1`. A **árvore de arquivos** desse commit é idêntica à do commit `efa047589586bbc4fc7e9e346bd69235a52798fc`, usado nos testes e na exportação.
+
+**Novidade v9.3 — Driver Traffic Intelligence:** identificação determinística de retardatários, cessão antecipada de espaço quando segura, cautela em pista molhada e uso do corredor esportivo existente. A física permanece no motor, não na apresentação 2D/3D. Replays da v9.2 usam a lógica antiga de tráfego sem migrar silenciosamente a revisão esportiva.
+
+**Validação:** 16/16 workflows PASS; [Quality Gate READY 10/10](https://github.com/Jugadru/APEX-Simulation/actions/runs/44944744292); SaveGuard com 53 verificações PASS; [Monza 53 voltas](https://github.com/Jugadru/APEX-Simulation/actions/runs/44944744360) com 24 carros classificados, 24.237 ticks e replay integral determinístico. No CI, o trecho A/B de 1.000 ticks registrou **+1,66% de CPU por tick** frente à v9.2 (runner virtual sujeito a ruído), e Monza completa levou 211,18 s para o trecho ao vivo. **32× sustentados no PC do jogador não foram atingidos nem comprovados**; investigação na [issue #74](https://github.com/Jugadru/APEX-Simulation/issues/74).
+
+## 📦 Versão anterior — v0.6.6.9.2
 
 ### [⬇ Baixar APEX v0.6.6.9.2 — Windows e Linux](https://github.com/Jugadru/APEX-Simulation/actions/runs/44938862417/artifacts/14720252805)
 
-**Novo pacote corrigido para PC**, compilado com o Godot 4.7.2. O link abre um artefato do GitHub Actions contendo os ZIPs separados de **Windows x86_64** e **Linux x86_64**. Baixe o arquivo externo, extraia o ZIP da sua plataforma e execute o programa mantendo o `.pck` ao lado. Pode ser necessário estar conectado à conta GitHub.
-
-**Atenção: download temporário, disponível até 05/12/2026.** Windows e Linux foram exportados e testados quanto à integridade; os dois `.pck` contêm `APEX Motorsport Manager v0.6.6.9.2`, e não contêm as identificações antigas 9.1 ou 8.10. O executável Linux concluiu um teste simples de inicialização; **não houve medição de FPS na GPU do computador do jogador**. Nenhuma Release pública permanente v9.2 foi publicada.
-
-### [⬇ ZIP do código-fonte exato da v0.6.6.9.2 — Godot 4.7.2](https://github.com/Jugadru/APEX-Simulation/archive/4c9d05db2fe1fff4c4048bfe46c2f0714940a67b.zip)
-
-Esse ZIP é o projeto-fonte do **commit oficial integrado à `main`, `4c9d05db2fe1fff4c4048bfe46c2f0714940a67b`**, destinado a abrir no Godot. A árvore Git desse commit é **idêntica** à do commit `6cabc598ef2318ccf497accadde924c4cd89848c` que gerou os executáveis. Para jogar, utilize os ZIPs executáveis acima.
-
-**Melhoria v9.2:** cache dos nomes de propriedades usados pelo hash determinístico do replay. [PR #70](https://github.com/Jugadru/APEX-Simulation/pull/70) integrada com **15/15 workflows PASS, Quality Gate READY 10/10 e replay completo de Monza verificado (53 voltas, 24.409 ticks)**. A/B esportivo observou **1,38% menos tempo de CPU** e a corrida integral de Monza na CI passou de 210,77 s (v9.1) para 206,80 s (v9.2), sem divergências nos resultados. A medição em 13 janelas mostrou queda de ~26,6× para ~21× perto do fim no ambiente headless; portanto **32× sustentados no PC do usuário ainda NÃO foram alcançados/comprovados**. A HUD do Codex/Work não foi modificada.
+Pacote de rollback e comparação, também para Godot 4.7.2. [Código-fonte da v9.2](https://github.com/Jugadru/APEX-Simulation/archive/8e0490be3d4d20459354971c766c1179acd2d7bc.zip). A v9.2 introduziu otimização de cache no hash esportivo e preservou o determinismo; veja a [PR #70](https://github.com/Jugadru/APEX-Simulation/pull/70). O download binário é temporário e requer conferência de disponibilidade no GitHub.
 
 ## 📦 Versão anterior — v0.6.6.9.1
 
