@@ -98,7 +98,7 @@ func _run() -> void:
     var race = Race.new(season["teams"], "Red Bull Racing Renault", 647, {}, track, {})
     race.running = true
     var pilot: Dictionary = race.player_cars()[0]
-    require(str(pilot["driver_soul"].get("version", "")) == "2.0", "engine initializes Soul 2.0")
+    require(str(pilot["driver_soul"].get("version", "")) == "3.0", "engine initializes Soul 3.0 while Soul 2.0 module stays testable")
     var initial_time: float = float(race.clock)
     for i in range(1800):
         race.step(0.20)
