@@ -15,6 +15,7 @@ import sys
 import tempfile
 import zipfile
 
+PART_DIRECTORY = Path("docs/arquivo/pacotes")
 PART_BASENAME = "APEX_v0.6.6.8.zip.part"
 EXPECTED_PARTS = 5
 MAX_ENTRIES = 100_000
@@ -49,7 +50,7 @@ def validate_name(name: str) -> tuple[str, ...]:
 
 def main() -> None:
     repo = Path.cwd().resolve()
-    parts = [repo / (PART_BASENAME + f"{i:03d}") for i in range(EXPECTED_PARTS)]
+    parts = [repo / PART_DIRECTORY / (PART_BASENAME + f"{i:03d}") for i in range(EXPECTED_PARTS)]
     missing = [p.name for p in parts if not p.is_file()]
     if missing:
         fail("Partes ausentes: " + ", ".join(missing))

@@ -40,8 +40,10 @@ class ImportArchiveTests(unittest.TestCase):
                     archive.writestr(name, data)
             raw = buffer.getvalue()
         size = (len(raw) + importer.EXPECTED_PARTS - 1) // importer.EXPECTED_PARTS
+        part_dir = self.repo / importer.PART_DIRECTORY
+        part_dir.mkdir(parents=True, exist_ok=True)
         for i in range(importer.EXPECTED_PARTS):
-            (self.repo / f'{importer.PART_BASENAME}{i:03d}').write_bytes(raw[i*size:(i+1)*size])
+            (part_dir / f'{importer.PART_BASENAME}{i:03d}').write_bytes(raw[i*size:(i+1)*size])
         return raw
 
     def run_import(self, runner=True):
@@ -66,7 +68,7 @@ class ImportArchiveTests(unittest.TestCase):
         self.assertEqual(summary.read_text(), self.output.getvalue())
         self.assertEqual((self.repo / 'scripts/main.gd').read_bytes(), self.entries[1][1])
         self.assertEqual(list(self.runner.iterdir()), [])
-        self.assertEqual(len(list(self.repo.glob('*.part*'))), 5)
+        self.assertEqual(len(list((self.repo / importer.PART_DIRECTORY).glob('*.part*'))), 5)
 
     def test_private_unique_directories_respect_runner_temp(self):
         self.package()
@@ -108,7 +110,7 @@ class ImportArchiveTests(unittest.TestCase):
 
     def test_missing_part(self):
         self.package()
-        (self.repo / f'{importer.PART_BASENAME}004').unlink()
+        (self.repo / importer.PART_DIRECTORY / f'{importer.PART_BASENAME}004').unlink()
         self.blocked()
 
     def test_invalid_zip(self):
