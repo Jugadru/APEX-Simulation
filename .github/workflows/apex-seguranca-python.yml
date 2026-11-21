@@ -40,6 +40,11 @@ jobs:
           python -m unittest discover -s tools/tests \
             -p 'test_security_bandit_report.py' -v
 
+      - name: Testar importador seguro de arquivos
+        run: |
+          python -m unittest discover -s tools/tests \
+            -p 'test_import_apex_archive.py' -v
+
       - name: Auditar Python sem modificar codigo
         shell: bash
         run: |
