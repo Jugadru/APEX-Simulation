@@ -156,7 +156,7 @@ static func respond(car: Dictionary, request_id: int, choice: String) -> Diction
 
 static func summary(car: Dictionary) -> String:
     var soul: Dictionary = car.get("driver_soul", initial(car))
-    return "SOUL 2.0 · %s · pressão %d%% · foco %d%% · moral %d%% · confiança equipe %d%% · %s" % [
-        str(soul.get("temperament", "EQUILIBRADO")), int(float(soul.get("pressure", 0.0)) * 100.0),
+    return "SOUL %s · %s · pressão %d%% · foco %d%% · moral %d%% · confiança equipe %d%% · %s" % [
+        str(soul.get("version", VERSION)), str(soul.get("temperament", "EQUILIBRADO")), int(float(soul.get("pressure", 0.0)) * 100.0),
         int(float(soul.get("focus", 0.85)) * 100.0), int(float(soul.get("morale", 0.58)) * 100.0),
         int(float(soul.get("trust", 0.58)) * 100.0), str(soul.get("cause", "Pista"))]
