@@ -52,8 +52,10 @@ func run() -> void:
 	const Replay = preload("res://scripts/core/race_replay_0660.gd")
 	var season: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/season_2012.json"))
 	var engine = Race.new(season.teams, "Ferrari", 66093, {}, season.tracks[0], {})
+	const Codec = preload("res://scripts/core/race_state_codec_0660.gd")
 	var recorded = Replay.new()
 	recorded.attach(engine)
+	verify(not Codec.capture(engine).engine.has("driver_traffic_enabled"), "Session-only traffic switch stays out of legacy checkpoint schema")
 	engine.driver_traffic_enabled = false
 	for step in range(35):
 		verify(recorded.step_tick(), "Baseline-style race records deterministically")
