@@ -330,6 +330,13 @@ def main() -> int:
         (output / "report.json").write_text(
             json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
         (output / "report.md").write_text(markdown(report), encoding="utf-8")
+        # Log bounded original review findings for actionable CI diagnostics.
+        # The evidence is observational, not proof of a defective strategy.
+        for case in report["scenarios"]:
+            for finding in case["findings"][:25]:
+                print("APEX_PITWALL_REVIEW", json.dumps(
+                    finding, ensure_ascii=False
+                ), flush=True)
         print("APEX_PITWALL_ANALYZER_PASS", json.dumps({
             "scenarios": report["cases"], "runs": report["runs"],
             "review_flags": report["review_flags"],

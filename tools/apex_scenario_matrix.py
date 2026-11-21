@@ -251,6 +251,10 @@ def main() -> int:
         (args.output / "report.json").write_text(
             json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
         (args.output / "report.md").write_text(_markdown(report), encoding="utf-8")
+        # Display original warning evidence in CI logs as well as artifacts.
+        # WARN never becomes a synthetic PASS or a sporting FAIL.
+        for warning in report["warnings"][:25]:
+            print("APEX_MATRIX_WARNING", json.dumps(warning, ensure_ascii=False), flush=True)
         print("APEX_MATRIX_SHARD_PASS", json.dumps({
             "profile": report["profile"], "shard": report["shard"],
             "cases": report["cases"], "runs": report["runs"],
