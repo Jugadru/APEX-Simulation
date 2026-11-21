@@ -39,7 +39,26 @@ func run() -> void:
 	var second := Space.plan(pair.duplicate(true), metrics.duplicate(true), 0.2, track, {"length": 1000.0}, weather.duplicate(true))
 	verify(var_to_bytes(first) == var_to_bytes(second), "Frozen inputs are deterministic")
 	verify(var_to_bytes(pair) == var_to_bytes(original), "Observer never modifies input snapshot")
+	verify(absf(float(first[2].states.race_lane)) > 0.05, "Backmarker yields with an actual lateral move")
 	verify(float(first[1].progress) >= 1.350 and float(first[2].progress) >= 0.365, "No negative progress")
 	verify(first.has(1) and first.has(2), "Both cars remain simulated")
+	# A baseline 9.2 replay must execute old traffic rules, not silently
+	# rerun with different sporting physics under a new revision identifier.
+	const Race = preload("res://scripts/race_engine.gd")
+	const Replay = preload("res://scripts/core/race_replay_0660.gd")
+	var season: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/season_2012.json"))
+	var engine = Race.new(season.teams, "Ferrari", 66093, {}, season.tracks[0], {})
+	var recorded = Replay.new()
+	recorded.attach(engine)
+	engine.driver_traffic_enabled = false
+	for step in range(35):
+		verify(recorded.step_tick(), "Baseline-style race records deterministically")
+	var legacy: Dictionary = recorded.export_data()
+	legacy["simulation_revision"] = Replay.BASELINE_SIMULATION_REVISION
+	var restored = Replay.new()
+	verify(restored.load_data(legacy), "9.2 replay loads under legacy traffic rules")
+	verify(not bool(restored.race.driver_traffic_enabled), "9.2 replay disables 9.3 traffic intelligence")
+	verify(restored.seek(35), "9.2 replay hashes reproduce without desync")
+	verify(str(restored.export_data().simulation_revision) == Replay.BASELINE_SIMULATION_REVISION, "9.2 replay remains correctly labeled after re-export")
 	print("DRIVER_TRAFFIC_06693_PASS ", {"checks": checks})
 	quit()
