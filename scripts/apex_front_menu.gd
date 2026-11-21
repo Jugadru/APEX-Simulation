@@ -88,7 +88,9 @@ func setup(scene_host) -> void:
     detail_actions = VBoxContainer.new()
     detail_actions.add_theme_constant_override("separation", 14)
     detail.add_child(detail_actions)
-    label(content, "APEX MOTORSPORT MANAGER    /    v0.6.5.2    /    MOTOR DE CORRIDA COMPARTILHADO", 11, MUTED)
+    # The menu version must reflect the exported .pck project identity.
+    var build_title: String = str(ProjectSettings.get_setting("application/config/name", "APEX Motorsport Manager"))
+    label(content, "%s    /    MOTOR DE CORRIDA COMPARTILHADO" % build_title.get_slice(" — ", 0).to_upper(), 11, MUTED)
     resized.connect(_responsive)
     call_deferred("_responsive")
     show_home()
