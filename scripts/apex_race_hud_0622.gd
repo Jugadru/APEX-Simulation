@@ -7,6 +7,7 @@ const MiniMap = preload("res://scripts/apex_mini_map.gd")
 const HudSkin = preload("res://scripts/apex_race_hud_skin_ui01.gd")
 const ReBroadcast = preload("res://scripts/apex_hud_rebroadcast_0668.gd")
 const HudStandingMetric = preload("res://scripts/presentation/apex_hud_standings_metric.gd")
+const HudRankingPanel = preload("res://scripts/presentation/apex_hud_ranking_panel.gd")
 const Stints = preload("res://scripts/apex_strategy_planner_0620.gd")
 const EngineerInteractive = preload("res://scripts/core/race_engineer_interactive.gd")
 const DriverPerception = preload("res://scripts/core/race_driver_perception_0633.gd")
@@ -213,52 +214,14 @@ func _create_ui() -> void:
 	radio_reactive_toast.clip_text = true
 	radio_reactive_toast.hide()
 
-	ranking = _panel(self)
-	var left := _column(ranking, 3)
-	var rank_header := _line(left, 2)
-	var prev := _btn(rank_header, "‹", _move_metric.bind(-1), 27)
-	prev.tooltip_text = "Métrica anterior"
-	standings_title = _text(rank_header, "INTERVALO", 11, ACCENT)
-	standings_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	standings_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	var next := _btn(rank_header, "›", _move_metric.bind(1), 27)
-	next.tooltip_text = "Próxima métrica"
-	var standings_scroll := ScrollContainer.new()
-	standings_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	standings_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	left.add_child(standings_scroll)
-	var entries := _column(standings_scroll, 1)
-	entries.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	for i in range(24):
-		var row := HBoxContainer.new()
-		row.custom_minimum_size.y = 28
-		row.add_theme_constant_override("separation", 3)
-		entries.add_child(row)
-		var stripe := ColorRect.new()
-		stripe.custom_minimum_size = Vector2(3, 20)
-		stripe.color = MUTED
-		row.add_child(stripe)
-		var pos := _text(row, "%d" % (i + 1), 13, MUTED)
-		pos.custom_minimum_size.x = 20
-		var driver := _btn(row, "---", _select_grid_car.bind(i), 43)
-		driver.add_theme_stylebox_override("normal", rank_idle_style)
-		driver.add_theme_stylebox_override("hover", HudSkin.button_style("rank_hover"))
-		driver.add_theme_stylebox_override("pressed", rank_selected_style)
-		driver.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		driver.add_theme_font_size_override("font_size", 13)
-		driver.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		driver.custom_minimum_size.y = 26
-		var tyre := _text(row, "—", 13, MUTED)
-		tyre.custom_minimum_size.x = 16
-		tyre.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		var state := _text(row, "", 11, YELLOW)
-		state.custom_minimum_size.x = 31
-		state.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		var detail := _text(row, "—", 12, WHITE)
-		detail.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-		detail.custom_minimum_size.x = 66
-		standing_rows.append({"row":row, "stripe":stripe, "pos":pos, "driver":driver,
-			"tyre":tyre, "state":state, "detail":detail})
+	# UI-only panel assembly; same callbacks, node hierarchy, rows and styles.
+	var ranking_ui: Dictionary = HudRankingPanel.build(self, rank_idle_style, rank_selected_style,
+		Callable(self, "_panel"), Callable(self, "_column"), Callable(self, "_line"),
+		Callable(self, "_text"), Callable(self, "_btn"),
+		Callable(self, "_move_metric"), Callable(self, "_select_grid_car"))
+	ranking = ranking_ui["ranking"]
+	standings_title = ranking_ui["standings_title"]
+	standing_rows = ranking_ui["standing_rows"]
 
 	weather_box = _panel(self)
 	weather_box.minimum_size_changed.connect(layout_hud, CONNECT_DEFERRED)
