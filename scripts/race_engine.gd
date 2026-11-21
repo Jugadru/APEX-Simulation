@@ -582,7 +582,7 @@ func _advance(dt: float) -> void:
 	for i in range(old_order.size()):
 		var old_car: Dictionary = old_order[i]
 		gaps[old_car["id"]] = 999.0 if i == 0 else maxf(0.0, (float(old_order[i - 1]["progress"]) - float(old_car["progress"])) * base_lap)
-	var context: Dictionary = {"gap": 999.0, "lap": lap,
+	var context: Dictionary = {"gap": 999.0, "lap": lap, "clock": clock,
 		"race_laps": lap_count, "base_lap": base_lap,
 		"upgrades": team_upgrades, "player_car": false, "track": track,
 		"tyre_specs": tyre_specs, "tyre_track_severity": tyre_severity(),
