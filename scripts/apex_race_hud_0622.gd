@@ -8,6 +8,7 @@ const HudSkin = preload("res://scripts/apex_race_hud_skin_ui01.gd")
 const ReBroadcast = preload("res://scripts/apex_hud_rebroadcast_0668.gd")
 const HudStandingMetric = preload("res://scripts/presentation/apex_hud_standings_metric.gd")
 const HudRankingPanel = preload("res://scripts/presentation/apex_hud_ranking_panel.gd")
+const HudPitWallQuickPanel = preload("res://scripts/presentation/apex_hud_pitwall_quick_panel.gd")
 const Stints = preload("res://scripts/apex_strategy_planner_0620.gd")
 const EngineerInteractive = preload("res://scripts/core/race_engineer_interactive.gd")
 const DriverPerception = preload("res://scripts/core/race_driver_perception_0633.gd")
@@ -242,17 +243,10 @@ func _create_ui() -> void:
 	minimap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	map_column.add_child(minimap)
 
-	# FULL-only quick links; every button opens an existing, functional
-	# Pit Wall/strategy/engineering window, without writing to race state.
-	pit_quick_panel = _panel(self, HudSkin.SURFACE)
-	var quick_column := _column(pit_quick_panel, 5)
-	_text(quick_column, "PIT WALL / CENTRO DE DECISÕES", 11, ACCENT)
-	var quick_first := _line(quick_column, 4)
-	_btn(quick_first, "RESUMO", _open_window.bind("pitwall3"), 101).tooltip_text = "Pit Wall 3.0 e situações dos dois carros"
-	_btn(quick_first, "PLANO", _open_window.bind("estrategia"), 99).tooltip_text = "Planejar stints e agendar paradas"
-	var quick_second := _line(quick_column, 4)
-	_btn(quick_second, "DECISÃO", _open_window.bind("engineer"), 101).tooltip_text = "Ordens e análises do engenheiro"
-	_btn(quick_second, "ANÁLISE", _open_window.bind("graficos"), 99).tooltip_text = "Gráficos dinâmicos baseados na simulação"
+	# FULL-only quick links; builder keeps the original actions and node hierarchy.
+	pit_quick_panel = HudPitWallQuickPanel.build(self, Callable(self, "_panel"),
+		Callable(self, "_column"), Callable(self, "_line"), Callable(self, "_text"),
+		Callable(self, "_btn"), Callable(self, "_open_window"))
 
 	player_strip = Control.new()
 	player_strip.mouse_filter = Control.MOUSE_FILTER_IGNORE
