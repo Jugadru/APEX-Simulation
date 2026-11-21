@@ -24,6 +24,10 @@ func run() -> void:
 	var blue := Traffic.evaluate(fast, backmarker, 15.0, 2.95, weather)
 	verify(bool(blue.lapping), "Lapping car sees backmarker")
 	verify(bool(blue.yield_early), "Clear early safe yield")
+	verify(float(Traffic.evaluate(fast, backmarker, 16.0, 2.95, weather, 2.95).yield_lane) < 0.0,
+		"Backmarker yields opposite a right-side attacker")
+	verify(float(Traffic.evaluate(fast, backmarker, 16.0, 2.95, weather, -2.95).yield_lane) > 0.0,
+		"Backmarker yields opposite a left-side attacker")
 	verify(not bool(Traffic.evaluate(backmarker, fast, 15.0, 2.95, weather).lapping), "No inverted blue flags")
 	verify(not bool(Traffic.evaluate(fast, backmarker, 6.0, 2.95, weather).yield_early), "No lateral move in overlap")
 	verify(not bool(Traffic.evaluate(fast, backmarker, 15.0, 1.5, weather).yield_early), "No yield in narrow corners")
@@ -59,6 +63,7 @@ func run() -> void:
 	verify(restored.load_data(legacy), "9.2 replay loads under legacy traffic rules")
 	verify(not bool(restored.race.driver_traffic_enabled), "9.2 replay disables 9.3 traffic intelligence")
 	verify(restored.seek(35), "9.2 replay hashes reproduce without desync")
+	verify(restored.first_divergence < 0, "Baseline replay is verified, not merely imported")
 	verify(str(restored.export_data().simulation_revision) == Replay.BASELINE_SIMULATION_REVISION, "9.2 replay remains correctly labeled after re-export")
 	print("DRIVER_TRAFFIC_06693_PASS ", {"checks": checks})
 	quit()
