@@ -13,7 +13,7 @@
 - `race_engine.gd`: controle da compatibilidade de tráfego para sessões de replay histórico.
 - `race_replay_0660.gd`: revisão esportiva nova `016_driver_traffic_v1`; replays da v9.2 são reproduzidos com regras históricas, mantendo o marcador da revisão original.
 - `race_state_codec_0660.gd`: exclui o controle de compatibilidade do esquema de checkpoints e do hash esportivo para preservar saves/replays antigos.
-- `tests/driver_traffic_06693_test.gd`: testes de pneus, chuva, largura, caixas, determinismo, passagem esquerda/direita e paridade do replay.
+- `tests/driver_traffic_06693_test.gd`: testes de chuva, largura, carros nos boxes, determinismo, passagem esquerda/direita e paridade do replay.
 - `project.godot`: identificação interna v0.6.6.9.3.
 
 ## Evidências executadas
