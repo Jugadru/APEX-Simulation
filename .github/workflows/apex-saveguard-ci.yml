@@ -17,6 +17,7 @@ on:
     # Include project configuration changes that may affect test behavior.
     branches: [main]
     paths:
+      - 'tests/performance_baseline_06690.gd'
       - 'project.godot'
       - 'scripts/**'
       - 'tests/ci/apex_saveguard_cross_revision.gd'

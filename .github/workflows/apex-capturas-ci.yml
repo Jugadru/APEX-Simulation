@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
+      - 'tests/performance_baseline_06690.gd'
       - 'project.godot'
       - 'scenes/**'
       - 'scripts/**'
@@ -54,6 +55,37 @@ jobs:
             --script res://tests/ci/apex_capture_screenshots.gd \
             2>&1 | tee ci_artifacts/screenshots/capture.log
           grep -q 'APEX_CAPTURE_CI_PASS' ci_artifacts/screenshots/capture.log
+
+      - name: Medir FPS observado, 2D/3D e aceleracao efetiva
+        shell: bash
+        run: |
+          set -euo pipefail
+          export APEX_NATIVE_BASELINE_OUTPUT="$PWD/ci_artifacts/screenshots/native_baseline_06690.json"
+          timeout 300s xvfb-run -a -s '-screen 0 1920x1080x24' \
+            godot --path . \
+            --rendering-method gl_compatibility \
+            --rendering-driver opengl3 \
+            --script res://tests/performance_baseline_native_06690.gd \
+            > ci_artifacts/screenshots/native_baseline_06690.log 2>&1
+          grep -q 'APEX_NATIVE_BASELINE_06690_PASS' ci_artifacts/screenshots/native_baseline_06690.log
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path("ci_artifacts/screenshots/native_baseline_06690.json").read_text())
+          cases = data["cases"]
+          assert len(cases) == 8
+          seen = {(x["resolution"], x["requested_speed_x"]) for x in cases}
+          expected = {(res, speed) for res in ("1600x900", "1920x1080") for speed in (1, 10, 16, 32)}
+          assert seen == expected, (seen, expected)
+          for item in cases:
+              assert item["sport_ticks"] > 0
+              assert item["observed_fps_including_render"] > 0
+              assert item["achieved_sport_speed_x"] > 0
+              print(item["resolution"], item["requested_speed_x"], item["visual_mode"],
+                    "fps=", round(item["observed_fps_including_render"], 2),
+                    "actual_speed_x=", round(item["achieved_sport_speed_x"], 2))
+          print("APEX_NATIVE_BASELINE_06690_JSON_VALID")
+          PY
 
       - name: Verificar PNG, metadados e hashes
         run: python3 tools/verify_ci_captures.py ci_artifacts/screenshots

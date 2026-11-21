@@ -5,6 +5,7 @@ on:
   pull_request:
     # Include project configuration changes that may affect test behavior.
     paths:
+      - 'tests/performance_baseline_06690.gd'
       - 'project.godot'
       - 'scripts/**'
       - 'data/**'

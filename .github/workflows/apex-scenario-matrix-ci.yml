@@ -18,6 +18,7 @@ on:
         default: '12012'
   pull_request:
     paths:
+      - 'tests/performance_baseline_06690.gd'
       - 'data/season_2012.json'
       - 'data/tyres_2012.json'
       - 'scripts/**'

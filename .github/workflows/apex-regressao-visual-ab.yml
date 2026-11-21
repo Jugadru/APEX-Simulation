@@ -15,6 +15,7 @@ on:
         type: string
   pull_request:
     paths:
+      - 'tests/performance_baseline_06690.gd'
       - 'scripts/**'
       - 'scenes/**'
       - 'assets/**'

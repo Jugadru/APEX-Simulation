@@ -14,6 +14,7 @@ on:
   pull_request:
     # Include project configuration changes that may affect test behavior.
     paths:
+      - 'tests/performance_baseline_06690.gd'
       - 'project.godot'
       - 'scripts/**'
       - 'data/**'
@@ -101,6 +102,31 @@ jobs:
             --project . \
             --growth-ticks "$APEX_GROWTH_TICKS" \
             --output ci_artifacts/endurance
+
+      - name: Monza 53 voltas e replay deterministico integral
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ci_artifacts/endurance
+          export APEX_FULL_REPORT="$PWD/ci_artifacts/endurance/monza53_replay.json"
+          /usr/bin/time -f 'elapsed_s=%e peak_rss_kb=%M' \
+            -o ci_artifacts/endurance/monza53_replay.metrics \
+            timeout 900s godot --headless --path . \
+              --script res://tests/long_race_full_0663.gd \
+              > ci_artifacts/endurance/monza53_replay.log 2>&1
+          grep -q 'LRP_FULL_REPLAY_END' ci_artifacts/endurance/monza53_replay.log
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path("ci_artifacts/endurance/monza53_replay.json").read_text())
+          assert data["full_live_finished"], data
+          assert data["full_replay_verified"], data
+          assert data["finished_cars"] == 24, data
+          assert data["unique_positions"] == 24, data
+          assert data["live_ticks"] == data["replay_ticks"], data
+          assert len(data["sport_hash"]) == 64, data
+          print("APEX_MONZA53_REPLAY_06690_PASS", data["live_ticks"], data["sport_hash"])
+          PY
 
       - name: Resumir resultados
         if: always()
