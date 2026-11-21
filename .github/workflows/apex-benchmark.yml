@@ -1,13 +1,22 @@
-
 name: APEX - Benchmark Automatico
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - 'tests/performance_baseline_06690.gd'
+      - '.github/workflows/apex-benchmark.yml'
+      - 'scripts/**'
+      - 'data/**'
+      - 'project.godot'
+
+permissions:
+  contents: read
 
 jobs:
   benchmark:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
 
     steps:
       - name: Baixar codigo APEX
@@ -21,20 +30,60 @@ jobs:
       - name: Importar projeto
         run: godot --headless --path . --import
 
-      - name: Medir desempenho do motor
+      - name: Medir desempenho do motor (benchmark legado)
         env:
           APEX_TICKS: "500"
+        shell: bash
         run: |
-          set -o pipefail
+          set -euo pipefail
           godot --headless --path . \
             --script res://tests/high_speed_growth_066723_benchmark.gd \
             2>&1 | tee benchmark.log
           grep -q 'GROWTH_DONE' benchmark.log
+
+      - name: Performance Baseline 2.0 - 24 carros, 1x/10x/16x/32x
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p baseline-06690
+          for speed in 1 10 16 32; do
+            export APEX_BASELINE_SPEED="$speed"
+            export APEX_BASELINE_TICKS=180
+            export APEX_BASELINE_TRACK=ITA
+            export APEX_BASELINE_WEATHER=Seco
+            export APEX_BASELINE_SEED=660
+            export APEX_BASELINE_PROFILE=1
+            export APEX_BASELINE_OUTPUT="$PWD/baseline-06690/monza-${speed}x.json"
+            timeout 240s godot --headless --path . \
+              --script res://tests/performance_baseline_06690.gd \
+              > "baseline-06690/monza-${speed}x.log" 2>&1
+            grep -q 'APEX_BASELINE_06690_DONE' "baseline-06690/monza-${speed}x.log"
+          done
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          output = Path("baseline-06690")
+          lines = ["# Performance Baseline 2.0 (headless)", "", "| Speed | Ticks | CPU wall s | Frame CPU p95 ms | Hash reference |", "|---|---:|---:|---:|---|"]
+          for speed in (1, 10, 16, 32):
+              data = json.loads((output / f"monza-{speed}x.json").read_text())
+              assert data["status"] == "PASS", f"{speed}x has failed"
+              assert data["config"]["cars"] == 24
+              assert data["config"]["requested_speed_x"] == speed
+              assert data["state"]["hash_equal"]
+              assert data["cpu"]["ticks"] >= 180
+              lines.append(f'| {speed}x | {data["cpu"]["ticks"]} | {data["cpu"]["wall_seconds"]:.3f} | {data["cpu"]["frame_cpu_p95_ms"]:.3f} | matched |')
+          lines += ["", "These are synthetic headless frame-input CPU timings, not measured game FPS or actual acceleration on a player's computer."]
+          (output / "report.md").write_text("\n".join(lines) + "\n")
+          print("\n".join(lines))
+          PY
+          cat baseline-06690/report.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Salvar relatorio
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: apex-benchmark-relatorio
-          path: benchmark.log
+          path: |
+            benchmark.log
+            baseline-06690/
           if-no-files-found: warn
