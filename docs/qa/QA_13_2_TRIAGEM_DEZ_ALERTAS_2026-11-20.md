@@ -43,3 +43,25 @@ O analisador sinaliza `PIT_QUEUE` quando `wait >= 3.0`. Isso é um limiar de rev
 - [Pit Wall run 44850769185](https://github.com/Jugadru/APEX-Simulation/actions/runs/44850769185)
 - [Matrix run 44850769195](https://github.com/Jugadru/APEX-Simulation/actions/runs/44850769195)
 - [Issue #49](https://github.com/Jugadru/APEX-Simulation/issues/49)
+
+## Conclusão da análise causal — coleta adicional no run 44853203822
+
+A nova instrumentação foi executada com sucesso em 20 cenários × duas repetições e identificou **todos os cinco carros desclassificados** nos quatro cenários secos Manual/Assistido:
+
+| Cenário | Piloto | Car ID | Pneus usados | Causa observada |
+|---|---|---:|---|---|
+| AUS Manual, seed 29213746 | Felipe Massa | 5 | Médio → Médio | Agendamento do mesmo composto |
+| ITA Assistido, seed 405439352 | Fernando Alonso | 4 | Duro → Duro | Agendamento do mesmo composto |
+| USA Manual, seed 125859146 | Fernando Alonso | 4 | Duro → Duro | Agendamento do mesmo composto |
+| USA Manual, seed 125859146 | Felipe Massa | 5 | Duro → Duro | Agendamento do mesmo composto |
+| BHR Assistido, seed 951045693 | Felipe Massa | 5 | Médio → Médio | Agendamento do mesmo composto |
+
+**Defeito confirmado:** `tests/ci/apex_scenario_matrix_probe.gd` escolhia `available_pit_compounds()[1]` como alvo único de parada manual/assistida para ambos os carros, sem consultar o composto inicial de cada piloto. Como `race_tyre_regulations_2012.gd` exige utilização dos dois compostos de seco em corrida seca, a penalidade aplicada pelo motor foi coerente com a regra, mas foi provocada por um agendamento inválido do *harness* de QA, não por evidência de decisão defeituosa da IA de produção.
+
+**Correção aplicada na PR #51:** nas corridas sem chuva intensa, cada piloto recebe o composto nominado diferente do que estava instalado no início, preservando V6 e V7. Uma asserção adicional rejeita uma futura desclassificação de piloto da equipe do jogador em cenário seco Manual/Assistido. As corridas de chuva intensa mantêm a escolha de pneus de chuva. A correção altera as entradas do cenário e, por consequência, pode alterar legitimamente o hash esportivo desses cenários; **não** modifica fórmula, regra, RNG ou estado interno do motor. A rodada anterior é a prova antes da alteração; a validação pós-correção depende da CI do SHA final.
+
+### Double stacks: causa imediata explicada
+
+Os seis registros PIT_QUEUE estão em Monza V9. Em todos, o companheiro da mesma equipe também parou na V9, e o histórico de rádio contém eventos explícitos de espera por vaga e liberação. Os registros são **EXPECTED quanto à causa da fila**. `race_double_stack_coordinator_06492.gd` impede adiar quando `entry_lap + 1 >= race_laps`, evitando que uma tentativa de corrigir o congestionamento produza uma parada inválida no fim da corrida. A qualidade da escolha estratégica antecipada continua **REVIEW**, e não `CONFIRMED_BUG`, sem dados contrafactuais.
+
+Não alterar o Pit Wall apenas para ocultar as seis flags. Não liberar melhoria 14 antes de verificar o resultado final do QA e atualizar a issue #49.
