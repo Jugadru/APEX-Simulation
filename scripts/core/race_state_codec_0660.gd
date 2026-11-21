@@ -3,7 +3,7 @@ extends RefCounted
 const Race = preload("res://scripts/race_engine.gd")
 const SCHEMA := 1
 const CHILDREN := ["weather", "track_dynamics", "telemetry"]
-const EXCLUDED := ["command_session", "rng", "weather", "track_dynamics", "telemetry", "_engineer_advice_cache"]
+const EXCLUDED := ["command_session", "rng", "weather", "track_dynamics", "telemetry", "_engineer_advice_cache", "driver_traffic_enabled"]
 
 static func fields(obj: Object, excluded: Array = [], clone: bool = true) -> Dictionary:
 	var result: Dictionary = {}

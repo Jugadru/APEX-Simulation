@@ -8,6 +8,8 @@ const RacePerformance = preload("res://scripts/core/race_performance.gd")
 const RaceSpace = preload("res://scripts/core/race_space_0655.gd")
 var command_session: WeakRef
 var space_profile: Dictionary = {}
+# Session-only replay compatibility: older sporting traces use pre-9.3 traffic logic.
+var driver_traffic_enabled: bool = true
 const Combat = preload("res://scripts/core/race_combat.gd")
 const Strategy = preload("res://scripts/core/race_strategy.gd")
 const RaceIntelligence = preload("res://scripts/core/race_intelligence_0645.gd")
@@ -632,7 +634,7 @@ func _advance(dt: float) -> void:
 		pace_metrics[int(old_car["id"])] = RacePerformance.evaluate(old_car, context)
 	if Perf.enabled: Perf.end(&"race.pace_thermal_drs_kers",perf_pace)
 	var perf_space := Perf.begin() if Perf.enabled else 0
-	var space_plan := RaceSpace.plan(old_order,pace_metrics,dt,track,space_profile,current_weather)
+	var space_plan := RaceSpace.plan(old_order,pace_metrics,dt,track,space_profile,current_weather,driver_traffic_enabled)
 	if Perf.enabled: Perf.end(&"race.overtaking",perf_space)
 	var defenders: Dictionary = {}
 	for car in cars:

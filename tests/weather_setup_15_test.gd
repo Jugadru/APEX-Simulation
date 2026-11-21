@@ -47,8 +47,8 @@ func _run() -> void:
 	var race = Race.new(season["teams"], "Ferrari", 15015, {}, track, {})
 	var replay: RefCounted = Replay.new()
 	replay.attach(race)
-	if str(replay.export_data().get("simulation_revision", "")) != "015_weather_setup_v1":
-		_fail("New replay must declare its weather-setup sporting revision")
+	if str(replay.export_data().get("simulation_revision", "")) != Replay.SIMULATION_REVISION:
+		_fail("New replay must declare its current sporting revision")
 		return
 	var my_cars: Array = race.player_cars()
 	if my_cars.size() != 2:

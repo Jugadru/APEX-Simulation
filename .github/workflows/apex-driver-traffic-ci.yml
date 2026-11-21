@@ -1,0 +1,42 @@
+name: APEX - Driver Traffic 9.3
+on:
+  pull_request:
+    paths:
+      - 'scripts/core/race_driver_traffic_06693.gd'
+      - 'scripts/core/race_space_0655.gd'
+      - 'scripts/core/race_replay_0660.gd'
+      - 'tests/driver_traffic_06693_test.gd'
+      - '.github/workflows/apex-driver-traffic-ci.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  driver-traffic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c # v3.0.1
+        with:
+          version: 4.7.2-stable
+      - name: Import resources
+        run: godot --headless --path . --import
+      - name: Run traffic deterministic integration test
+        run: |
+          set -euo pipefail
+          godot --headless --path . --script res://tests/driver_traffic_06693_test.gd | tee traffic_test.log
+          grep -q DRIVER_TRAFFIC_06693_PASS traffic_test.log
+      - name: Run existing driver dynamics regression
+        run: |
+          set -euo pipefail
+          godot --headless --path . --script res://tests/driver_dynamics_0661_test.gd | tee driver_dynamics.log
+          grep -q DRIVER_DYNAMICS_0661_PASS driver_dynamics.log
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: traffic-06693-test-logs
+          path: |
+            traffic_test.log
+            driver_dynamics.log
+          if-no-files-found: ignore
