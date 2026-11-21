@@ -68,7 +68,7 @@ func _run() -> void:
 				var delta: float = maxf(float(now - last_started) / 1000000.0, 0.0001)
 				last_started = now
 				host._process(delta)
-				await RenderingServer.frame_post_draw
+				await process_frame
 
 			Perf.reset({"version":"06690","track":"GBR","seed":6557,"resolution":str(resolution),"speed":speed_value,"render_mode":host.render_mode})
 			Perf.set_enabled(true)
@@ -86,7 +86,7 @@ func _run() -> void:
 				cpu_us.append(Time.get_ticks_usec() - frame_started)
 				if host.replay_session.cpu_limited:
 					cpu_limited_frames += 1
-				await RenderingServer.frame_post_draw
+				await process_frame
 				intervals_us.append(Time.get_ticks_usec() - frame_started)
 			var end_us: int = Time.get_ticks_usec()
 			Perf.set_enabled(false)
@@ -121,7 +121,7 @@ func _run() -> void:
 			print("APEX_NATIVE_BASELINE_06690_SAMPLE ", JSON.stringify(results[-1]))
 	var report: Dictionary = {
 		"schema": 1, "version": "0.6.6.9.0",
-		"kind": "windowed_rendered_frames_in_virtual_display",
+		"kind": "windowed_process_frames_in_virtual_display",
 		"track": "GBR", "seed": 6557, "cars": 24,
 		"environment": {
 			"os": OS.get_name(), "godot": Engine.get_version_info().string,
@@ -132,7 +132,7 @@ func _run() -> void:
 		"cases": results,
 		"limitations": [
 			"Xvfb/llvmpipe software rendering is NOT a measurement of the user's physical GPU.",
-			"Frame intervals include display, process scheduling and rendering waits; they are not isolated GPU times.",
+			"Frame intervals are measured between real process-frame events under a graphical virtual display; they are neither isolated GPU times nor confirmed GPU completions.",
 			"Warmup and samples represent early race, not a whole GP or memory-leak evaluation.",
 			"Each scenario restarts with the same seed, not a continuous racing session.",
 			"Actual speed is measured as executed fixed 0.2s sporting ticks per wall second.",
