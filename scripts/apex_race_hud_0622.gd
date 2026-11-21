@@ -9,6 +9,7 @@ const ReBroadcast = preload("res://scripts/apex_hud_rebroadcast_0668.gd")
 const HudStandingMetric = preload("res://scripts/presentation/apex_hud_standings_metric.gd")
 const HudRankingPanel = preload("res://scripts/presentation/apex_hud_ranking_panel.gd")
 const HudPitWallQuickPanel = preload("res://scripts/presentation/apex_hud_pitwall_quick_panel.gd")
+const HudWeatherPanel = preload("res://scripts/presentation/apex_hud_weather_panel.gd")
 const Stints = preload("res://scripts/apex_strategy_planner_0620.gd")
 const EngineerInteractive = preload("res://scripts/core/race_engineer_interactive.gd")
 const DriverPerception = preload("res://scripts/core/race_driver_perception_0633.gd")
@@ -224,12 +225,12 @@ func _create_ui() -> void:
 	standings_title = ranking_ui["standings_title"]
 	standing_rows = ranking_ui["standing_rows"]
 
-	weather_box = _panel(self)
+	# UI-only weather panel; the HUD still owns its layout and live data.
+	var weather_ui: Dictionary = HudWeatherPanel.build(self,
+		Callable(self, "_panel"), Callable(self, "_column"), Callable(self, "_text"))
+	weather_box = weather_ui["weather_box"]
+	weather_line = weather_ui["weather_line"]
 	weather_box.minimum_size_changed.connect(layout_hud, CONNECT_DEFERRED)
-	var weather_column := _column(weather_box, 4)
-	_text(weather_column, "CONDIÇÕES DA PISTA", 11, ACCENT)
-	weather_line = _text(weather_column, "Aguardando clima", 12, WHITE)
-	weather_line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
 	map_box = _panel(self)
 	var map_column := _column(map_box, 2)
