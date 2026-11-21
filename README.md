@@ -1,5 +1,33 @@
 # APEX Motorsport Manager — Core 2 v0.6.6.8.10
 
+Simulador de gestão de automobilismo com equipes, estratégias, desenvolvimento de carros e corridas em 3D. O **Core 2** é o motor esportivo oficial deste repositório.
+
+## 📥 Baixar o jogo
+
+### [⬇ Baixar APEX Core 2 v0.6.6.8.6 — ZIP completo (121 MB)](https://github.com/Jugadru/APEX-Simulation/releases/download/Versions/APEX_MOTORSPORT_MANAGER_v0.6.6.8.6_CORE2_RACE_STABILITY_COMPLETO.zip)
+
+[Ver a página do download](https://github.com/Jugadru/APEX-Simulation/releases/tag/Versions) · [Como abrir](#abrir-o-jogo) · [Guia das pastas](#guia-das-pastas)
+
+**Versão do download:** v0.6.6.8.6. O código da branch `main` contém alterações posteriores; este ZIP não inclui automaticamente essas mudanças. Para abrir o projeto, extraia o pacote e importe o `project.godot` no **Godot 4.7.2**, seguindo as instruções abaixo. O download é um pacote do projeto, não um instalador Windows/Linux.
+
+O repositório é público. O acesso aos arquivos anexados à Release pode depender das condições de publicação e disponibilidade do próprio arquivo; caso o download não esteja acessível, utilize a árvore pública do código-fonte e consulte as Releases.
+
+## Guia das pastas
+
+| Onde encontrar | Conteúdo |
+| --- | --- |
+| [`project.godot`](project.godot) | Arquivo para abrir o projeto no Godot |
+| [`scripts/`](scripts/) | Código do jogo |
+| [`scenes/`](scenes/) | Cenas e interfaces |
+| [`assets/`](assets/) e [`data/`](data/) | Recursos visuais e dados |
+| [`docs/`](docs/) | Guias e documentação |
+| [`docs/arquivo/`](docs/arquivo/README.md) | Relatórios e histórico de versões |
+| [`tests/`](tests/) e [`tools/`](tools/) | Testes e ferramentas de desenvolvimento |
+
+Para começar, use o download acima e a seção **Abrir o jogo**. As seções seguintes detalham as mudanças de cada versão.
+
+---
+
 ## Ordens de Equipe 1.0 — autorização real (v0.6.6.8.10)
 
 Na janela **RÁDIO**, primeiro escolha o piloto que está atrás e use **COMPARAR COMPANHEIRO**. Quando há duas voltas de vantagem sustentada, menos de 1,5 segundo de distância, posições adjacentes, pneus adequados e segurança, o botão **AUTORIZAR NÃO DEFENDER** envia uma ordem explícita ao companheiro da frente. O pedido é aplicado **no tick seguinte** pelo replay e permite que o líder evite uma defesa antecipada agressiva por até **15 segundos de tempo de simulação**, sem garantir passagem nem dar velocidade artificial. A pista continua respeitando ocupação lateral, segurança e espaço físico no Core 2. O jogador pode usar **CANCELAR AUTORIZAÇÃO**.
@@ -48,7 +76,7 @@ O projeto inclui corrida com 24 carros, 3D, HUD ReBroadcast, Pit Wall, replay de
 
 ## Versão completa e histórico
 
-- [Release-base Core 2 v0.6.6.8.6 (ZIP original)](https://github.com/Quereni/APEX-Simulation/releases/tag/Versions)
+- [Release-base Core 2 v0.6.6.8.6 (ZIP original)](https://github.com/Jugadru/APEX-Simulation/releases/tag/Versions)
 - [Relatório técnico v0.6.6.8.7](docs/arquivo/relatorios/APEX_06687_RELATORIO_TECNICO.md)
 - [Matriz histórica de testes](docs/arquivo/qualidade/APEX_06687_MATRIZ_TESTES.json)
 - [Changelog da versão](docs/arquivo/changelogs/APEX_06687_CHANGELOG.md)
