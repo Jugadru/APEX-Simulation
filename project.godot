@@ -10,8 +10,8 @@ config_version=5
 
 [application]
 
-config/name="APEX Motorsport Manager v0.6.6.9.3 — Core 2"
-config/description="v0.6.6.9.3: inteligência de tráfego e retardatários com decisões determinísticas e corredores seguros."
+config/name="APEX Motorsport Manager v0.6.6.9.4 — Core 2"
+config/description="v0.6.6.9.4: Driver Soul 3.0 — personalidade influencia ataques, rádio ligado ao estado real da corrida."
 run/main_scene="res://scenes/main.tscn"
 config/use_custom_user_dir=true
 config/custom_user_dir_name="APEX_0650_SOUL_STAFF"
