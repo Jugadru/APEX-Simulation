@@ -23,3 +23,6 @@ Reverter isoladamente a PR e retirar `clock` do contexto, `RaceLaunch14.pace_cos
 
 ## Limitações e evolução posterior
 Não simula embreagem, patinagem de roda individual, tempo de reação medido por piloto real, escolha de linha na primeira curva ou acidentes de largada. Não misturar esses sistemas com a 14ª entrega. Uma atualização futura poderá usar atributos próprios de largada, após coletar evidências.
+
+## Compatibilidade SaveGuard (correção pós-auditoria)
+O teste SaveGuard da PR identificou divergência reproduzível no tick 1 para arquivo antigo `066810_team_yield`, pois a largada altera fisicamente o início da corrida. Novos arquivos agora declaram revisão esportiva `014_launch_v1`. Arquivos já gravados na revisão `066810_team_yield` conservam sua assinatura e são reproduzidos com a física de largada anterior por meio de atributo de sessão não serializado `legacy_launch_physics`. O adaptador não altera campos esportivos, hashes, RNG ou snapshots antigos; não aceita outras revisões de física. O SaveGuard de compatibilidade deve passar no Godot real antes de merge. **Não trocar o hash esperado nem dispensar o comparador de replay.**
