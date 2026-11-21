@@ -10,6 +10,8 @@ var command_session: WeakRef
 var space_profile: Dictionary = {}
 # Session-only replay compatibility: older sporting traces use pre-9.3 traffic logic.
 var driver_traffic_enabled: bool = true
+# Excluded from checkpoints; old replays must keep their Soul 2.0 sporting rules.
+var driver_soul3_enabled: bool = true
 const Combat = preload("res://scripts/core/race_combat.gd")
 const Strategy = preload("res://scripts/core/race_strategy.gd")
 const RaceIntelligence = preload("res://scripts/core/race_intelligence_0645.gd")
@@ -17,6 +19,7 @@ const PitWallStrategy3 = preload("res://scripts/core/race_pitwall_strategy_0649.
 const LapStrategy06496 = preload("res://scripts/core/race_lap_reassessment_06496.gd")
 const TeamPitCoordinator06497 = preload("res://scripts/core/race_team_pit_coordination_06497.gd")
 const DriverSoul = preload("res://scripts/core/race_driver_soul_0647.gd")
+const DriverSoul3 = preload("res://scripts/core/race_driver_soul_06694.gd")
 const TeamRadioAdvice = preload("res://scripts/core/race_team_radio_advice_06689.gd")
 const AIDirector = preload("res://scripts/core/race_ai_director.gd")
 const DriverFeedback = preload("res://scripts/core/race_driver_feedback.gd")
@@ -220,7 +223,7 @@ func _start_grid() -> void:
 		TyreThermal.reset(cars[-1], weather_snapshot())
 		RaceKers2012.initial_state(cars[-1])
 		RaceDrs2012.initial_state(cars[-1])
-		cars[-1]["driver_soul"] = DriverSoul.initial(cars[-1])
+		cars[-1]["driver_soul"] = DriverSoul3.initial(cars[-1])
 		_last_ranks[driver["id"]] = i + 1
 	leader_id = int(cars[0]["id"])
 	_event("grid", -1, "GRID 2012: %d carros em %s. %d voltas / %.3f km." % [cars.size(), track_name, lap_count, race_km], 10)
@@ -634,7 +637,7 @@ func _advance(dt: float) -> void:
 		pace_metrics[int(old_car["id"])] = RacePerformance.evaluate(old_car, context)
 	if Perf.enabled: Perf.end(&"race.pace_thermal_drs_kers",perf_pace)
 	var perf_space := Perf.begin() if Perf.enabled else 0
-	var space_plan := RaceSpace.plan(old_order,pace_metrics,dt,track,space_profile,current_weather,driver_traffic_enabled)
+	var space_plan := RaceSpace.plan(old_order,pace_metrics,dt,track,space_profile,current_weather,driver_traffic_enabled,driver_soul3_enabled)
 	if Perf.enabled: Perf.end(&"race.overtaking",perf_space)
 	var defenders: Dictionary = {}
 	for car in cars:
@@ -1067,7 +1070,14 @@ func _record_lap_cross(car: Dictionary, previous: float, choose_ai_strategy: boo
 		if int(candidate.get("id", -1)) != int(car.get("id", -1)) and str(candidate.get("team", "")) == str(car.get("team", "")):
 			soul_teammate = candidate
 			break
-	DriverSoul.update(car, weather_snapshot(), soul_teammate)
+	if driver_soul3_enabled:
+		var soul3_radio: Dictionary = DriverSoul3.update(car, weather_snapshot(), soul_teammate)
+		if str(car.get("team", "")) == team_name and not soul3_radio.is_empty():
+			car["driver_radio_last_lap"] = int(soul3_radio["lap"])
+			car["driver_radio_last_kind"] = "soul3_" + str(soul3_radio["kind"])
+			_event("driver_radio", int(car["id"]), str(soul3_radio["message"]), 75)
+	else:
+		DriverSoul.update(car, weather_snapshot(), soul_teammate)
 	# 0.6.4.9.6: uma análise por volta CONCLUÍDA, inclusive no manual.
 	# Histórico é limitado; não há RNG nem pit executado pela leitura.
 	if choose_ai_strategy and int(car.get("laps_done", 0)) < lap_count:

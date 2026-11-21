@@ -52,7 +52,7 @@ static func active(car: Dictionary) -> bool:
 static func corridor_crosses(a0: float,a1: float,b0: float,b1: float) -> bool:
 	return minf(a0,a1)<maxf(b0,b1)+WIDTH and maxf(a0,a1)>minf(b0,b1)-WIDTH
 
-static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,shape: Dictionary, weather: Dictionary = {}, traffic_enabled: bool = true) -> Dictionary:
+static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,shape: Dictionary, weather: Dictionary = {}, traffic_enabled: bool = true, soul3_enabled: bool = false) -> Dictionary:
 	var length: float=shape.length
 	# 06686: RaceEngine normally supplies a sorted frozen sporting snapshot.
 	# Filtering out inactive cars preserves its order. Avoid sorting 24
@@ -110,7 +110,7 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 				lane_limit(track,float(ahead.progress)+LENGTH*2.0/length,shape))
 		var driver: Dictionary = c.duplicate()
 		driver["attack_charge"] = float(a.charge)
-		var tactic: Dictionary = DriverDynamics.choose(driver,ahead,gap,advantage,limit,track,weather)
+		var tactic: Dictionary = DriverDynamics.choose(driver,ahead,gap,advantage,limit,track,weather,soul3_enabled)
 		# Blue flags are decisions about a physical backmarker, not a sporting
 		# position override. A safe early yield uses the existing corridor solver.
 		var traffic: Dictionary = DriverTraffic.evaluate(c, ahead, gap, limit, weather, float(tactic.attack_goal)) if traffic_enabled else {"lapping": false, "yield_early": false}

@@ -58,7 +58,7 @@ func _run() -> void:
     hud._open_window("engineer")
     require(hud.overlay_title.text.contains("RACE ENGINEER 3.0"), "Engineer 3 preserved")
     require(hud.engineer_cards.size() == 2, "2 engineer cards")
-    require((hud.engineer_cards[0]["text"] as Label).text.contains("SOUL 2.0"), "Soul in Engineer")
+    require((hud.engineer_cards[0]["text"] as Label).text.contains("SOUL 3.0"), "Soul 3.0 in Engineer")
     for size in [Vector2i(1600, 900), Vector2i(1920, 1080)]:
         root.size = size
         await process_frame

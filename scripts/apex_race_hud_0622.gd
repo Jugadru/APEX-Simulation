@@ -1079,7 +1079,7 @@ func _build_radio_window() -> void:
 	_btn(request_row, "OUVIR PEDIDO", _answer_soul_request.bind("ouvir"), 125).tooltip_text = "Reconhece a solicitação do piloto. Nenhum comando é enviado."
 	_btn(request_row, "EXPLICAR PLANO", _answer_soul_request.bind("explicar"), 148).tooltip_text = "Resposta do pit wall no rádio; não muda a estratégia."
 	_text(request_row, "Pedidos consultivos · sem ordens automáticas.", 11, MUTED)
-	radio_soul_request_label = _text(overlay_content, "SOUL 2.0 · Aguardando pedido do piloto.", 11, SOUL_ACCENT)
+	radio_soul_request_label = _text(overlay_content, "SOUL · Aguardando pedido do piloto.", 11, SOUL_ACCENT)
 	radio_soul_request_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	radio_soul_request_label.custom_minimum_size.y = 38
 	_update_soul_status()
@@ -1166,7 +1166,9 @@ func _announce_soul_requests() -> void:
 			radio_reactive_toast.tooltip_text = reason + " · Clique para abrir o rádio."
 			radio_reactive_toast_until = Time.get_ticks_msec() + 9000
 			radio_reactive_toast.show()
-		if host.commentary != null:
+		# Soul3 requests are already published as deterministic driver_radio
+		# events by RaceEngine. Keep the toast but avoid duplicate commentary.
+		if host.commentary != null and str((car.get("driver_soul", {}) as Dictionary).get("version", "")) != "3.0":
 			host.commentary.add_soul_spontaneous(float(host.race.clock), name, message,
 				"Pedido recebido para análise, nenhuma ordem foi executada.", car_id)
 		if active_window == "radio":
@@ -1259,7 +1261,7 @@ func _update_soul_status() -> void:
 	if radio_soul_request_label != null and is_instance_valid(radio_soul_request_label):
 		var request: Dictionary = DriverSoul2.latest(car)
 		if request.is_empty():
-			radio_soul_request_label.text = "SOUL 2.0 · Nenhum pedido contextual nesta corrida."
+			radio_soul_request_label.text = "SOUL · Nenhum pedido contextual nesta corrida."
 		else:
 			radio_soul_request_label.text = "V%d · %s: %s [%s]" % [
 				int(request.get("lap", 0)), str(request.get("kind", "")).to_upper(),
@@ -1541,7 +1543,7 @@ func _update_engineer_reports() -> void:
 		_refresh_pitwall3_window()
 
 func _build_engineer_window() -> void:
-	overlay_title.text = "RACE ENGINEER 3.0  /  HUD UI03 · SOUL 2.0 · REVISÃO POR VOLTA"
+	overlay_title.text = "RACE ENGINEER 3.0  /  HUD UI03 · SOUL 3.0 · REVISÃO POR VOLTA"
 	_text(overlay_content, "Evidências e cenários baseados no estado real do motor. Em MANUAL e ASSISTIDO, o BOX depende de confirmação; qualquer ordem agendada permanece protegida.", 12, MUTED).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	var controls := _line(overlay_content, 8)
 	_text(controls, "CONTROLE GLOBAL (AMBOS)", 12, ACCENT)

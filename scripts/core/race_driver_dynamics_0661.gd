@@ -5,10 +5,11 @@ extends RefCounted
 
 const CAR_WIDTH := 2.95
 const GripDefense = preload("res://scripts/core/race_defense_grip_06688.gd")
+const Soul3 = preload("res://scripts/core/race_driver_soul_06694.gd")
 
 static func choose(attacker: Dictionary, defender: Dictionary,
 		gap_m: float, advantage_s: float, usable_lane: float,
-		track: Dictionary, weather: Dictionary) -> Dictionary:
+		track: Dictionary, weather: Dictionary, soul3_enabled: bool = false) -> Dictionary:
 	var risk: float = clampf(float(attacker.get("risk_tolerance", 55.0)), 0.0, 100.0)
 	var awareness: float = clampf(float(attacker.get("spatial_awareness", 80.0)), 0.0, 100.0)
 	var aggression: float = clampf(float(defender.get("defense_aggression", 55.0)), 0.0, 100.0)
@@ -24,6 +25,10 @@ static func choose(attacker: Dictionary, defender: Dictionary,
 			maxf(0.0, wear_delta) * 0.0016 +
 			wet * (0.09 + (100.0 - awareness) * 0.0015) -
 			(risk - 55.0) * 0.0015, 0.04, 0.58)
+	# The 9.4 personality influences commitment only, not lap-time or grip.
+	# Older sporting replays retain the exact 9.3 decision formula.
+	if soul3_enabled:
+		required = clampf(required + Soul3.attack_bias(attacker, weather), 0.04, 0.58)
 	var defend_lane: float = float(defender.get("race_lane", 0.0))
 	var previous_defender: int = int(defender.get("race_defending_against", -1))
 	var same_duel: bool = previous_defender == int(attacker.get("id", -2))
