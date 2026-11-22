@@ -5,7 +5,8 @@ const Engineer = preload("res://scripts/core/race_engineer_0639.gd")
 const Perf = preload("res://scripts/debug/apex_perf_trace_0657.gd")
 const STEP := 0.20
 # A replay is tied to the exact sporting rules, not only its Godot runtime.
-const SIMULATION_REVISION := "017_driver_soul_v1"
+const SIMULATION_REVISION := "018_pit_coordination_v1"
+const SOUL_SIMULATION_REVISION := "017_driver_soul_v1"
 const TRAFFIC_SIMULATION_REVISION := "016_driver_traffic_v1"
 const BASELINE_SIMULATION_REVISION := "015_weather_setup_v1"
 const PREVIOUS_SIMULATION_REVISION := "014_launch_v1"
@@ -36,6 +37,8 @@ var playback: bool = false
 var legacy_launch_physics: bool = false
 var legacy_traffic_physics: bool = false
 var legacy_soul_physics: bool = false
+# 018 only: keep old 017 pit queue order when replaying archived races.
+var legacy_pit_coordination: bool = false
 var recorded_simulation_revision: String = SIMULATION_REVISION
 var policy: Dictionary = {"modes": {}, "fingerprints": {}, "staff": {}}
 var checkpoints: Array = []
@@ -53,9 +56,11 @@ func attach(engine, modes: Dictionary = {}, staff: Dictionary = {}) -> void:
 	legacy_launch_physics = false
 	legacy_traffic_physics = false
 	legacy_soul_physics = false
+	legacy_pit_coordination = false
 	recorded_simulation_revision = SIMULATION_REVISION
 	engine.driver_traffic_enabled = true
 	engine.driver_soul3_enabled = true
+	engine.pit_coordination2_enabled = true
 	race = engine
 	race.command_session = weakref(self)
 	policy = {"modes": modes.duplicate(true), "fingerprints": {}, "staff": staff.duplicate(true)}
@@ -335,6 +340,7 @@ func seek(target: int) -> bool:
 		race = restored
 		race.driver_traffic_enabled = not legacy_traffic_physics
 		race.driver_soul3_enabled = not legacy_soul_physics
+		race.pit_coordination2_enabled = not legacy_pit_coordination
 		race.command_session = weakref(self)
 		tick = int(chosen.tick)
 		cursor = int(chosen.cursor)
@@ -395,6 +401,7 @@ func load_live_session(recorded) -> bool:
 	legacy_launch_physics = bool(recorded.legacy_launch_physics)
 	legacy_traffic_physics = bool(recorded.legacy_traffic_physics)
 	legacy_soul_physics = bool(recorded.legacy_soul_physics)
+	legacy_pit_coordination = bool(recorded.legacy_pit_coordination)
 	recorded_simulation_revision = str(recorded.recorded_simulation_revision)
 	playback = true
 	if not seek(0):
@@ -412,7 +419,7 @@ func load_data(data: Dictionary) -> bool:
 	# v0.6.6.0 recordings have different physics and must not be replayed under
 	# v0.6.6.1 rules: silently accepting them would mislabel desync as corruption.
 	var archive_revision: String = str(data.get("simulation_revision", ""))
-	if archive_revision not in [SIMULATION_REVISION, TRAFFIC_SIMULATION_REVISION, BASELINE_SIMULATION_REVISION, PREVIOUS_SIMULATION_REVISION, LEGACY_SIMULATION_REVISION]:
+	if archive_revision not in [SIMULATION_REVISION, SOUL_SIMULATION_REVISION, TRAFFIC_SIMULATION_REVISION, BASELINE_SIMULATION_REVISION, PREVIOUS_SIMULATION_REVISION, LEGACY_SIMULATION_REVISION]:
 		error = "Replay de outra revisão da simulação. Use a versão que o gravou."
 		return false
 	if data.get("format") != "APEX_REPLAY_0660" or data.get("runtime") != Engine.get_version_info().string or data.get("step") != STEP:
@@ -456,8 +463,9 @@ func load_data(data: Dictionary) -> bool:
 		checkpoints.append(_packed_checkpoint(data.checkpoints[i].duplicate(true)))
 	end_tick=data.end_tick
 	legacy_launch_physics = archive_revision == LEGACY_SIMULATION_REVISION
-	legacy_traffic_physics = archive_revision not in [SIMULATION_REVISION, TRAFFIC_SIMULATION_REVISION]
-	legacy_soul_physics = archive_revision != SIMULATION_REVISION
+	legacy_traffic_physics = archive_revision not in [SIMULATION_REVISION, SOUL_SIMULATION_REVISION, TRAFFIC_SIMULATION_REVISION]
+	legacy_soul_physics = archive_revision not in [SIMULATION_REVISION, SOUL_SIMULATION_REVISION]
+	legacy_pit_coordination = archive_revision != SIMULATION_REVISION
 	recorded_simulation_revision = archive_revision
 	playback=true
 	return seek(0)

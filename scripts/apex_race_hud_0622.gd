@@ -105,6 +105,7 @@ var engineer_reports: Dictionary = {}
 var engineer_cards: Array = []
 var pitwall3_cards: Array = []
 var pitwall3_feedback: Label
+var pitcoord2_queue_label: Label
 var pitwall3_ledger_label: Label
 var dynamic_graph_data = StrategyGraphData06498.new()
 var dynamic_chart_views: Array = []
@@ -1821,6 +1822,8 @@ func _build_pitwall3_window() -> void:
 	_text(overlay_content, "Comparação consultiva dos DOIS pilotos. Retorno ~P e tráfego são estimativas instantâneas que não incluem futuras paradas, acidentes ou variação exata do ritmo.", 12, MUTED).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	pitwall3_feedback = _text(overlay_content, "Nada agendado por este painel.", 11, YELLOW)
 	pitwall3_feedback.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	pitcoord2_queue_label = _text(overlay_content, "PIT COORDINATION 2.0 · garagem livre", 11, SOUL_ACCENT)
+	pitcoord2_queue_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	pitwall3_cards.clear()
 	for car in host.race.player_cars():
 		var id: int = int(car.get("id", -1))
@@ -1850,6 +1853,7 @@ func _refresh_pitwall3_window() -> void:
 	if host == null or host.race == null or active_window != "pitwall3":
 		return
 	var players: Array = host.race.player_cars()
+	_refresh_pitcoord2_queue()
 	_refresh_prediction_ledger()
 	for ui in pitwall3_cards:
 		var id: int = int(ui["id"])
@@ -1894,6 +1898,26 @@ func _refresh_pitwall3_window() -> void:
 			entry+1, int(host.race.lap_count))
 		var confirmed: Dictionary = engineer_reports.get(id, {})
 		(ui["accept"] as Button).disabled = driver_mode == "Automático" or not bool(confirmed.get("can_call_pit", false)) or bool(report.get("team_overlap", false))
+
+func _refresh_pitcoord2_queue() -> void:
+	if pitcoord2_queue_label == null or host == null or host.race == null:
+		return
+	var info: Dictionary = host.race.get_team_pit_status(host.selected_team)
+	var owner: int = int(info.get("owner_id", -1))
+	var lines: Array[String] = ["PIT COORDINATION 2.0 · %s" % (
+		"garagem livre" if owner < 0 else ("garagem ocupada pelo carro #%d" % owner))]
+	if owner >= 0:
+		lines.append("Etapa: %s · liberação estimada %.1fs · %s" % [
+			str(info.get("owner_stage", "")),
+			float(info.get("remaining_occupation_s", 0.0)),
+			str(info.get("release_note", ""))])
+	for waiting_car in info.get("waiting", []):
+		lines.append("FILA #%d: %s · espera medida %.1fs · espera adicional estimada ~%.1fs" % [
+			int(waiting_car.get("queue_position", 0)),
+			str(waiting_car.get("name", "")),
+			float(waiting_car.get("wait", 0.0)),
+			float(waiting_car.get("estimated_additional_wait_s", 0.0))])
+	pitcoord2_queue_label.text = "\n".join(lines)
 
 func _refresh_prediction_ledger() -> void:
 	if pitwall3_ledger_label == null or host == null or host.race == null:
