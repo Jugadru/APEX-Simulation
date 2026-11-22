@@ -2,6 +2,8 @@
 
 **Versão oficial atual: v0.6.6.9.9 — Race Quality Release.** Publicada em 22/11/2026 para Windows e Linux x86_64, com código-fonte para **Godot 4.7.2**.
 
+> **Código candidato em desenvolvimento:** v0.6.6.9.10 — Strategy Staff Intelligence 1.0, [PR #91](https://github.com/Jugadru/APEX-Simulation/pull/91). A candidata **não é uma release publicada**; a tag 9.9 continua sendo a distribuição oficial até a homologação.
+
 ## 📥 Baixar o jogo — v0.6.6.9.9
 
 - **[Windows x86_64 — ZIP oficial](https://github.com/Jugadru/APEX-Simulation/releases/download/v0.6.6.9.9/APEX_Motorsport_Manager_4.7.2-stable_windows_x86_64.zip)**

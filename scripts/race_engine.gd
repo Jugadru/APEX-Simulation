@@ -19,6 +19,8 @@ var pit_coordination2_enabled: bool = true
 var pit_queue_prevention_enabled: bool = true
 # Session-only sporting revision gate: archived 019 replays keep the previous forecast.
 var wet_strategy_intelligence_enabled: bool = true
+# Session-only revision 021 switch. Archived races keep the old sporting decisions.
+var strategy_staff_intelligence_enabled: bool = true
 const Combat = preload("res://scripts/core/race_combat.gd")
 const Strategy = preload("res://scripts/core/race_strategy.gd")
 const RaceIntelligence = preload("res://scripts/core/race_intelligence_0645.gd")
@@ -40,6 +42,7 @@ const Tyres2012 = preload("res://scripts/core/race_tyres_2012.gd")
 const TyreRules2012 = preload("res://scripts/core/race_tyre_regulations_2012.gd")
 const WeatherCore = preload("res://scripts/core/race_weather.gd")
 const WetStrategy06698 = preload("res://scripts/core/race_wet_strategy_intelligence_06698.gd")
+const StrategyStaff066910 = preload("res://scripts/core/race_strategy_staff_intelligence_066910.gd")
 const WetPhysics = preload("res://scripts/core/race_wet_physics.gd")
 const RaceKers2012 = preload("res://scripts/core/race_kers_2012.gd")
 const RaceDrs2012 = preload("res://scripts/core/race_drs_2012.gd")
@@ -134,6 +137,8 @@ var _engineer_advice_cache: Dictionary = {}
 # Session-only observer. Excluded from sporting checkpoints and hashes.
 var prediction_ledger = PredictionLedger06696.new()
 var prediction_staff: Dictionary = {}
+# Captured from the team before the GP and carried in replay policy (no live Garage dependency).
+var strategy_staff_profile: Dictionary = {}
 
 func _init(teams_data: Array, player_team: String, seed_value: int, levels: Dictionary, track_payload: Dictionary = {}, trained_crew: Dictionary = {}) -> void:
 	teams = teams_data
@@ -309,6 +314,19 @@ func _build_strategy_plan(car: Dictionary, teammate_busy: bool = false) -> Dicti
 	if Perf.enabled: Perf.end(&"strategy.plan",perf_started)
 	return perf_result_6
 
+func _strategy_staff_report(car: Dictionary, proposal: Dictionary) -> Dictionary:
+	if not strategy_staff_intelligence_enabled or str(car.get("team", "")) != team_name:
+		return {}
+	var teammate: Dictionary = {}
+	for other in cars:
+		if int(other.get("id", -1)) != int(car.get("id", -1)) \
+				and str(other.get("team", "")) == str(car.get("team", "")):
+			teammate = other
+			break
+	return StrategyStaff066910.assess(car, teammate, cars, proposal, weather_snapshot(),
+		strategy_staff_profile, available_pit_compounds(), pit_loss, base_lap,
+		lap_count, _next_pit_entry_lap(car))
+
 func get_engineer_advice(car_id: int) -> Dictionary:
 	for car in cars:
 		if int(car.get("id", -1)) != car_id:
@@ -326,6 +344,9 @@ func get_engineer_advice(car_id: int) -> Dictionary:
 			var previous_plan: Dictionary = cached.get("plan", {})
 			return previous_plan.duplicate(true)
 		var result: Dictionary = _build_strategy_plan(car, _team_pit_busy(car))
+		var staff_report: Dictionary = _strategy_staff_report(car, result)
+		if not staff_report.is_empty():
+			result["staff_strategy_066910"] = staff_report
 		# Snapshot calculado exclusivamente na passagem pela linha: a consulta
 		# da HUD não recalcula nem cria ordens.
 		var review: Dictionary = car.get("lap_strategy_06496", {})
@@ -1311,6 +1332,29 @@ func _request_ai_pit(car: Dictionary, urgent: bool = false) -> void:
 			car["pitwall49_held"] = true
 			recommendation = staggered
 			_event("strategy", int(car.get("id", -1)), "PIT WALL 3.0 | %s: aguardar uma volta por garagem ocupada; pneus/clima seguros." % str(car.get("name", "Piloto")), 60)
+	# v9.10: strategy staff can defer ONE noncritical automatic stop by ONE
+	# lap only when the existing Pit Wall predicts traffic now and clear air
+	# one lap later. Manual orders, urgent calls and older replays are untouched.
+	if not urgent and bool(recommendation.get("pit_now", false)):
+		var staff_decision: Dictionary = _strategy_staff_report(car, recommendation)
+		if not staff_decision.is_empty() and bool(strategy_staff_profile.get("active", false)):
+			var applied: bool = bool(staff_decision.get("proposed_hold_one_lap", false)) \
+				and str(car.get("pit_control_mode", "Manual")) == "IA"
+			if applied:
+				car["staff_strategy_hold_stint_066910"] = int(car.get("stops", 0))
+				recommendation["pit_now"] = false
+				recommendation["deferred"] = true
+				recommendation["tactic"] = "ESTRATEGISTA: ADIAR +1V (v9.10)"
+				recommendation["reason"] = str(staff_decision.get("reason", "retorno em ar livre"))
+				_event("strategy_staff", int(car.get("id", -1)),
+					"ESTRATEGISTA | %s: %s" % [str(car.get("name", "Piloto")),
+						str(staff_decision.get("reason", ""))], 64)
+			car["staff_strategy_last_066910"] = {
+				"lap":int(car.get("laps_done", 0)),
+				"stint":int(car.get("stops", 0)),
+				"recommendation":str(staff_decision.get("recommendation", "")),
+				"confidence":str(staff_decision.get("confidence", "")),
+				"executed":applied}
 	car["ai_plan"] = recommendation.duplicate(true)
 	if not bool(recommendation.get("pit_now", false)) and not urgent:
 		if Perf.enabled: Perf.end(&"ai.pit_decision",perf_started)
