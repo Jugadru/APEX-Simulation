@@ -93,7 +93,8 @@ static func evaluate(car: Dictionary, context: Dictionary) -> Dictionary:
 	# No RNG, grid-place bonus, or permanent effects on the lap time model.
 	if bool(context.get("launch_enabled", true)):
 		if bool(context.get("race_start_intelligence_enabled", false)):
-			target += RaceStart066911.pace_cost(car, float(context.get("clock", RaceStart066911.PHASE_SECONDS)), weather)
+			target += RaceStart066911.pace_cost(car, float(context.get("clock", RaceStart066911.PHASE_SECONDS)), weather,
+				float(context.get("launch_space_clearance", 1.0)))
 		else:
 			# Replay 021 and older must retain Improvement 14 byte-for-byte.
 			target += RaceLaunch14.pace_cost(car, float(context.get("clock", RaceLaunch14.PHASE_SECONDS)), rain_wetness)
