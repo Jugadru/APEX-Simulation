@@ -1,0 +1,71 @@
+name: APEX - Diagnose Monaco 2012 assisted fixed seed
+on:
+  pull_request:
+    branches:
+      - qa/v0.6.6.9.9-race-quality
+    paths:
+      - .github/workflows/apex-diagnose-monaco-ci.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  reproduce:
+    name: Monaco / Variavel / Assistido / 1764457695
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      APEX_MATRIX_ID: mon_1_1_1764457695
+      APEX_MATRIX_TRACK: MON
+      APEX_MATRIX_WEATHER: Variável
+      APEX_MATRIX_MODE: Assistido
+      APEX_MATRIX_SEED: '1764457695'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c # v3.0.1
+        with:
+          version: 4.7.2-stable
+      - name: Import real game with native-crash-only retry
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            rm -rf .godot
+            set +e
+            timeout 180s godot --headless --single-threaded-scene --path . --import > "import-${attempt}.log" 2>&1
+            code=$?
+            set -e
+            if grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' "import-${attempt}.log"; then cat "import-${attempt}.log"; exit 1; fi
+            if test "$code" -eq 0; then echo "APEX_DIAG_IMPORT_PASS"; exit 0; fi
+            if test "$attempt" -eq 3 || { test "$code" -ne 139 && test "$code" -ne 134; }; then cat "import-${attempt}.log"; exit "$code"; fi
+          done
+      - name: Exact Monaco reproduction, print read-only trace even on timeout
+        shell: bash
+        run: |
+          set -uo pipefail
+          mkdir -p ci_artifacts/monaco
+          echo "APEX_MONACO_DIAG_START id=$APEX_MATRIX_ID weather=$APEX_MATRIX_WEATHER mode=$APEX_MATRIX_MODE seed=$APEX_MATRIX_SEED"
+          # GitHub invokes bash with -e by default; explicitly suspend it to
+          # capture a failing probe or timeout and surface the real trace.
+          set +e
+          timeout 180s godot --headless --single-threaded-scene --path . \
+            --script res://tests/ci/apex_scenario_matrix_probe.gd \
+            > ci_artifacts/monaco/monaco.log 2>&1
+          code=$?
+          set -e
+          echo "APEX_MONACO_DIAG_EXIT status=$code"
+          echo "### TRACE"
+          grep -E 'APEX_MATRIX_DIAG|APEX_MATRIX_RESULT|APEX_MATRIX_PROBE_FAIL|SCRIPT ERROR|Parse Error' ci_artifacts/monaco/monaco.log | tail -n 90 || true
+          echo "### LAST 30 LOG LINES"
+          tail -n 30 ci_artifacts/monaco/monaco.log
+          if test "$code" -ne 0; then exit "$code"; fi
+          grep -Fq 'APEX_MATRIX_RESULT ' ci_artifacts/monaco/monaco.log
+      - name: Keep Monaco trace
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: apex-monaco-1764457695-trace
+          path: ci_artifacts/monaco/
+          retention-days: 7
+          if-no-files-found: warn
