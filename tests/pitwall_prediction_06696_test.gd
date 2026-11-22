@@ -48,7 +48,8 @@ func _run() -> void:
 	var outcome: Dictionary = {"car_id":1, "stop":1, "lap":5,
 		"position_after":8, "total":31.4, "wait":1.2,
 		"incident_delay":2.0, "incident":"Porca travada", "training_saved":0.5}
-	ledger.observe_exit(outcome, 96.0, 0.075)
+	other["stops"] = 0
+	ledger.observe_exit(outcome, 96.0, 0.075, grid)
 	var stop: Dictionary = ledger.snapshot()[0]
 	check(bool(stop["pit_verified"]) and int(stop["actual_position"]) == 8,
 		"real history resolves only matching confirmed pit")
@@ -63,7 +64,9 @@ func _run() -> void:
 		observed["laps_done"] = completed
 		observed["last_lap"] = 95.5 + float(completed - 6) * 0.2
 		observed["wear"] = float(completed - 5) * 2.3
-		ledger.observe_lap(observed, {"wetness_factor":0.27 + 0.01 * float(completed - 6)})
+		observed["progress"] = float(completed) + 0.10
+		other["progress"] = float(completed) + 0.25
+		ledger.observe_lap(observed, {"wetness_factor":0.27 + 0.01 * float(completed - 6)}, [observed, other], 96.0)
 	var finished: Dictionary = ledger.snapshot()[0]
 	check(str(finished["status"]) == "COMPLETE" and int(finished["laps_observed"]) == 5,
 		"five unique completed laps resolve horizon")
@@ -71,6 +74,10 @@ func _run() -> void:
 		"weather compared against real lap three observation")
 	check(finished.has("wear_error_5") and finished.has("pace_error_5"),
 		"five-lap tyre and pace estimates compared to measured outcomes")
+	check(bool(finished.get("relative_forecast_valid", false))
+		and finished.has("actual_relative_gain_5_s")
+		and is_equal_approx(float(finished["actual_relative_gain_5_s"]), 1.92),
+		"real five-lap gap change versus a non-stopping rival, not fictitious alternative strategy")
 	ledger.observe_lap(observed, {"wetness_factor":0.99})
 	check(int(ledger.snapshot()[0]["laps_observed"]) == 5,
 		"duplicate lap does not alter finished record")
@@ -92,6 +99,27 @@ func _run() -> void:
 	check(str(unresolved.snapshot()[0]["status"]) == "UNVERIFIABLE"
 		and int(unresolved.summary()["verified_pits"]) == 0,
 		"unfinished forecasts never scored as wrong or correct")
+	var decisions = Ledger.new()
+	decisions.capture_decision(car, grid, advice, weather, specs,
+		{"Estrategista":2}, 21.8, 96.0, 0.075, 400, 70.0, 5, "Médio", "pitwall_advice")
+	check(decisions.snapshot().size() == 1
+		and str(decisions.snapshot()[0]["phase"]) == "DECISION"
+		and str(decisions.snapshot()[0]["status"]) == "RECOMMENDED"
+		and not decisions.snapshot()[0].has("actual_position"),
+		"recommendations are logged at issue time without invented outcome")
+	decisions.capture_entry(car, grid, advice, weather, specs,
+		{"Estrategista":2}, 21.8, 96.0, 0.075, 482, 95.6)
+	check(str(decisions.snapshot()[0]["status"]) == "EXECUTED"
+		and int(decisions.snapshot()[1]["decision_id"]) == int(decisions.snapshot()[0]["id"])
+		and not bool(decisions.snapshot()[0]["pit_verified"]),
+		"executed recommendation linked to separately verifiable pit snapshot")
+	var cancelled = Ledger.new()
+	cancelled.capture_decision(car, grid, advice, weather, specs, {},
+		21.8, 96.0, 0.075, 101, 8.0, 21, "Médio", "agendamento_manual")
+	cancelled.cancel_decision(1, 21)
+	check(str(cancelled.snapshot()[0]["status"]) == "CANCELLED"
+		and int(cancelled.summary()["verified_pits"]) == 0,
+		"V21 cancellation remains historical evidence, not a scored pit")
 	var learning = Ledger.new()
 	for n in range(3):
 		learning.capture_entry(car, grid, advice, weather, specs,
@@ -113,6 +141,16 @@ func _run() -> void:
 		"new observer excluded from historical sporting checkpoint schema")
 	var id: int = int(a.player_cars()[0]["id"])
 	var tire: String = str(a.available_pit_compounds()[0])
+	var scheduled = Race.new(season["teams"], "Ferrari", 696, {}, track, {})
+	check(scheduled.schedule_pit(int(scheduled.player_cars()[0]["id"]), tire, 21),
+		"engine accepts original protected V21 as before")
+	var booked_records: Array = scheduled.get_prediction_ledger("Ferrari")
+	check(booked_records.size() == 1 and int(booked_records[0].get("target_lap", 0)) == 21
+		and bool(booked_records[0].get("long_horizon", false)),
+		"manual V21 forecast recorded as long horizon, not immediate stop")
+	check(scheduled.cancel_scheduled_pit(int(scheduled.player_cars()[0]["id"]))
+		and str(scheduled.get_prediction_ledger("Ferrari")[0].get("status", "")) == "CANCELLED",
+		"manual V21 cancellation retained without executing pit")
 	a.order_pit(id, tire)
 	b.order_pit(id, tire)
 	a.running = true
