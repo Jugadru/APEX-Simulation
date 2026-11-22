@@ -1,0 +1,42 @@
+[
+  {
+    "test": "hud_weather_panel_refactor_test",
+    "status": "PASS"
+  },
+  {
+    "test": "hud_metric_refactor_test",
+    "status": "PASS"
+  },
+  {
+    "test": "hud_rebroadcast_06681_replay_isolation",
+    "status": "PASS"
+  },
+  {
+    "test": "replay_0660_test",
+    "status": "PASS"
+  },
+  {
+    "test": "core_0642_save_migration_test",
+    "status": "PASS"
+  },
+  {
+    "test": "pit_queue_prevention_066971_test",
+    "status": "PASS"
+  },
+  {
+    "test": "wet_strategy_06698_test",
+    "status": "PASS"
+  },
+  {
+    "test": "core2_06686_sort_contract",
+    "status": "PASS"
+  },
+  {
+    "test": "driver_soul_06694_test",
+    "status": "PASS"
+  },
+  {
+    "test": "pit_coordination_06697_test",
+    "status": "PASS"
+  }
+]

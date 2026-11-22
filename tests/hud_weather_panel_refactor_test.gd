@@ -26,7 +26,7 @@ func _run() -> void:
 		_fail("Hierarquia do painel alterada")
 		return
 	var column: VBoxContainer = panel.get_child(0)
-	if column.get_theme_constant("separation") != 4 or column.get_child_count() != 5:
+	if column.get_theme_constant("separation") != 4 or column.get_child_count() != 7:
 		hud.free()
 		_fail("Coluna ou espaçamento alterado")
 		return
