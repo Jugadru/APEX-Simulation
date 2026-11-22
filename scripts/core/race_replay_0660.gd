@@ -438,6 +438,7 @@ func load_live_session(recorded) -> bool:
 	legacy_wet_strategy = bool(recorded.legacy_wet_strategy)
 	legacy_staff_strategy = bool(recorded.legacy_staff_strategy)
 	legacy_start_intelligence = bool(recorded.legacy_start_intelligence)
+	legacy_overtaking_intelligence = bool(recorded.legacy_overtaking_intelligence)
 	recorded_simulation_revision = str(recorded.recorded_simulation_revision)
 	playback = true
 	if not seek(0):
