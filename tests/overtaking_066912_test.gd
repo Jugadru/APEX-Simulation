@@ -36,6 +36,7 @@ func _track(season: Dictionary, code: String) -> Dictionary:
 
 func _run() -> void:
 	var attacker: Dictionary = car(1, 0.350)
+	attacker["combat_target_id"] = 2 # Established target retains earned charge.
 	var defender: Dictionary = car(2, 0.370)
 	var blocker: Dictionary = car(3, 0.346, 1.0)
 	var dry: Dictionary = {"wetness_factor":0.0}
@@ -92,7 +93,6 @@ func _run() -> void:
 		{"length":1000.0},dry,true,true,false)
 	var modern: Dictionary = Space.plan(grid,metrics,0.2,track,
 		{"length":1000.0},dry,true,true,true)
-	print("OVERTAKING_066912_DIAG legacy=", legacy[1].states, " modern=", modern[1].states)
 	check(str(legacy[1].states.combat_last_side) == "right"
 		and str(modern[1].states.combat_last_side) == "left",
 		"real RaceSpace uses 9.12 only when the revision switch is enabled")
