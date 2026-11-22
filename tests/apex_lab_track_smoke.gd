@@ -51,8 +51,12 @@ func _run() -> void:
             var id: int = int(car["id"])
             require(race.set_pit_control_mode(id, "Manual"),
                 "manual pit control works on synthetic track")
-            require(race.schedule_pit(id, "Duro", 3),
-                "manual BOX V3 accepted on laboratory track")
+            var nominated: Array = race.available_pit_compounds()
+            require(nominated.size() >= 2, "laboratory track has two legal dry compounds")
+            var initial: String = str(car.get("tire", ""))
+            var target: String = str(nominated[0]) if initial != str(nominated[0]) else str(nominated[1])
+            require(race.schedule_pit(id, target, 3),
+                "manual BOX V3 accepted with a legal track compound")
             race.running = true
             for tick in range(85):
                 race.step(1.0)
