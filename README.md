@@ -1,8 +1,36 @@
-# APEX Motorsport Manager — Core 2 (v0.6.6.9.6)
+# APEX Motorsport Manager — Core 2 (v0.6.6.9.7)
 
 Simulador de gestão de automobilismo com equipes, estratégias, desenvolvimento de carros e corridas em 3D. O **Core 2** é o motor esportivo oficial deste repositório.
 
-## 📥 Baixar o jogo — v0.6.6.9.6 (versão atual)
+## 📥 Baixar o jogo — v0.6.6.9.7 (versão atual)
+
+### [⬇ Baixar APEX v0.6.6.9.7 — Windows e Linux](https://github.com/Jugadru/APEX-Simulation/actions/runs/44973100017/artifacts/14734451599)
+
+Pacote exportado no **Godot 4.7.2**, com ZIPs para Windows x86_64 e Linux x86_64. Extraia o ZIP externo do GitHub Actions e depois o ZIP do seu sistema, mantendo o executável junto do arquivo `.pck`. No Linux, pode ser necessário `chmod +x APEX_Motorsport_Manager.x86_64`.
+
+**Artefato temporário até 06/12/2026**, sujeito a login/retention do GitHub Actions; não é uma GitHub Release permanente. O smoke de inicialização Linux passou; ainda não equivale a teste gráfico nativo na máquina do jogador.
+
+### [⬇ Baixar o código-fonte v0.6.6.9.7 — Godot 4.7.2](https://github.com/Jugadru/APEX-Simulation/archive/6c6560bd36f2eecda82cf7959b884464054bc03c.zip)
+
+A candidata aprovada no commit `689aaf7522002a3d8c385dd70a1ac5eb8b07f851` foi integrada à `main` via [PR #81](https://github.com/Jugadru/APEX-Simulation/pull/81), merge `6c6560bd36f2eecda82cf7959b884464054bc03c`. O ZIP do código-fonte é para desenvolvimento, não contém o executável.
+
+### 🛠️ Novidade — Pit Coordination 2.0
+
+- **FIFO física real:** quando dois pilotos disputam a mesma garagem, o acesso é decidido pelo instante calculado de chegada à equipe de mecânicos e, no empate, pelo ID estável do piloto — nunca pela ordem de processamento do array.
+- **Double stack verificável:** o segundo carro aguarda sua vez e acumula tempo real de fila. Serviço, reparo e retenção de segurança continuam exclusivos da única equipe de mecânicos por garagem.
+- **Pit Wall integrado:** mostra proprietário atual, etapa de atendimento, retenção factual, posição na fila, espera acumulada e estimativa de liberação. Não inventa tráfego nem acidentes.
+- **Autoridade preservada:** nenhuma antecipação indevida de ordem Manual V21, nem alteração da estratégia preventiva/IA, física de pneus ou probabilidade de incidentes.
+- **Compatibilidade de replay:** nova revisão esportiva `018_pit_coordination_v1`, com modo legado para reproduzir a regra antiga nos arquivos `017_driver_soul_v1`. Saves usam o mesmo schema.
+
+**Validação:** [20/20 workflows GitHub Actions PASS](https://github.com/Jugadru/APEX-Simulation/commit/689aaf7522002a3d8c385dd70a1ac5eb8b07f851/checks) e [Quality Gate READY 10/10](https://github.com/Jugadru/APEX-Simulation/actions/runs/44973100063) no commit aprovado. O módulo v9.7 passou **41 verificações**, SaveGuard **53**, além dos **20 circuitos**, testes visuais, versões legadas, Linux/Windows e [Monza 53 voltas, 24.229 ticks, replay integral com hash confirmado](https://github.com/Jugadru/APEX-Simulation/actions/runs/44973100029). Os benchmarks headless não substituem FPS 3D real do PC do usuário.
+
+**Limitação conhecida:** o [Pit Wall Intelligence Analyzer](https://github.com/Jugadru/APEX-Simulation/actions/runs/44973100061) encerrou com PASS, mas sinalizou **7 esperas de fila para revisão**, registradas na [issue #82](https://github.com/Jugadru/APEX-Simulation/issues/82). FIFO justo não significa que a IA eliminou todo double stack; eventuais refinamentos preventivos ficam para uma correção pequena e validada separadamente.
+
+**Documentação técnica:** [Pit Coordination 2.0](docs/APEX_RELEASE_v0.6.6.9.7_PIT_COORDINATION_2.md) · [PR #81](https://github.com/Jugadru/APEX-Simulation/pull/81).
+
+## 📦 Versão anterior — v0.6.6.9.6
+
+### 📥 Baixar o jogo — v0.6.6.9.6 (versão anterior)
 
 ### [⬇ Baixar APEX v0.6.6.9.6 — Windows e Linux](https://github.com/Jugadru/APEX-Simulation/actions/runs/44970898039/artifacts/14733518226)
 
@@ -59,7 +87,6 @@ Código **integrado à `main` na [PR #79](https://github.com/Jugadru/APEX-Simula
 
 | Versão | Foco | Objetivo |
 | --- | --- | --- |
-| v0.6.6.9.7 | Pit Coordination 2.0 | Aperfeiçoar filas, `double stack` e coordenação operacional da equipe. |
 | v0.6.6.9.8 | Wet Strategy Intelligence | Refinar recomendações em chuva, transição entre compostos e pista secando. |
 | v0.6.6.9.9 | Race Quality Release | Regressões, estabilidade e refinamento da experiência de corrida. |
 
