@@ -31,6 +31,8 @@ EXTRA_REQUIREMENTS = tuple([
                 "Godot 4.7.2 / imperfect forecast / V21 / replay 019-020", "Chuva"),
     Requirement(18, "core2", "godot-setup.yml",
                 "Import and Core 2 regression tests", "Motor Core 2"),
+    Requirement(19, "full_gp_weather", "apex-race-quality-full-gp-ci.yml",
+                "Silverstone e Monza / seco, variavel, chuva intensa (12 GPs)", "GP integral"),
 ])
 ALL_REQUIREMENTS = REQUIREMENTS + EXTRA_REQUIREMENTS
 FULL_MATRIX_POLICY = "github.head_ref == 'qa/v0.6.6.9.9-race-quality' && 'full'"
