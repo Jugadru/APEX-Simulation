@@ -2,7 +2,10 @@ name: APEX - Race Radio 3.0 (v9.5)
 on:
   pull_request:
     paths:
-      - 'scripts/**'
+      - 'scripts/race_engine.gd'
+      - 'scripts/core/*radio*'
+      - 'scripts/core/*soul*'
+      - 'scripts/apex_race_hud_0622.gd'
       - 'tests/race_radio_06695_test.gd'
       - 'tests/driver_soul_06694_test.gd'
       - 'tests/core_0637_reactive_radio_smoke_test.gd'

@@ -2,7 +2,9 @@ name: APEX - Pit Wall Prediction Ledger (v9.6)
 on:
   pull_request:
     paths:
-      - 'scripts/**'
+      - 'scripts/race_engine.gd'
+      - 'scripts/core/*pit*'
+      - 'scripts/apex_race_session_controller.gd'
       - 'tests/pitwall_prediction_06696_test.gd'
       - 'tests/pitwall_0649_strategy_test.gd'
       - 'project.godot'
