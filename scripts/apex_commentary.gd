@@ -133,7 +133,8 @@ func _event_line(event: Dictionary, race, player_team: String) -> bool:
 				var facts: Dictionary = {"lap": int(car.get("laps_done", 0)),
 					"event_id": int(event.get("event_id", -1)),
 					"sim_time": float(event.get("time", -1.0)),
-					"priority": int(event.get("priority", 60))}
+					"priority": int(event.get("priority", 60)),
+					"booked_lap": Radio3.booked_lap_from_source(source)}
 				radio_packet = Radio3.driver(car, intent, facts, previous)
 				if not radio_packet.is_empty():
 					phrases = ["RÁDIO FICTÍCIO | %s: %s" % [name, str(radio_packet["text"])]]
@@ -156,6 +157,7 @@ func _event_line(event: Dictionary, race, player_team: String) -> bool:
 					"lap": int(car.get("laps_done", 0)),
 					"event_id": int(event.get("event_id", -1)),
 					"priority": int(event.get("priority", 60)),
+					"booked_lap": Radio3.booked_lap_from_source(source),
 					"conversation_id": str(prior.get("last_conversation_id", ""))})
 				if not radio_packet.is_empty():
 					phrases = ["RÁDIO FICTÍCIO | Engenheiro: %s" % str(radio_packet["text"])]
@@ -203,6 +205,7 @@ func _event_line(event: Dictionary, race, player_team: String) -> bool:
 		var context: Dictionary = {
 			"lap": int(car.get("laps_done", 0)),
 			"event_id": int(event.get("event_id", -1)),
+			"booked_lap": Radio3.booked_lap_from_source(source),
 			"conversation_id": str(radio_packet.get("conversation_id", ""))}
 		var answer: Dictionary = Radio3.engineer(car, str(radio_packet["intent"]), context)
 		if not answer.is_empty():
