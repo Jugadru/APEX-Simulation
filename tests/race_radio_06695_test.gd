@@ -46,6 +46,20 @@ func _run() -> void:
 	check(variants.size() == 5, "Five distinguishable consistent personalities")
 	check(str(Radio3.profile(sample(3, 0.90)).get("emotion", "")) == "FRUSTRATED",
 		"Soul3 pressure changes emotional description")
+	var stressed: Dictionary = Radio3.driver(sample(3, 0.95), "desgaste", ctx)
+	var calm: Dictionary = Radio3.driver(sample(3, 0.15), "desgaste", ctx)
+	check(str(stressed.get("text", "")) != str(calm.get("text", "")),
+		"The same pilot speaks differently under severe pressure")
+	check(str(stressed.get("style", "")) == str(calm.get("style", "")),
+		"Pressure changes expression, never individual voice identity")
+	var urgent: Dictionary = Radio3.driver(sample(3), "desgaste",
+		{"lap": 10, "event_id": 99, "priority": 95})
+	check(Radio3.should_transmit(urgent, {"last_pilot_kind": "desgaste",
+		"last_pilot_lap": 9}), "Urgent warning bypasses ordinary silence")
+	check(not Radio3.should_transmit(calm, {"last_pilot_kind": "desgaste",
+		"last_pilot_lap": 8}), "Repeated low-priority warning can remain silent")
+	check(Radio3.should_transmit(calm, {"last_pilot_kind": "desgaste",
+		"last_pilot_lap": 2}), "Old warning does not silence a fresh stint")
 	for kind in Radio3.PILOT_LINES.keys():
 		var fixture: Dictionary = sample(5)
 		fixture["pit_scheduled_lap"] = 21
@@ -59,6 +73,17 @@ func _run() -> void:
 	var planned: Dictionary = Radio3.driver(booked, "revisar_plano", ctx)
 	check(str(planned.get("text", "")).contains("21"), "Scheduled lap is factual in driver line")
 	check(Radio3.driver(car, "revisar_plano", ctx).is_empty(), "Cannot invent a scheduled stop")
+	var old_report: String = "RÁDIO FICTÍCIO | Pilot: Temos a parada V21 marcada. As condições mudaram."
+	check(Radio3.booked_lap_from_source(old_report) == 21,
+		"Legacy event reliably preserves the booked stop number")
+	var later_snapshot: Dictionary = sample(4)
+	later_snapshot["pit_scheduled_lap"] = 0
+	var historical_line: Dictionary = Radio3.driver(later_snapshot, "revisar_plano", {
+		"lap": 7, "event_id": 205, "booked_lap": Radio3.booked_lap_from_source(old_report)})
+	check(str(historical_line.get("text", "")).contains("21"),
+		"Old replay radio retains source lap even after current car schedule changes")
+	check(int(later_snapshot.get("pit_scheduled_lap", -1)) == 0,
+		"Historical presentation never reconstructs sporting pit commands")
 	var answer: Dictionary = Radio3.engineer(booked, "revisar_plano", ctx)
 	check(str(answer.get("text", "")).contains("21") and str(answer.get("text", "")).contains("no change"),
 		"Engineer clarifies that V21 has not changed")
@@ -75,6 +100,8 @@ func _run() -> void:
 	check((memory.get("history", []) as Array).size() == Radio3.MAX_MEMORY, "Conversation memory bounded to eight")
 	var once: Dictionary = Radio3.remember(memory, item_for_duplicate(booked))
 	check((once.get("history", []) as Array).size() <= Radio3.MAX_MEMORY, "Replay ingestion cannot grow history")
+	check(var_to_bytes(once) == var_to_bytes(memory),
+		"Replayed duplicate packet cannot rewrite the conversation")
 	var repeated: Dictionary = Radio3.driver(booked, "desgaste", {"event_id": 93, "lap": 30}, memory)
 	check(str(repeated.get("text", "")).begins_with("Same issue."), "Later complaints acknowledge earlier discussion")
 	# Real engine emits 9.4 source events; Radio3 acts ONLY in Commentary.
