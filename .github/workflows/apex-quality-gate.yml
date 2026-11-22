@@ -96,14 +96,16 @@ jobs:
           raw = subprocess.check_output(
               ["git", "-C", "candidate", "diff", "--name-only", "-z",
                base, head, "--"], timeout=30)
-          paths = sorted({p.decode("utf-8") for p in raw.split(b"\\0") if p})
+          paths = sorted({p.decode("utf-8") for p in raw.split(bytes([0])) if p})
           if not paths:
               raise SystemExit("APEX_GATE_DIFF_FAIL: empty exact base/head diff")
           Path("ci_artifacts/quality_gate/changed-files.json").write_text(
               json.dumps(paths), encoding="utf-8")
           print(f"APEX_GATE_DIFF_READY changed_files={len(paths)}")
           PY
-            CHANGED_ARGS=(--changed-files ci_artifacts/quality_gate/changed-files.json)
+            if grep -Fq -- '--changed-files' gate/tools/apex_quality_gate.py; then
+              CHANGED_ARGS=(--changed-files ci_artifacts/quality_gate/changed-files.json)
+            fi
           fi
           if [[ "$APEX_AUTOMATED_FULL" != "true" ]]; then
             python3 gate/tools/apex_quality_gate.py \
