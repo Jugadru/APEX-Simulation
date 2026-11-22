@@ -461,6 +461,19 @@ func _next_pit_entry_lap(car: Dictionary) -> int:
 		return current + 1
 	return current
 
+# Record the staff's advice/confirmed player order before any pit mutation.
+# This is advisory-only; all commands still flow through existing gates.
+func _prediction_offer(car: Dictionary, target: String, target_lap: int,
+		source: String, analysis: Dictionary = {}) -> void:
+	if str(car.get("team", "")) != team_name or not available_pit_compounds().has(target):
+		return
+	if target_lap <= 0 or target_lap >= lap_count:
+		return
+	var facts: Dictionary = analysis if not analysis.is_empty() else _build_strategy_plan(car, _team_pit_busy(car))
+	prediction_ledger.capture_decision(car, cars, facts, weather_snapshot(),
+		tyre_specs, prediction_staff, pit_loss, base_lap, PIT_TRACK_FRACTION,
+		tick_counter, clock, target_lap, target, source)
+
 func schedule_pit(car_id: int, target: String, target_lap: int) -> bool:
 	if command_session != null and command_session.get_ref() != null and not command_session.get_ref().applying:
 		return command_session.get_ref().enqueue("schedule_pit", [car_id, target, target_lap])
@@ -477,6 +490,7 @@ func schedule_pit(car_id: int, target: String, target_lap: int) -> bool:
 		if target_lap < _next_pit_entry_lap(car) or target_lap >= lap_count:
 			_event("radio", car_id, "BOX: volta %d indisponível. Próxima entrada possível: V%d." % [target_lap, _next_pit_entry_lap(car)], 50)
 			return false
+		_prediction_offer(car, target, target_lap, "agendamento_manual")
 		car["pit_scheduled_lap"] = target_lap
 		car["pit_target"] = target
 		car["pit_order_source"] = "agendamento_manual"
@@ -492,6 +506,7 @@ func cancel_scheduled_pit(car_id: int) -> bool:
 	for car in player_cars():
 		if int(car["id"]) == car_id and int(car.get("pit_scheduled_lap", 0)) > 0:
 			var old_lap: int = int(car["pit_scheduled_lap"])
+			prediction_ledger.cancel_decision(car_id, old_lap)
 			car["pit_scheduled_lap"] = 0
 			car["pit_order_source"] = ""
 			_engineer_advice_cache.erase(car_id)
@@ -526,6 +541,9 @@ func order_pit(car_id: int, target: String) -> void:
 			if bool(car.get("finished", false)) or float(car.get("pit_left", 0.0)) > 0.0 or bool(car.get("pit_request", false)) or _next_pit_entry_lap(car) >= lap_count:
 				return
 			var previous_schedule: int = int(car.get("pit_scheduled_lap", 0))
+			if previous_schedule > 0:
+				prediction_ledger.cancel_decision(car_id, previous_schedule)
+			_prediction_offer(car, target, _next_pit_entry_lap(car), "ordem_imediata")
 			car["pit_scheduled_lap"] = 0
 			car["pit_request"] = true
 			car["pit_target"] = target
@@ -1112,6 +1130,11 @@ func _record_lap_cross(car: Dictionary, previous: float, choose_ai_strategy: boo
 		while history.size() > 16:
 			history.pop_front()
 		car["lap_strategy_history_06496"] = history
+		# Consultative suggestions also get a real issue-time record, even if ignored.
+		if str(car.get("team", "")) == team_name and bool(baseline.get("pit_now", false)) \
+				and int(car.get("pit_scheduled_lap", 0)) == 0 and not bool(car.get("pit_request", false)):
+			_prediction_offer(car, str(baseline.get("compound", "")),
+				_next_pit_entry_lap(car), "pitwall_advice", baseline)
 		# Eventos só para mudanças de recomendação da equipe do usuário.
 		if str(car.get("team", "")) == team_name and str(previous_review.get("action", "")) != str(review["action"]):
 			_event("strategy_review", int(car["id"]),
@@ -1275,6 +1298,8 @@ func _request_ai_pit(car: Dictionary, urgent: bool = false) -> void:
 	if lap_count - int(car.get("laps_done", 0)) < 2:
 		if Perf.enabled: Perf.end(&"ai.pit_decision",perf_started)
 		return
+	_prediction_offer(car, target_tire, _next_pit_entry_lap(car),
+		"ia_urgencia" if urgent else "ia_estrategia", recommendation)
 	car["pit_request"] = true
 	car["pit_target"] = target_tire
 	car["pit_order_source"] = "ia_urgencia" if urgent else "ia_estrategia"
