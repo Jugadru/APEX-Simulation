@@ -18,7 +18,7 @@ import re
 import sys
 import time
 from typing import Any
-from apex_quality_manifest import load_suites, full_checks
+from apex_quality_manifest import load_suites, full_checks, full_checks_for_paths
 from urllib import parse
 
 SHA_RE = re.compile(r"^[0-9a-fA-F]{40}$")
@@ -75,7 +75,7 @@ class GitHubAPI:
         # Pin the remote hostname at TLS connection time. Never follow HTTP
         # redirects or accept a caller-provided host, scheme, or arbitrary path.
         if not re.fullmatch(
-            r"/actions/runs(?:\?head_sha=[0-9a-fA-F]{40}&per_page=100&page=[1-4]|/[0-9]+/jobs\?per_page=100)",
+            r"(?:/pulls/[1-9][0-9]*|/actions/runs(?:\?head_sha=[0-9a-fA-F]{40}&per_page=100&page=[1-4]|/[0-9]+/jobs\?per_page=100))",
             suffix,
         ):
             raise GateError("Blocked unexpected GitHub API endpoint")
@@ -100,6 +100,28 @@ class GitHubAPI:
             raise GateError("GitHub Actions evidence unavailable: " + str(exc)) from exc
         finally:
             conn.close()
+
+    def merged_pr_identity(self, pr_number: int, sha: str, base_sha: str) -> dict | None:
+        """Recover exact PR provenance after GitHub removes run.pull_requests."""
+        if pr_number < 1 or not SHA_RE.fullmatch(sha) or not SHA_RE.fullmatch(base_sha):
+            raise GateError("Invalid PR identity request")
+        pr = self.get(f"/pulls/{pr_number}")
+        if not isinstance(pr, dict):
+            raise GateError("Invalid GitHub pull request response")
+        head, base = pr.get("head"), pr.get("base")
+        if not isinstance(head, dict) or not isinstance(base, dict):
+            raise GateError("Missing trusted PR head/base")
+        head_repo = head.get("repo")
+        if (pr.get("number") != pr_number or head.get("sha") != sha
+                or base.get("sha") != base_sha or not isinstance(head_repo, dict)
+                or head_repo.get("full_name") != self.repo):
+            return None
+        if (not isinstance(pr.get("created_at"), str)
+                or not isinstance(pr.get("merged_at"), str)
+                or not isinstance(head.get("ref"), str)):
+            return None
+        return {"head_ref": head["ref"], "repo": self.repo,
+                "created_at": pr["created_at"], "merged_at": pr["merged_at"]}
 
     def runs(self, sha: str) -> list[dict]:
         if not SHA_RE.fullmatch(sha):
@@ -133,13 +155,14 @@ def validate_pr_context(pr_number: int, base_sha: str) -> None:
         raise GateError("PR base must be an exact 40-character SHA")
 
 
-def belongs_to_pr(run: dict, pr_number: int, base_sha: str, sha: str) -> bool:
+def belongs_to_pr(run: dict, pr_number: int, base_sha: str, sha: str,
+                  pr_identity: dict | None = None) -> bool:
     if pr_number <= 0 or not base_sha or run.get("event") != "pull_request":
         return False
     linked = run.get("pull_requests", [])
     if not isinstance(linked, list):
         return False
-    return any(
+    if any(
         isinstance(pr, dict)
         and pr.get("number") == pr_number
         and isinstance(pr.get("base"), dict)
@@ -147,12 +170,26 @@ def belongs_to_pr(run: dict, pr_number: int, base_sha: str, sha: str) -> bool:
         and isinstance(pr.get("head"), dict)
         and pr["head"].get("sha") == sha
         for pr in linked
+    ):
+        return True
+    # GitHub deletes run.pull_requests after merge. Never borrow another PR:
+    # require independently verified identity, repository, SHA and run window.
+    if linked or not isinstance(pr_identity, dict):
+        return False
+    created = run.get("created_at")
+    return bool(
+        run.get("head_sha") == sha
+        and run.get("head_branch") == pr_identity.get("head_ref")
+        and isinstance(run.get("head_repository"), dict)
+        and run["head_repository"].get("full_name") == pr_identity.get("repo")
+        and isinstance(created, str)
+        and pr_identity.get("created_at") <= created <= pr_identity.get("merged_at")
     )
-
 
 def select_run(
     runs: list[dict], requirement: Requirement, sha: str,
-    pr_number: int = 0, base_sha: str = ""
+    pr_number: int = 0, base_sha: str = "",
+    pr_identity: dict | None = None
 ) -> dict | None:
     validate_pr_context(pr_number, base_sha)
     candidates = []
@@ -162,11 +199,11 @@ def select_run(
         filename = str(run.get("path", "")).split("@", 1)[0].rsplit("/", 1)[-1]
         if filename != requirement.workflow:
             continue
-        if requirement.comparison and not belongs_to_pr(run, pr_number, base_sha, sha):
+        if requirement.comparison and not belongs_to_pr(run, pr_number, base_sha, sha, pr_identity):
             continue
         # Never borrow results from another PR when auditing a PR.
         if run.get("event") == "pull_request" and pr_number:
-            if not belongs_to_pr(run, pr_number, base_sha, sha):
+            if not belongs_to_pr(run, pr_number, base_sha, sha, pr_identity):
                 continue
         candidates.append(run)
     return max(
@@ -183,7 +220,8 @@ def select_run(
 
 def assess_requirement(req: Requirement, installed: set[str],
                        runs: list[dict], sha: str, jobs_loader,
-                       pr_number: int = 0, base_sha: str = "") -> dict:
+                       pr_number: int = 0, base_sha: str = "",
+                       pr_identity: dict | None = None) -> dict:
     info = {
         "number": req.number, "key": req.key, "workflow": req.workflow,
         "area": req.area, "job": req.job, "status": "MISSING_WORKFLOW",
@@ -192,7 +230,7 @@ def assess_requirement(req: Requirement, installed: set[str],
     if req.workflow not in installed:
         info["note"] = "Workflow not installed in the checked-out candidate revision"
         return info
-    run = select_run(runs, req, sha, pr_number, base_sha)
+    run = select_run(runs, req, sha, pr_number, base_sha, pr_identity)
     if run is None:
         info["status"] = "NO_RUN"
         info["note"] = (
@@ -224,10 +262,12 @@ def assess_requirement(req: Requirement, installed: set[str],
 
 def assess(installed: set[str], runs: list[dict], sha: str, jobs_loader,
            checks: tuple[Requirement, ...] = REQUIREMENTS,
-           pr_number: int = 0, base_sha: str = "") -> dict:
+           pr_number: int = 0, base_sha: str = "",
+           pr_identity: dict | None = None) -> dict:
     validate_pr_context(pr_number, base_sha)
     details = [
-        assess_requirement(req, installed, runs, sha, jobs_loader, pr_number, base_sha)
+        assess_requirement(req, installed, runs, sha, jobs_loader,
+                           pr_number, base_sha, pr_identity)
         for req in checks
     ]
     passed = sum(item["status"] == "PASSED" for item in details)
@@ -284,7 +324,8 @@ def markdown_report(data: dict, mode: str) -> str:
 def run_gate(root: Path, repository: str, sha: str, mode: str,
              output: Path, api: GitHubAPI,
              pr_number: int = 0, base_sha: str = "",
-             trusted_project: Path | None = None) -> tuple[int, dict]:
+             trusted_project: Path | None = None,
+             changed_paths: list[str] | None = None) -> tuple[int, dict]:
     validate_identity(repository, sha)
     validate_pr_context(pr_number, base_sha)
     workflow_dir = root / ".github" / "workflows"
@@ -292,7 +333,8 @@ def run_gate(root: Path, repository: str, sha: str, mode: str,
         path.name for path in workflow_dir.glob("*.yaml")
     }
     suites = load_suites(root, trusted_project)
-    extra = full_checks(suites)
+    extra = (full_checks_for_paths(suites, changed_paths)
+             if changed_paths is not None else full_checks(suites))
     if any(item["key"] in {req.key for req in REQUIREMENTS} for item in extra):
         raise GateError("Manifest duplicates a protected built-in check key")
     checks = REQUIREMENTS + tuple(
@@ -307,8 +349,11 @@ def run_gate(root: Path, repository: str, sha: str, mode: str,
         if run_id not in cache:
             cache[run_id] = api.jobs(run_id)
         return cache[run_id]
+    pr_identity = (api.merged_pr_identity(pr_number, sha, base_sha)
+                   if pr_number and hasattr(api, "merged_pr_identity") else None)
     report = assess(installed, api.runs(sha), sha, cached_jobs,
-                    checks=checks, pr_number=pr_number, base_sha=base_sha)
+                    checks=checks, pr_number=pr_number, base_sha=base_sha,
+                    pr_identity=pr_identity)
     report["mode"] = mode
     report["repository"] = repository
     output.mkdir(parents=True, exist_ok=True)
@@ -335,6 +380,8 @@ def main() -> int:
     parser.add_argument("--project", type=Path, default=Path("."))
     parser.add_argument("--trusted-project", type=Path, default=None,
                         help="Trusted base checkout; candidate cannot remove its required checks")
+    parser.add_argument("--changed-files", type=Path, default=None,
+                        help="Trusted exact base/head PR diff JSON to scope dynamic FULL checks")
     parser.add_argument("--output", type=Path, default=Path("ci_artifacts/quality_gate"))
     args = parser.parse_args()
     output = args.output.resolve()
@@ -345,12 +392,22 @@ def main() -> int:
         api = GitHubAPI(args.repository, os.environ.get("GITHUB_TOKEN", ""))
         if not 0 <= args.wait_seconds <= 180:
             raise GateError("wait-seconds must be between 0 and 180")
+        changed = None
+        if args.changed_files is not None:
+            if not args.pr_number:
+                raise GateError("Scoped dynamic checks require verified PR context")
+            changed = json.loads(args.changed_files.read_text(encoding="utf-8"))
+            if (not isinstance(changed, list) or not changed
+                    or any(not isinstance(p, str) or not p or p.startswith("/")
+                           or ".." in Path(p).parts for p in changed)):
+                raise GateError("Missing or unsafe exact PR changed-files list")
         deadline = time.monotonic() + args.wait_seconds
         while True:
             code, report = run_gate(
                 args.project.resolve(), args.repository, args.sha, args.mode,
                 output, api, args.pr_number, args.base_sha,
-                args.trusted_project.resolve() if args.trusted_project else None
+                args.trusted_project.resolve() if args.trusted_project else None,
+                changed_paths=changed
             )
             # Never wait when dependent workflows are not installed; report
             # the correct MISSING_WORKFLOW state immediately.

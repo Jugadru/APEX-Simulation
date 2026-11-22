@@ -275,6 +275,41 @@ class QualityGateTests(unittest.TestCase):
         self.assertIn("GDScript Toolkit", "\n".join(report["limitations"]))
         self.assertIn("não autoriza merge", text)
 
+    def test_merged_pr_runs_need_exact_trusted_identity(self):
+        from apex_quality_gate import belongs_to_pr
+        identity = {"head_ref": "feature/driver-v1", "repo": "Jugadru/APEX-Simulation",
+                    "created_at": "2026-11-22T21:00:00Z",
+                    "merged_at": "2026-11-22T21:20:00Z"}
+        valid = {"event": "pull_request", "head_sha": SHA,
+                 "head_branch": "feature/driver-v1",
+                 "head_repository": {"full_name": "Jugadru/APEX-Simulation"},
+                 "created_at": "2026-11-22T21:10:00Z", "pull_requests": []}
+        self.assertTrue(belongs_to_pr(valid, PR, BASE, SHA, identity))
+        for changes in (
+            {"head_sha": OTHER}, {"head_branch": "feature/other"},
+            {"head_repository": {"full_name": "someone/other"}},
+            {"created_at": "2026-11-22T21:30:00Z"},
+            {"event": "workflow_dispatch"},
+            {"pull_requests": [{"number": PR + 1}]},
+        ):
+            self.assertFalse(belongs_to_pr(dict(valid, **changes), PR, BASE, SHA, identity))
+        self.assertFalse(belongs_to_pr(valid, PR, BASE, SHA))
+
+    def test_pr_identity_requires_exact_sha_base_repo_and_merge(self):
+        from apex_quality_gate import GitHubAPI
+        api = GitHubAPI("Jugadru/APEX-Simulation", "dummy")
+        pr = {"number": PR, "head": {"sha": SHA, "ref": "feature/driver-v1",
+              "repo": {"full_name": "Jugadru/APEX-Simulation"}},
+              "base": {"sha": BASE}, "created_at": "2026-11-22T21:00:00Z",
+              "merged_at": "2026-11-22T21:20:00Z"}
+        with patch.object(api, "get", return_value=pr):
+            self.assertEqual(api.merged_pr_identity(PR, SHA, BASE)["head_ref"],
+                             "feature/driver-v1")
+            self.assertIsNone(api.merged_pr_identity(PR, OTHER, BASE))
+            self.assertIsNone(api.merged_pr_identity(PR, SHA, OTHER))
+        with patch.object(api, "get", return_value=dict(pr, merged_at=None)):
+            self.assertIsNone(api.merged_pr_identity(PR, SHA, BASE))
+
 
 if __name__ == "__main__":
     unittest.main()

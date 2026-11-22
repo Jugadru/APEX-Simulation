@@ -52,3 +52,24 @@ de jogabilidade.
 ## Dynamic Quality Gate 2.0
 
 O registro .github/apex-quality-suites.json incorpora automaticamente testes FAST e verificações FULL de funcionalidades novas. O gate exige as dez verificações históricas e os quatro shards da matriz de circuitos, sem contagem fixa de READY. O manifesto confiável da branch padrão é combinado com o candidato para impedir remoção de exigências. Para FULL-180, aplicar ci:full e ci:extended; leia as condições de obrigatoriedade e a ressalva de validação manual em docs/APEX_REGRAS_DESENVOLVIMENTO_2_0.md.
+
+## Correção de espera excessiva e de proveniência após merge (Gate 2.1)
+
+O GitHub pode esvaziar `run.pull_requests` ao integrar um PR; a auditoria
+anterior repetia `NO_RUN` para todos os controles por até 70 minutos, mesmo
+após os workflows efetivamente concluírem. A correção recupera esse caso
+**apenas** consultando o PR real e verificando SHA, base, repositório, branch
+e data do run no intervalo entre abertura e merge. Continua proibido aproveitar
+execuções de outro PR, manual dispatch ou SHA divergente.
+
+Os dez checks históricos permanecem obrigatórios. Os checks FULL de cada
+módulo registrado são selecionados pelo diff exato base/candidato, evitando
+exigir workflows específicos não acionados pelo próprio PR. Para mudanças no
+Core, permanecem exigidos os quatro grupos da matriz de pistas. Se faltar
+qualquer evidência obrigatória, o veredito continua BLOCKED.
+
+O polling anterior de 70 tentativas (~70 min) foi reduzido para 20 tentativas,
+uma por minuto, com falha explícita quando a evidência não se materializa.
+A duração do gate não representa simulação de pista. Um circuito sintético é
+útil para smoke/FAST e benchmarks controlados, mas não substitui testes em
+Mônaco, Silverstone, chuva ou as 20 pistas para homologação FULL.

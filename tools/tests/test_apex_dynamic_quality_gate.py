@@ -96,6 +96,39 @@ class DynamicGateTests(unittest.TestCase):
         self.assertTrue(set(CASES).issubset(categories_for(["scripts/new_feature.gd"])))
         self.assertTrue(set(CASES).issubset(categories_for(["data/new_parameters.json"])))
 
+    def test_scoped_full_requires_only_affected_registered_subsystems(self):
+        from apex_quality_manifest import full_checks_for_paths
+        eng = {"id":"race_engineer_intelligence_0913",
+               "paths":["scripts/core/*engineer*.gd"],
+               "fast_tests":[],
+               "checks":[job("engineer_targeted")]}
+        over = {"id":"overtaking_intelligence_0912",
+                "paths":["scripts/core/*overtaking*.gd"],
+                "fast_tests":[],
+                "checks":[dict(job("overtaking_targeted"), job="Overtaking / CI")]}
+        matrix = {"id":"scenario_matrix_2012", "paths":["scripts/core/**"],
+                  "fast_tests":[], "checks":[dict(job("matrix_0"), job="Matrix 0")]}
+        checks = full_checks_for_paths(
+            [eng, over, matrix], ["scripts/core/race_engineer_0646.gd"])
+        self.assertEqual({x["key"] for x in checks}, {"engineer_targeted", "matrix_0"})
+        with self.assertRaises(ValueError):
+            full_checks_for_paths([eng], [])
+
+    def test_scoped_gate_preserves_ten_legacy_checks(self):
+        from apex_quality_manifest import full_checks_for_paths
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            (root / ".github/workflows").mkdir(parents=True)
+            write_registry(root, [suite(checks=[job()])])
+            class API:
+                def runs(self, sha): return []
+                def jobs(self, run_id): return []
+            code, report = run_gate(root, "Jugadru/APEX-Simulation", SHA,
+                                    "enforce", root / "out", API(),
+                                    changed_paths=["docs/readme.md"])
+            self.assertEqual(code, 1)
+            self.assertEqual(report["total"], len(REQUIREMENTS))
+
 
 if __name__ == "__main__":
     unittest.main()
