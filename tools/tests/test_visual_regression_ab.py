@@ -11,7 +11,7 @@ from PIL import Image, ImageDraw
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from visual_regression_ab import (
-    CAPTURES, CAPTURE_SCRIPT, VisualError, compare_one, load_manifest, validate_sources,
+    CAPTURES, CAPTURE_SCRIPT, LIMITS, THRESHOLD_PER_CHANNEL, VisualError, compare_one, load_manifest, validate_sources,
 )
 
 
@@ -26,6 +26,31 @@ class VisualRegressionTests(unittest.TestCase):
             ImageDraw.Draw(candidate).rectangle(changed_rectangle, fill=(250, 230, 10))
         candidate.save(after)
         return before, after
+
+    def test_redesigned_hud_preserves_strict_visual_thresholds(self):
+        # PR #84 intentionally changed the layout; its 2026-11-22 A/B FAIL is
+        # retained for review. New PRs use the merged HUD as their baseline,
+        # not higher tolerances that would conceal future regressions.
+        self.assertEqual(THRESHOLD_PER_CHANNEL, 24)
+        self.assertEqual(
+            LIMITS,
+            {
+                "silverstone_2d_broadcast": (0.010, 1.50),
+                "silverstone_2d_compact": (0.010, 1.50),
+                "silverstone_3d_compact": (0.025, 3.00),
+            },
+        )
+
+    def test_intentional_redesign_must_fail_against_old_visual_baseline(self):
+        # A >5% HUD alteration must not be silently accepted merely because
+        # a newer HUD design is intentional.
+        with TemporaryDirectory() as td:
+            folder = Path(td)
+            before, after = self.create_pair(folder, (0, 0, 250, 350))
+            result = compare_one(before, after, folder / "diff.png", CAPTURES[0])
+            self.assertEqual(result["status"], "FAIL")
+            self.assertGreater(result["changed_fraction"], 0.05)
+            self.assertEqual(result["allowed_changed_fraction"], 0.010)
 
     def test_identical_images_pass(self):
         with TemporaryDirectory() as td:
