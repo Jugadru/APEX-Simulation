@@ -1,12 +1,5 @@
 name: APEX - Driver Traffic 9.3
 on:
-  pull_request:
-    paths:
-      - 'scripts/core/race_driver_traffic_06693.gd'
-      - 'scripts/core/race_space_0655.gd'
-      - 'scripts/core/race_replay_0660.gd'
-      - 'tests/driver_traffic_06693_test.gd'
-      - '.github/workflows/apex-driver-traffic-ci.yml'
   workflow_dispatch:
 permissions:
   contents: read

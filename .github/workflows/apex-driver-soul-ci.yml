@@ -1,16 +1,5 @@
 name: APEX - Driver Soul 3.0 (v9.4)
 on:
-  pull_request:
-    paths:
-      - 'scripts/race_engine.gd'
-      - 'scripts/core/*soul*'
-      - 'scripts/core/*driver*'
-      - 'scripts/apex_race_session_controller.gd'
-      - 'tests/driver_soul_06694_test.gd'
-      - 'tests/driver_traffic_06693_test.gd'
-      - 'tests/race_0647_soul2_test.gd'
-      - 'project.godot'
-      - '.github/workflows/apex-driver-soul-ci.yml'
   workflow_dispatch:
 permissions:
   contents: read

@@ -16,9 +16,6 @@ on:
         required: true
         type: string
         default: '12012'
-  pull_request:
-    types: [opened, reopened, synchronize, labeled]
-
 permissions:
   contents: read
 
@@ -34,9 +31,8 @@ jobs:
     timeout-minutes: 70
     strategy:
       fail-fast: false
-      # Run the 20-track smoke shards in parallel (~3 min/shard observed);
-      # keep the expensive 180-case profile at two concurrent runners.
-      max-parallel: ${{ (inputs.profile == 'full' || contains(github.event.pull_request.labels.*.name, 'ci:extended')) && 2 || 4 }}
+      # Avoid four simultaneous Godot release downloads on cold runners.
+      max-parallel: ${{ inputs.profile == 'full' && 2 || 4 }}
       matrix:
         shard: [0, 1, 2, 3]
     env:

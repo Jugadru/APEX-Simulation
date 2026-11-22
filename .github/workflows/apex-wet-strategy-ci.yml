@@ -1,18 +1,5 @@
 name: APEX - Wet Strategy Intelligence (v9.8)
 on:
-  pull_request:
-    paths:
-      - 'scripts/race_engine.gd'
-      - 'scripts/core/*weather*'
-      - 'scripts/core/*tyre*'
-      - 'scripts/core/*pit*'
-      - 'scripts/core/race_replay_0660.gd'
-      - 'scripts/apex_race_session_controller.gd'
-      # Race Quality 9.9 deliberately requests this complete regression.
-      - 'docs/APEX_RELEASE_v0.6.6.9.9_RACE_QUALITY.md'
-      - 'tests/wet_strategy_06698_test.gd'
-      - 'project.godot'
-      - '.github/workflows/apex-wet-strategy-ci.yml'
   workflow_dispatch:
 permissions:
   contents: read

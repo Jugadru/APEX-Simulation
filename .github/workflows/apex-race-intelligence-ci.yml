@@ -2,10 +2,6 @@ name: APEX - Race Intelligence Tester
 
 on:
   workflow_dispatch:
-  pull_request:
-    types: [opened, reopened, synchronize, labeled]
-    # Include project configuration changes that may affect test behavior.
-
 permissions:
   contents: read
 

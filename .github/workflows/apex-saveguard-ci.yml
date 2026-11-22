@@ -13,11 +13,6 @@ on:
         required: true
         default: 'main'
         type: string
-  pull_request:
-    types: [opened, reopened, synchronize, labeled]
-    # Include project configuration changes that may affect test behavior.
-    branches: [main]
-
 permissions:
   contents: read
 

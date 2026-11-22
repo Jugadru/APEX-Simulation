@@ -13,9 +13,6 @@ on:
         required: true
         default: 'infra/visual-regression-main-integration'
         type: string
-  pull_request:
-    types: [opened, reopened, synchronize, labeled]
-
 permissions:
   contents: read
 
