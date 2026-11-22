@@ -12,6 +12,7 @@ on:
           - '10000'
         default: '6000'
   pull_request:
+    types: [opened, reopened, synchronize, labeled]
     # Include project configuration changes that may affect test behavior.
     paths:
       - 'tests/performance_baseline_06690.gd'
@@ -39,6 +40,7 @@ concurrency:
 
 jobs:
   endurance:
+    if: ${{ github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'ci:full') }}
     name: Determinismo, GPs, memoria e 20 temporadas de dados
     runs-on: ubuntu-latest
     timeout-minutes: 35
