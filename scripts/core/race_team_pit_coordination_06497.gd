@@ -24,7 +24,9 @@ static func _priority_before(car: Dictionary, teammate: Dictionary) -> bool:
 static func assess(car: Dictionary, teammate: Dictionary,
         plan: Dictionary, teammate_plan: Dictionary,
         weather_now: Dictionary, total_laps: int, next_entry: int,
-        player_team: String, available: Array) -> Dictionary:
+        player_team: String, available: Array,
+        allow_last_legal_prevention: bool = false,
+        garage_occupation_s: float = 0.0, base_lap_s: float = 0.0) -> Dictionary:
     var output: Dictionary = {
         "version":"0.6.4.9.7", "decision":"MANTER", "overlap":false,
         "executable":false, "target_lap":next_entry,
@@ -76,15 +78,46 @@ static func assess(car: Dictionary, teammate: Dictionary,
             or int(car.get("stint_laps", 0)) < 4 or next_entry + 1 >= total_laps):
         output["reason"] = "Conflito previsto, mas chuva, limite de pneus ou fim do GP impedem escalonamento seguro."
         return output
+    # #82 / v9.7.1: in a dry 2012 race both cars may have their *first*
+    # compulsory second slick booked for the final legal pit lap. The old
+    # 25%% minimum wear gate then blocked every safe V-1 anticipation.
+    # Use only observed positions and the crew's estimated occupied time,
+    # not future pit events or an invented incident probability. Old 018
+    # replays pass allow_last_legal_prevention=false and remain unchanged.
+    var last_legal_switch: bool = false
+    var estimated_queue_s: float = 0.0
+    if (allow_last_legal_prevention and own_stop == total_laps - 1
+            and next_entry == own_stop - 1
+            and base_lap_s > 0.0 and garage_occupation_s > 0.0):
+        var used: Array = car.get("used_tires", [])
+        var mate_used: Array = teammate.get("used_tires", [])
+        var target: String = str(plan.get("compound", ""))
+        var mate_target: String = str(teammate_plan.get("compound", ""))
+        var compulsory_pair: bool = (target in SLICKS and mate_target in SLICKS
+            and target != str(car.get("tire", ""))
+            and mate_target != str(teammate.get("tire", ""))
+            and not used.has(target) and not mate_used.has(mate_target)
+            and not used.has("Intermediário") and not used.has("Chuva")
+            and not mate_used.has("Intermediário") and not mate_used.has("Chuva"))
+        if compulsory_pair:
+            var gap_now_s: float = absf(float(car.get("progress", 0.0))
+                - float(teammate.get("progress", 0.0))) * base_lap_s
+            estimated_queue_s = maxf(0.0, garage_occupation_s - gap_now_s)
+            # The estimate is a conservative tactical gate, NOT a measured
+            # counterfactual. Avoid moving a stop when likely waiting is small.
+            last_legal_switch = estimated_queue_s >= 2.5
+            output["estimated_queue_s"] = snappedf(estimated_queue_s, 0.0001)
     # Antecipar a parada não pode entrar no mesmo giro já reservado
     # pelo companheiro; ocorre somente uma volta ANTES de ambas as janelas.
     if (next_entry == own_stop - 1 and not bool(plan.get("pit_now", false))
-            and wear >= MIN_WEAR_FOR_EARLY and wear <= MAX_WEAR_FOR_EARLY
+            and (wear >= MIN_WEAR_FOR_EARLY or last_legal_switch) and wear <= MAX_WEAR_FOR_EARLY
             and life >= MIN_LIFE_FOR_HOLD
             and int(teammate.get("laps_done", 0)) >= int(car.get("laps_done", 0)) - 1):
         output["decision"] = "ANTECIPAR"
         output["executable"] = true
         output["reason"] = "Ambos projetam V%d; adiantar este carro para V%d, evitando compartilhar garagem." % [own_stop, next_entry]
+        if last_legal_switch:
+            output["reason"] = "Ultima parada obrigatoria V%d: antecipar para V%d, fila possivel ~%.1fs (estimativa, nao resultado)." % [own_stop, next_entry, estimated_queue_s]
     elif (next_entry == own_stop and bool(plan.get("pit_now", false))
             and wear < MAX_WEAR_FOR_HOLD and life >= MIN_LIFE_FOR_HOLD):
         output["decision"] = "ADIAR"
