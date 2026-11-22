@@ -12,6 +12,8 @@ const ReBroadcast = preload("res://scripts/apex_hud_rebroadcast_0668.gd")
 const HudStandingMetric = preload("res://scripts/presentation/apex_hud_standings_metric.gd")
 const HudRankingPanel = preload("res://scripts/presentation/apex_hud_ranking_panel.gd")
 const HudPitWallQuickPanel = preload("res://scripts/presentation/apex_hud_pitwall_quick_panel.gd")
+const HudRaceContext = preload("res://scripts/presentation/apex_hud_race_context.gd")
+const WetForecast = preload("res://scripts/core/race_wet_strategy_intelligence_06698.gd")
 const HudWeatherPanel = preload("res://scripts/presentation/apex_hud_weather_panel.gd")
 const HudMiniMapPanel = preload("res://scripts/presentation/apex_hud_minimap_panel.gd")
 const Stints = preload("res://scripts/apex_strategy_planner_0620.gd")
@@ -54,6 +56,7 @@ var standing_rows: Array = []
 var standings_title: Label
 var lap_label: Label
 var session_label: Label
+var weather_ui_nodes: Dictionary = {}
 var weather_line: Label
 var weather_track_line: Label
 var minimap
@@ -238,6 +241,8 @@ func _create_ui() -> void:
 	# UI-only weather panel; the HUD still owns its layout and live data.
 	var weather_ui: Dictionary = HudWeatherPanel.build(self,
 		Callable(self, "_panel"), Callable(self, "_column"), Callable(self, "_text"))
+	weather_ui_nodes = weather_ui
+	weather_ui["details"].pressed.connect(_open_window.bind("dados"))
 	weather_box = weather_ui["weather_box"]
 	weather_line = weather_ui["weather_line"]
 	weather_track_line = weather_ui["weather_track_line"]
@@ -367,6 +372,8 @@ func _create_driver_card(car: Dictionary, slot: int) -> void:
 	team_stripe.custom_minimum_size = Vector2(4, 23)
 	team_stripe.color = Color.from_string(str(car.get("color", "#FF8A21")), ACCENT)
 	title_line.add_child(team_stripe)
+	var identity := _text(title_line, "P%d" % (slot + 1), 13, HudSkin.HEADER_INK)
+	identity.tooltip_text = "Piloto %d da equipe" % (slot + 1)
 	var name := _text(title_line, str(car.get("name", "Piloto")), 17, HudSkin.HEADER_INK)
 	name.clip_text = true
 	name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -380,12 +387,21 @@ func _create_driver_card(car: Dictionary, slot: int) -> void:
 	inset.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	shell.add_child(inset)
 	var core := _column(inset, 7)
+	var neighbours := _text(core, "FRENTE —    |    ATRÁS —", 13, WHITE)
+	neighbours.clip_text = true
 	var metrics := _line(core, 10)
 	metrics.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	var tyre_column := _column(metrics, 5)
 	tyre_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_text(tyre_column, "PNEUS / VIDA RESTANTE", 12, MUTED)
-	var status := _text(tyre_column, "—  •  —%", 20, WHITE)
+	var tyre_reading := _line(tyre_column, 8)
+	var compound_badge := _text(tyre_reading, "S", 20, WHITE)
+	compound_badge.custom_minimum_size = Vector2(30, 30)
+	compound_badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	compound_badge.add_theme_stylebox_override("normal", HudSkin.panel(HudSkin.SURFACE_SOLID, 3, HudSkin.BORDER, 3))
+	var status := _text(tyre_reading, "—%", 20, WHITE)
+	status.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	status.custom_minimum_size.x = 65
 	status.clip_text = true
 	var tyre_temp := _text(tyre_column, "— °C  ·  0 voltas", 13, MUTED)
 	tyre_temp.clip_text = true
@@ -411,6 +427,16 @@ func _create_driver_card(car: Dictionary, slot: int) -> void:
 	energy_bar.max_value = 400.0
 	var second_line := _text(core, "Pista", 13, MUTED)
 	second_line.clip_text = true
+	var pit_line := _line(core, 8)
+	core.remove_child(second_line)
+	pit_line.add_child(second_line)
+	second_line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var quick := _btn(pit_line, "BOX", _quick_box.bind(slot), 110)
+	quick.custom_minimum_size.y = 32
+	for state in ["normal", "hover", "pressed"]:
+		quick.add_theme_stylebox_override(state, HudSkin.panel(YELLOW.lightened(0.15) if state == "hover" else YELLOW, 2, YELLOW, 6))
+	for state in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+		quick.add_theme_color_override(state, HudSkin.HEADER_INK)
 	var action_line := _line(core, 4)
 	var tab_buttons: Array = []
 	for k in range(4):
@@ -419,8 +445,6 @@ func _create_driver_card(car: Dictionary, slot: int) -> void:
 		b.add_theme_font_size_override("font_size", 12)
 		b.tooltip_text = CONTEXTS[k] + " — abrir detalhes acima do piloto"
 		tab_buttons.append(b)
-	var quick := _btn(action_line, "BOX", _quick_box.bind(slot), 60)
-	quick.tooltip_text = "Chamar imediatamente o carro para os boxes"
 	var expanded := _panel(player_strip, HudSkin.SURFACE_SOLID)
 	var content := _column(expanded, 8)
 	var heading := _line(content, 5)
@@ -430,7 +454,7 @@ func _create_driver_card(car: Dictionary, slot: int) -> void:
 	var detail_body := _column(content, 6)
 	expanded.hide()
 	race_card_panels.append({"base":base, "expanded":expanded, "content":detail_body, "heading":heading_label,
-		"id":int(car["id"]), "slot":slot, "pos":pos, "name":name, "status":status, "secondary":second_line,
+		"compound_badge":compound_badge, "neighbours":neighbours, "identity":identity, "id":int(car["id"]), "slot":slot, "pos":pos, "name":name, "status":status, "secondary":second_line,
 		"wear_bar":tyre_bar, "tabs":tab_buttons, "quick":quick, "context":-1,
 		"tyre_temp":tyre_temp, "pace_value":pace_value, "lap_value":lap_value, "pace_hint":pace_hint,
 		"energy_value":energy_value, "energy_mode":energy_mode, "energy_bar":energy_bar, "drs":drs,
@@ -576,17 +600,17 @@ func layout_hud() -> void:
 	radio_reactive_toast.size = Vector2(toast_width, 43.0)
 	var left_width: float = 292.0 if full else 280.0
 	var right_width: float = 340.0
-	var card_height: float = 232.0 if full else 224.0
+	var card_height: float = 280.0 if full else 272.0
 	var card_y: float = height_px - card_height - 24.0
 	ranking.position = Vector2(24.0, 73.0)
 	# The leaderboard must never collide vertically with the driver cards.
 	var rank_bottom: float = height_px - 70.0 if broadcast else card_y - 9.0
 	ranking.size = Vector2(left_width, maxf(155.0, minf(668.0, rank_bottom - 73.0)))
 	weather_box.position = Vector2(width_px - right_width - 24.0, 83.0)
-	weather_box.size = Vector2(right_width, 235.0)
-	map_box.position = Vector2(width_px - right_width - 24.0, 332.0)
+	weather_box.size = Vector2(right_width, 280.0)
+	map_box.position = Vector2(width_px - right_width - 24.0, 377.0)
 	map_box.size = Vector2(right_width, 220.0)
-	pit_quick_panel.position = Vector2(width_px - right_width - 24.0, 564.0)
+	pit_quick_panel.position = Vector2(width_px - right_width - 24.0, 609.0)
 	pit_quick_panel.size = Vector2(right_width, 109.0)
 	pit_quick_panel.visible = full
 	# Small island in the centre: only pause and speed, no full-width stripe.
@@ -685,10 +709,11 @@ func refresh_hud() -> void:
 	if speed_position >= 0 and speed_label.selected != speed_position:
 		speed_label.select(speed_position)
 	var weather: Dictionary = race.weather_snapshot()
-	var weather_brief: String = "%s   ·   %.1f °C\nChuva %d%%   ·   Prev. 15 min: %d%%" % [
+	var weather_brief: String = "%s   ·   %.1f °C\nIntensidade da chuva: %d%%" % [
 		str(weather.get("sky", "—")), float(weather.get("air_c", 0.0)),
-		int(round(float(weather.get("rain_intensity", 0.0)) * 100.0)), int(weather.get("rain_probability", 0))]
+		int(round(float(weather.get("rain_intensity", 0.0)) * 100.0))]
 	ReBroadcast.set_text_if_changed(weather_line, weather_brief)
+	HudWeatherPanel.refresh_timeline(weather_ui_nodes, weather, float(race.clock))
 	weather_line.tooltip_text = "Condição atual, água e umidade medidas; previsão é estimativa."
 	ReBroadcast.set_text_if_changed(weather_track_line,
 		"%s   ·   %.1f °C\nÁgua %.2f mm   ·   Umidade %d%%\nBorracha %d%%   ·   Aderência %s" % [
@@ -718,10 +743,13 @@ func refresh_hud() -> void:
 		if car.is_empty():
 			continue
 		card["name"].text = str(car.get("name", "Piloto"))
+		card["identity"].text = "%d · %s" % [i + 1, HudRaceContext.code(car)]
+		card["neighbours"].text = HudRaceContext.neighbours(order, int(car["id"]), bool(race.finished))
+		card["neighbours"].tooltip_text = "Vizinhos na classificação, não proximidade física na pista. " + card["neighbours"].text
 		card["pos"].text = "P%02d" % int(car.get("position", 0))
 		var tire: String = str(car.get("tire", "Médio"))
 		var pending: Dictionary = pending_pits.get(int(car.get("id", -1)), {})
-		var pit_text: String = "BOX CHAMADO" if bool(car.get("pit_request", false)) else ("PIT V%d" % int(car.get("pit_scheduled_lap", 0)) if int(car.get("pit_scheduled_lap", 0)) > 0 else str(car.get("pace", "Normal")))
+		var pit_text: String = "BOX CONFIRMADO" if bool(car.get("pit_request", false)) else ("PROGRAMADA · V%d" % int(car.get("pit_scheduled_lap", 0)) if int(car.get("pit_scheduled_lap", 0)) > 0 else str(car.get("pace", "Normal")))
 		if float(car.get("pit_left", 0.0)) > 0.0:
 			pit_text = "NOS BOXES"
 		if bool(car.get("finished", false)):
@@ -732,7 +760,10 @@ func refresh_hud() -> void:
 			pit_text = "ORDEM PENDENTE " + ReBroadcast.pending_label(pending)
 		var life_remaining: float = clampf(100.0 - float(car.get("wear", 0.0)), 0.0, 100.0)
 		var warning: String = "PNEU CRÍTICO  ·  " if life_remaining <= 10.0 else ("PNEU GASTO  ·  " if life_remaining <= 25.0 else "")
-		card["status"].text = "%s   %d%%" % [_compound(tire), int(round(life_remaining))]
+		card["compound_badge"].text = _compound(tire)
+		card["compound_badge"].tooltip_text = tire
+		card["compound_badge"].add_theme_color_override("font_color", ReBroadcast.tyre_tint(_compound(tire)))
+		card["status"].text = "%d%%" % int(round(life_remaining))
 		card["status"].add_theme_color_override("font_color", ReBroadcast.tyre_tint(_compound(tire)))
 		card["status"].tooltip_text = "PNEU ATUAL: %s (%d voltas). Planejado: %s. Controle: %s" % [tire, int(car.get("stint_laps", 0)), str(car.get("pit_target", "—")), str(car.get("pit_control_mode", "Manual"))]
 		card["tyre_temp"].text = ("%.0f °C" % float(car["tyre_surface_c"]) if car.has("tyre_surface_c") else "Temp. —") + "  ·  %d voltas" % int(car.get("stint_laps", 0))
@@ -749,10 +780,11 @@ func refresh_hud() -> void:
 		(card["energy_bar"] as ProgressBar).value = float(energy.get("kers_remaining_kj", 0.0))
 		card["drs"].text = "DRS ON" if bool(energy.get("drs_active", false)) else "DRS OFF"
 		card["drs"].tooltip_text = "DRS ativo" if bool(energy.get("drs_active", false)) else "DRS fechado"
-		card["secondary"].text = warning + (pit_text if pit_text != str(car.get("pace", "Normal")) else "NA PISTA  ·  Nenhuma parada marcada")
+		card["secondary"].text = warning + (pit_text if pit_text != str(car.get("pace", "Normal")) else "SEM PARADA MARCADA")
 		card["secondary"].tooltip_text = str(card["secondary"].text)
 		(card["wear_bar"] as ProgressBar).value = life_remaining
-		card["quick"].disabled = bool(car.get("finished", false)) or bool(car.get("pit_request", false)) or float(car.get("pit_left", 0.0)) > 0.0 or not pending.is_empty()
+		card["quick"].text = "PENDENTE" if not pending.is_empty() else ("NO BOX" if float(car.get("pit_left", 0.0)) > 0.0 else ("CONFIRMADO" if bool(car.get("pit_request", false)) else "BOX"))
+		card["quick"].disabled = bool(car.get("disqualified", false)) or bool(car.get("finished", false)) or bool(car.get("pit_request", false)) or float(car.get("pit_left", 0.0)) > 0.0 or not pending.is_empty()
 		card["quick"].tooltip_text = ReBroadcast.pending_description(pending) if not pending.is_empty() else "Solicitar box na próxima entrada permitida"
 		_update_driver_context(i)
 	_update_engineer_reports()
@@ -804,7 +836,7 @@ func _update_driver_context(slot: int) -> void:
 				card["pace_picker"].select(index)
 			card["pace_picker"].disabled = host._engineer_mode_for(int(car["id"])) != "Manual"
 	elif mode == 2:
-		var pit_state: String = "BOX CHAMADO" if bool(car.get("pit_request", false)) else ("V%d programada" % int(car.get("pit_scheduled_lap", 0)) if int(car.get("pit_scheduled_lap", 0)) > 0 else "Sem parada marcada")
+		var pit_state: String = "BOX CONFIRMADO" if bool(car.get("pit_request", false)) else ("V%d programada" % int(car.get("pit_scheduled_lap", 0)) if int(car.get("pit_scheduled_lap", 0)) > 0 else "Sem parada marcada")
 		var advice: Dictionary = host.race.get_engineer_advice(int(car["id"]))
 		var life: float = float(advice.get("life_laps", -1.0))
 		values = [pit_state, ("%.1f voltas" % life if life >= 0.0 else "Sem estimativa")]
@@ -1078,10 +1110,11 @@ func _build_data_window() -> void:
 	overlay_title.text = "CENTRAL DE DADOS"
 	var weather: Dictionary = host.race.weather_snapshot()
 	_text(overlay_content, "CLIMA E PISTA", 15, ACCENT)
-	_text(overlay_content, "Céu: %s • Pista: %s • Chuva atual: %d%% • Previsão 15 min: %d%%" % [str(weather.get("sky", "—")), str(weather.get("track_state", "—")), int(round(float(weather.get("rain_intensity", 0.0)) * 100.0)), int(weather.get("rain_probability", 0))], 13)
+	_text(overlay_content, "Céu: %s • Pista: %s • Chuva atual: %d%%" % [str(weather.get("sky", "—")), str(weather.get("track_state", "—")), int(round(float(weather.get("rain_intensity", 0.0)) * 100.0))], 13)
 	_text(overlay_content, "Água na linha %.2f mm • Fora da linha %.2f mm • Umidade residual %d%%" % [float(weather.get("water_mm", 0.0)), float(weather.get("off_line_water_mm", 0.0)), int(weather.get("surface_moisture_percent", 0))], 13, ACCENT)
-	var forecast_water: Dictionary = host.race.weather.forecast(host.race.clock, minf(900.0, host.race.base_lap * 3.0))
-	_text(overlay_content, "Água prevista em ~3 voltas: %.2f mm • Variação: %+.2f mm • Chuva esperada: %d%%" % [float(forecast_water.get("water_mm", 0.0)), float(forecast_water.get("water_trend_mm", 0.0)), int(round(float(forecast_water.get("rain_intensity", 0.0))*100.0))], 12, MUTED)
+	var forecast_water: Dictionary = WetForecast.forecast(weather, minf(900.0, host.race.base_lap * 3.0), str(weather.get("track_code", "")))
+	_text(overlay_content, "Água prevista em ~3 voltas: %.2f mm • Variação: %+.2f mm • Chuva esperada: %d%%" % [float(forecast_water.get("water_mm", 0.0)), float(forecast_water.get("water_mm", 0.0)) - float(weather.get("water_mm", 0.0)), int(round(float(forecast_water.get("rain_intensity", 0.0))*100.0))], 12, MUTED)
+	_text(overlay_content, "Previsão por observações atuais; pode não antecipar novas pancadas. Confiança: " + str(forecast_water.get("confidence", "—")), 12, YELLOW)
 	_text(overlay_content, "SLICK: linha seca | INTER: água moderada | CHUVA: água acumulada. Níveis estimados por modelo próprio, não telemetria FIA.", 11, MUTED)
 	_text(overlay_content, "Ar %.1f°C  •  Pista %.1f°C  •  Vento %.1f km/h  •  Aderência %s" % [float(weather.get("air_c", 0.0)), float(weather.get("track_c", 0.0)), float(weather.get("wind", 0.0)), str(weather.get("grip", "—"))], 12, MUTED)
 	_text(overlay_content, "Borracha %d%%  •  Aderência relativa %.3f  •  Abrasão %.2f" % [int(weather.get("rubber", 0)), float(weather.get("grip_factor", 1.0)), float(weather.get("surface_abrasion", 1.0))], 11, MUTED)
@@ -1590,7 +1623,7 @@ func _update_window_data() -> void:
 			if car.is_empty():
 				continue
 			var advice: Dictionary = host.race.get_engineer_advice(int(car["id"]))
-			var pit_status: String = "BOX CHAMADO" if bool(car.get("pit_request", false)) else ("Agendado V%d" % int(car.get("pit_scheduled_lap", 0)) if int(car.get("pit_scheduled_lap", 0)) > 0 else "Sem parada marcada")
+			var pit_status: String = "BOX CONFIRMADO" if bool(car.get("pit_request", false)) else ("Agendado V%d" % int(car.get("pit_scheduled_lap", 0)) if int(car.get("pit_scheduled_lap", 0)) > 0 else "Sem parada marcada")
 			(row["briefing"] as Label).text = "P%d • %s • desgaste %d%% • %s\nEngenheiro: %s" % [int(car.get("position", 0)), str(car.get("tire", "Médio")), int(float(car.get("wear", 0.0))), pit_status, str(advice.get("message", "—"))]
 			(row["pit"] as Button).disabled = bool(car.get("pit_request", false)) or bool(car.get("finished", false)) or float(car.get("pit_left", 0.0)) > 0.0
 			(row["lap"] as SpinBox).min_value = mini(int(host.race.lap_count) - 1, maxi(1, int(car.get("laps_done", 0)) + 1))
