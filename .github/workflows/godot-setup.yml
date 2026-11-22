@@ -87,6 +87,7 @@ jobs:
           set -euo pipefail
           mkdir -p ci-results
           tests=(
+            'apex_lab_track_smoke.gd|APEX_LAB_TRACK_PASS'
             'team_orders_066810_test.gd|TEAM_ORDERS_066810_PASS'
             'team_orders_066810_ui_test.gd|TEAM_ORDERS_066810_UI_PASS'
             'team_radio_06689_advice_test.gd|TEAM_RADIO_06689_PASS'
