@@ -25,6 +25,7 @@ const SoulDriver = preload("res://scripts/core/race_soul_driver_0636.gd")
 const SoulReactive = preload("res://scripts/core/race_soul_reactive_0637.gd")
 const Engineer2 = preload("res://scripts/core/race_engineer_0645.gd")
 const Engineer3 = preload("res://scripts/core/race_engineer_0646.gd")
+const TrackKnowledge066914 = preload("res://scripts/core/race_setup_track_knowledge_066914.gd")
 const DriverSoul2 = preload("res://scripts/core/race_driver_soul_0647.gd")
 const Radio3 = preload("res://scripts/presentation/race_radio_06695.gd")
 const TeamRadioAdvice = preload("res://scripts/core/race_team_radio_advice_06689.gd")
@@ -1650,10 +1651,14 @@ func _engineer_report(car: Dictionary, teammate: Dictionary) -> Dictionary:
 	var report: Dictionary = RaceEngineer.evaluate(car, advice, conditions, staff, host.race.lap_count)
 	var base_report: Dictionary = Engineer2.enrich(car,
 		PitWallIntel.enrich(car, report, advice, conditions, teammate, float(host.race.pit_loss)), advice)
-	return Engineer3.assess(car, base_report, advice, conditions, teammate, staff,
+	var report: Dictionary = Engineer3.assess(car, base_report, advice, conditions, teammate, staff,
 		host.race.available_pit_compounds(), int(host.race.lap_count),
 		float(host.race.pit_loss), float(host.race.base_lap),
 		int(host.race._next_pit_entry_lap(car)))
+	# 9.14 is a read-only catalogue interpretation: no change to report pit gates.
+	report["setup_track_066914"] = TrackKnowledge066914.assess(host.race.track,
+		conditions, car, staff)
+	return report
 
 func _record_engineer_history(id: int, note: String, at_lap: int) -> void:
 	var history: Array = engineer_history_by_driver.get(id, [])
@@ -1742,6 +1747,7 @@ func _build_engineer_window() -> void:
 		var ask_weather := _btn(questions, "CHUVA", _engineer_ask.bind(car_id, "clima"), 100)
 		var ask_traffic := _btn(questions, "TRÁFEGO/BOX", _engineer_ask.bind(car_id, "trafego"), 138)
 		var ask_intelligence := _btn(questions, "ENGENHEIRO IA", _engineer_ask.bind(car_id, "engenheiro"), 147)
+		var ask_track := _btn(questions, "SETUP/PISTA", _engineer_ask.bind(car_id, "setup"), 136)
 		var response := _text(layout, "", 11, WHITE)
 		response.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		response.hide()
@@ -1749,6 +1755,7 @@ func _build_engineer_window() -> void:
 			"evidence": evidence, "tradeoff": tradeoff, "order": command, "pace": btn_apply,
 			"pit": btn_pit, "ask": btn_ask, "ask_tyres": ask_tyres, "ask_weather": ask_weather,
 			"ask_traffic": ask_traffic, "ask_intelligence":ask_intelligence,
+			"ask_track":ask_track,
 			"response": response, "driver_mode": driver_mode})
 	_text(overlay_content, "DIÁRIO DO PIT WALL · ALERTAS E DECISÕES", 13, ACCENT)
 	engineer_history_text = RichTextLabel.new()
@@ -1784,6 +1791,9 @@ func _refresh_engineer_window() -> void:
 		if not engineer_intel.is_empty():
 			(ui["evidence"] as Label).text += "\nENGENHEIRO 9.13 • %s • %s" % [
 				str(engineer_intel.get("summary", "")), str(engineer_intel.get("strategy_note", ""))]
+		var circuit: Dictionary = report.get("setup_track_066914", {})
+		if bool(circuit.get("available", false)):
+			(ui["evidence"] as Label).text += "\nSETUP 9.14 (CONSULTA) • %s" % str(circuit.get("summary", ""))
 		var lap_review: Dictionary = car.get("lap_strategy_06496", {})
 		if not lap_review.is_empty():
 			(ui["evidence"] as Label).text += "\nREVISÃO V%d: %s · %s" % [
@@ -1881,7 +1891,7 @@ func _engineer_accept_pit(id: int) -> void:
 	_update_engineer_reports()
 
 func _engineer_ask(id: int, topic: String = "plano") -> void:
-	if host == null or host.race == null or topic not in ["plano", "pneus", "clima", "trafego", "engenheiro"]:
+	if host == null or host.race == null or topic not in ["plano", "pneus", "clima", "trafego", "engenheiro", "setup"]:
 		return
 	var car: Dictionary = host._car_by_id(id)
 	if car.is_empty():
@@ -1893,7 +1903,8 @@ func _engineer_ask(id: int, topic: String = "plano") -> void:
 			mate = entry
 			break
 	var report: Dictionary = _engineer_report(car, mate)
-	var answer: String = Engineer3.answer(report, topic)
+	var answer: String = str((report.get("setup_track_066914", {}) as Dictionary).get(
+		"briefing", "Dados de circuito indisponíveis.")) if topic == "setup" else Engineer3.answer(report, topic)
 	# Previna spam no log, mas permita ver a resposta atual mesmo em pausa.
 	var now: float = float(host.race.clock)
 	var key: String = "%d|%s" % [id, topic]
@@ -1905,7 +1916,8 @@ func _engineer_ask(id: int, topic: String = "plano") -> void:
 	engineer_query_cooldowns[key] = now
 	var question: String = {"plano":"Qual é o plano?", "pneus":"Como estão meus pneus?",
 		"clima":"O que muda com a chuva?", "trafego":"O que acontece se eu parar?",
-		"engenheiro":"Qual é a sua leitura técnica da corrida?"}[topic]
+		"engenheiro":"Qual é a sua leitura técnica da corrida?",
+		"setup":"Qual a recomendação de setup para esta pista?"}[topic]
 	if host.commentary != null:
 		host.commentary.add_team_question(now, question, str(car.get("name", "Piloto")), answer, id)
 	host.race._event("engineer_question", id, "RÁDIO FICTÍCIO | %s: %s" %
