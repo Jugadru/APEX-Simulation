@@ -37,19 +37,21 @@ jobs:
           GH_REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
-          expected_head="45a4895406cb18a9b19998fa3ed22209ea34ae67"
           pr_merged="$(gh api "repos/$GH_REPO/pulls/87" --jq '.merged')"
           pr_head="$(gh api "repos/$GH_REPO/pulls/87" --jq '.head.sha')"
           test "$pr_merged" = 'true' || { echo "::error::PR #87 not merged"; exit 1; }
-          test "$pr_head" = "$expected_head" || { echo "::error::PR #87 head SHA changed since QA"; exit 1; }
-          gate_sha="$(gh api "repos/$GH_REPO/actions/runs/44991312393" --jq '.head_sha')"
-          gate_result="$(gh api "repos/$GH_REPO/actions/runs/44991312393" --jq '.conclusion')"
-          test "$gate_sha" = "$expected_head" || { echo "::error::Gate ran on wrong SHA"; exit 1; }
-          test "$gate_result" = 'success' || { echo "::error::Gate did not pass READY 19/19"; exit 1; }
+          test "$pr_head" != 'null' && test -n "$pr_head" || { echo "::error::PR #87 has no head"; exit 1; }
+          # Query the actual PR HEAD, never a prior QA commit or stale run ID.
+          gate_run="$(gh api "repos/$GH_REPO/actions/workflows/apex-race-quality-final-gate.yml/runs?event=pull_request&head_sha=$pr_head&per_page=100" --jq '[.workflow_runs[] | select(.head_sha == "'${pr_head}'" and .event == "pull_request" and .conclusion == "success")] | sort_by(.created_at) | last | .id')"
+          test -n "$gate_run" && test "$gate_run" != "null" || {
+            echo "::error::No successful READY 19/19 gate for PR #87 exact HEAD $pr_head"; exit 1;
+          }
+          gate_sha="$(gh api "repos/$GH_REPO/actions/runs/$gate_run" --jq '.head_sha')"
+          test "$gate_sha" = "$pr_head" || { echo "::error::Gate SHA mismatch"; exit 1; }
           grep -Fqx 'config/name="APEX Motorsport Manager v0.6.6.9.9 — Core 2"' project.godot
           grep -Fq 'config/description="v0.6.6.9.9:' project.godot
           test -f docs/APEX_RELEASE_v0.6.6.9.9_RACE_QUALITY.md
-          echo "APEX_RELEASE_099_QA_GATE_PASS $expected_head"
+          echo "APEX_RELEASE_099_QA_GATE_PASS $pr_head gate_run=$gate_run"
 
       - name: Instalar Godot 4.7.2 e templates oficiais
         uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c # v3.0.1
@@ -223,7 +225,7 @@ jobs:
           # APEX Motorsport Manager v0.6.6.9.9 — Race Quality Release
 
           GitHub main commit: \`$GITHUB_SHA\`
-          Validated PR: #87 (exact QA head \`45a4895406cb18a9b19998fa3ed22209ea34ae67\`).
+          Validated PR: #87 (exact QA head published at https://github.com/$GH_REPO/pull/87).
           Release gate required: READY 19/19 on the same QA head.
 
           **Downloads:** Windows x86_64 ZIP, Linux x86_64 ZIP, and Godot source ZIP.
