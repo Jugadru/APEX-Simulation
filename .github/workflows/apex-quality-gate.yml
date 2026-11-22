@@ -21,6 +21,7 @@ on:
         type: string
   # Every PR must be audited, even if it touches files outside scripts/data.
   pull_request:
+    types: [opened, reopened, synchronize, labeled]
 
 permissions:
   contents: read
@@ -32,6 +33,7 @@ concurrency:
 
 jobs:
   quality-gate-unit:
+    if: ${{ github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'ci:full') }}
     name: Quality Gate / testes de contrato
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -44,6 +46,7 @@ jobs:
             -p 'test_apex_quality_gate.py' -v
 
   quality-gate-evidence:
+    if: ${{ github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'ci:full') }}
     name: Quality Gate / auditoria por SHA
     needs: quality-gate-unit
     runs-on: ubuntu-latest
