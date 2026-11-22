@@ -46,7 +46,7 @@ godot --headless --path . --script res://tests/pit_queue_prevention_066971_test.
 godot --headless --path . --script res://tests/wet_strategy_06698_test.gd
 ```
 
-Usar ainda os workflows existentes de matriz, endurance, replay, SaveGuard, visuais, benchmarks e exportação. `full` da matriz deve ser executado explicitamente: workflow manual `apex-scenario-matrix-ci.yml` com `profile=full`; o perfil `smoke` de PR cobre só 20 combinações (10 voltas cada), **não** os 180 cenários completos.
+Usar ainda os workflows existentes de matriz, endurance, replay, SaveGuard, visuais, benchmarks e exportação. A branch candidata `qa/v0.6.6.9.9-race-quality` executa automaticamente a matriz `full` de **180 casos × 2 repetições** em PR, por configuração explícita do workflow. Nos demais PRs, o padrão continua `smoke`, com somente 20 combinações (10 voltas cada). Um job enfileirado ou interrompido não equivale a PASS.
 
 ## Bloqueadores de publicação
 
