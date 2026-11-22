@@ -4,6 +4,7 @@ on:
     paths:
       - 'scripts/**'
       - 'tests/strategy_staff_066910_test.gd'
+      - 'tests/ci/apex_strategy_staff_full_gp_066910.gd'
       - 'tests/wet_strategy_06698_test.gd'
       - 'project.godot'
       - '.github/workflows/apex-strategy-staff-ci.yml'
@@ -54,5 +55,45 @@ jobs:
         with:
           name: apex-strategy-staff-066910
           path: ci_artifacts/strategy_staff_066910/
+          retention-days: 14
+          if-no-files-found: warn
+
+  full-gp-strategy-staff:
+    name: Silverstone e Monza / GP completo / staff IA + V21 / determinismo
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Preparar Godot 4.7.2
+        uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c # v3.0.1
+        with:
+          version: 4.7.2-stable
+      - name: Importar projeto
+        run: godot --headless --single-threaded-scene --path . --import
+      - name: Executar quatro GPs completos com dois percursos e sementes fixas
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ci_artifacts/staff_full_gp
+          for scenario in 'GBR|Seco|6610' 'ITA|Variável|6611'; do
+            IFS='|' read -r circuit weather seed <<< "$scenario"
+            log="ci_artifacts/staff_full_gp/${circuit}_${seed}.log"
+            export APEX_TRACK="$circuit" APEX_WEATHER="$weather" APEX_SEED="$seed"
+            timeout 720s godot --headless --single-threaded-scene --path . \
+              --script res://tests/ci/apex_strategy_staff_full_gp_066910.gd \
+              > "$log" 2>&1 || { cat "$log"; exit 1; }
+            grep -Fq 'APEX_STAFF_FULL_GP_PASS' "$log"
+            if grep -Eiq '(SCRIPT ERROR:|Parse Error:|APEX_STAFF_FULL_GP_FAIL)' "$log"; then
+              cat "$log"
+              exit 1
+            fi
+            grep -F 'APEX_STAFF_FULL_GP_PASS' "$log"
+          done
+      - name: Arquivar evidências
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apex-staff-full-gp-066910
+          path: ci_artifacts/staff_full_gp/
           retention-days: 14
           if-no-files-found: warn
