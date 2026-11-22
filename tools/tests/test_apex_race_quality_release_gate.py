@@ -75,8 +75,8 @@ class ReleaseGateContracts(unittest.TestCase):
         runs, jobs = self.evidence()
         report = audit(self.root, SHA, PR, BASE, Stub(runs, jobs))
         self.assertEqual(report["status"], "READY")
-        self.assertEqual(report["passed"], 18)
-        self.assertEqual(report["total"], 18)
+        self.assertEqual(report["passed"], 19)
+        self.assertEqual(report["total"], 19)
 
     def test_missing_one_matrix_shard_blocks(self):
         runs, jobs = self.evidence()
