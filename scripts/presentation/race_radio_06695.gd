@@ -278,3 +278,55 @@ static func choice_response(car: Dictionary, choice: String) -> Dictionary:
 			"Alright. I'll keep pushing."]
 	return _packet(car, kind, {"lap": int(car.get("laps_done", 0))}, "PILOTO",
 		str(lines[int(p["index"])]), int(p["index"]))
+
+# Consultation lines are generated only after DriverMemory or StintDialogue
+# has confirmed a current observation. These are not free-form prompts.
+static func consultation(car: Dictionary, subject: String, context: Dictionary = {}) -> Dictionary:
+	if car.is_empty() or subject not in ["perception", "stint"]:
+		return {}
+	var p: Dictionary = profile(car)
+	var style: int = int(p["index"])
+	var lines: Array = []
+	if subject == "perception":
+		var feeling: float = clampf(float((car.get("driver_soul", {}) as Dictionary).get(
+			"perceived_wear", car.get("wear", 0.0))), 0.0, 100.0)
+		if feeling >= 77.0:
+			lines = ["Tyres are fading.", "I'm running out of grip!",
+				"Grip loss is increasing.", "I'm struggling with the tyres.",
+				"These tyres are costing us."]
+		elif feeling >= 48.0:
+			lines = ["Some wear, still manageable.", "Grip's dropping a bit!",
+				"Tyre response is getting weaker.", "Not as much grip now.",
+				"I can manage, but it's getting harder."]
+		else:
+			lines = ["Tyres feel okay.", "Grip's fine for now!",
+				"Tyres are responding normally.", "Feels reasonably stable.",
+				"Good grip. Let's keep it going."]
+	elif bool(context.get("pit_active", false)):
+		lines = ["Pit call received.", "Copy! Coming in!",
+			"Pit procedure confirmed.", "Understood. Heading to the pits.",
+			"Copy. I'm coming in."]
+	elif bool(context.get("wants_extend", false)):
+		lines = ["I think we can stay out.", "I can do another lap!",
+			"Tyres still have some life. Consider extending.",
+			"Feels possible to stay out a little longer.",
+			"I can keep going. Let's check the window."]
+	else:
+		lines = ["We should check these tyres.", "This isn't working! Check the plan!",
+			"Current tyre behaviour needs reviewing.",
+			"Not comfortable on these tyres. Can we review?",
+			"These tyres aren't helping. Need a plan."]
+	return _packet(car, "consult_" + subject, context, "PILOTO", str(lines[style]), style)
+
+# Low-priority repetition can be silent. Safety and active requests are never
+# filtered here. SoulReactive already gates repeated raw events; this is a
+# second presentation-only guard for chatter around the same completed lap.
+static func should_transmit(packet: Dictionary, previous: Dictionary) -> bool:
+	if packet.is_empty():
+		return false
+	if int(packet.get("priority", 60)) >= 90:
+		return true
+	var kind: String = str(packet.get("intent", ""))
+	if kind not in ["desgaste", "tráfego", "ritmo", "disputa", "temperatura"]:
+		return true
+	return not (str(previous.get("last_pilot_kind", "")) == kind 		and int(packet.get("lap", 0)) - int(previous.get("last_pilot_lap", -100)) < 3)
