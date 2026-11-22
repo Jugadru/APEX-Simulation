@@ -2,12 +2,6 @@ name: APEX - Seguranca Python (Bandit + CodeQL opcional)
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - '.github/scripts/**/*.py'
-      - 'tools/**/*.py'
-      - '.github/workflows/apex-seguranca-python.yml'
 permissions:
   contents: read
 

@@ -19,6 +19,7 @@ ALWAYS = (
 CASES = {
     "ai": ("lap_strategy_06496_auto_gate_test.gd", "AUTO_GATE_06496_PASS"),
     "driver": ("driver_soul_06694_test.gd", "DRIVER_SOUL_06694_PASS"),
+    "traffic": ("driver_traffic_06693_test.gd", "DRIVER_TRAFFIC_06693_PASS"),
     "hud": ("hud_metric_refactor_test.gd", "HUD_METRIC_REFACTOR_PASS"),
     "orders": ("team_orders_066810_test.gd", "TEAM_ORDERS_066810_PASS"),
     "pit": ("pit_coordination_06697_test.gd", "PIT_COORD_06697_PASS"),
@@ -37,6 +38,7 @@ EXACT = {
     "scripts/race_engine.gd": CORE,
     "scripts/core/race_replay_0660.gd": frozenset(("wet", "staff", "prediction", "save", "start", "overtake")),
     "scripts/core/race_space_0655.gd": frozenset(("overtake", "driver", "start")),
+    "scripts/core/race_driver_traffic_06693.gd": frozenset(("traffic", "driver")),
     "scripts/core/race_state_codec_0660.gd": frozenset(("save", "staff", "prediction", "start", "overtake")),
     "scripts/core/race_performance.gd": frozenset(("start", "wet", "driver")),
     "scripts/apex_race_session_controller.gd": frozenset(("ai", "staff", "wet")),
@@ -69,6 +71,7 @@ def categories_for(paths: list[str]) -> set[str]:
             if "setup_track" in name: local.add("setup")
             if "save" in name or "career" in name or "checkpoint" in name: local.add("save")
             if "driver" in name or "soul" in name: local.add("driver")
+            if "traffic" in name: local.add("traffic")
             if "replay" in name or "codec" in name: local.update(("wet", "staff", "prediction"))
             # Unknown Core module gets more tests, not fewer.
             if not local and path.endswith(".gd"): local.update(CASES)

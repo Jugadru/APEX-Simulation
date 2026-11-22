@@ -1,51 +1,55 @@
-# CI do APEX — fluxo leve (a partir de 22/11/2026)
+# APEX — Desenvolvimento FAST permanente
 
-O desenvolvimento do APEX é incremental: um módulo/script por vez, merge rápido
-quando o Godot consegue importar e os testes locais do módulo passam.
+O projeto recebe atualizações pequenas e sequenciais. **FAST é o único ciclo
+automático**: um workflow Godot 4.7.2 em PR e push para main, sem etiquetar
+versões com `ci:full` ou iniciar baterias de homologação.
 
-## Automático: uma única verificação principal
+## FAST
+O arquivo `.github/workflows/godot-setup.yml` faz uma importação real do
+Godot, executa o **APEX Test Lab** (24 carros, clima seco/chuva, hash
+reproduzível, CPU/p95/memória) e os testes direcionados que o diff realmente
+acionar. Os casos são selecionados em `tools/apex_ci_tiers.py` e no
+manifesto `.github/apex-quality-suites.json`. Um erro ou um teste selecionado
+sem PASS permanece uma falha real; não se usa job `skipped` como sucesso.
 
-`.github/workflows/godot-setup.yml` executa em Pull Requests e pushes
-para `main` no modo FAST, independentemente de etiquetas.
+Nos testes básicos de **replay e pit com simulação**, a variável
+`APEX_FAST_LAB=1` escolhe a pista oval LAB. Uma execução manual
+`tier=full` escolhe os cenários históricos originais. Testes dirigidos
+a dados ou a módulos específicos ainda podem consultar características
+de pistas reais quando isso é essencial ao que verificam.
 
-1. Testa o seletor de scripts Python e a existência do projeto.
-2. Importa o projeto real no Godot 4.7.2 (erros de sintaxe bloqueiam).
-3. Executa o APEX Test Lab e invariantes básicos de pit/replay/largada.
-4. Seleciona com `tools/apex_ci_tiers.py` apenas os testes afetados pelo diff
-   (sistemas desconhecidos recebem cobertura FAST ampliada).
-5. Publica um log curto. Nunca declara PASS inventado.
+**Não há circuito inteiro ou matriz de 20/180 corridas no FAST.** Pode existir
+checagem leve de que as 20 pistas reais estejam cadastradas: isso só
+verifica dados e não simula GPs. Alguns regressivos especializados antigos
+podem consultar um circuito real para reproduzir um bug específico; eles
+não integram a matriz e não substituem o Lab como bancada padrão.
 
-**Nada de auditoria de 10/16 provas por SHA, 20 pistas, 180 cenários, endurance,
-capturas, exportação ou comparadores por padrão.** As verificações históricas
-não são apagadas: ficam em Actions > workflow correspondente > Run workflow.
-`ci:full` deixa de disparar homologações automaticamente.
+## Não há um workflow por versão
 
-## Quando usar testes manuais?
+Removidos os workflows de versões 9.3–9.14 e os publicadores fixos de
+releases antigas. **Os scripts de teste históricos foram mantidos** para
+detectar regressões selecionadas pelo subsistema; novos sistemas devem
+adicionar um caso ao seletor/manifesto existente, não mais um workflow com
+nome de versão. O jogo atual inclui sistemas anteriores, mas isso não
+dispensa testar a compatibilidade deles quando o código compartilhado muda.
 
-Se uma alteração apresentar sintomas relevantes, execute o teste apropriado:
-pistas reais para geometry/chuva, SaveGuard para migração, A/B para desempenho,
-export para pacotes finais e endurance para problemas que só aparecem após muitas
-voltas. Isso é uma decisão técnica pontual, não uma barreira obrigatória a cada
-script.
+## Homologação somente sob pedido explícito
 
-O `workflow_dispatch` do Core 2 também oferece `tier=full` para executar
-a suíte ampliada, sem iniciar os outros workflows.
+Disponível manualmente em GitHub Actions, sem disparos automáticos:
 
-## O que não estamos prometendo
+- Core 2: `workflow_dispatch(tier=full)`;
+- Matriz de 20 ou 180 cenários: `apex-scenario-matrix-ci.yml`;
+- Endurance, saves/replays, benchmark, captura, exportação e Quality Gate:
+  seus workflows genéricos, sob demanda.
 
-O Test Lab é uma pista sintética para medir o motor em condições repetíveis.
-Não substitui um GP real quando o problema depende da geometria, nem mede
-FPS na GPU do jogador. Nenhum check opcional que foi pulado conta como PASS.
-`main` continua restaurável por commit/PR e não deve receber mudanças
-com erros conhecidos que o FAST já detectou.
+A homologação não é pré-requisito operacional para alterar scripts ou
+integrar PRs que passaram no FAST. Pode ser pedida antes de um lançamento,
+após mudança esportiva arriscada ou para reproduzir bug concreto.
 
-## Por que mudamos
+## Limitações
 
-A revisão longa da v9.13 aguardou ~70 minutos por evidências que o gate não
-conseguia reconhecer. A 9.14 teve um gate que encerrou antes dos trabalhos
-paralelos. Os quatro grupos da matriz são paralelos e a execução real
-observada durou ~7 minutos; mesmo assim, não faz sentido repeti-la em toda
-mudança pequena.
-
-Preferimos testar e corrigir rapidamente, com resultados reproduzíveis,
-sem transformar cada commit em uma homologação de lançamento.
+O Lab sintético não mede FPS da GPU nem reproduz toda a geometria de Mônaco,
+Silverstone ou as regras de chuva em cada pista real. Se uma falha depender
+desses fatores, usamos uma pista real **apenas naquele teste**, sem exigir
+novamente uma homologação de todo o projeto. Os logs e hashes da CI ficam
+disponíveis para diagnosticar problemas sem aguardar uma hora.
