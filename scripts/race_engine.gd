@@ -21,6 +21,8 @@ var pit_queue_prevention_enabled: bool = true
 var wet_strategy_intelligence_enabled: bool = true
 # Session-only revision 021 switch. Archived races keep the old sporting decisions.
 var strategy_staff_intelligence_enabled: bool = true
+# Session-only replay gate: 021 and earlier keep Improvement 14 launch physics.
+var race_start_intelligence_enabled: bool = true
 const Combat = preload("res://scripts/core/race_combat.gd")
 const Strategy = preload("res://scripts/core/race_strategy.gd")
 const RaceIntelligence = preload("res://scripts/core/race_intelligence_0645.gd")
@@ -667,6 +669,7 @@ func _advance(dt: float) -> void:
 		if attached_session != null:
 			launch_legacy = bool(attached_session.get("legacy_launch_physics"))
 	var context: Dictionary = {"gap": 999.0, "lap": lap, "clock": clock, "launch_enabled": not launch_legacy,
+		"race_start_intelligence_enabled": race_start_intelligence_enabled,
 		"race_laps": lap_count, "base_lap": base_lap,
 		"upgrades": team_upgrades, "player_car": false, "track": track,
 		"tyre_specs": tyre_specs, "tyre_track_severity": tyre_severity(),
