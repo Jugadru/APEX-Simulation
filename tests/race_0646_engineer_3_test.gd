@@ -12,6 +12,23 @@ func require(ok: bool, message: String) -> void:
         errors.append(message)
         printerr("RE3_0646_FAIL " + message)
 
+# Modern replay sessions queue radio annotations for the following sporting
+# tick. Legacy UI tests assumed immediate insertion into race.events.
+# Count both recorded events and replay-pending engineer questions, without
+# suppressing missing, duplicate or excessive radio messages.
+func engineer_question_count(game) -> int:
+    var count: int = 0
+    for event in game.race.events:
+        if str(event.get("type", "")) == "engineer_question":
+            count += 1
+    if game.replay_session != null:
+        for command in game.replay_session.commands:
+            var payload: Array = command.get("payload", [])
+            if str(command.get("type", "")) == "annotation" and payload.size() >= 2 \
+                    and str(payload[1]) == "engineer_question":
+                count += 1
+    return count
+
 func assess(car: Dictionary, advice: Dictionary, mate: Dictionary = {}, weather: Dictionary = {"wetness_factor":0.10}, staff: Dictionary = {"Engenheiro":2, "Estrategista":2}, end: int = 50, entry: int = 5) -> Dictionary:
     return RE3.assess(car, {"can_call_pit": true, "tactic":"MANTER"},
         advice, weather, mate, staff, ["Macio","Médio","Intermediário","Chuva"],
@@ -124,14 +141,14 @@ func _run() -> void:
     var ui_id: int = int(ui_car["id"])
     var pit_before: bool = bool(ui_car.get("pit_request",false))
     var rng_before: int = game.race.rng.state
-    var events_before: int = game.race.events.size()
+    var events_before: int = engineer_question_count(game)
     hud._engineer_ask(ui_id,"clima")
     require(str(hud.engineer_radio_answers[ui_id]).contains("Pista"), "live weather reply displayed")
-    require(game.race.events.size()==events_before+1, "first query generates one radio event")
+    require(engineer_question_count(game)==events_before+1, "first query records one radio event or queued annotation")
     hud._engineer_ask(ui_id,"clima")
-    require(game.race.events.size()==events_before+1, "same-topic spam throttled")
+    require(engineer_question_count(game)==events_before+1, "same-topic spam throttled")
     hud._engineer_ask(ui_id,"trafego")
-    require(game.race.events.size()==events_before+2, "different topic allowed")
+    require(engineer_question_count(game)==events_before+2, "different topic allowed")
     require(bool(ui_car.get("pit_request",false)) == pit_before, "questions never trigger pit")
     require(game.race.rng.state == rng_before, "HUD engineer no RNG")
     hud._engineer_accept_pit(ui_id)

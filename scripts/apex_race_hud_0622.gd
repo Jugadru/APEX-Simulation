@@ -1741,13 +1741,15 @@ func _build_engineer_window() -> void:
 		var ask_tyres := _btn(questions, "PNEUS", _engineer_ask.bind(car_id, "pneus"), 100)
 		var ask_weather := _btn(questions, "CHUVA", _engineer_ask.bind(car_id, "clima"), 100)
 		var ask_traffic := _btn(questions, "TRÁFEGO/BOX", _engineer_ask.bind(car_id, "trafego"), 138)
+		var ask_intelligence := _btn(questions, "ENGENHEIRO IA", _engineer_ask.bind(car_id, "engenheiro"), 147)
 		var response := _text(layout, "", 11, WHITE)
 		response.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		response.hide()
 		engineer_cards.append({"id": car_id, "name": title, "status": status, "text": explanation,
 			"evidence": evidence, "tradeoff": tradeoff, "order": command, "pace": btn_apply,
 			"pit": btn_pit, "ask": btn_ask, "ask_tyres": ask_tyres, "ask_weather": ask_weather,
-			"ask_traffic": ask_traffic, "response": response, "driver_mode": driver_mode})
+			"ask_traffic": ask_traffic, "ask_intelligence":ask_intelligence,
+			"response": response, "driver_mode": driver_mode})
 	_text(overlay_content, "DIÁRIO DO PIT WALL · ALERTAS E DECISÕES", 13, ACCENT)
 	engineer_history_text = RichTextLabel.new()
 	engineer_history_text.bbcode_enabled = false
@@ -1778,6 +1780,10 @@ func _refresh_engineer_window() -> void:
 		if not req.is_empty() and not bool(req.get("answered", false)):
 			(ui["text"] as Label).text += "\nPEDIDO PILOTO: %s (sem executar ordens)" % str(req.get("kind", ""))
 		(ui["evidence"] as Label).text = str(report.get("evidence", "")) + "\n" + str(report.get("thermal_note", "")) + "  " + str(report.get("weather_note", ""))
+		var engineer_intel: Dictionary = report.get("intelligence_066913", {})
+		if not engineer_intel.is_empty():
+			(ui["evidence"] as Label).text += "\nENGENHEIRO 9.13 • %s • %s" % [
+				str(engineer_intel.get("summary", "")), str(engineer_intel.get("strategy_note", ""))]
 		var lap_review: Dictionary = car.get("lap_strategy_06496", {})
 		if not lap_review.is_empty():
 			(ui["evidence"] as Label).text += "\nREVISÃO V%d: %s · %s" % [
@@ -1875,7 +1881,7 @@ func _engineer_accept_pit(id: int) -> void:
 	_update_engineer_reports()
 
 func _engineer_ask(id: int, topic: String = "plano") -> void:
-	if host == null or host.race == null or topic not in ["plano", "pneus", "clima", "trafego"]:
+	if host == null or host.race == null or topic not in ["plano", "pneus", "clima", "trafego", "engenheiro"]:
 		return
 	var car: Dictionary = host._car_by_id(id)
 	if car.is_empty():
@@ -1898,7 +1904,8 @@ func _engineer_ask(id: int, topic: String = "plano") -> void:
 		return
 	engineer_query_cooldowns[key] = now
 	var question: String = {"plano":"Qual é o plano?", "pneus":"Como estão meus pneus?",
-		"clima":"O que muda com a chuva?", "trafego":"O que acontece se eu parar?"}[topic]
+		"clima":"O que muda com a chuva?", "trafego":"O que acontece se eu parar?",
+		"engenheiro":"Qual é a sua leitura técnica da corrida?"}[topic]
 	if host.commentary != null:
 		host.commentary.add_team_question(now, question, str(car.get("name", "Piloto")), answer, id)
 	host.race._event("engineer_question", id, "RÁDIO FICTÍCIO | %s: %s" %

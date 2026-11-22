@@ -81,6 +81,30 @@
           "comparison": false
         }
       ]
+    },
+    {
+      "id": "race_engineer_intelligence_0913",
+      "paths": [
+        "scripts/core/race_engineer_intelligence_066913.gd",
+        "scripts/core/race_engineer_0646.gd",
+        "scripts/apex_race_hud_0622.gd",
+        "tests/engineer_intelligence_066913_test.gd"
+      ],
+      "fast_tests": [
+        {
+          "script": "engineer_intelligence_066913_test.gd",
+          "marker": "ENGINEER_066913_PASS"
+        }
+      ],
+      "checks": [
+        {
+          "key": "race_engineer_targeted_v0913",
+          "workflow": "apex-engineer-ci.yml",
+          "job": "Godot 4.7.2 / real engineer + HUD + V21 + replay 023",
+          "area": "Race Engineer Intelligence 1.0",
+          "comparison": false
+        }
+      ]
     }
   ]
 }
