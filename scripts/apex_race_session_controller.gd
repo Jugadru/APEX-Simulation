@@ -37,6 +37,8 @@ static func _start_race(host) -> void:
 	host.championship_race_active = host.championship_mode
 	host.championship_result_saved = false
 	host.race = RaceScript.new(host.teams, host.selected_team, host.championship.round_seed() if host.championship_race_active else int(host.seed_picker.value), host.garage.get_team(host.selected_team)["levels"], track, host.garage.effective_crew_levels(host.selected_team))
+	# Personnel levels only inform the observer; never influence sporting physics.
+	host.race.prediction_staff = host.garage.effective_staff_levels(host.selected_team).duplicate(true)
 	host.garage.inventory_begin(host.selected_team, {"season": int(host.championship.state.get("serial", 0)), "round": int(host.championship.state.get("round_index", 0)) + 1, "mode": "championship" if host.championship_mode else "single"})
 	if host.championship_race_active:
 		host.race.set_championship_round(int(host.championship.state.get("round_index", 0)))

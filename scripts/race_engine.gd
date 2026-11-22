@@ -16,6 +16,7 @@ const Combat = preload("res://scripts/core/race_combat.gd")
 const Strategy = preload("res://scripts/core/race_strategy.gd")
 const RaceIntelligence = preload("res://scripts/core/race_intelligence_0645.gd")
 const PitWallStrategy3 = preload("res://scripts/core/race_pitwall_strategy_0649.gd")
+const PredictionLedger06696 = preload("res://scripts/core/race_pitwall_prediction_06696.gd")
 const LapStrategy06496 = preload("res://scripts/core/race_lap_reassessment_06496.gd")
 const TeamPitCoordinator06497 = preload("res://scripts/core/race_team_pit_coordination_06497.gd")
 const DriverSoul = preload("res://scripts/core/race_driver_soul_0647.gd")
@@ -121,6 +122,9 @@ var pit_incident_test_overrides: Dictionary = {}
 var pit_history: Array[Dictionary] = []
 # Read-only strategy analysis cached between lap/weather/wear changes.
 var _engineer_advice_cache: Dictionary = {}
+# Session-only observer. Excluded from sporting checkpoints and hashes.
+var prediction_ledger = PredictionLedger06696.new()
+var prediction_staff: Dictionary = {}
 
 func _init(teams_data: Array, player_team: String, seed_value: int, levels: Dictionary, track_payload: Dictionary = {}, trained_crew: Dictionary = {}) -> void:
 	teams = teams_data
@@ -457,6 +461,19 @@ func _next_pit_entry_lap(car: Dictionary) -> int:
 		return current + 1
 	return current
 
+# Record the staff's advice/confirmed player order before any pit mutation.
+# This is advisory-only; all commands still flow through existing gates.
+func _prediction_offer(car: Dictionary, target: String, target_lap: int,
+		source: String, analysis: Dictionary = {}) -> void:
+	if str(car.get("team", "")) != team_name or not available_pit_compounds().has(target):
+		return
+	if target_lap <= 0 or target_lap >= lap_count:
+		return
+	var facts: Dictionary = analysis if not analysis.is_empty() else _build_strategy_plan(car, _team_pit_busy(car))
+	prediction_ledger.capture_decision(car, cars, facts, weather_snapshot(),
+		tyre_specs, prediction_staff, pit_loss, base_lap, PIT_TRACK_FRACTION,
+		tick_counter, clock, target_lap, target, source)
+
 func schedule_pit(car_id: int, target: String, target_lap: int) -> bool:
 	if command_session != null and command_session.get_ref() != null and not command_session.get_ref().applying:
 		return command_session.get_ref().enqueue("schedule_pit", [car_id, target, target_lap])
@@ -473,6 +490,7 @@ func schedule_pit(car_id: int, target: String, target_lap: int) -> bool:
 		if target_lap < _next_pit_entry_lap(car) or target_lap >= lap_count:
 			_event("radio", car_id, "BOX: volta %d indisponível. Próxima entrada possível: V%d." % [target_lap, _next_pit_entry_lap(car)], 50)
 			return false
+		_prediction_offer(car, target, target_lap, "agendamento_manual")
 		car["pit_scheduled_lap"] = target_lap
 		car["pit_target"] = target
 		car["pit_order_source"] = "agendamento_manual"
@@ -488,6 +506,7 @@ func cancel_scheduled_pit(car_id: int) -> bool:
 	for car in player_cars():
 		if int(car["id"]) == car_id and int(car.get("pit_scheduled_lap", 0)) > 0:
 			var old_lap: int = int(car["pit_scheduled_lap"])
+			prediction_ledger.cancel_decision(car_id, old_lap)
 			car["pit_scheduled_lap"] = 0
 			car["pit_order_source"] = ""
 			_engineer_advice_cache.erase(car_id)
@@ -522,6 +541,9 @@ func order_pit(car_id: int, target: String) -> void:
 			if bool(car.get("finished", false)) or float(car.get("pit_left", 0.0)) > 0.0 or bool(car.get("pit_request", false)) or _next_pit_entry_lap(car) >= lap_count:
 				return
 			var previous_schedule: int = int(car.get("pit_scheduled_lap", 0))
+			if previous_schedule > 0:
+				prediction_ledger.cancel_decision(car_id, previous_schedule)
+			_prediction_offer(car, target, _next_pit_entry_lap(car), "ordem_imediata")
 			car["pit_scheduled_lap"] = 0
 			car["pit_request"] = true
 			car["pit_target"] = target
@@ -787,6 +809,7 @@ func _advance(dt: float) -> void:
 				_event("classification", int(car["id"]), "%s: classificado sem cruzamento apos limite de encerramento." % str(car["name"]), 55)
 		finished = true
 		running = false
+		prediction_ledger.close_unfinished()
 		_finalize_classification()
 
 func get_pit_crew_effects() -> Dictionary:
@@ -804,6 +827,11 @@ func _crew_bonus_for(car: Dictionary) -> Dictionary:
 		"fault_chance": PIT_GUN_FAILURE_CHANCE, "unsafe_chance": PIT_UNSAFE_RELEASE_CHANCE}
 
 func _begin_pit(car: Dictionary, entry_progress: float) -> void:
+	# Freeze the forecast at commitment, BEFORE mutations or RNG pit incidents.
+	# Does not schedule, cancel or change the stop.
+	prediction_ledger.capture_entry(car, cars, _build_strategy_plan(car, _team_pit_busy(car)),
+		weather_snapshot(), tyre_specs, prediction_staff if str(car.get("team", "")) == team_name else {},
+		pit_loss, base_lap, PIT_TRACK_FRACTION, tick_counter, clock)
 	car["kers_active"] = false
 	car["kers_power_kw"] = 0.0
 	car["drs_active"] = false
@@ -974,8 +1002,15 @@ func _record_pit_history(car: Dictionary) -> void:
 		"crew_agility": int(crew_levels.get("Agilidade", 0)) if car["team"] == team_name else 0,
 		"crew_coordination": int(crew_levels.get("Coordenação", 0)) if car["team"] == team_name else 0
 	})
+	prediction_ledger.observe_exit(pit_history[-1], base_lap, PIT_TRACK_FRACTION, cars)
 	if telemetry != null:
 		telemetry.record_pit(pit_history[-1])
+
+func get_prediction_ledger(team_filter: String = "") -> Array:
+	return prediction_ledger.snapshot(team_filter)
+
+func get_prediction_summary(team_filter: String = "") -> Dictionary:
+	return prediction_ledger.summary(team_filter)
 
 func get_pit_history(team_filter: String = "") -> Array:
 	var result: Array = []
@@ -1063,6 +1098,8 @@ func _record_lap_cross(car: Dictionary, previous: float, choose_ai_strategy: boo
 		car["invalid_lap_count"] = int(car.get("invalid_lap_count", 0)) + 1
 		_event("timing_invalid", int(car["id"]), "TIMING | %s: passagem %.2fs ignorada no recorde (limite de plausibilidade)." % [str(car["name"]), lap_time], 29)
 	car["lap_started"] = clock
+	# Observed tyre/pace/weather series is orthogonal to the sporting state.
+	prediction_ledger.observe_lap(car, weather_snapshot(), cars, base_lap)
 	# Apex Soul 2.0 observes teammate pace and position once per completed lap.
 	# No race order or timing/physics value is modified.
 	var soul_teammate: Dictionary = {}
@@ -1093,6 +1130,11 @@ func _record_lap_cross(car: Dictionary, previous: float, choose_ai_strategy: boo
 		while history.size() > 16:
 			history.pop_front()
 		car["lap_strategy_history_06496"] = history
+		# Consultative suggestions also get a real issue-time record, even if ignored.
+		if str(car.get("team", "")) == team_name and bool(baseline.get("pit_now", false)) \
+				and int(car.get("pit_scheduled_lap", 0)) == 0 and not bool(car.get("pit_request", false)):
+			_prediction_offer(car, str(baseline.get("compound", "")),
+				_next_pit_entry_lap(car), "pitwall_advice", baseline)
 		# Eventos só para mudanças de recomendação da equipe do usuário.
 		if str(car.get("team", "")) == team_name and str(previous_review.get("action", "")) != str(review["action"]):
 			_event("strategy_review", int(car["id"]),
@@ -1256,6 +1298,8 @@ func _request_ai_pit(car: Dictionary, urgent: bool = false) -> void:
 	if lap_count - int(car.get("laps_done", 0)) < 2:
 		if Perf.enabled: Perf.end(&"ai.pit_decision",perf_started)
 		return
+	_prediction_offer(car, target_tire, _next_pit_entry_lap(car),
+		"ia_urgencia" if urgent else "ia_estrategia", recommendation)
 	car["pit_request"] = true
 	car["pit_target"] = target_tire
 	car["pit_order_source"] = "ia_urgencia" if urgent else "ia_estrategia"
