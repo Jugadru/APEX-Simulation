@@ -48,6 +48,7 @@ jobs:
           run_test team_pit_06497_integration_test.gd INTEGRATION_06497_PASS
           run_test pit_incidents_double_stack_test.gd "APEX INCIDENT DOUBLE STACK OK"
           run_test pitwall_prediction_06696_test.gd PITWALL_LEDGER_06696_PASS
+          run_test driver_soul_06694_test.gd DRIVER_SOUL_06694_PASS
           run_test pitwall_0649_strategy_test.gd PITWALL_0649_STRATEGY_PASS
       - name: Arquivar logs
         if: always()
