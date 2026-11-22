@@ -32,7 +32,7 @@ jobs:
     strategy:
       fail-fast: false
       # Avoid four simultaneous Godot release downloads on cold runners.
-      max-parallel: 2
+      max-parallel: ${{ inputs.profile == 'full' && 2 || 4 }}
       matrix:
         shard: [0, 1, 2, 3]
     env:

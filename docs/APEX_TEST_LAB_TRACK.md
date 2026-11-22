@@ -13,3 +13,27 @@ FULL-20, FULL-180, Mônaco, Silverstone, replays longos, comparações A/B e
 resistência em GPs completos. O atraso de ~70 minutos observado no Gate
 9.13 veio do polling de evidências inválidas e foi tratado no PR #99,
 independentemente desta fixture.
+
+## Perfilador de desempenho 2.0 (CPU headless)
+
+O novo `tests/apex_lab_performance_probe.gd` usa **24 carros reais do Core 2**
+no mesmo circuito sintético isolado, em 30 voltas de configuração de stress
+(sem integrar o calendário). Executa `500 ticks x 2 repetições x 2 climas`
+com seed fixa e coleta **custo médio por tick, p95, máximo, blocos inicial/final,
+memória estática observada e segundos simulados por segundo de parede**.
+Compara o hash esportivo entre as duas repetições de cada clima e reprova
+nondeterminismo; não reprova por pequenas oscilações de CPU do runner.
+
+O relatório validado por `tools/apex_lab_perf_report.py` é exportado como
+artefato e resumo do Core CI, tanto em FAST como FULL, **sem mais um download
+do Godot**. O perfilador mede CPU headless, não GPU, VRAM, FPS real ou
+desempenho do computador do jogador. Benchmark A/B independente continua
+necessário para regressões de custo entre commits.
+
+### Otimização da matriz
+
+No perfil de 20 pistas, os quatro shards agora podem executar em paralelo.
+O perfil ampliado de 180 cenários conserva no máximo dois simultâneos para
+limitar a pressão no runner. Nenhuma pista, hash, repetição, pit ou modo
+manual/assistido/IA foi removido. A avaliação FULL continua obrigatória
+para alterações esportivas críticas e releases que exigem cobertura 2012.
