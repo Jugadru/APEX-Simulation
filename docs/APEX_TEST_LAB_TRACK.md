@@ -37,3 +37,10 @@ O perfil ampliado de 180 cenários conserva no máximo dois simultâneos para
 limitar a pressão no runner. Nenhuma pista, hash, repetição, pit ou modo
 manual/assistido/IA foi removido. A avaliação FULL continua obrigatória
 para alterações esportivas críticas e releases que exigem cobertura 2012.
+
+## Política FAST permanente
+
+O Lab é o cenário sintético automático padrão em cada PR. A matriz 2012 e
+homologações históricas agora só são acionadas quando solicitadas.
+Os arquivos de testes antigos não são apagados; o seletor único de
+subsistemas reaproveita os que realmente se aplicam à alteração.

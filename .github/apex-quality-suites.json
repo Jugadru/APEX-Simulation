@@ -72,15 +72,7 @@
           "marker": "OVERTAKING_066912_PASS"
         }
       ],
-      "checks": [
-        {
-          "key": "overtaking_targeted_v0912",
-          "workflow": "apex-overtaking-ci.yml",
-          "job": "Godot 4.7.2 / lane decisions / 022-023 replay / V21",
-          "area": "Overtaking Intelligence 1.0",
-          "comparison": false
-        }
-      ]
+      "checks": []
     },
     {
       "id": "race_engineer_intelligence_0913",
@@ -96,15 +88,7 @@
           "marker": "ENGINEER_066913_PASS"
         }
       ],
-      "checks": [
-        {
-          "key": "race_engineer_targeted_v0913",
-          "workflow": "apex-engineer-ci.yml",
-          "job": "Godot 4.7.2 / real engineer + HUD + V21 + replay 023",
-          "area": "Race Engineer Intelligence 1.0",
-          "comparison": false
-        }
-      ]
+      "checks": []
     },
     {
       "id": "setup_track_knowledge_0914",
@@ -119,15 +103,7 @@
           "marker": "SETUP_TRACK_066914_PASS"
         }
       ],
-      "checks": [
-        {
-          "key": "setup_track_targeted_v0914",
-          "workflow": "apex-setup-track-ci.yml",
-          "job": "Godot 4.7.2 / 20 tracks / wet / V21 / HUD",
-          "area": "Setup & Track Knowledge 1.0",
-          "comparison": false
-        }
-      ]
+      "checks": []
     }
   ]
 }

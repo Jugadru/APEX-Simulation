@@ -51,6 +51,20 @@ class SmartCITests(unittest.TestCase):
             (root / "tests" / CASES["save"][0]).touch()
             self.assertIn(CASES["save"], select(["scripts/core/race_state_codec_0660.gd"], root))
 
+    def test_driver_traffic_is_selected_without_separate_version_workflow(self):
+        from apex_ci_tiers import categories_for
+        self.assertIn("traffic", categories_for(["scripts/core/race_driver_traffic_06693.gd"]))
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "tests").mkdir()
+            (root / "tests" / CASES["traffic"][0]).touch()
+            self.assertIn(CASES["traffic"],
+                          select(["scripts/core/race_driver_traffic_06693.gd"], root))
+
+    def test_fast_always_includes_real_lab(self):
+        self.assertIn(("apex_lab_track_smoke.gd", "APEX_LAB_TRACK_PASS"), ALWAYS)
+        self.assertIn(("apex_lab_performance_probe.gd", "APEX_LAB_PERF_PASS"), ALWAYS)
+
     def test_invalid_git_identity_rejected(self):
         with self.assertRaises(ValueError):
             changed_files(Path("."), "main", "a" * 40)
