@@ -1002,7 +1002,7 @@ func _record_pit_history(car: Dictionary) -> void:
 		"crew_agility": int(crew_levels.get("Agilidade", 0)) if car["team"] == team_name else 0,
 		"crew_coordination": int(crew_levels.get("Coordenação", 0)) if car["team"] == team_name else 0
 	})
-	prediction_ledger.observe_exit(pit_history[-1], base_lap, PIT_TRACK_FRACTION)
+	prediction_ledger.observe_exit(pit_history[-1], base_lap, PIT_TRACK_FRACTION, cars)
 	if telemetry != null:
 		telemetry.record_pit(pit_history[-1])
 
@@ -1099,7 +1099,7 @@ func _record_lap_cross(car: Dictionary, previous: float, choose_ai_strategy: boo
 		_event("timing_invalid", int(car["id"]), "TIMING | %s: passagem %.2fs ignorada no recorde (limite de plausibilidade)." % [str(car["name"]), lap_time], 29)
 	car["lap_started"] = clock
 	# Observed tyre/pace/weather series is orthogonal to the sporting state.
-	prediction_ledger.observe_lap(car, weather_snapshot())
+	prediction_ledger.observe_lap(car, weather_snapshot(), cars, base_lap)
 	# Apex Soul 2.0 observes teammate pace and position once per completed lap.
 	# No race order or timing/physics value is modified.
 	var soul_teammate: Dictionary = {}
