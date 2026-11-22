@@ -105,6 +105,7 @@ var engineer_reports: Dictionary = {}
 var engineer_cards: Array = []
 var pitwall3_cards: Array = []
 var pitwall3_feedback: Label
+var pitwall3_ledger_label: Label
 var dynamic_graph_data = StrategyGraphData06498.new()
 var dynamic_chart_views: Array = []
 var dynamic_garage_status: Label
@@ -1841,12 +1842,15 @@ func _build_pitwall3_window() -> void:
 			"scenarios":scenarios, "notes":notes, "schedule":schedule,
 			"extend":extend, "accept":accept})
 	_text(overlay_content, "AGENDAR altera a estratégia somente após o clique. Os dois botões recusam conflito direto de volta com o companheiro. Para alterar uma ordem existente, use ESTRATÉGIA e confirme o cancelamento/agendamento.", 11, MUTED).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	pitwall3_ledger_label = _text(overlay_content, "PREDICTION LEDGER 1.0 · aguardando paradas verificáveis", 11, SOUL_ACCENT)
+	pitwall3_ledger_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_refresh_pitwall3_window()
 
 func _refresh_pitwall3_window() -> void:
 	if host == null or host.race == null or active_window != "pitwall3":
 		return
 	var players: Array = host.race.player_cars()
+	_refresh_prediction_ledger()
 	for ui in pitwall3_cards:
 		var id: int = int(ui["id"])
 		var car: Dictionary = host._car_by_id(id)
@@ -1890,6 +1894,41 @@ func _refresh_pitwall3_window() -> void:
 			entry+1, int(host.race.lap_count))
 		var confirmed: Dictionary = engineer_reports.get(id, {})
 		(ui["accept"] as Button).disabled = driver_mode == "Automático" or not bool(confirmed.get("can_call_pit", false)) or bool(report.get("team_overlap", false))
+
+func _refresh_prediction_ledger() -> void:
+	if pitwall3_ledger_label == null or host == null or host.race == null:
+		return
+	var history: Array = host.race.get_prediction_ledger(host.selected_team)
+	var summary: Dictionary = host.race.get_prediction_summary(host.selected_team)
+	var lines: Array[String] = ["PREDICTION LEDGER 1.0 · %d registros / %d pits verificados" % [
+		int(summary.get("total", 0)), int(summary.get("verified_pits", 0))]]
+	if int(summary.get("verified_pits", 0)) > 0:
+		lines.append("ERRO ABSOLUTO MÉDIO · perda de pit %.2fs · posição %.2f" % [
+			float(summary.get("mae_loss_s", 0.0)), float(summary.get("mae_position", 0.0))])
+	for index in range(maxi(0, history.size() - 4), history.size()):
+		var record: Dictionary = history[index]
+		var title: String = "V%d %s → %s | prevê P%d, %.1fs líquidos" % [
+			int(record.get("track_lap", 0)), str(record.get("driver", "")),
+			str(record.get("compound_after", "?")), int(record.get("predicted_position", 0)),
+			float(record.get("predicted_net_loss_s", 0.0))]
+		if bool(record.get("pit_verified", false)):
+			title += " | real P%d, %.1fs (erro %+.1fs)" % [
+				int(record.get("actual_position", 0)), float(record.get("actual_net_loss_s", 0.0)),
+				float(record.get("pit_loss_error_s", 0.0))]
+		else:
+			title += " | aguardando saída do box"
+		lines.append(title)
+		if str(record.get("status", "")) == "COMPLETE":
+			var wear_text: String = "%.0f%% previsto / %.0f%% real" % [
+				float(record.get("predicted_wear_5", -1.0)), float(record.get("actual_wear_5", -1.0))] if float(record.get("predicted_wear_5", -1.0)) >= 0.0 else "previsão indisponível"
+			lines.append("  PNEUS 5V: %s · CLIMA 3V: %s" % [
+				wear_text, ("%.0f%% previsto / %.0f%% real" % [
+					100.0 * float(record.get("predicted_water_3", 0.0)),
+					100.0 * float(record.get("actual_water_3", 0.0))]) if bool(record.get("weather_verified", false)) else "não verificado"])
+		var reasons: Array = record.get("reasons", [])
+		if not reasons.is_empty():
+			lines.append("  MOTIVOS / LIMITAÇÕES: %s" % "; ".join(reasons))
+	pitwall3_ledger_label.text = "\n".join(lines)
 
 func _pitwall3_schedule(id: int, offset: int) -> void:
 	if host == null or host.race == null or offset not in [0, 1]:
