@@ -33,7 +33,6 @@ concurrency:
 
 jobs:
   quality-gate-unit:
-    if: ${{ github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'ci:full') }}
     name: Quality Gate / testes de contrato
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -80,12 +79,16 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p ci_artifacts/quality_gate
+          TRUSTED_ARGS=()
+          if grep -Fq -- '--trusted-project' gate/tools/apex_quality_gate.py; then
+            TRUSTED_ARGS=(--trusted-project gate)
+          fi
           if [[ "$APEX_AUTOMATED_FULL" != "true" ]]; then
             python3 gate/tools/apex_quality_gate.py \
               --repository "$GITHUB_REPOSITORY" --sha "$APEX_TARGET_SHA" \
               --mode "$APEX_MODE" --wait-seconds 90 \
               --pr-number "$APEX_PR_NUMBER" --base-sha "$APEX_BASE_SHA" \
-              --project candidate --trusted-project gate --output ci_artifacts/quality_gate
+              --project candidate "${TRUSTED_ARGS[@]}" --output ci_artifacts/quality_gate
             exit 0
           fi
           # The reliable FULL gate polls only once per minute to limit API calls,
@@ -95,7 +98,7 @@ jobs:
               --repository "$GITHUB_REPOSITORY" --sha "$APEX_TARGET_SHA" \
               --mode audit --wait-seconds 0 \
               --pr-number "$APEX_PR_NUMBER" --base-sha "$APEX_BASE_SHA" \
-              --project candidate --trusted-project gate --output ci_artifacts/quality_gate
+              --project candidate "${TRUSTED_ARGS[@]}" --output ci_artifacts/quality_gate
             verdict=$(python3 - <<'PY'
           import json
           from pathlib import Path
