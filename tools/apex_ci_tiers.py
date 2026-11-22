@@ -27,9 +27,10 @@ CASES = {
     "start": ("race_start_066911_test.gd", "RACE_START_066911_PASS"),
     "overtake": ("overtaking_066912_test.gd", "OVERTAKING_066912_PASS"),
     "engineer": ("engineer_intelligence_066913_test.gd", "ENGINEER_066913_PASS"),
+    "setup": ("setup_track_066914_test.gd", "SETUP_TRACK_066914_PASS"),
     "wet": ("wet_strategy_06698_test.gd", "WET_STRATEGY_06698_PASS"),
 }
-CORE = frozenset(("ai", "pit", "wet", "orders", "staff", "start", "overtake", "engineer"))
+CORE = frozenset(("ai", "pit", "wet", "orders", "staff", "start", "overtake", "engineer", "setup"))
 EXACT = {
     "scripts/race_engine.gd": CORE,
     "scripts/core/race_replay_0660.gd": frozenset(("wet", "staff", "prediction", "save", "start", "overtake")),
@@ -37,7 +38,7 @@ EXACT = {
     "scripts/core/race_state_codec_0660.gd": frozenset(("save", "staff", "prediction", "start", "overtake")),
     "scripts/core/race_performance.gd": frozenset(("start", "wet", "driver")),
     "scripts/apex_race_session_controller.gd": frozenset(("ai", "staff", "wet")),
-    "scripts/apex_race_hud_0622.gd": frozenset(("hud", "staff", "engineer")),
+    "scripts/apex_race_hud_0622.gd": frozenset(("hud", "staff", "engineer", "setup")),
     "data/season_2012.json": frozenset(("ai", "pit", "wet")),
     "data/tyres_2012.json": frozenset(("ai", "pit", "wet")),
 }
@@ -63,6 +64,7 @@ def categories_for(paths: list[str]) -> set[str]:
             if "pit" in name: local.update(("pit", "prediction"))
             if "radio" in name: local.add("radio")
             if "engineer" in name: local.add("engineer")
+            if "setup_track" in name: local.add("setup")
             if "save" in name or "career" in name or "checkpoint" in name: local.add("save")
             if "driver" in name or "soul" in name: local.add("driver")
             if "replay" in name or "codec" in name: local.update(("wet", "staff", "prediction"))

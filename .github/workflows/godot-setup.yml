@@ -103,6 +103,7 @@ jobs:
             'race_start_066911_test.gd|RACE_START_066911_PASS'
             'overtaking_066912_test.gd|OVERTAKING_066912_PASS'
             'engineer_intelligence_066913_test.gd|ENGINEER_066913_PASS'
+            'setup_track_066914_test.gd|SETUP_TRACK_066914_PASS'
             'weather_setup_15_test.gd|WEATHER_SETUP_15_PASS'
             'standings_refactor_test.gd|STANDINGS_REFACTOR_PASS'
             'hud_metric_refactor_test.gd|HUD_METRIC_REFACTOR_PASS'
