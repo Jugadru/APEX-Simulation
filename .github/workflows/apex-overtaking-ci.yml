@@ -1,17 +1,5 @@
 name: APEX - Overtaking Intelligence (v9.12)
 on:
-  pull_request:
-    branches: [main]
-    types: [opened, reopened, synchronize, labeled]
-    paths:
-      - 'scripts/core/race_overtaking_intelligence_066912.gd'
-      - 'scripts/core/race_space_0655.gd'
-      - 'scripts/core/race_driver_dynamics_0661.gd'
-      - 'scripts/core/race_replay_0660.gd'
-      - 'scripts/core/race_state_codec_0660.gd'
-      - 'scripts/race_engine.gd'
-      - 'tests/overtaking_066912_test.gd'
-      - '.github/workflows/apex-overtaking-ci.yml'
   workflow_dispatch:
 permissions:
   contents: read

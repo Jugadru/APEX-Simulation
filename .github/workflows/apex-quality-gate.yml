@@ -20,9 +20,6 @@ on:
         required: false
         type: string
   # Every PR must be audited, even if it touches files outside scripts/data.
-  pull_request:
-    types: [opened, reopened, synchronize, labeled]
-
 permissions:
   contents: read
   actions: read

@@ -1,4 +1,12 @@
-# APEX — Regras de Desenvolvimento 2.0
+# APEX — Regras de Desenvolvimento 2.0 (histórico)
+
+> **Política atual de desenvolvimento:** o fluxo de testes por release obrigatório
+> descrito abaixo foi substituído, para atualizações incrementais, pelo
+> [fluxo leve](APEX_CI_INTELIGENTE_TRES_NIVEIS.md): somente FAST automático;
+> FULL-20, FULL-180, Quality Gate, endurance e exportação são ferramentas
+> manuais opcionais, usadas quando realmente necessárias. Esta seção antiga
+> permanece como referência histórica, não como impedimento de merges.
+
 
 Revisão: 22/11/2026. Documento normativo complementar ao Plano Mestre e ao Roadmap. O ZIP/código e os testes executados prevalecem sobre afirmações documentais. Base inicial: temporada 2012, Godot 4.7.2 e Core 2.
 

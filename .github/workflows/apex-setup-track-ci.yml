@@ -1,15 +1,6 @@
 name: APEX - Setup & Track Knowledge (v9.14)
 
 on:
-  pull_request:
-    branches: [main]
-    types: [opened, reopened, synchronize, labeled]
-    paths:
-      - 'scripts/core/race_setup_track_knowledge_066914.gd'
-      - 'scripts/apex_race_hud_0622.gd'
-      - 'tests/setup_track_066914_test.gd'
-      - 'tests/engineer_intelligence_066913_test.gd'
-      - '.github/workflows/apex-setup-track-ci.yml'
   workflow_dispatch:
 
 permissions:

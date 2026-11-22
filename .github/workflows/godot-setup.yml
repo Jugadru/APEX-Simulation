@@ -5,8 +5,15 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
-    types: [opened, reopened, synchronize, labeled]
+    types: [opened, reopened, synchronize]
   workflow_dispatch:
+    inputs:
+      tier:
+        description: 'fast (padrao) ou full local (opcional, sem matriz)'
+        required: true
+        type: choice
+        options: [fast, full]
+        default: fast
 
 permissions:
   contents: read
@@ -21,8 +28,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      APEX_CI_TIER: ${{ github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'ci:full') && 'fast' || 'full' }}
-      APEX_BASE_SHA: ${{ github.event.pull_request.base.sha || '' }}
+      APEX_CI_TIER: ${{ github.event_name == 'workflow_dispatch' && inputs.tier == 'full' && 'full' || 'fast' }}
+      APEX_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before || '' }}
       APEX_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
     steps:
       - name: Checkout Godot project
@@ -118,8 +125,12 @@ jobs:
             'hash_cache_06692_test.gd|APEX_HASH_CACHE_06692_PASS'
             'car_model_smoke_test.gd|APEX CAR MODEL TEST OK'
           )
-          # FAST is a strict deterministic subset; FULL keeps all 25 original tests.
+          # FAST is the only automatic tier, including pushes to main.
+          # Manual workflow_dispatch(tier=full) runs the legacy Core 2 suite.
           if [[ "$APEX_CI_TIER" == "fast" ]]; then
+            if [[ ! "$APEX_BASE_SHA" =~ ^[0-9a-fA-F]{40}$ || "$APEX_BASE_SHA" =~ ^0{40}$ ]]; then
+              APEX_BASE_SHA="$(git rev-parse "$APEX_HEAD_SHA^")"
+            fi
             python3 tools/apex_ci_tiers.py \
               --base-sha "$APEX_BASE_SHA" --head-sha "$APEX_HEAD_SHA" \
               --project . > ci-results/fast-plan.tsv

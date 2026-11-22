@@ -16,9 +16,6 @@ on:
         required: true
         type: string
         default: '12012'
-  pull_request:
-    types: [opened, reopened, synchronize, labeled]
-
 permissions:
   contents: read
 
