@@ -8,6 +8,7 @@ on:
       - 'scripts/core/race_engineer_0646.gd'
       - 'scripts/apex_race_hud_0622.gd'
       - 'tests/engineer_intelligence_066913_test.gd'
+      - 'tests/race_0646_engineer_3_test.gd'
       - '.github/workflows/apex-engineer-ci.yml'
   workflow_dispatch:
 permissions:
