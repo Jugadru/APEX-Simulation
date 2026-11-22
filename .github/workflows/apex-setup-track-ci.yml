@@ -27,6 +27,14 @@ jobs:
         uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c # v3.0.1
         with:
           version: 4.7.2-stable
+      - name: Diagnosticar sintaxe dos scripts alterados
+        shell: bash
+        run: |
+          set -euo pipefail
+          godot --headless --single-threaded-scene --path . \
+            --script res://scripts/core/race_setup_track_knowledge_066914.gd --check-only
+          godot --headless --single-threaded-scene --path . \
+            --script res://scripts/apex_race_hud_0622.gd --check-only
       - name: Importar projeto real
         shell: bash
         run: |
