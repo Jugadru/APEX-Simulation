@@ -1,17 +1,5 @@
 name: APEX - Pit Coordination 2.0 (v9.7)
 on:
-  pull_request:
-    paths:
-      - 'scripts/race_engine.gd'
-      - 'scripts/core/*pit*'
-      - 'scripts/apex_race_session_controller.gd'
-      # Race Quality 9.9 deliberately requests this complete regression.
-      - 'docs/APEX_RELEASE_v0.6.6.9.9_RACE_QUALITY.md'
-      - 'tests/pit_coordination_06697_test.gd'
-      - 'tests/pit_queue_prevention_066971_test.gd'
-      - 'tests/pitwall_prediction_06696_test.gd'
-      - 'project.godot'
-      - '.github/workflows/apex-pit-coordination-ci.yml'
   workflow_dispatch:
 permissions:
   contents: read

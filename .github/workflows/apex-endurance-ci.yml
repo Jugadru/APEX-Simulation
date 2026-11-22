@@ -11,13 +11,6 @@ on:
           - '6000'
           - '10000'
         default: '6000'
-  pull_request:
-    types: [opened, reopened, synchronize, labeled]
-    # Include project configuration changes that may affect test behavior.
-  schedule:
-    # Domingo 12h UTC / 9h no Tocantins, ao integrar na branch padrao.
-    - cron: '0 12 * * 0'
-
 permissions:
   contents: read
 

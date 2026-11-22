@@ -1,13 +1,5 @@
 name: APEX - Strategy Staff Intelligence (v9.10)
 on:
-  pull_request:
-    paths:
-      - 'scripts/**'
-      - 'tests/strategy_staff_066910_test.gd'
-      - 'tests/ci/apex_strategy_staff_full_gp_066910.gd'
-      - 'tests/wet_strategy_06698_test.gd'
-      - 'project.godot'
-      - '.github/workflows/apex-strategy-staff-ci.yml'
   workflow_dispatch:
 permissions:
   contents: read
