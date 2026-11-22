@@ -48,7 +48,9 @@ jobs:
       matrix:
         shard: [0, 1, 2, 3]
     env:
-      APEX_MATRIX_PROFILE: ${{ inputs.profile || 'smoke' }}
+      # Explicit v9.9 release candidate runs 180 scenarios x 2 repetitions.
+      # Other PRs retain the lighter 20-track rotating smoke profile.
+      APEX_MATRIX_PROFILE: ${{ inputs.profile || (github.head_ref == 'qa/v0.6.6.9.9-race-quality' && 'full' || 'smoke') }}
       APEX_MATRIX_SEED_BASE: ${{ inputs.seed_base || '12012' }}
 
     steps:
