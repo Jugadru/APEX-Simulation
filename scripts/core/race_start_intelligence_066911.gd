@@ -6,6 +6,7 @@ extends RefCounted
 ## Historical 021 and older races still use race_launch_14.gd unchanged.
 
 const LegacyLaunch = preload("res://scripts/core/race_launch_14.gd")
+const Space = preload("res://scripts/core/race_space_0655.gd")
 const TyreThermal = preload("res://scripts/core/race_tyre_thermal.gd")
 const PHASE_SECONDS: float = LegacyLaunch.PHASE_SECONDS
 
@@ -20,7 +21,17 @@ static func reaction_seconds(car: Dictionary) -> float:
 			(1.0 - confidence) * 0.060 -
 			(risk - 55.0) * 0.0008, 0.16, 0.48)
 
-static func pace_cost(car: Dictionary, elapsed_s: float, weather: Dictionary) -> float:
+## Track-based mitigation for narrow first corners. The same first-sector
+## geometry already constrains RaceSpace; no circuit name is hard-coded.
+## Suppress only v9.11's incremental variation, not existing launch physics.
+static func first_sector_clearance(track: Dictionary, shape: Dictionary) -> float:
+	var narrowest: float = Space.MAX_LANE
+	for index in range(17):
+		narrowest = minf(narrowest, Space.lane_limit(track, float(index) * 0.01, shape))
+	return clampf((narrowest - 1.70) / 0.40, 0.0, 1.0)
+
+static func pace_cost(car: Dictionary, elapsed_s: float, weather: Dictionary,
+		clearance: float = 1.0) -> float:
 	if elapsed_s < 0.0 or elapsed_s >= PHASE_SECONDS:
 		return 0.0
 	var wet: float = clampf(float(weather.get("wetness_factor", 0.0)), 0.0, 1.0)
@@ -45,4 +56,4 @@ static func pace_cost(car: Dictionary, elapsed_s: float, weather: Dictionary) ->
 	var wheelspin: float = maxf(0.0, risk - 55.0) * (0.008 + wet * 0.016)
 	var traction_delta: float = (cold * 0.50 +
 			maxf(0.0, 1.0 - grip) * 1.00 + wheelspin) * traction
-	return maxf(0.0, existing + clampf(reaction_delta + traction_delta, -1.50, 1.50))
+	return maxf(0.0, existing + clampf(clearance, 0.0, 1.0) * clampf(reaction_delta + traction_delta, -1.50, 1.50))
