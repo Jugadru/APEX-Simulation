@@ -12,6 +12,8 @@ var space_profile: Dictionary = {}
 var driver_traffic_enabled: bool = true
 # Excluded from checkpoints; old replays must keep their Soul 2.0 sporting rules.
 var driver_soul3_enabled: bool = true
+# v9.7 changes only same-garage arbitration; legacy 017 replay remains on its old rule.
+var pit_coordination2_enabled: bool = true
 const Combat = preload("res://scripts/core/race_combat.gd")
 const Strategy = preload("res://scripts/core/race_strategy.gd")
 const RaceIntelligence = preload("res://scripts/core/race_intelligence_0645.gd")
@@ -27,6 +29,7 @@ const DriverFeedback = preload("res://scripts/core/race_driver_feedback.gd")
 const EngineerReply = preload("res://scripts/core/race_engineer_reply.gd")
 const PitMath = preload("res://scripts/core/race_pit_math.gd")
 const PitLane = preload("res://scripts/core/race_pit_lane.gd")
+const PitCoordination2 = preload("res://scripts/core/race_pit_coordination_06697.gd")
 const DoubleStackCoordinator = preload("res://scripts/core/race_double_stack_coordinator_06492.gd")
 const Tyres2012 = preload("res://scripts/core/race_tyres_2012.gd")
 const TyreRules2012 = preload("res://scripts/core/race_tyre_regulations_2012.gd")
@@ -918,7 +921,12 @@ func _stage_duration(car: Dictionary, stage: String) -> float:
 
 func _garage_available(car: Dictionary) -> bool:
 	var team: String = str(car["team"])
-	return not pit_crew_owner.has(team) or int(pit_crew_owner[team]) == int(car["id"])
+	if not pit_coordination2_enabled:
+		# Exact v9.6 transition: preserve exported revision 017 replays.
+		return not pit_crew_owner.has(team) or int(pit_crew_owner[team]) == int(car["id"])
+	# The earlier physical garage arrival wins; car-array iteration is never
+	# the tie-break. One crew remains exclusive until release/safety hold ends.
+	return PitCoordination2.eligible(car, cars, pit_crew_owner, clock, PIT_QUEUE_PHASE)
 
 func _acquire_garage(car: Dictionary) -> void:
 	pit_crew_owner[str(car["team"])] = int(car["id"])
@@ -1071,12 +1079,9 @@ func get_pit_lane_snapshot() -> Dictionary:
 	return PitLane.snapshot(cars, pit_crew_owner)
 
 func get_team_pit_status(team: String) -> Dictionary:
-	var owner_id: int = int(pit_crew_owner.get(team, -1))
-	var waiting: Array = []
-	for car in cars:
-		if str(car["team"]) == team and str(car.get("pit_stage", "")) == "queue":
-			waiting.append({"id": int(car["id"]), "name": str(car["name"]), "wait": float(car["pit_wait"])})
-	return {"owner_id": owner_id, "waiting": waiting}
+	# Read-only UI snapshot, now with true queue order and service/release ETA.
+	# Never advances pit state or sends a pit command.
+	return PitCoordination2.status(team, cars, pit_crew_owner, clock, PIT_QUEUE_PHASE)
 
 func _record_lap_cross(car: Dictionary, previous: float, choose_ai_strategy: bool = true) -> void:
 	var before: int = maxi(0, int(floor(previous)))
