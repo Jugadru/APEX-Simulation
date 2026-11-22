@@ -180,6 +180,24 @@ static func classify_source(source: String) -> String:
 		return "trafego"
 	return ""
 
+# Read only a lap actually contained in an event message. Historic replay
+# events may be ingested after the car has already completed that stint.
+static func booked_lap_from_source(source: String) -> int:
+	var marker: String = "Temos a parada V"
+	var at: int = source.find(marker)
+	if at < 0:
+		marker = "BOX V"
+		at = source.find(marker)
+	if at < 0:
+		return 0
+	var digits: String = ""
+	for i in range(at + marker.length(), source.length()):
+		var ch: String = source.substr(i, 1)
+		if not ch.is_valid_int():
+			break
+		digits += ch
+	return digits.to_int() if not digits.is_empty() else 0
+
 static func profile(car: Dictionary) -> Dictionary:
 	var id: int = int(car.get("id", 0))
 	var soul: Dictionary = car.get("driver_soul", {})
@@ -211,7 +229,7 @@ static func _packet(car: Dictionary, kind: String, context: Dictionary, role: St
 static func driver(car: Dictionary, kind: String, context: Dictionary = {}, previous: Dictionary = {}) -> Dictionary:
 	if car.is_empty() or not PILOT_LINES.has(kind):
 		return {}
-	var booked: int = int(car.get("pit_scheduled_lap", 0))
+	var booked: int = int(context.get("booked_lap", car.get("pit_scheduled_lap", 0)))
 	if kind == "revisar_plano" and booked <= 0:
 		return {}  # Never mention a pit reservation that does not exist.
 	var p: Dictionary = profile(car)
@@ -229,7 +247,7 @@ static func engineer(car: Dictionary, kind: String, context: Dictionary = {}) ->
 	if car.is_empty() or not ENGINEER_LINES.has(kind):
 		return {}
 	var words: String = str(ENGINEER_LINES[kind])
-	var booked: int = int(car.get("pit_scheduled_lap", 0))
+	var booked: int = int(context.get("booked_lap", car.get("pit_scheduled_lap", 0)))
 	var lap: int = int(context.get("lap", car.get("laps_done", 0)))
 	if kind in ["revisar_plano", "avaliar_box", "aderencia", "desgaste", "chuva", "grip_molhado", "perda_ritmo", "estender_stint"]:
 		if booked > lap:
