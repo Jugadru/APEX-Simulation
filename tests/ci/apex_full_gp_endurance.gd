@@ -42,6 +42,10 @@ func _run() -> void:
 		return
 
 	race.running = true
+	# Read-only weather observations for Quality 9.9 full-distance diagnostics.
+	var initial_wetness: float = float(race.weather_snapshot().get("wetness_factor", 0.0))
+	var min_wetness: float = initial_wetness
+	var max_wetness: float = initial_wetness
 	var start_usec: int = Time.get_ticks_usec()
 	var steps: int = 0
 	var player_pit_orders: int = 0
@@ -59,6 +63,9 @@ func _run() -> void:
 					player_pit_orders += 1
 			ordered = true
 		race.step(STEP_SECONDS)
+		var wetness: float = float(race.weather_snapshot().get("wetness_factor", 0.0))
+		min_wetness = minf(min_wetness, wetness)
+		max_wetness = maxf(max_wetness, wetness)
 		steps += 1
 		if steps % 100 == 0:
 			observations.append({
@@ -79,6 +86,8 @@ func _run() -> void:
 		"finished": race.finished, "finished_cars": finished_cars,
 		"ticks": steps, "clock": race.clock, "time_seconds": elapsed,
 		"step_sim_seconds": STEP_SECONDS, "last_hash": hash,
+		"min_wetness": snappedf(min_wetness, 0.000001),
+		"max_wetness": snappedf(max_wetness, 0.000001),
 		"checkpoints": 0, "events": race.events.size(),
 		"pit_history": race.get_pit_history().size(),
 		"manual_pit_orders": player_pit_orders,
