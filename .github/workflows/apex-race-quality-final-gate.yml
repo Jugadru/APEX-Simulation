@@ -1,0 +1,76 @@
+name: APEX - Race Quality 9.9 Final Gate (strict)
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'project.godot'
+      - 'docs/APEX_RELEASE_v0.6.6.9.9_RACE_QUALITY.md'
+      - 'tools/apex_race_quality_release_gate.py'
+      - 'tools/tests/test_apex_race_quality_release_gate.py'
+      - '.github/workflows/apex-race-quality-final-gate.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: apex-race-quality-gate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  final-release-gate:
+    if: github.head_ref == 'qa/v0.6.6.9.9-race-quality'
+    name: v9.9 — 19 evidence jobs, exact SHA
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      APEX_SHA: ${{ github.event.pull_request.head.sha }}
+      APEX_PR: ${{ github.event.pull_request.number }}
+      APEX_BASE: ${{ github.event.pull_request.base.sha }}
+
+    steps:
+      - name: Checkout exact candidate (no credentials persisted)
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Check offline fail-closed contracts
+        run: |
+          python3 -m unittest discover -s tools/tests \
+            -p 'test_apex_quality_gate.py' -v
+          python3 -m unittest discover -s tools/tests \
+            -p 'test_apex_race_quality_release_gate.py' -v
+
+      - name: Wait for 19 real jobs and enforce readiness
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/apex_race_quality_release_gate.py \
+            --repository "$GITHUB_REPOSITORY" \
+            --sha "$APEX_SHA" --pr-number "$APEX_PR" --base-sha "$APEX_BASE" \
+            --project . --wait-seconds 3300 \
+            --output ci_artifacts/race_quality_gate
+
+      - name: Publish truthful release summary
+        if: always()
+        shell: bash
+        run: |
+          if test -f ci_artifacts/race_quality_gate/report.md; then
+            cat ci_artifacts/race_quality_gate/report.md >> "$GITHUB_STEP_SUMMARY"
+          elif test -f ci_artifacts/race_quality_gate/error.txt; then
+            cat ci_artifacts/race_quality_gate/error.txt >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'APEX RELEASE GATE BLOCKED: no evidence report' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Save exact-SHA release evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: apex-race-quality-9-9-evidence
+          path: ci_artifacts/race_quality_gate/
+          if-no-files-found: warn
+          retention-days: 14

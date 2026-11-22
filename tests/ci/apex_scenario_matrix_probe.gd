@@ -30,6 +30,11 @@ func _run() -> void:
         _fatal("Missing or invalid scenario environment")
         return
     var seed: int = int(seed_text)
+    # Diagnostic-only trace for the reproducible Monaco assisted case.
+    # Never changes race state, random draws, physics, AI decisions or reports.
+    var trace_monaco: bool = case_id == "mon_1_1_1764457695"
+    if trace_monaco:
+        print("APEX_MATRIX_DIAG phase=env_validated id=", case_id, " seed=", seed)
     var season: Variant = JSON.parse_string(
         FileAccess.get_file_as_string("res://data/season_2012.json"))
     if not (season is Dictionary):
@@ -50,6 +55,8 @@ func _run() -> void:
     track["race_km"] = float(track["lap_km"]) * float(LAPS)
     var race = Race.new(season["teams"], "Ferrari", seed, {}, track, {})
     race.configure_weather(weather)
+    if trace_monaco:
+        print("APEX_MATRIX_DIAG phase=race_created cars=", race.cars.size())
     if race.cars.size() != 24 or race.player_cars().size() != 2:
         _fatal("Invalid 24-car starting grid")
         return
@@ -95,6 +102,30 @@ func _run() -> void:
                 race.set_kers_mode(driver_id, str(decision.get("kers", "Equilibrado")))
         race.step(STEP_SECONDS)
         steps += 1
+        # Read-only diagnostic snapshots, without modifying the race, AI, RNG,
+        # step budget, finish criteria or sporting report.
+        if trace_monaco and (steps == 1 or steps % 100 == 0 or race.finished):
+            var cars_state: Array[Dictionary] = []
+            for diag_car in race.cars:
+                cars_state.append({
+                    "id": int(diag_car.get("id", -1)),
+                    "progress": snappedf(float(diag_car.get("progress", 0.0)), 0.0001),
+                    "laps_done": int(diag_car.get("laps_done", 0)),
+                    "finished": bool(diag_car.get("finished", false)),
+                    "pit_stage": str(diag_car.get("pit_stage", "none")),
+                    "pit_left": snappedf(float(diag_car.get("pit_left", 0.0)), 0.001),
+                    "pit_wait": snappedf(float(diag_car.get("pit_wait", 0.0)), 0.001),
+                    "pit_request": bool(diag_car.get("pit_request", false)),
+                    "pit_scheduled_lap": int(diag_car.get("pit_scheduled_lap", 0)),
+                    "pace": str(diag_car.get("pace", "")),
+                    "race_space_blocked": bool(diag_car.get("race_space_blocked", false)),
+                    "lane": snappedf(float(diag_car.get("race_lane", 0.0)), 0.001),
+                })
+            print("APEX_MATRIX_DIAG_SNAPSHOT ", JSON.stringify({
+                "step": steps, "clock": snappedf(float(race.clock), 0.001),
+                "lap": race.lap, "first_finish_at": race.first_finish_at,
+                "finished": race.finished, "cars": cars_state,
+            }))
         wetness_peak = maxf(wetness_peak,
             float(race.weather_snapshot().get("wetness_factor", 0.0)))
         for car in race.cars:
@@ -105,6 +136,8 @@ func _run() -> void:
         if not errors.is_empty():
             break
 
+    if trace_monaco:
+        print("APEX_MATRIX_DIAG phase=loop_exit steps=", steps, " finished=", race.finished)
     var finished_cars: int = 0
     var disqualified: int = 0
     var dq_evidence: Array[Dictionary] = []

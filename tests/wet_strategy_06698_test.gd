@@ -19,10 +19,22 @@ func check(ok: bool, description: String) -> void:
 		printerr("WET_STRATEGY_06698_FAIL " + description)
 
 func _run() -> void:
-	check(str(ProjectSettings.get_setting("application/config/name", "")).contains("v0.6.6.9.8"),
-		"exported game must display the correct v0.6.6.9.8 identity")
-	check(str(ProjectSettings.get_setting("application/config/description", "")).contains("v0.6.6.9.8"),
-		"project description matches the release version")
+	# The v9.8 weather regression must continue to run on the v9.9 QA
+	# candidate. Validate the exact supported build identity and ensure
+	# description agrees, rather than freezing this test to a past version.
+	var app_name: String = str(ProjectSettings.get_setting("application/config/name", ""))
+	var app_description: String = str(ProjectSettings.get_setting("application/config/description", ""))
+	var valid_names: Array[String] = [
+		"APEX Motorsport Manager v0.6.6.9.8 — Core 2",
+		"APEX Motorsport Manager v0.6.6.9.9 — Core 2"
+	]
+	check(valid_names.has(app_name),
+		"project identity must be the exact supported v9.8 or v9.9 Core 2 build")
+	var identity_version: String = ""
+	if valid_names.has(app_name):
+		identity_version = "v0.6.6.9.9" if app_name.contains("v0.6.6.9.9") else "v0.6.6.9.8"
+	check(not identity_version.is_empty() and app_description.begins_with(identity_version + ":"),
+		"project description must match the exact Core 2 build identity")
 	var sample: Dictionary = {
 		"water_mm":1.12, "off_line_water_mm":1.40,
 		"surface_moisture":0.43, "rain_intensity":0.21,

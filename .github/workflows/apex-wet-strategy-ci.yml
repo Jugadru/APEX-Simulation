@@ -3,6 +3,8 @@ on:
   pull_request:
     paths:
       - 'scripts/**'
+      # Race Quality 9.9 deliberately requests this complete regression.
+      - 'docs/APEX_RELEASE_v0.6.6.9.9_RACE_QUALITY.md'
       - 'tests/wet_strategy_06698_test.gd'
       - 'project.godot'
       - '.github/workflows/apex-wet-strategy-ci.yml'

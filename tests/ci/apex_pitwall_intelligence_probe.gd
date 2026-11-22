@@ -144,6 +144,11 @@ func _run() -> void:
             "old_tire": str(item.get("old_tire", "")),
             "new_tire": str(item.get("new_tire", "")),
             "wait": snappedf(float(item.get("wait", 0.0)), 0.0001),
+            # Historical times are already measured by RaceEngine; evidence only.
+            "entered_at": snappedf(float(item.get("entered_at", -1.0)), 0.000001),
+            "exited_at": snappedf(float(item.get("exited_at", -1.0)), 0.000001),
+            "service_s": snappedf(float(item.get("service", -1.0)), 0.000001),
+            "total_s": snappedf(float(item.get("total", -1.0)), 0.000001),
             "incident_delay": snappedf(float(item.get("incident_delay", 0.0)), 0.0001),
             "position_before": int(item.get("position_before", -1)),
             "position_after": int(item.get("position_after", -1)),

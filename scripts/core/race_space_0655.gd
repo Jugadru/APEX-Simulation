@@ -184,7 +184,15 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 			if gap<LENGTH+2 and corridor_crosses(float(a.lane),wanted,float(other.get("race_lane",0)),float(other.get("race_lane",0))):
 				if absf(float(a.lane)-float(other.get("race_lane",0)))>=WIDTH:
 					wanted=float(a.lane)
-					if absf(float(a.lane))>limit and float(c.progress)<=float(other.progress):
+					# Never freeze BOTH cars in an exact same-progress, narrow-lane
+					# tie. Stable ID order grants one car the forward turn while the
+					# other yields, keeping the original no-squeeze lane constraint.
+					# This is an experimental diagnostic for the Monaco seed case.
+					var ahead_progress: float = float(other.progress)
+					var our_progress: float = float(c.progress)
+					if absf(float(a.lane))>limit and (
+						our_progress < ahead_progress or (
+						our_progress == ahead_progress and int(c.id) > int(other.id))):
 						a.driving_dt=0.0
 						a.state="recovering"
 		a.next_lane=wanted
