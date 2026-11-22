@@ -1905,18 +1905,42 @@ func _refresh_prediction_ledger() -> void:
 	if int(summary.get("verified_pits", 0)) > 0:
 		lines.append("ERRO ABSOLUTO MÉDIO · perda de pit %.2fs · posição %.2f" % [
 			float(summary.get("mae_loss_s", 0.0)), float(summary.get("mae_position", 0.0))])
+	var by_level: Dictionary = summary.get("by_strategist_level", {})
+	for level in by_level:
+		var group: Dictionary = by_level[level]
+		var count: int = int(group.get("count", 0))
+		if count > 0:
+			lines.append("ESTRATEGISTA %s/3 · %d pits · MAE %.2fs / %.2f posições" % [
+				str(level) if int(level) >= 0 else "?", count,
+				float(group.get("abs_loss_s", 0.0)) / float(count),
+				float(group.get("abs_position", 0.0)) / float(count)])
 	for index in range(maxi(0, history.size() - 4), history.size()):
 		var record: Dictionary = history[index]
 		var title: String = "V%d %s → %s | prevê P%d, %.1fs líquidos" % [
 			int(record.get("track_lap", 0)), str(record.get("driver", "")),
 			str(record.get("compound_after", "?")), int(record.get("predicted_position", 0)),
 			float(record.get("predicted_net_loss_s", 0.0))]
-		if bool(record.get("pit_verified", false)):
+		var phase: String = str(record.get("phase", "EXECUTION"))
+		var state: String = str(record.get("status", ""))
+		if phase == "DECISION":
+			title = "DECISÃO V%d → BOX V%d: %s · %s | estimativa instantânea ~P%d / %.1fs" % [
+				int(record.get("issued_lap", 0)), int(record.get("target_lap", 0)),
+				str(record.get("driver", "")), str(record.get("decision_source", "")),
+				int(record.get("predicted_position", 0)),
+				float(record.get("predicted_net_loss_s", 0.0))]
+			title += " | %s" % ("executada" if state == "EXECUTED" else (
+				"cancelada" if state == "CANCELLED" else (
+				"não seguida" if state == "NOT_FOLLOWED" else "aguardando decisão")))
+			if bool(record.get("long_horizon", false)):
+				title += " (horizonte distante, não pontuável)"
+		elif bool(record.get("pit_verified", false)):
 			title += " | real P%d, %.1fs (erro %+.1fs)" % [
 				int(record.get("actual_position", 0)), float(record.get("actual_net_loss_s", 0.0)),
 				float(record.get("pit_loss_error_s", 0.0))]
-		else:
+		elif state == "AWAITING_EXIT":
 			title += " | aguardando saída do box"
+		else:
+			title += " | %s" % state
 		lines.append(title)
 		if str(record.get("status", "")) == "COMPLETE":
 			var wear_text: String = "%.0f%% previsto / %.0f%% real" % [
