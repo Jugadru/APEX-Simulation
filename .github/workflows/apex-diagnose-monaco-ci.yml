@@ -46,10 +46,14 @@ jobs:
           set -uo pipefail
           mkdir -p ci_artifacts/monaco
           echo "APEX_MONACO_DIAG_START id=$APEX_MATRIX_ID weather=$APEX_MATRIX_WEATHER mode=$APEX_MATRIX_MODE seed=$APEX_MATRIX_SEED"
+          # GitHub invokes bash with -e by default; explicitly suspend it to
+          # capture a failing probe or timeout and surface the real trace.
+          set +e
           timeout 180s godot --headless --single-threaded-scene --path . \
             --script res://tests/ci/apex_scenario_matrix_probe.gd \
             > ci_artifacts/monaco/monaco.log 2>&1
           code=$?
+          set -e
           echo "APEX_MONACO_DIAG_EXIT status=$code"
           echo "### TRACE"
           grep -E 'APEX_MATRIX_DIAG|APEX_MATRIX_RESULT|APEX_MATRIX_PROBE_FAIL|SCRIPT ERROR|Parse Error' ci_artifacts/monaco/monaco.log | tail -n 90 || true
