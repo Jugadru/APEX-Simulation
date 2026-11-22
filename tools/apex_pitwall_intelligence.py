@@ -137,6 +137,12 @@ def validate_result(data: dict[str, Any], name: str,
             raise PitWallAnalyzerError(f"{name}: 2012 pit tyre nomination violation")
         if not number(item.get("wait"), 0, 5000) or not number(item.get("incident_delay"), 0, 5000):
             raise PitWallAnalyzerError(f"{name}: invalid pit waiting/incident metrics")
+        # Report real pit-history timing, never infer unobserved crew occupancy.
+        for key in ("entered_at", "exited_at", "service_s", "total_s"):
+            if not number(item.get(key), 0, 50_000):
+                raise PitWallAnalyzerError(f"{name}: invalid {key} pit evidence")
+        if item["exited_at"] < item["entered_at"]:
+            raise PitWallAnalyzerError(f"{name}: pit exit precedes entry")
         if not isinstance(item.get("order_origin"), str):
             raise PitWallAnalyzerError(f"{name}: invalid source of pit decision")
         stops_per_car[item["car_id"]] += 1
@@ -230,11 +236,39 @@ def analyze_case(result: dict[str, Any]) -> dict[str, Any]:
 
     for stop in result["pits"]:
         if stop["wait"] >= 3.0:
+            # Find the closest recorded teammate stop by real entry clock.
+            # Overlapping pit-lane intervals alone do NOT prove a crew conflict,
+            # nor prove that an alternate strategy would have been faster.
+            teammates = [
+                p for p in result["pits"] if p["team"] == stop["team"]
+                and p["car_id"] != stop["car_id"]
+            ]
+            evidence = {
+                "wait_s": stop["wait"], "incident_s": stop["incident_delay"],
+                "origin": stop["order_origin"], "entered_at_s": stop["entered_at"],
+                "exited_at_s": stop["exited_at"], "service_s": stop["service_s"],
+                "total_s": stop["total_s"],
+                "teammate_pit_observed": bool(teammates),
+            }
+            if teammates:
+                mate = min(teammates, key=lambda p: (
+                    abs(p["entered_at"] - stop["entered_at"]),
+                    p["entered_at"], p["car_id"],
+                ))
+                evidence["teammate_context"] = {
+                    "car_id": mate["car_id"], "driver": mate["driver"],
+                    "lap": mate["lap"], "entered_at_s": mate["entered_at"],
+                    "exited_at_s": mate["exited_at"], "wait_s": mate["wait"],
+                    "entry_gap_s": round(stop["entered_at"] - mate["entered_at"], 6),
+                    "pit_lane_intervals_overlap": (
+                        max(stop["entered_at"], mate["entered_at"]) <
+                        min(stop["exited_at"], mate["exited_at"])
+                    ),
+                }
             finding("PIT_QUEUE", "REVIEW", {
                 "car_id": stop["car_id"], "driver": stop["driver"], "lap": stop["lap"]},
                 "Tempo relevante de espera no box; verificar tráfego de garagem/double stack",
-                {"wait_s": stop["wait"], "incident_s": stop["incident_delay"],
-                 "origin": stop["order_origin"]})
+                evidence)
     for event in result["radio"]:
         if event["type"] == "team_coordination":
             # Presence of coordination proves communication, not an error.
