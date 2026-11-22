@@ -37,18 +37,18 @@ func _track(season: Dictionary, code: String) -> Dictionary:
 func _run() -> void:
 	var attacker: Dictionary = car(1, 0.350)
 	var defender: Dictionary = car(2, 0.370)
-	var blocker: Dictionary = car(3, 0.346, -1.0)
+	var blocker: Dictionary = car(3, 0.346, 1.0)
 	var dry: Dictionary = {"wetness_factor":0.0}
-	var tactic: Dictionary = {"commit":true,"attack_goal":-2.95,
-		"defend_goal":0.0,"side":"left","margin_m":0.0,
+	var tactic: Dictionary = {"commit":true,"attack_goal":2.95,
+		"defend_goal":0.0,"side":"right","margin_m":0.0,
 		"threshold_s":0.15,"blocked":false}
 	var grid: Array = [attacker, defender, blocker]
 	var before: PackedByteArray = var_to_bytes([grid, dry, tactic])
 	var choice: Dictionary = Overtaking.refine(attacker,defender,grid,
 		20.0,0.65,2.95,1000.0,dry,tactic)
 	check(bool(choice.get("commit",false))
-		and str(choice.get("side","")) == "right"
-		and is_equal_approx(float(choice.get("attack_goal",0.0)),2.95),
+		and str(choice.get("side","")) == "left"
+		and is_equal_approx(float(choice.get("attack_goal",0.0)),-2.95),
 		"early attacker avoids third car and chooses viable opposite side")
 	check(str(choice.get("overtaking_reason","")) == "early_clear_side",
 		"explicit decision reason is deterministic")
@@ -58,21 +58,21 @@ func _run() -> void:
 	check(var_to_bytes([grid,dry,tactic]) == before,
 		"decision does not mutate inputs")
 	var both: Array = grid.duplicate(true)
-	both.append(car(4,0.345,1.0))
+	both.append(car(4,0.345,-1.0))
 	var blocked: Dictionary = Overtaking.refine(attacker,defender,both,
 		20.0,0.65,2.95,1000.0,dry,tactic)
 	check(not bool(blocked.get("commit",true))
 		and bool(blocked.get("blocked",false)),
 		"two occupied corridors cancel unsafe attack")
 	var established: Dictionary = attacker.duplicate(true)
-	established["race_lane"] = -1.15
+	established["race_lane"] = 1.15
 	check(not bool(Overtaking.refine(established,defender,grid,
 		20.0,0.65,2.95,1000.0,dry,tactic).get("commit",true)),
 		"no crossing to far lane after attacker leaves center")
 	var overlapping: Dictionary = attacker.duplicate(true)
 	overlapping["combat_state"] = "duel"
 	check(Overtaking.refine(overlapping,defender,grid,8.0,0.65,
-		2.95,1000.0,dry,tactic).get("attack_goal") == -2.95,
+		2.95,1000.0,dry,tactic).get("attack_goal") == 2.95,
 		"committed overlap preserves established side")
 	var wet: Dictionary = {"wetness_factor":0.85}
 	var marginal: Dictionary = Overtaking.refine(attacker,defender,
@@ -92,8 +92,8 @@ func _run() -> void:
 		{"length":1000.0},dry,true,true,false)
 	var modern: Dictionary = Space.plan(grid,metrics,0.2,track,
 		{"length":1000.0},dry,true,true,true)
-	check(str(legacy[1].states.combat_last_side) == "left"
-		and str(modern[1].states.combat_last_side) == "right",
+	check(str(legacy[1].states.combat_last_side) == "right"
+		and str(modern[1].states.combat_last_side) == "left",
 		"real RaceSpace uses 9.12 only when the revision switch is enabled")
 	check(float(modern[1].progress) >= float(attacker.progress)
 		and float(modern[2].progress) >= float(defender.progress)
