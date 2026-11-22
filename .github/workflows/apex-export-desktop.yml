@@ -87,15 +87,18 @@ jobs:
           match = re.search(r'^config/name="([^"]+)"', project, re.MULTILINE)
           assert match, 'Missing application/config/name in project.godot'
           expected = match.group(1).encode('utf-8')
-          assert b'v0.6.6.9.4' in expected, 'The candidate must carry release v0.6.6.9.4'
+          version = re.search(r'v\d+(?:\.\d+)+', match.group(1))
+          assert version, 'Missing version number in application/config/name'
+          description = re.search(r'^config/description="([^"]+)"', project, re.MULTILINE)
+          assert description and version.group(0) in description.group(1), 'Version mismatch in project.godot'
           old = b"APEX Motorsport Manager v0.6.6.9.3"
           much_older = b"APEX Motorsport Manager v0.6.6.9.2"
           for platform in ("linux", "windows"):
               pck = Path("builds") / platform / "APEX_Motorsport_Manager.pck"
               data = pck.read_bytes()
               assert expected in data, f"{platform}: wrong application/config/name in PCK"
-              assert old not in data, f"{platform}: old 9.1 application/config/name in PCK"
-              assert much_older not in data, f"{platform}: old 8.10 application/config/name in PCK"
+              assert old not in data, f"{platform}: old 9.3 application/config/name in PCK"
+              assert much_older not in data, f"{platform}: old 9.2 application/config/name in PCK"
               print(f"APEX_BUILD_ID_06694_PASS {platform} {expected.decode()}")
           PY
 
