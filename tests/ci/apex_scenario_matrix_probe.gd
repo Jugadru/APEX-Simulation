@@ -30,6 +30,11 @@ func _run() -> void:
         _fatal("Missing or invalid scenario environment")
         return
     var seed: int = int(seed_text)
+    # Diagnostic-only trace for the reproducible Monaco assisted case.
+    # Never changes race state, random draws, physics, AI decisions or reports.
+    var trace_monaco: bool = case_id == "mon_1_1_1764457695"
+    if trace_monaco:
+        print("APEX_MATRIX_DIAG phase=env_validated id=", case_id, " seed=", seed)
     var season: Variant = JSON.parse_string(
         FileAccess.get_file_as_string("res://data/season_2012.json"))
     if not (season is Dictionary):
@@ -50,6 +55,8 @@ func _run() -> void:
     track["race_km"] = float(track["lap_km"]) * float(LAPS)
     var race = Race.new(season["teams"], "Ferrari", seed, {}, track, {})
     race.configure_weather(weather)
+    if trace_monaco:
+        print("APEX_MATRIX_DIAG phase=race_created cars=", race.cars.size())
     if race.cars.size() != 24 or race.player_cars().size() != 2:
         _fatal("Invalid 24-car starting grid")
         return
@@ -82,6 +89,8 @@ func _run() -> void:
     var max_stops_observed: int = 0
     var wetness_peak: float = 0.0
     while not race.finished and steps < MAX_STEPS:
+        if trace_monaco:
+            print("APEX_MATRIX_DIAG phase=step_begin step=", steps, " lap=", race.lap_count)
         if mode == "Assistido" and steps % 40 == 0:
             # Delegates actual TeamAutonomy pace/KERS decisions, while keeping
             # the player's pit authority manual. Does not emulate full HUD/staff.
@@ -93,7 +102,11 @@ func _run() -> void:
                     {"Engenheiro": 2, "Estrategista": 2}, race.lap_count)
                 race.set_pace(driver_id, str(decision.get("pace", "Normal")))
                 race.set_kers_mode(driver_id, str(decision.get("kers", "Equilibrado")))
+        if trace_monaco:
+            print("APEX_MATRIX_DIAG phase=race_step_enter step=", steps)
         race.step(STEP_SECONDS)
+        if trace_monaco:
+            print("APEX_MATRIX_DIAG phase=race_step_exit step=", steps, " lap=", race.lap_count)
         steps += 1
         wetness_peak = maxf(wetness_peak,
             float(race.weather_snapshot().get("wetness_factor", 0.0)))
@@ -105,6 +118,8 @@ func _run() -> void:
         if not errors.is_empty():
             break
 
+    if trace_monaco:
+        print("APEX_MATRIX_DIAG phase=loop_exit steps=", steps, " finished=", race.finished)
     var finished_cars: int = 0
     var disqualified: int = 0
     var dq_evidence: Array[Dictionary] = []
