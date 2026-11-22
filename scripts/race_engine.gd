@@ -742,7 +742,8 @@ func _advance(dt: float) -> void:
 					var projected_nominal: float = pit_loss + base_lap * PIT_TRACK_FRACTION
 					var queue_s: float = DoubleStackCoordinator.estimated_queue(car, teammate, projected_nominal, PIT_QUEUE_PHASE)
 					if queue_s >= DoubleStackCoordinator.QUEUE_MIN_S:
-						var future_weather: Dictionary = weather.forecast(clock, base_lap * 3.0)
+						var future_weather: Dictionary = WetStrategy06698.forecast(weather_snapshot(), base_lap * 3.0,
+							str(track.get("code", "")), int(prediction_staff.get("Estrategista", 1))) if wet_strategy_intelligence_enabled else weather.forecast(clock, base_lap * 3.0)
 						if DoubleStackCoordinator.should_stagger(car, teammate, car.get("ai_plan", {}), weather_snapshot(), future_weather, queue_s, exact_lap, lap_count):
 							car["pit_request"] = false
 							car["pit_order_source"] = ""
