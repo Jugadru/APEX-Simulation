@@ -19,6 +19,10 @@ func check(ok: bool, description: String) -> void:
 		printerr("WET_STRATEGY_06698_FAIL " + description)
 
 func _run() -> void:
+	check(str(ProjectSettings.get_setting("application/config/name", "")).contains("v0.6.6.9.8"),
+		"exported game must display the correct v0.6.6.9.8 identity")
+	check(str(ProjectSettings.get_setting("application/config/description", "")).contains("v0.6.6.9.8"),
+		"project description matches the release version")
 	var sample: Dictionary = {
 		"water_mm":1.12, "off_line_water_mm":1.40,
 		"surface_moisture":0.43, "rain_intensity":0.21,
