@@ -33,14 +33,38 @@ trap 'rm -rf -- "$session"' EXIT
 echo "APEX_PITWALL_LOCAL_SETUP version=$version"
 python3 -m unittest discover -s tools/tests -p test_apex_pitwall_intelligence.py -v
 
-if ! timeout 240s "$godot_bin" --headless --path . --import > "$out/import.log" 2>&1; then
+# Godot 4.7.2 can exit 134/139 while importing resources on an otherwise
+# valid checkout (thread/scene-tree race). Avoid masking *real* script errors:
+# retry only these two process crashes, not parse errors, timeouts or nonzero
+# failure codes. Preserve the log for each attempt for diagnostics.
+import_ok=0
+for attempt in 1 2 3; do
+  set +e
+  timeout 240s "$godot_bin" --headless --single-threaded-scene --path . --import \
+    > "$out/import-attempt-${attempt}.log" 2>&1
+  import_status=$?
+  set -e
+  cp -- "$out/import-attempt-${attempt}.log" "$out/import.log"
+  if grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' "$out/import.log"; then
+    cat "$out/import.log" >&2
+    echo "APEX_PITWALL_LOCAL_FAIL: script/import error at attempt $attempt" >&2
+    exit 1
+  fi
+  if ((import_status == 0)); then
+    echo "APEX_PITWALL_LOCAL_IMPORT_PASS attempt=$attempt"
+    import_ok=1
+    break
+  fi
+  if ((import_status != 134 && import_status != 139)); then
+    cat "$out/import.log" >&2
+    echo "APEX_PITWALL_LOCAL_FAIL: Godot import exited $import_status (not retryable)" >&2
+    exit 1
+  fi
+  echo "APEX_PITWALL_LOCAL_IMPORT_RETRY: engine crashed (exit $import_status), attempt $attempt/3" >&2
+done
+if ((import_ok != 1)); then
   cat "$out/import.log" >&2
-  echo "APEX_PITWALL_LOCAL_FAIL: real Godot project import did not complete" >&2
-  exit 1
-fi
-if grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' "$out/import.log"; then
-  cat "$out/import.log" >&2
-  echo "APEX_PITWALL_LOCAL_FAIL: script/import error" >&2
+  echo "APEX_PITWALL_LOCAL_FAIL: Godot import crashed in all three attempts" >&2
   exit 1
 fi
 
