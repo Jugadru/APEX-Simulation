@@ -1,0 +1,45 @@
+{
+  "captures": [
+    {
+      "bytes": 252741,
+      "file": "silverstone_2d_broadcast.png",
+      "height": 900,
+      "hud_mode": 0,
+      "name": "silverstone_2d_broadcast",
+      "render_mode": "2D",
+      "sha256": "467e2e5602c26e3aa8de6385438161a0c1f5991b5da02d36562eeed00f1cafe1",
+      "width": 1600
+    },
+    {
+      "bytes": 312874,
+      "file": "silverstone_2d_compact.png",
+      "height": 900,
+      "hud_mode": 1,
+      "name": "silverstone_2d_compact",
+      "render_mode": "2D",
+      "sha256": "a7742bb1907c5e161cba78f31a07ea03fb5539d8b840e383842d077e15a7479c",
+      "width": 1600
+    },
+    {
+      "bytes": 1549311,
+      "file": "silverstone_3d_compact.png",
+      "height": 900,
+      "hud_mode": 1,
+      "name": "silverstone_3d_compact",
+      "render_mode": "3D",
+      "sha256": "fb4e4dced4bc6b220b4811863bd92cc4c75914120be1e938f03dd0110633a8a9",
+      "width": 1600
+    }
+  ],
+  "cars": 24,
+  "circuit": "GBR",
+  "godot": "4.7.2-stable (official)",
+  "note": "Actual Godot/Xvfb render. Visual differences are not checked in this step.",
+  "resolution_requested": [
+    1600,
+    900
+  ],
+  "seed": 660,
+  "sporting_cars_unchanged": true,
+  "status": "PASS"
+}

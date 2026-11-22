@@ -1,0 +1,47 @@
+{
+  "captures": [
+    {
+      "height": 900,
+      "name": "race_1600x900",
+      "width": 1600
+    },
+    {
+      "height": 900,
+      "name": "strategy_1600x900",
+      "width": 1600
+    },
+    {
+      "height": 1080,
+      "name": "race_1920x1080",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "name": "strategy_1920x1080",
+      "width": 1920
+    },
+    {
+      "height": 768,
+      "name": "race_1366x768",
+      "width": 1365
+    },
+    {
+      "height": 768,
+      "name": "strategy_1366x768",
+      "width": 1365
+    },
+    {
+      "height": 900,
+      "name": "full_1600x900",
+      "width": 1600
+    },
+    {
+      "height": 900,
+      "name": "radio_1600x900",
+      "width": 1600
+    }
+  ],
+  "issues": [],
+  "note": "Actual Godot OpenGL rendering; no FPS benchmark or full GP claim.",
+  "status": "PASS"
+}

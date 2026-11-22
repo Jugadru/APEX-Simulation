@@ -1,5 +1,7 @@
 # APEX Motorsport Manager — Core 2 v0.6.6.8.10
 
+**Cópia experimental HUD Manager — 21/11/2026.** Interface de corrida baseada na composição do F1 Manager 2024, com dados e comandos do APEX. Abra este `project.godot` para experimentar. [Comparação das referências](docs/HUD_COMPARATIVO_20261121.md) · [Imagens e validação](docs/HUD_MANAGER_20261121_VALIDACAO.md) · [Changelog](docs/arquivo/changelogs/HUD_MANAGER_20261121_CHANGELOG.md). Os downloads históricos abaixo não incluem esta alteração local.
+
 Simulador de gestão de automobilismo com equipes, estratégias, desenvolvimento de carros e corridas em 3D. O **Core 2** é o motor esportivo oficial deste repositório.
 
 ## 📥 Baixar o jogo
