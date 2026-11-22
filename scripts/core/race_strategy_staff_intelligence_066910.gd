@@ -29,9 +29,9 @@ static func profile(team_state: Dictionary) -> Dictionary:
 
 static func assess(car: Dictionary, teammate: Dictionary, grid: Array,
 		proposal: Dictionary, observed_weather: Dictionary, staff: Dictionary,
-		pit_loss: float, base_lap: float, race_laps: int, next_entry: int) -> Dictionary:
+		available_compounds: Array, pit_loss: float, base_lap: float, race_laps: int, next_entry: int) -> Dictionary:
 	var plan: Dictionary = PitWall.assess(car, teammate, grid, proposal, observed_weather,
-		["Supermacio", "Macio", "Médio", "Duro", "Intermediário", "Chuva"],
+		available_compounds,
 		race_laps, pit_loss, base_lap, next_entry)
 	var active: bool = bool(staff.get("active", false))
 	var skill: int = clampi(int(staff.get("skill", 0)), 0, 100)
