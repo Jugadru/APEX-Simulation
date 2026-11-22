@@ -32,7 +32,7 @@ func capture_decision(car: Dictionary, grid: Array, advice: Dictionary,
 	var hypothetical: Dictionary = car.duplicate(true)
 	hypothetical["pit_target"] = compound
 	capture_entry(hypothetical, grid, advice, weather, specs, staff, pit_loss,
-		base_lap, pit_track_fraction, simulation_tick, time_s)
+		base_lap, pit_track_fraction, simulation_tick, time_s, false)
 	var item: Dictionary = records[records.size() - 1]
 	item["phase"] = "DECISION"
 	item["status"] = "RECOMMENDED"
@@ -72,7 +72,8 @@ func _recent_bias(team: String, level: int, metric: String) -> Dictionary:
 
 func capture_entry(car: Dictionary, grid: Array, advice: Dictionary, weather: Dictionary,
 		specs: Dictionary, staff: Dictionary, pit_loss: float, base_lap: float,
-		pit_track_fraction: float, simulation_tick: int, time_s: float) -> void:
+		pit_track_fraction: float, simulation_tick: int, time_s: float,
+		link_decision: bool = true) -> void:
 	var car_id: int = int(car.get("id", -1))
 	if car_id < 0 or bool(car.get("finished", false)):
 		return
@@ -81,6 +82,8 @@ func capture_entry(car: Dictionary, grid: Array, advice: Dictionary, weather: Di
 	var actual_entry_lap: int = int(floor(float(car.get("progress", 0.0)))) + 1
 	var linked_decision_id: int = 0
 	for i in range(records.size() - 1, -1, -1):
+		if not link_decision:
+			break
 		var proposal: Dictionary = records[i]
 		if int(proposal.get("car_id", -1)) != car_id \
 				or int(proposal.get("stop", -1)) != int(car.get("stops", 0)) + 1:
