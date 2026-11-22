@@ -506,6 +506,7 @@ func _expand_driver(slot: int, context: int) -> void:
 	card["buttons"] = []
 	card.erase("pace_picker")
 	card.erase("advice_label")
+	card.erase("staff_advice_label")
 	card.erase("pit_mode_picker")
 	card["tire_picker"] = null
 	card["lap_picker"] = null
@@ -531,6 +532,10 @@ func _expand_driver(slot: int, context: int) -> void:
 		advice_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		advice_text.custom_minimum_size.y = 42
 		card["advice_label"] = advice_text
+		var staff_text := _text(body, "ESTRATEGISTA | Aguardando observações", 11, SOUL_ACCENT)
+		staff_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		staff_text.custom_minimum_size.y = 46
+		card["staff_advice_label"] = staff_text
 		var tyre_row := _line(body, 5)
 		_text(body, "ATUAL: %s · %d voltas neste jogo" % [str(car.get("tire", "—")), int(car.get("stint_laps", 0))], 11, YELLOW)
 		_text(tyre_row, "PRÓXIMO PNEU", 10, MUTED)
@@ -846,6 +851,11 @@ func _update_driver_context(slot: int) -> void:
 			pit_mode.disabled = host._engineer_mode_for(int(car["id"])) == "Automático"
 		if card.has("advice_label"):
 			(card["advice_label"] as Label).text = str(advice.get("message", "Aguardando dados"))
+		if card.has("staff_advice_label"):
+			var staff_review: Dictionary = advice.get("staff_strategy_066910", {})
+			var staff_label: Label = card["staff_advice_label"]
+			staff_label.text = str(staff_review.get("summary", "Estratégia do STAFF indisponível nesta revisão de corrida."))
+			staff_label.tooltip_text = str(staff_review.get("limitations", "Sem avaliação ativa."))
 	elif mode == 3:
 		var compound: String = str(car.get("tire", "Médio"))
 		var garage_state: Dictionary = host.garage.get_team(host.selected_team)
