@@ -21,7 +21,7 @@ concurrency:
 jobs:
   final-release-gate:
     if: github.head_ref == 'qa/v0.6.6.9.9-race-quality'
-    name: v9.9 — 18 evidence jobs, exact SHA
+    name: v9.9 — 19 evidence jobs, exact SHA
     runs-on: ubuntu-latest
     timeout-minutes: 65
     env:
@@ -44,7 +44,7 @@ jobs:
           python3 -m unittest discover -s tools/tests \
             -p 'test_apex_race_quality_release_gate.py' -v
 
-      - name: Wait for 18 real jobs and enforce readiness
+      - name: Wait for 19 real jobs and enforce readiness
         shell: bash
         run: |
           set -euo pipefail
