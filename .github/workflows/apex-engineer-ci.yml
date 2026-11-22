@@ -1,0 +1,86 @@
+name: APEX - Race Engineer Intelligence (v9.13)
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, synchronize, labeled]
+    paths:
+      - 'scripts/core/race_engineer_intelligence_066913.gd'
+      - 'scripts/core/race_engineer_0646.gd'
+      - 'scripts/apex_race_hud_0622.gd'
+      - 'tests/engineer_intelligence_066913_test.gd'
+      - '.github/workflows/apex-engineer-ci.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  engineer-targeted:
+    name: Godot 4.7.2 / real engineer + HUD + V21 + replay 023
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare Godot 4.7.2
+        uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c # v3.0.1
+        with:
+          version: 4.7.2-stable
+      - name: Import Godot project — retry native crashes only
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            rm -rf .godot
+            set +e
+            timeout 240s godot --headless --single-threaded-scene --path . --import > import.log 2>&1
+            status=$?
+            set -e
+            if grep -Eiq '(SCRIPT ERROR:|Parse Error:)' import.log; then
+              cat import.log
+              exit 1
+            fi
+            if [ "$status" -eq 0 ]; then
+              if grep -Eiq '^ERROR:' import.log; then cat import.log; exit 1; fi
+              echo "ENGINEER_066913_IMPORT_PASS attempt=$attempt"
+              break
+            fi
+            if [ "$status" -ne 139 ] && [ "$status" -ne 134 ]; then
+              cat import.log
+              exit "$status"
+            fi
+            echo "Native Godot import crash $status on attempt $attempt; retry cleanly"
+            if [ "$attempt" -eq 3 ]; then cat import.log; exit "$status"; fi
+          done
+      - name: Engine, radio and historical regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ci_artifacts/engineer_066913
+          run_test() {
+            local script="$1"
+            local marker="$2"
+            local log="ci_artifacts/engineer_066913/${script}.log"
+            timeout 360s godot --headless --single-threaded-scene --path . \
+              --script "res://tests/${script}" > "${log}" 2>&1 || {
+              cat "${log}"
+              exit 1
+            }
+            cat "${log}"
+            grep -Fq "${marker}" "${log}"
+            if grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:|ENGINEER_066913_FAIL)' "${log}"; then
+              exit 1
+            fi
+          }
+          run_test engineer_intelligence_066913_test.gd ENGINEER_066913_PASS
+          run_test race_0646_engineer_3_test.gd RE3_0646_PASS
+          run_test race_radio_06695_test.gd RACE_RADIO_06695_PASS
+          run_test strategy_staff_066910_test.gd STRATEGY_STAFF_066910_PASS
+          run_test overtaking_066912_test.gd OVERTAKING_066912_PASS
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apex-engineer-066913
+          path: |
+            import.log
+            ci_artifacts/engineer_066913/
+          retention-days: 14
+          if-no-files-found: warn
