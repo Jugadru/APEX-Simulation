@@ -293,12 +293,14 @@ func _team_pit_busy(car: Dictionary) -> bool:
 func _build_strategy_plan(car: Dictionary, teammate_busy: bool = false) -> Dictionary:
 	var perf_started := Perf.begin() if Perf.enabled else 0
 	# Planning happens at lap boundaries or on-demand for the engineer.
-	# Weather forecast uses deterministic integration; no race RNG consumed.
+	# Weather planning uses current observations only on sporting revision 020.
+	# Staff calibration is intentionally neutral here: prediction_staff is an
+	# observer excluded from replay checkpoints and cannot affect sporting AI.
 	var observed: Dictionary = weather_snapshot()
 	var forecast_3: Dictionary = WetStrategy06698.forecast(observed, 3.0 * base_lap,
-		str(track.get("code", "")), int(prediction_staff.get("Estrategista", 1))) if wet_strategy_intelligence_enabled else weather.forecast(clock, 3.0 * base_lap)
+		str(track.get("code", "")), 1) if wet_strategy_intelligence_enabled else weather.forecast(clock, 3.0 * base_lap)
 	var forecast_6: Dictionary = WetStrategy06698.forecast(observed, 6.0 * base_lap,
-		str(track.get("code", "")), int(prediction_staff.get("Estrategista", 1))) if wet_strategy_intelligence_enabled else weather.forecast(clock, 6.0 * base_lap)
+		str(track.get("code", "")), 1) if wet_strategy_intelligence_enabled else weather.forecast(clock, 6.0 * base_lap)
 	var base: Dictionary = AIDirector.plan(car, lap_count, available_pit_compounds(), tyre_specs,
 		observed, forecast_3, forecast_6, pit_loss, teammate_busy)
 	var perf_result_6: Dictionary = RaceIntelligence.refine(car, cars, base, observed, pit_loss, base_lap, lap_count)
@@ -743,7 +745,7 @@ func _advance(dt: float) -> void:
 					var queue_s: float = DoubleStackCoordinator.estimated_queue(car, teammate, projected_nominal, PIT_QUEUE_PHASE)
 					if queue_s >= DoubleStackCoordinator.QUEUE_MIN_S:
 						var future_weather: Dictionary = WetStrategy06698.forecast(weather_snapshot(), base_lap * 3.0,
-							str(track.get("code", "")), int(prediction_staff.get("Estrategista", 1))) if wet_strategy_intelligence_enabled else weather.forecast(clock, base_lap * 3.0)
+							str(track.get("code", "")), 1) if wet_strategy_intelligence_enabled else weather.forecast(clock, base_lap * 3.0)
 						if DoubleStackCoordinator.should_stagger(car, teammate, car.get("ai_plan", {}), weather_snapshot(), future_weather, queue_s, exact_lap, lap_count):
 							car["pit_request"] = false
 							car["pit_order_source"] = ""
