@@ -5,6 +5,7 @@ const TelemetryScript = preload("res://scripts/apex_telemetry.gd")
 const RaceStandingsText = preload("res://scripts/presentation/race_standings_text.gd")
 const Rules = preload("res://scripts/core/race_rules.gd")
 const RacePerformance = preload("res://scripts/core/race_performance.gd")
+const RaceStart066911 = preload("res://scripts/core/race_start_intelligence_066911.gd")
 const RaceSpace = preload("res://scripts/core/race_space_0655.gd")
 var command_session: WeakRef
 var space_profile: Dictionary = {}
@@ -670,6 +671,7 @@ func _advance(dt: float) -> void:
 			launch_legacy = bool(attached_session.get("legacy_launch_physics"))
 	var context: Dictionary = {"gap": 999.0, "lap": lap, "clock": clock, "launch_enabled": not launch_legacy,
 		"race_start_intelligence_enabled": race_start_intelligence_enabled,
+		"launch_space_clearance": RaceStart066911.first_sector_clearance(track, space_profile) if race_start_intelligence_enabled and clock < RaceStart066911.PHASE_SECONDS else 1.0,
 		"race_laps": lap_count, "base_lap": base_lap,
 		"upgrades": team_upgrades, "player_car": false, "track": track,
 		"tyre_specs": tyre_specs, "tyre_track_severity": tyre_severity(),
