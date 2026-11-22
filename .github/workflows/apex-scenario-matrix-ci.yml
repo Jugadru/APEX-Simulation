@@ -77,11 +77,18 @@ jobs:
             status=$?
             set -e
             cp "matrix-import-${attempt}.log" matrix-import.log
-            if grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' matrix-import.log; then
+            # GDScript syntax errors always fail. A native SIGSEGV can print
+            # a Godot thread ERROR before exiting 139; retry that crash only.
+            if grep -Eiq '(SCRIPT ERROR:|Parse Error:)' matrix-import.log; then
               cat matrix-import.log
               exit 1
             fi
             if test "$status" -eq 0; then
+              # Successful process exit with Godot errors is never approved.
+              if grep -Eiq '^ERROR:' matrix-import.log; then
+                cat matrix-import.log
+                exit 1
+              fi
               echo "Godot import PASS (attempt ${attempt})"
               exit 0
             fi

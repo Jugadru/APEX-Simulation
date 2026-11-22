@@ -7,6 +7,7 @@ const Rules = preload("res://scripts/core/race_rules.gd")
 const RacePerformance = preload("res://scripts/core/race_performance.gd")
 const RaceStart066911 = preload("res://scripts/core/race_start_intelligence_066911.gd")
 const RaceSpace = preload("res://scripts/core/race_space_0655.gd")
+const OVERTAKING_SIM_REVISION := "023_overtaking_intelligence_v1"
 var command_session: WeakRef
 var space_profile: Dictionary = {}
 # Session-only replay compatibility: older sporting traces use pre-9.3 traffic logic.
@@ -24,6 +25,8 @@ var wet_strategy_intelligence_enabled: bool = true
 var strategy_staff_intelligence_enabled: bool = true
 # Session-only replay gate: 021 and earlier keep Improvement 14 launch physics.
 var race_start_intelligence_enabled: bool = true
+# v9.12 is session-only; old replay revisions retain original tactical calls.
+var overtaking_intelligence_enabled: bool = true
 const Combat = preload("res://scripts/core/race_combat.gd")
 const Strategy = preload("res://scripts/core/race_strategy.gd")
 const RaceIntelligence = preload("res://scripts/core/race_intelligence_0645.gd")
@@ -665,10 +668,12 @@ func _advance(dt: float) -> void:
 	# Replays recorded before Improvement 14 must retain their original physics.
 	# Session metadata lives outside sporting state/checkpoints and has no RNG effect.
 	var launch_legacy: bool = false
+	var overtaking_rules: bool = overtaking_intelligence_enabled
 	if command_session != null:
 		var attached_session: Object = command_session.get_ref()
 		if attached_session != null:
 			launch_legacy = bool(attached_session.get("legacy_launch_physics"))
+			overtaking_rules = overtaking_rules and str(attached_session.get("recorded_simulation_revision")) == OVERTAKING_SIM_REVISION
 	var context: Dictionary = {"gap": 999.0, "lap": lap, "clock": clock, "launch_enabled": not launch_legacy,
 		"race_start_intelligence_enabled": race_start_intelligence_enabled,
 		"launch_space_clearance": RaceStart066911.first_sector_clearance(track, space_profile) if race_start_intelligence_enabled and clock < RaceStart066911.PHASE_SECONDS else 1.0,
@@ -701,7 +706,7 @@ func _advance(dt: float) -> void:
 		pace_metrics[int(old_car["id"])] = RacePerformance.evaluate(old_car, context)
 	if Perf.enabled: Perf.end(&"race.pace_thermal_drs_kers",perf_pace)
 	var perf_space := Perf.begin() if Perf.enabled else 0
-	var space_plan := RaceSpace.plan(old_order,pace_metrics,dt,track,space_profile,current_weather,driver_traffic_enabled,driver_soul3_enabled)
+	var space_plan := RaceSpace.plan(old_order,pace_metrics,dt,track,space_profile,current_weather,driver_traffic_enabled,driver_soul3_enabled,overtaking_rules)
 	if Perf.enabled: Perf.end(&"race.overtaking",perf_space)
 	var defenders: Dictionary = {}
 	for car in cars:

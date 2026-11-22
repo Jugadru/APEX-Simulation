@@ -25,13 +25,15 @@ CASES = {
     "save": ("core_0642_save_migration_test.gd", "APEX 0642 SAVE MIGRATION PASS"),
     "staff": ("strategy_staff_066910_test.gd", "STRATEGY_STAFF_066910_PASS"),
     "start": ("race_start_066911_test.gd", "RACE_START_066911_PASS"),
+    "overtake": ("overtaking_066912_test.gd", "OVERTAKING_066912_PASS"),
     "wet": ("wet_strategy_06698_test.gd", "WET_STRATEGY_06698_PASS"),
 }
-CORE = frozenset(("ai", "pit", "wet", "orders", "staff", "start"))
+CORE = frozenset(("ai", "pit", "wet", "orders", "staff", "start", "overtake"))
 EXACT = {
     "scripts/race_engine.gd": CORE,
-    "scripts/core/race_replay_0660.gd": frozenset(("wet", "staff", "prediction", "save", "start")),
-    "scripts/core/race_state_codec_0660.gd": frozenset(("save", "staff", "prediction", "start")),
+    "scripts/core/race_replay_0660.gd": frozenset(("wet", "staff", "prediction", "save", "start", "overtake")),
+    "scripts/core/race_space_0655.gd": frozenset(("overtake", "driver", "start")),
+    "scripts/core/race_state_codec_0660.gd": frozenset(("save", "staff", "prediction", "start", "overtake")),
     "scripts/core/race_performance.gd": frozenset(("start", "wet", "driver")),
     "scripts/apex_race_session_controller.gd": frozenset(("ai", "staff", "wet")),
     "scripts/apex_race_hud_0622.gd": frozenset(("hud", "staff")),
@@ -55,6 +57,7 @@ def categories_for(paths: list[str]) -> set[str]:
         if path.startswith("scripts/core/"):
             if "staff" in name or "strateg" in name: local.update(("staff", "ai"))
             if "race_start" in name or "race_launch" in name: local.add("start")
+            if "overtaking" in name or "race_space" in name: local.add("overtake")
             if "weather" in name or "wet" in name or "tyre" in name: local.add("wet")
             if "pit" in name: local.update(("pit", "prediction"))
             if "radio" in name: local.add("radio")

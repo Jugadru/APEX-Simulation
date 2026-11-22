@@ -101,6 +101,7 @@ jobs:
             'driver_dynamics_0661_test.gd|DRIVER_DYNAMICS_0661_PASS'
             'race_launch_14_test.gd|RACE_LAUNCH_14_PASS'
             'race_start_066911_test.gd|RACE_START_066911_PASS'
+            'overtaking_066912_test.gd|OVERTAKING_066912_PASS'
             'weather_setup_15_test.gd|WEATHER_SETUP_15_PASS'
             'standings_refactor_test.gd|STANDINGS_REFACTOR_PASS'
             'hud_metric_refactor_test.gd|HUD_METRIC_REFACTOR_PASS'

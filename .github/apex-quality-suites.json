@@ -56,6 +56,31 @@
         }
       ],
       "checks": []
+    },
+    {
+      "id": "overtaking_intelligence_0912",
+      "paths": [
+        "scripts/core/race_overtaking_intelligence_066912.gd",
+        "scripts/core/race_space_0655.gd",
+        "scripts/core/race_replay_0660.gd",
+        "scripts/race_engine.gd",
+        "tests/overtaking_066912_test.gd"
+      ],
+      "fast_tests": [
+        {
+          "script": "overtaking_066912_test.gd",
+          "marker": "OVERTAKING_066912_PASS"
+        }
+      ],
+      "checks": [
+        {
+          "key": "overtaking_targeted_v0912",
+          "workflow": "apex-overtaking-ci.yml",
+          "job": "Godot 4.7.2 / lane decisions / 022-023 replay / V21",
+          "area": "Overtaking Intelligence 1.0",
+          "comparison": false
+        }
+      ]
     }
   ]
 }
