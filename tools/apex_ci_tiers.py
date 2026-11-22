@@ -10,6 +10,7 @@ from apex_quality_manifest import load_suites, fast_tests_for
 
 SHA = re.compile(r"[0-9a-fA-F]{40}\Z")
 ALWAYS = (
+    ("apex_lab_track_smoke.gd", "APEX_LAB_TRACK_PASS"),
     ("race_launch_14_test.gd", "RACE_LAUNCH_14_PASS"),
     ("replay_0660_test.gd", "REPLAY_UNIT_PASS"),
     ("pit_incidents_double_stack_test.gd", "APEX INCIDENT DOUBLE STACK OK"),
