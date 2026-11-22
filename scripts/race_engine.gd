@@ -16,6 +16,7 @@ const Combat = preload("res://scripts/core/race_combat.gd")
 const Strategy = preload("res://scripts/core/race_strategy.gd")
 const RaceIntelligence = preload("res://scripts/core/race_intelligence_0645.gd")
 const PitWallStrategy3 = preload("res://scripts/core/race_pitwall_strategy_0649.gd")
+const PredictionLedger06696 = preload("res://scripts/core/race_pitwall_prediction_06696.gd")
 const LapStrategy06496 = preload("res://scripts/core/race_lap_reassessment_06496.gd")
 const TeamPitCoordinator06497 = preload("res://scripts/core/race_team_pit_coordination_06497.gd")
 const DriverSoul = preload("res://scripts/core/race_driver_soul_0647.gd")
@@ -121,6 +122,9 @@ var pit_incident_test_overrides: Dictionary = {}
 var pit_history: Array[Dictionary] = []
 # Read-only strategy analysis cached between lap/weather/wear changes.
 var _engineer_advice_cache: Dictionary = {}
+# Session-only observer. Excluded from sporting checkpoints and hashes.
+var prediction_ledger = PredictionLedger06696.new()
+var prediction_staff: Dictionary = {}
 
 func _init(teams_data: Array, player_team: String, seed_value: int, levels: Dictionary, track_payload: Dictionary = {}, trained_crew: Dictionary = {}) -> void:
 	teams = teams_data
@@ -787,6 +791,7 @@ func _advance(dt: float) -> void:
 				_event("classification", int(car["id"]), "%s: classificado sem cruzamento apos limite de encerramento." % str(car["name"]), 55)
 		finished = true
 		running = false
+		prediction_ledger.close_unfinished()
 		_finalize_classification()
 
 func get_pit_crew_effects() -> Dictionary:
@@ -804,6 +809,11 @@ func _crew_bonus_for(car: Dictionary) -> Dictionary:
 		"fault_chance": PIT_GUN_FAILURE_CHANCE, "unsafe_chance": PIT_UNSAFE_RELEASE_CHANCE}
 
 func _begin_pit(car: Dictionary, entry_progress: float) -> void:
+	# Freeze the forecast at commitment, BEFORE mutations or RNG pit incidents.
+	# Does not schedule, cancel or change the stop.
+	prediction_ledger.capture_entry(car, cars, _build_strategy_plan(car, _team_pit_busy(car)),
+		weather_snapshot(), tyre_specs, prediction_staff if str(car.get("team", "")) == team_name else {},
+		pit_loss, base_lap, PIT_TRACK_FRACTION, tick_counter, clock)
 	car["kers_active"] = false
 	car["kers_power_kw"] = 0.0
 	car["drs_active"] = false
@@ -974,8 +984,15 @@ func _record_pit_history(car: Dictionary) -> void:
 		"crew_agility": int(crew_levels.get("Agilidade", 0)) if car["team"] == team_name else 0,
 		"crew_coordination": int(crew_levels.get("Coordenação", 0)) if car["team"] == team_name else 0
 	})
+	prediction_ledger.observe_exit(pit_history[-1], base_lap, PIT_TRACK_FRACTION)
 	if telemetry != null:
 		telemetry.record_pit(pit_history[-1])
+
+func get_prediction_ledger(team_filter: String = "") -> Array:
+	return prediction_ledger.snapshot(team_filter)
+
+func get_prediction_summary(team_filter: String = "") -> Dictionary:
+	return prediction_ledger.summary(team_filter)
 
 func get_pit_history(team_filter: String = "") -> Array:
 	var result: Array = []
@@ -1063,6 +1080,8 @@ func _record_lap_cross(car: Dictionary, previous: float, choose_ai_strategy: boo
 		car["invalid_lap_count"] = int(car.get("invalid_lap_count", 0)) + 1
 		_event("timing_invalid", int(car["id"]), "TIMING | %s: passagem %.2fs ignorada no recorde (limite de plausibilidade)." % [str(car["name"]), lap_time], 29)
 	car["lap_started"] = clock
+	# Observed tyre/pace/weather series is orthogonal to the sporting state.
+	prediction_ledger.observe_lap(car, weather_snapshot())
 	# Apex Soul 2.0 observes teammate pace and position once per completed lap.
 	# No race order or timing/physics value is modified.
 	var soul_teammate: Dictionary = {}
