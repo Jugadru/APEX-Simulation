@@ -1,16 +1,56 @@
-# APEX Motorsport Manager — Core 2 (v0.6.6.9.4)
+# APEX Motorsport Manager — Core 2 (v0.6.6.9.5)
 
 Simulador de gestão de automobilismo com equipes, estratégias, desenvolvimento de carros e corridas em 3D. O **Core 2** é o motor esportivo oficial deste repositório.
 
-## 📥 Baixar o jogo — v0.6.6.9.4
+## 📥 Baixar o jogo — v0.6.6.9.5 (versão atual)
 
-### [⬇ Baixar APEX v0.6.6.9.4 — Windows e Linux](https://github.com/Jugadru/APEX-Simulation/actions/runs/44950950040/artifacts/14725252948)
+### [⬇ Baixar APEX v0.6.6.9.5 — Windows e Linux](https://github.com/Jugadru/APEX-Simulation/actions/runs/44966435731/artifacts/14731945591)
+
+Pacote de desktop exportado no **Godot 4.7.2**, com ZIPs para **Windows x86_64** e **Linux x86_64**. Extraia o arquivo externo do GitHub Actions e depois o ZIP do seu sistema; **mantenha o executável e o arquivo `.pck` juntos**. No Linux, pode ser necessário executar `chmod +x APEX_Motorsport_Manager.x86_64`.
+
+**Download temporário até 06/12/2026**, sujeito à disponibilidade do GitHub Actions e possivelmente a login no GitHub. O pacote não é uma GitHub Release pública permanente. As exportações Linux/Windows e o smoke test Linux passaram na CI; isso não equivale a teste gráfico nativo no Windows nem a medição de FPS na máquina do jogador.
+
+### [⬇ Baixar o código-fonte v0.6.6.9.5 — Godot 4.7.2](https://github.com/Jugadru/APEX-Simulation/archive/7ffa370708c2b4e096f58ec52531f217ff1664a1.zip)
+
+Código **integrado à `main` na [PR #79](https://github.com/Jugadru/APEX-Simulation/pull/79)**. O merge commit `7ffa370708c2b4e096f58ec52531f217ff1664a1` tem a **mesma árvore Git** da candidata aprovada `edcb579365ef1c68b7c75267eb48d5daf2aba8dc`; nenhum conteúdo foi modificado durante o merge. O ZIP de código-fonte é para editar o projeto, **não** é um executável.
+
+### 📻 Novidade — Race Radio 3.0 (texto primeiro)
+
+- **Cinco perfis de linguagem por piloto:** comunicação concisa, com diferenças consistentes entre estilos direto, explosivo, técnico, cauteloso e competitivo.
+- **Driver Soul 3.0 integrado:** a pressão emocional pode influenciar a maneira de falar, sem conceder velocidade ou aderência artificial.
+- **Mensagens ancoradas em acontecimentos reais da simulação:** desgaste, temperatura, tráfego, chuva, pedidos de estratégia e dúvidas sobre parada agendada. Mensagens legadas desconhecidas permanecem sem transformação.
+- **Diálogo contextual:** respostas escritas do engenheiro, memória de até oito entradas por piloto e supressão de reclamações triviais repetidas.
+- **Sem comandos ocultos:** comunicação e previsões textuais não alteram BOX agendado, ordens manuais, pneus, ritmo, física, RNG, saves ou regras de replay.
+- **Preparado para vozes futuras:** pacotes de mensagem incluem `text_key`, `locale`, `voice_profile_id`, `simulation_tick` e `conversation_id`. **A versão 9.5 ainda não possui vozes nem síntese de áudio.** As novas falas do cockpit estão inicialmente em inglês.
+
+**Testes:** [17/17 workflows GitHub Actions PASS na candidata](https://github.com/Jugadru/APEX-Simulation/commit/edcb579365ef1c68b7c75267eb48d5daf2aba8dc/checks). O teste dedicado Race Radio 3.0 aprovou **69 verificações**, incluindo imutabilidade esportiva, cinco perfis, continuidade e proteção do BOX V21. Passaram também Soul 2.0/3.0, SaveGuard, Pit Wall, Core 2, GdUnit4, exportações Windows/Linux, regressão visual, comparação A/B e matriz dos **20 circuitos**. O endurance confirmou **Monza 53 voltas, 24.229 ticks e replay integral determinístico**, com hash esportivo igual; os benchmarks headless **não demonstram FPS 3D real nem 32× sustentado**.
+
+**Documentação técnica:** [Race Radio 3.0 — v9.5](docs/APEX_RELEASE_v0.6.6.9.5_RACE_RADIO.md) · [PR #79 e relatório final](https://github.com/Jugadru/APEX-Simulation/pull/79).
+
+## 🗺️ Próximas versões planejadas (ainda não implementadas)
+
+| Versão | Foco | Objetivo |
+| --- | --- | --- |
+| **v0.6.6.9.6** | **Pit Wall Prediction Ledger 1.0** | Registrar previsões de paradas, pneus, tráfego e condições meteorológicas, comparando estimativas com resultados verificados sem fabricar fatos. |
+| v0.6.6.9.7 | Pit Coordination 2.0 | Aperfeiçoar filas, `double stack` e coordenação operacional da equipe. |
+| v0.6.6.9.8 | Wet Strategy Intelligence | Refinar recomendações em chuva, transição entre compostos e pista secando. |
+| v0.6.6.9.9 | Race Quality Release | Regressões, estabilidade e refinamento da experiência de corrida. |
+
+Cada atualização deve ter **uma funcionalidade principal**, testes direcionados e regressões antes do merge. Questões ainda abertas: [desempenho 32× sustentado — #74](https://github.com/Jugadru/APEX-Simulation/issues/74) e [ressincronização visual em Mônaco/Spa — #77](https://github.com/Jugadru/APEX-Simulation/issues/77).
+
+---
+
+## 📦 Versão anterior — v0.6.6.9.4
+
+### Baixar o jogo — v0.6.6.9.4
+
+#### [⬇ Baixar APEX v0.6.6.9.4 — Windows e Linux](https://github.com/Jugadru/APEX-Simulation/actions/runs/44950950040/artifacts/14725252948)
 
 **Pacote para PC**, compilado no **Godot 4.7.2** a partir do commit candidato testado `63d7953cc21184d6902ebc8cc34b7e696ec927ba` e integrado à `main` na [PR #76](https://github.com/Jugadru/APEX-Simulation/pull/76). O artefato contém ZIPs separados para **Windows x86_64** e **Linux x86_64**. Extraia o pacote externo do GitHub Actions e o ZIP do seu sistema; mantenha o executável e o arquivo `.pck` na mesma pasta.
 
 **Download temporário até 05/12/2026**, possivelmente exigindo login no GitHub. A exportação verificou a identificação `APEX Motorsport Manager v0.6.6.9.4` nos dois pacotes. Houve teste básico de inicialização no Linux. Não foi feito teste gráfico nativo no Windows do usuário; **nenhuma Release pública permanente v9.4 foi publicada**.
 
-### [⬇ Baixar código-fonte oficial da v0.6.6.9.4 — Godot 4.7.2](https://github.com/Jugadru/APEX-Simulation/archive/17ad31b1402d67b239d148e7fb2f5e9c5013b8d0.zip)
+#### [⬇ Baixar código-fonte oficial da v0.6.6.9.4 — Godot 4.7.2](https://github.com/Jugadru/APEX-Simulation/archive/17ad31b1402d67b239d148e7fb2f5e9c5013b8d0.zip)
 
 O código integrado no commit `17ad31b1402d67b239d148e7fb2f5e9c5013b8d0` tem a **mesma árvore de arquivos** do commit testado e exportado `63d7953cc21184d6902ebc8cc34b7e696ec927ba`. O ZIP do código-fonte serve para edição no Godot, não contém executáveis prontos.
 
