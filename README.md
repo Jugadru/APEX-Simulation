@@ -1,5 +1,18 @@
 # APEX Motorsport Manager — Core 2 (v0.6.6.9.8)
 
+## Downloads — HUD atualizada (22/11/2026)
+
+**[Baixar para Windows x86_64](https://github.com/Jugadru/APEX-Simulation/releases/download/v0.6.6.9.8-hud/APEX_Motorsport_Manager_4.7.2-stable_windows_x86_64.zip)** · **[Baixar para Linux x86_64](https://github.com/Jugadru/APEX-Simulation/releases/download/v0.6.6.9.8-hud/APEX_Motorsport_Manager_4.7.2-stable_linux_x86_64.zip)**
+
+[Release permanente v0.6.6.9.8-hud](https://github.com/Jugadru/APEX-Simulation/releases/tag/v0.6.6.9.8-hud) · [SHA256](https://github.com/Jugadru/APEX-Simulation/releases/download/v0.6.6.9.8-hud/SHA256SUMS.txt)
+
+Build do commit `129ee65` da main, com o PR #90: BOX destacado, contexto dos pilotos e previsão temporal de água na pista. A versão interna permanece v0.6.6.9.8. Estes pacotes substituem os downloads temporários anteriores para quem deseja a HUD atualizada.
+
+Extraia o ZIP completo e mantenha executável e `.pck` juntos. No Linux, se necessário: `chmod +x APEX_Motorsport_Manager.x86_64`.
+
+[Exportação validada](https://github.com/Jugadru/APEX-Simulation/actions/runs/45043191830), CI Core2 pós-merge e comparação visual PASS. Linux: inicialização headless aprovada. Windows: exportado, sem execução nativa e sem assinatura digital. Não equivale a benchmark gráfico.
+
+
 Simulador de gestão de automobilismo com equipes, estratégias, desenvolvimento de carros e corridas em 3D. O **Core 2** é o motor esportivo oficial deste repositório.
 
 ## 📥 Baixar o jogo — v0.6.6.9.8 (versão oficial)
