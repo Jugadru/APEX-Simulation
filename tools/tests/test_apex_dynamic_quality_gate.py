@@ -91,6 +91,11 @@ class DynamicGateTests(unittest.TestCase):
         from apex_ci_tiers import categories_for, CASES
         self.assertTrue(set(CASES).issubset(categories_for(["scripts/core/new_unmapped_thing.gd"])))
 
+    def test_unknown_noncore_module_and_data_trigger_all_legacy_tests(self):
+        from apex_ci_tiers import categories_for, CASES
+        self.assertTrue(set(CASES).issubset(categories_for(["scripts/new_feature.gd"])))
+        self.assertTrue(set(CASES).issubset(categories_for(["data/new_parameters.json"])))
+
 
 if __name__ == "__main__":
     unittest.main()
