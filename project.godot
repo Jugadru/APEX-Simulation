@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="APEX Motorsport Manager v0.6.6.9.9 — Core 2"
-config/description="v0.6.6.9.9: Race Quality Release — auditoria de corridas, boxes, regressões e estabilidade; regras esportivas e replay 020 preservados."
+config/description="v0.6.6.9.9: Race Quality Release oficial (Godot 4.7.2) — HUD Manager com BOX destacado, contexto dos pilotos e previsao temporal de agua; matriz de 20 circuitos e gate 19/19 aprovados; regras esportivas, replay 020 e saves preservados."
 run/main_scene="res://scenes/main.tscn"
 config/use_custom_user_dir=true
 config/custom_user_dir_name="APEX_0650_SOUL_STAFF"
