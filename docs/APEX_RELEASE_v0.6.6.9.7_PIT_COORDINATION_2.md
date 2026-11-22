@@ -1,4 +1,4 @@
-# APEX Motorsport Manager v0.6.6.9.7 — Pit Coordination 2.0 (CANDIDATE)
+# APEX Motorsport Manager v0.6.6.9.7 — Pit Coordination 2.0 (INTEGRADA À MAIN)
 
 **Base imutável:** v0.6.6.9.6 em `main`, commit `917cba8e0df38861fb8f43bb8a4b9249cfea2a99`.
 **Uma funcionalidade principal:** coordenação operacional de garagem compartilhada, double stack e liberação de segurança.
@@ -26,4 +26,22 @@ A ordenação FIFO pode alterar resultados esportivos de um double stack simult�
 - Replay `017` e `018`, compatibilidade SaveGuard e regressões do Core 2
 - Monza 53 voltas, 20 circuitos, benchmarking, Linux/Windows e Quality Gate READY
 
-**Status:** CANDIDATE / NOT_RUN antes da CI do head final. Não mesclar se evidência ausente ou `BLOCKED`. É proibido atribuir sucesso a um teste não executado.
+**Status final:** `RELEASE INTEGRADA`. A [PR #81](https://github.com/Jugadru/APEX-Simulation/pull/81) foi mesclada na `main` no commit `6c6560bd36f2eecda82cf7959b884464054bc03c`, sem descartar critérios de validação. Cabeça candidata testada: `689aaf7522002a3d8c385dd70a1ac5eb8b07f851`.
+
+## Evidências de liberação
+
+- **20/20 workflows PASS** no commit candidato. [Ver checks](https://github.com/Jugadru/APEX-Simulation/commit/689aaf7522002a3d8c385dd70a1ac5eb8b07f851/checks).
+- **Quality Gate READY 10/10**, auditado novamente após conclusão de todos os testes, [workflow 44973100063](https://github.com/Jugadru/APEX-Simulation/actions/runs/44973100063). O primeiro relatório `BLOCKED 6/10` era um diagnóstico legítimo de evidências ainda pendentes e não foi aceito como aprovação.
+- Teste dedicado [Pit Coordination 2.0](https://github.com/Jugadru/APEX-Simulation/actions/runs/44973100021) **PASS, 41 verificações**. Inclui FIFO e desempate independente de array, garagem exclusiva, retenção de segurança, espera real, V21 e reprodução da revisão 017; regressões das versões 9.6 e 9.4 incluídas.
+- **SaveGuard 53 verificações PASS**, replays cross-revision, arquivos de carreira e garage originais imutáveis. [Workflow](https://github.com/Jugadru/APEX-Simulation/actions/runs/44973100160).
+- **Matriz de 20 circuitos 4/4 grupos PASS**, [workflow](https://github.com/Jugadru/APEX-Simulation/actions/runs/44973100015).
+- **Monza 53 voltas** com **24.229 ticks**, replay esportivo integral com hash idêntico (`715912b4a7413c3cbdbd83a133d646a80a622b94077223f465ab28e10fc895a2`), teste longo PASS e provas repetidas em Itália e Silverstone. [Workflow](https://github.com/Jugadru/APEX-Simulation/actions/runs/44973100029).
+- Exportação Linux/Windows **PASS**, smoke Linux e artefato [temporário](https://github.com/Jugadru/APEX-Simulation/actions/runs/44973100017/artifacts/14734451599), previsto até 06/12/2026; benchmark headless não equivale a FPS 3D nativo do PC do jogador.
+
+## Questão em acompanhamento
+
+O Pit Wall Intelligence Analyzer aprovou 4 cenários e 8 execuções (determinismo confirmado), porém emitiu 7 **REVIEW / PIT_QUEUE** para esperas observadas de 3,16 a 8,23 s. Não são falhas de CI; as causas de filas evitáveis pela IA ainda precisam ser investigadas. Registro aberto na [issue #82](https://github.com/Jugadru/APEX-Simulation/issues/82). A v9.7 não promete eliminar todos os double stacks nem alterar janelas manuais.
+
+## Rollback
+
+A alteração foi integrada com squash no commit `6c6560bd36f2eecda82cf7959b884464054bc03c`. Se houver regressão esportiva comprovada, realizar `git revert 6c6560bd36f2eecda82cf7959b884464054bc03c` numa branch corretiva e abrir nova PR com regressões; não apagar o histórico da `main`.
