@@ -70,10 +70,20 @@ func _run() -> void:
 	var season: Dictionary = season_data
 	var silverstone: Dictionary = _track(season, "GBR")
 	var monza: Dictionary = _track(season, "ITA")
-	if silverstone.is_empty() or monza.is_empty():
+	var monaco: Dictionary = _track(season, "MON")
+	if silverstone.is_empty() or monza.is_empty() or monaco.is_empty():
 		check(false, "2012 circuits")
 		_finish()
 		return
+	var monaco_clearance: float = Start.first_sector_clearance(monaco,
+		preload("res://scripts/core/race_space_0655.gd").profile(monaco))
+	var silverstone_clearance: float = Start.first_sector_clearance(silverstone,
+		preload("res://scripts/core/race_space_0655.gd").profile(silverstone))
+	check(monaco_clearance <= 0.01 and silverstone_clearance > 0.99,
+		"narrow first sector limits new start variation without circuit-name branching")
+	check(Start.pace_cost(good, 0.0, rain, monaco_clearance)
+		== Legacy.pace_cost(good, 0.0, 0.83),
+		"narrow grid preserves the existing 2012 launch cost exactly")
 	var first = Race.new(season["teams"], "Ferrari", 6611, {}, silverstone, {})
 	var second = Race.new(season["teams"], "Ferrari", 6611, {}, silverstone, {})
 	check(first.cars.size() == 24 and second.cars.size() == 24,
