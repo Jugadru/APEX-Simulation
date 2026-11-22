@@ -8,7 +8,7 @@
 
 - Novo módulo puro: scripts/core/race_wet_strategy_intelligence_06698.gd. Usa somente chuva, lâmina de água, umidade, vento, temperatura e drenagem observados. Não lê eventos futuros, não chama weather.forecast() nem consome RNG.
 - Integra-se à função original _build_strategy_plan() do Core 2, alcançando a mesma IA do Pit Wall e dos rivais. O modo Manual recebe sugestões sem executar automaticamente.
-- Nowcast com faixa de incerteza **heurística**, sem fingir probabilidade calibrada. A habilidade do estrategista afeta a margem reportada, não o conhecimento de eventos futuros.
+- Nowcast com faixa de incerteza **heurística**, sem fingir probabilidade calibrada. O módulo puro aceita um nível de competência que ajusta a margem, mas a IA esportiva usa nível neutro fixo nesta versão. A competência do STAFF não deve afetar decisões antes de integrar seus dados à persistência/replay; nenhum atributo auxiliar fora do checkpoint influencia o motor.
 - Trocas automáticas não críticas que dependem de atravessar o limiar entre pneus podem aguardar quando a faixa cruza esse limiar. Desgaste crítico e slicks em pista perigosamente molhada não são bloqueados.
 - Nenhuma alteração da física da chuva, progressão do carro, HDR, HUD 2D/3D, regulamento 2012 ou cálculo da fila de pit.
 - Ordens manuais V21 e chamadas imediatas continuam sob controle do jogador. Double stack, FIFO e prevenção de filas da versão 9.7.1 permanecem preservados.
