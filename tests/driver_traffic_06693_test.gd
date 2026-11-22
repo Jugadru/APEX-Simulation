@@ -61,6 +61,8 @@ func run() -> void:
 	recorded.attach(engine)
 	engine.driver_traffic_enabled = false
 	engine.driver_soul3_enabled = false
+	engine.race_start_intelligence_enabled = false
+	recorded.legacy_start_intelligence = true
 	recorded.checkpoints = [recorded.checkpoint()]
 	verify(not Codec.capture(engine).engine.has("driver_traffic_enabled"), "Traffic session toggle stays out of legacy checkpoint schema")
 	verify(not Codec.capture(engine).engine.has("driver_soul3_enabled"), "Soul3 session toggle stays out of legacy checkpoint schema")
