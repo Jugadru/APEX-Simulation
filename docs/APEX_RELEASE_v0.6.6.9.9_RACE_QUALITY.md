@@ -68,3 +68,12 @@ O teste integral de clima variável exige evidência de mudança observada de pe
 ## Rollback
 
 Branch independente da `main`, sem alteração de lógica esportiva ou revisão. Conservar commit-base `736ba64`; reverter o PR se a auditoria falhar. Só realizar merge quando o relatório final e o Quality Gate confirmarem a aprovação.
+
+
+## Correção comprovada — deadlock espacial em Mônaco
+
+A matriz completa evidenciou travamento reproduzível no caso `mon_1_1_1764457695` (MON / Variável / Assistido): 22 dos 24 carros bloqueados após a volta 8; dois carros lado a lado (IDs 6 e 8) permaneceram empatados em progresso 7,0936, com pista mais estreita à frente. O Core 2 não encerrava a prova após 1.500 etapas; aumentar o timeout não corrigiria a causa.
+
+A correção mínima no planejador `race_space_0655.gd` substitui apenas o empate ambíguo de prioridade em faixa lateral estreita por desempate determinístico pelo ID: um carro avança normalmente e o outro espera a abertura de espaço. **Não muda RNG, compostos, KERS, DRS, trajetória espacial autorizada, pit manual ou revisão 020**. O teste sintético `apex_monaco_deadlock_099_test.gd` protege a ordem determinística, a separação lateral, a ausência de teleporte e o avanço posterior dos dois carros.
+
+Em execução nativa **isolada** no Godot 4.7.2 (PR de diagnóstico #89), a corrida passou duas vezes com **235 etapas, 24 classificados, 0 erros**, hash igual `20c4953a1f0dee6efb91c34a489a066c69171d0a94ab4cf87c485820feca9a14` e paradas manuais nas voltas 6 e 7. **A aprovação global 19/19 continua obrigatória no novo SHA da PR #87**; testes isolados não liberam publicação.

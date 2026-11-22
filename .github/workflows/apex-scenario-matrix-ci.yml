@@ -25,6 +25,7 @@ on:
       - 'data/tyres_2012.json'
       - 'scripts/**'
       - 'tests/ci/apex_scenario_matrix_probe.gd'
+      - 'tests/ci/apex_monaco_deadlock_099_test.gd'
       - 'tools/apex_scenario_matrix.py'
       - 'tools/tests/test_apex_scenario_matrix.py'
       - '.github/workflows/apex-scenario-matrix-ci.yml'
@@ -107,6 +108,21 @@ jobs:
             sleep "$attempt"
           done
 
+      - name: Regressao de espaco fisico em Monaco (empate sem deadlock)
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 120s godot --headless --single-threaded-scene --path . \
+            --script res://tests/ci/apex_monaco_deadlock_099_test.gd > monaco-deadlock.log 2>&1 || {
+              cat monaco-deadlock.log
+              exit 1
+            }
+          cat monaco-deadlock.log
+          grep -Fq APEX_MONACO_DEADLOCK_099_PASS monaco-deadlock.log
+          if grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:|_FAIL)' monaco-deadlock.log; then
+            exit 1
+          fi
+
       - name: Executar cenarios reais e comparar duas repeticoes
         shell: bash
         env:
@@ -171,5 +187,6 @@ jobs:
             ci_artifacts/scenario_matrix/shard-${{ matrix.shard }}/
             matrix-import.log
             matrix-import-*.log
+            monaco-deadlock.log
           retention-days: 14
           if-no-files-found: warn
