@@ -17,6 +17,8 @@ var pit_coordination2_enabled: bool = true
 # v9.7.1: sporting rules for new sessions; 018 and earlier recordings disable
 # only this preventive decision, leaving the physical 018 FIFO untouched.
 var pit_queue_prevention_enabled: bool = true
+# Session-only sporting revision gate: archived 019 replays keep the previous forecast.
+var wet_strategy_intelligence_enabled: bool = true
 const Combat = preload("res://scripts/core/race_combat.gd")
 const Strategy = preload("res://scripts/core/race_strategy.gd")
 const RaceIntelligence = preload("res://scripts/core/race_intelligence_0645.gd")
@@ -37,6 +39,7 @@ const DoubleStackCoordinator = preload("res://scripts/core/race_double_stack_coo
 const Tyres2012 = preload("res://scripts/core/race_tyres_2012.gd")
 const TyreRules2012 = preload("res://scripts/core/race_tyre_regulations_2012.gd")
 const WeatherCore = preload("res://scripts/core/race_weather.gd")
+const WetStrategy06698 = preload("res://scripts/core/race_wet_strategy_intelligence_06698.gd")
 const WetPhysics = preload("res://scripts/core/race_wet_physics.gd")
 const RaceKers2012 = preload("res://scripts/core/race_kers_2012.gd")
 const RaceDrs2012 = preload("res://scripts/core/race_drs_2012.gd")
@@ -291,11 +294,16 @@ func _build_strategy_plan(car: Dictionary, teammate_busy: bool = false) -> Dicti
 	var perf_started := Perf.begin() if Perf.enabled else 0
 	# Planning happens at lap boundaries or on-demand for the engineer.
 	# Weather forecast uses deterministic integration; no race RNG consumed.
-	var forecast_3: Dictionary = weather.forecast(clock, 3.0 * base_lap)
-	var forecast_6: Dictionary = weather.forecast(clock, 6.0 * base_lap)
+	var observed: Dictionary = weather_snapshot()
+	var forecast_3: Dictionary = WetStrategy06698.forecast(observed, 3.0 * base_lap,
+		str(track.get("code", "")), int(prediction_staff.get("Estrategista", 1))) if wet_strategy_intelligence_enabled else weather.forecast(clock, 3.0 * base_lap)
+	var forecast_6: Dictionary = WetStrategy06698.forecast(observed, 6.0 * base_lap,
+		str(track.get("code", "")), int(prediction_staff.get("Estrategista", 1))) if wet_strategy_intelligence_enabled else weather.forecast(clock, 6.0 * base_lap)
 	var base: Dictionary = AIDirector.plan(car, lap_count, available_pit_compounds(), tyre_specs,
-		weather_snapshot(), forecast_3, forecast_6, pit_loss, teammate_busy)
-	var perf_result_6 = RaceIntelligence.refine(car, cars, base, weather_snapshot(), pit_loss, base_lap, lap_count)
+		observed, forecast_3, forecast_6, pit_loss, teammate_busy)
+	var perf_result_6: Dictionary = RaceIntelligence.refine(car, cars, base, observed, pit_loss, base_lap, lap_count)
+	if wet_strategy_intelligence_enabled:
+		perf_result_6 = WetStrategy06698.review_plan(car, perf_result_6, observed, forecast_3, forecast_6)
 	if Perf.enabled: Perf.end(&"strategy.plan",perf_started)
 	return perf_result_6
 
