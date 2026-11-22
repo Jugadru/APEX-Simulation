@@ -88,13 +88,13 @@ func _run() -> void:
 	verify(var_to_bytes(confident) == confident_before and var_to_bytes(stressed) == stressed_before,
 		"Judgment function does not mutate drivers")
 	verify(is_equal_approx(Soul3.attack_bias(car(7), dry), 0.0), "No Soul3 fields means no bias")
-	# New 017 replay determinism; old 016 replays retain their own Soul2 rules.
+	# Current 018 retains Soul3; old 017/016 continue with their historical queue and Soul rules.
 	var season: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/season_2012.json"))
 	var current_engine = Race.new(season.teams, "Ferrari", 6694, {}, season.tracks[0], {})
 	var session = Replay.new()
 	session.attach(current_engine)
 	verify(not Codec.capture(current_engine).engine.has("driver_soul3_enabled"), "Session feature flag not serialized")
-	verify(str(session.export_data().simulation_revision) == "017_driver_soul_v1", "Current sporting revision is 017")
+	verify(str(session.export_data().simulation_revision) == Replay.SIMULATION_REVISION, "Current sporting revision is 018 with Soul3")
 	for tick in range(120):
 		if not session.step_tick():
 			verify(false, "Current replay recording failed: " + session.error)
@@ -111,6 +111,9 @@ func _run() -> void:
 	var old_session = Replay.new()
 	old_session.attach(old_engine)
 	old_engine.driver_soul3_enabled = false
+	old_engine.pit_coordination2_enabled = false
+	old_session.legacy_soul_physics = true
+	old_session.legacy_pit_coordination = true
 	old_session.recorded_simulation_revision = Replay.TRAFFIC_SIMULATION_REVISION
 	old_session.checkpoints = [old_session.checkpoint()]
 	for tick in range(120):
@@ -122,6 +125,7 @@ func _run() -> void:
 	verify(old_loaded.load_data(old_payload), "Historical 016 replay accepted")
 	verify(not bool(old_loaded.race.driver_soul3_enabled), "Historical 016 replay keeps Soul2 tactical behavior")
 	verify(bool(old_loaded.race.driver_traffic_enabled), "Historical 016 replay retains Driver Traffic 9.3")
+	verify(not bool(old_loaded.race.pit_coordination2_enabled), "Historical 016 replay retains legacy pit queue physics")
 	verify(old_loaded.seek(old_session.tick) and old_loaded.first_divergence < 0, "Historical 016 replay hashes reproduce")
 	verify(str(old_loaded.export_data().simulation_revision) == Replay.TRAFFIC_SIMULATION_REVISION, "Re-export does not relabel older archives")
 	if errors.is_empty():
