@@ -6,8 +6,15 @@ func _initialize()->void:call_deferred("run")
 func make_session():
 	var data:Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://data/season_2012.json"))
 	var track:Dictionary=data.tracks[0].duplicate(true)
-	for t in data.tracks:
-		if t.code=="GBR":track=t.duplicate(true)
+	if OS.get_environment("APEX_FAST_LAB") == "1":
+		# Automatic FAST executes replay sporting ticks on the synthetic lab.
+		var lab:Variant=JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/apex_lab_track.json"))
+		assert(lab is Dictionary and str(lab.get("code",""))=="LAB","FAST requires the real lab fixture")
+		track=lab.duplicate(true)
+	else:
+		# Explicit on-demand FULL preserves the real Silverstone scenario.
+		for t in data.tracks:
+			if t.code=="GBR":track=t.duplicate(true)
 	track.laps=3
 	var race=Race.new(data.teams,"Ferrari",660,{},track,{})
 	race.configure_weather("Chuva intensa")

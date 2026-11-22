@@ -31,6 +31,7 @@ jobs:
       APEX_CI_TIER: ${{ github.event_name == 'workflow_dispatch' && inputs.tier == 'full' && 'full' || 'fast' }}
       APEX_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before || '' }}
       APEX_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      APEX_FAST_LAB: ${{ github.event_name == 'workflow_dispatch' && inputs.tier == 'full' && '0' || '1' }}
     steps:
       - name: Checkout Godot project
         uses: actions/checkout@v4

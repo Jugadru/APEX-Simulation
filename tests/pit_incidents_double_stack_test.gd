@@ -7,7 +7,12 @@ func _initialize() -> void:
 
 func _run() -> void:
 	var season: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/season_2012.json"))
-	var race = RaceScript.new(season["teams"], "Ferrari", 1125, {"Motor": 0, "Asa": 0, "Chassi": 0}, season["tracks"][11])
+	var track:Dictionary = season["tracks"][11]
+	if OS.get_environment("APEX_FAST_LAB") == "1":
+		var lab:Variant = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/apex_lab_track.json"))
+		assert(lab is Dictionary and str(lab.get("code", "")) == "LAB", "FAST requires LAB")
+		track = lab.duplicate(true)
+	var race = RaceScript.new(season["teams"], "Ferrari", 1125, {"Motor": 0, "Asa": 0, "Chassi": 0}, track)
 	var pair: Array = race.player_cars()
 	var first: Dictionary = pair[0]
 	var second: Dictionary = pair[1]

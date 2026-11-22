@@ -12,6 +12,12 @@ acionar. Os casos são selecionados em `tools/apex_ci_tiers.py` e no
 manifesto `.github/apex-quality-suites.json`. Um erro ou um teste selecionado
 sem PASS permanece uma falha real; não se usa job `skipped` como sucesso.
 
+Nos testes básicos de **replay e pit com simulação**, a variável
+`APEX_FAST_LAB=1` escolhe a pista oval LAB. Uma execução manual
+`tier=full` escolhe os cenários históricos originais. Testes dirigidos
+a dados ou a módulos específicos ainda podem consultar características
+de pistas reais quando isso é essencial ao que verificam.
+
 **Não há circuito inteiro ou matriz de 20/180 corridas no FAST.** Pode existir
 checagem leve de que as 20 pistas reais estejam cadastradas: isso só
 verifica dados e não simula GPs. Alguns regressivos especializados antigos
