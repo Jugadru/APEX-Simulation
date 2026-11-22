@@ -2,6 +2,9 @@ extends Control
 ## APEX Manager HUD — reference-based composition; Core 2 remains authoritative.
 ## Reads the real RaceEngine state, and delegates all race commands to main.gd.
 ## No simulation values are invented here.
+## Visual reference since PR #84: redesigned HUD in main commit 4f95ec66.
+## Pixel A/B compares this merged layout with future changes; keep tolerances strict.
+## Review evidence: docs/APEX_PR84_HUD_VISUAL_BASELINE_REVIEW_20261122.md.
 
 const MiniMap = preload("res://scripts/apex_mini_map.gd")
 const HudSkin = preload("res://scripts/apex_race_hud_skin_ui01.gd")
