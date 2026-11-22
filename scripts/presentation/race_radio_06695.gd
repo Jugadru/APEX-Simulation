@@ -204,7 +204,8 @@ static func _packet(car: Dictionary, kind: String, context: Dictionary, role: St
 		"intensity": int(p["intensity"]), "text_key": "radio3.%s.%s.%d" % [kind, role.to_lower(), variant],
 		"locale": LOCALE, "text": message, "subtitle_pt": "",
 		"voice_profile_id": "", "simulation_tick": int(context.get("simulation_tick", -1)),
-		"event_id": event_id, "lap": lap, "conversation_id": conversation,
+		"event_id": event_id, "lap": lap, "sim_time": float(context.get("sim_time", -1.0)),
+		"conversation_id": conversation,
 		"priority": int(context.get("priority", 60)), "style": str(p["style"])}
 
 static func driver(car: Dictionary, kind: String, context: Dictionary = {}, previous: Dictionary = {}) -> Dictionary:
@@ -260,6 +261,7 @@ static func remember(previous: Dictionary, packet: Dictionary) -> Dictionary:
 	if role == "PILOTO":
 		next["last_pilot_kind"] = kind
 		next["last_pilot_lap"] = int(packet.get("lap", 0))
+		next["last_pilot_time"] = float(packet.get("sim_time", -1.0))
 	next["last_conversation_id"] = str(packet.get("conversation_id", ""))
 	return next
 
