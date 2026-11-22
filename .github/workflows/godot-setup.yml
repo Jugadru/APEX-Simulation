@@ -41,6 +41,9 @@ jobs:
       - name: Verify fast-tier test routing
         run: python3 -m unittest discover -s tools/tests -p 'test_apex_ci_tiers.py' -v
 
+      - name: Validate LAB performance report contracts
+        run: python3 -m unittest discover -s tools/tests -p 'test_apex_lab_perf_report.py' -v
+
       - name: Install Godot 4.7.2
         uses: lihop/godot-setup@v3.0.1
         with:
@@ -95,6 +98,7 @@ jobs:
           mkdir -p ci-results
           tests=(
             'apex_lab_track_smoke.gd|APEX_LAB_TRACK_PASS'
+            'apex_lab_performance_probe.gd|APEX_LAB_PERF_PASS'
             'team_orders_066810_test.gd|TEAM_ORDERS_066810_PASS'
             'team_orders_066810_ui_test.gd|TEAM_ORDERS_066810_UI_PASS'
             'team_radio_06689_advice_test.gd|TEAM_RADIO_06689_PASS'
@@ -154,6 +158,15 @@ jobs:
             echo "::endgroup::"
           done
 
+      - name: Publish Test Lab CPU and memory profile
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/apex_lab_perf_report.py \
+            --log ci-results/apex_lab_performance_probe.log \
+            --output ci-results/lab-perf
+          cat ci-results/lab-perf/report.md >> "$GITHUB_STEP_SUMMARY"
+
       - name: Publish logs for diagnosis
         if: always()
         uses: actions/upload-artifact@v4
@@ -164,5 +177,6 @@ jobs:
             ci-results/*.log
             ci-results/fast-plan.tsv
             ci-results/test-plan.txt
+            ci-results/lab-perf/
           if-no-files-found: warn
           retention-days: 7
