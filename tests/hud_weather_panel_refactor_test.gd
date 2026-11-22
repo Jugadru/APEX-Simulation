@@ -26,16 +26,16 @@ func _run() -> void:
 		_fail("Hierarquia do painel alterada")
 		return
 	var column: VBoxContainer = panel.get_child(0)
-	if column.get_theme_constant("separation") != 4 or column.get_child_count() != 2:
+	if column.get_theme_constant("separation") != 4 or column.get_child_count() != 5:
 		hud.free()
 		_fail("Coluna ou espaçamento alterado")
 		return
 	var heading: Label = column.get_child(0)
-	if heading.text != "CONDIÇÕES DA PISTA" or heading.get_theme_font_size("font_size") != 11:
+	if heading.text != "CLIMA  /  PREVISÃO" or heading.get_theme_font_size("font_size") != 13:
 		hud.free()
 		_fail("Título do painel alterado")
 		return
-	if heading.get_theme_color("font_color") != HudSkinTest.ORANGE:
+	if heading.get_theme_color("font_color") != HudSkinTest.MUTED:
 		hud.free()
 		_fail("Cor do título alterada")
 		return
@@ -43,7 +43,7 @@ func _run() -> void:
 		hud.free()
 		_fail("Texto inicial ou posição da linha alterados")
 		return
-	if line.get_theme_font_size("font_size") != 12 or line.get_theme_color("font_color") != HudSkinTest.WHITE:
+	if line.get_theme_font_size("font_size") != 15 or line.get_theme_color("font_color") != HudSkinTest.WHITE:
 		hud.free()
 		_fail("Aparência do texto climático alterada")
 		return

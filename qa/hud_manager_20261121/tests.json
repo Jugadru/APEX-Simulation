@@ -1,0 +1,1284 @@
+{
+  "status": "PASS",
+  "counts": {
+    "PASS": 24,
+    "FAIL": 0,
+    "NOT_RUN": 0
+  },
+  "seconds": 72.52,
+  "scope": "Existing headless regressions; not a GPU/FPS benchmark or full GP certification.",
+  "tests": [
+    {
+      "name": "hud_rebroadcast_0668_unit",
+      "group": "hud",
+      "script": "hud_rebroadcast_0668_unit.gd",
+      "markers": [
+        "PASS HUD_REBROADCAST_0668_UNIT"
+      ],
+      "status": "PASS",
+      "exit_codes": [
+        0
+      ],
+      "seconds": 0.3,
+      "log": "qa/hud_manager_20261121/logs/hud_rebroadcast_0668_unit.log",
+      "missing_markers": [],
+      "errors": [],
+      "timeout": false,
+      "user_data": "/tmp/apex-hud-validation-hud_rebroadcast_0668_unit-ti11k7zr",
+      "commands": [
+        {
+          "argv": [
+            "/home/jugdru/Downloads/Godot_v4.7.2-stable_linux.x86_64",
+            "--headless",
+            "--single-threaded-scene",
+            "--path",
+            "/home/jugdru/Documentos/ChatGPT/Apex Simulation/apex-hud-manager-20261121",
+            "--script",
+            "res://tests/hud_rebroadcast_0668_unit.gd"
+          ],
+          "phase": ""
+        }
+      ],
+      "hud_sha256_at_start": {
+        "scripts/apex_race_hud_0622.gd": "28f7b42417f5d6eeaa1ef30bd1e836a8f580f9f13da7dab6122292844b1d0f7d",
+        "scripts/apex_race_hud_skin_ui01.gd": "214b1823a05d4c599170c9f3f8b3b4d8b547fdec929cec972774a60019f3dae7"
+      }
+    },
+    {
+      "name": "hud_rebroadcast_0668_integration",
+      "group": "hud",
+      "script": "hud_rebroadcast_0668_integration.gd",
+      "markers": [
+        "HUD_REBROADCAST_0668_INTEGRATION_PASS"
+      ],
+      "status": "PASS",
+      "exit_codes": [
+        0
+      ],
+      "seconds": 2.08,
+      "log": "qa/hud_manager_20261121/logs/hud_rebroadcast_0668_integration.log",
+      "missing_markers": [],
+      "errors": [],
+      "timeout": false,
+      "user_data": "/tmp/apex-hud-validation-hud_rebroadcast_0668_integration-8b0v5922",
+      "commands": [
+        {
+          "argv": [
+            "/home/jugdru/Downloads/Godot_v4.7.2-stable_linux.x86_64",
+            "--headless",
+            "--single-threaded-scene",
+            "--path",
+            "/home/jugdru/Documentos/ChatGPT/Apex Simulation/apex-hud-manager-20261121",
+            "--script",
+            "res://tests/hud_rebroadcast_0668_integration.gd"
+          ],
+          "phase": ""
+        }
+      ],
+      "hud_sha256_at_start": {
+        "scripts/apex_race_hud_0622.gd": "28f7b42417f5d6eeaa1ef30bd1e836a8f580f9f13da7dab6122292844b1d0f7d",
+        "scripts/apex_race_hud_skin_ui01.gd": "214b1823a05d4c599170c9f3f8b3b4d8b547fdec929cec972774a60019f3dae7"
+      }
+    },
+    {
+      "name": "hud_rebroadcast_06681_pending_orders",
+      "group": "hud",
+      "script": "hud_rebroadcast_06681_pending_orders.gd",
+      "markers": [
+        "HUD_06681_PENDING_ORDERS",
+        "\"status\":\"PASS\""
+      ],
+      "status": "PASS",
+      "exit_codes": [
+        0
+      ],
+      "seconds": 1.88,
+      "log": "qa/hud_manager_20261121/logs/hud_rebroadcast_06681_pending_orders.log",
+      "missing_markers": [],
+      "errors": [],
+      "timeout": false,
+      "user_data": "/tmp/apex-hud-validation-hud_rebroadcast_06681_pending_orders-0vwa8ai_",
+      "commands": [
+        {
+          "argv": [
+            "/home/jugdru/Downloads/Godot_v4.7.2-stable_linux.x86_64",
+            "--headless",
+            "--single-threaded-scene",
+            "--path",
+            "/home/jugdru/Documentos/ChatGPT/Apex Simulation/apex-hud-manager-20261121",
+            "--script",
+            "res://tests/hud_rebroadcast_06681_pending_orders.gd"
+          ],
+          "phase": ""
+        }
+      ],
+      "hud_sha256_at_start": {
+        "scripts/apex_race_hud_0622.gd": "28f7b42417f5d6eeaa1ef30bd1e836a8f580f9f13da7dab6122292844b1d0f7d",
+        "scripts/apex_race_hud_skin_ui01.gd": "214b1823a05d4c599170c9f3f8b3b4d8b547fdec929cec972774a60019f3dae7"
+      }
+    },
+    {
+      "name": "hud_rebroadcast_06681_replay_isolation",
+      "group": "hud",
+      "script": "hud_rebroadcast_06681_replay_isolation.gd",
+      "markers": [
+        "HUD_06681_REPLAY_ISOLATION_PASS"
+      ],
+      "status": "PASS",
+      "exit_codes": [
+        0
+      ],
+      "seconds": 6.25,
+      "log": "qa/hud_manager_20261121/logs/hud_rebroadcast_06681_replay_isolation.log",
+      "missing_markers": [],
+      "errors": [],
+      "timeout": false,
+      "user_data": "/tmp/apex-hud-validation-hud_rebroadcast_06681_replay_isolation-fjct__4g",
+      "commands": [
+        {
+          "argv": [
+            "/home/jugdru/Downloads/Godot_v4.7.2-stable_linux.x86_64",
+            "--headless",
+            "--single-threaded-scene",
+            "--path",
+            "/home/jugdru/Documentos/ChatGPT/Apex Simulation/apex-hud-manager-20261121",
+            "--script",
+            "res://tests/hud_rebroadcast_06681_replay_isolation.gd"
+          ],
+          "phase": ""
+        }
+      ],
+      "hud_sha256_at_start": {
+        "scripts/apex_race_hud_0622.gd": "28f7b42417f5d6eeaa1ef30bd1e836a8f580f9f13da7dab6122292844b1d0f7d",
+        "scripts/apex_race_hud_skin_ui01.gd": "214b1823a05d4c599170c9f3f8b3b4d8b547fdec929cec972774a60019f3dae7"
+      }
+    },
+    {
+      "name": "hud_rebroadcast_06681_camera_policy",
+      "group": "hud",
+      "script": "hud_rebroadcast_06681_camera_policy.gd",
+      "markers": [
+        "HUD_06681_CAMERA_POLICY_PASS"
+      ],
+      "status": "PASS",
+      "exit_codes": [
+        0
+      ],
+      "seconds": 1.98,
+      "log": "qa/hud_manager_20261121/logs/hud_rebroadcast_06681_camera_policy.log",
+      "missing_markers": [],
+      "errors": [],
+      "timeout": false,
+      "user_data": "/tmp/apex-hud-validation-hud_rebroadcast_06681_camera_policy-p7od9pdl",
+      "commands": [
+        {
+          "argv": [
+            "/home/jugdru/Downloads/Godot_v4.7.2-stable_linux.x86_64",
+            "--headless",
+            "--single-threaded-scene",
+            "--path",
+            "/home/jugdru/Documentos/ChatGPT/Apex Simulation/apex-hud-manager-20261121",
+            "--script",
+            "res://tests/hud_rebroadcast_06681_camera_policy.gd"
+          ],
+          "phase": ""
+        }
+      ],
+      "hud_sha256_at_start": {
+        "scripts/apex_race_hud_0622.gd": "28f7b42417f5d6eeaa1ef30bd1e836a8f580f9f13da7dab6122292844b1d0f7d",
+        "scripts/apex_race_hud_skin_ui01.gd": "214b1823a05d4c599170c9f3f8b3b4d8b547fdec929cec972774a60019f3dae7"
+      }
+    },
+    {
+      "name": "hud_rebroadcast_06681_race_scenarios",
+      "group": "hud",
+      "script": "hud_rebroadcast_06681_race_scenarios.gd",
+      "markers": [
+        "HUD_06681_RACE_SCENARIOS",
+        "\"status\":\"PASS\""
+      ],
+      "status": "PASS",
+      "exit_codes": [
+        0
+      ],
+      "seconds": 68.36,
+      "log": "qa/hud_manager_20261121/logs/hud_rebroadcast_06681_race_scenarios.log",
+      "missing_markers": [],
+      "errors": [],
+      "timeout": false,
+      "user_data": "/tmp/apex-hud-validation-hud_rebroadcast_06681_race_scenarios-5vggm2xz",
+      "commands": [
+        {
+          "argv": [
+            "/home/jugdru/Downloads/Godot_v4.7.2-stable_linux.x86_64",
+            "--headless",
+            "--single-threaded-scene",
+            "--path",
+            "/home/jugdru/Documentos/ChatGPT/Apex Simulation/apex-hud-manager-20261121",
+            "--script",
+            "res://tests/hud_rebroadcast_06681_race_scenarios.gd"
+          ],
+          "phase": ""
+        }
+      ],
+      "hud_sha256_at_start": {
+        "scripts/apex_race_hud_0622.gd": "28f7b42417f5d6eeaa1ef30bd1e836a8f580f9f13da7dab6122292844b1d0f7d",
+        "scripts/apex_race_hud_skin_ui01.gd": "214b1823a05d4c599170c9f3f8b3b4d8b547fdec929cec972774a60019f3dae7"
+      }
+    },
+    {
+      "name": "hud_rebroadcast_06681_restart",
+      "group": "hud",
+      "script": "hud_rebroadcast_06681_restart.gd",
+      "markers": [
+        "HUD_06681_RESTART_WRITE_PASS",
+        "HUD_06681_RESTART_READ_PASS"
+      ],
+      "status": "PASS",
+      "exit_codes": [
+        0,
+        0
+      ],
+      "seconds": 1.8,
+      "log": "qa/hud_manager_20261121/logs/hud_rebroadcast_06681_restart.log",
+      "missing_markers": [],
+      "errors": [],
+      "timeout": false,
+      "user_data": "/tmp/apex-hud-validation-hud_rebroadcast_06681_restart-2kja4i2j",
+      "commands": [
+        {
+          "argv": [
+            "/home/jugdru/Downloads/Godot_v4.7.2-stable_linux.x86_64",
+            "--headless",
+            "--single-threaded-scene",
+            "--path",
+            "/home/jugdru/Documentos/ChatGPT/Apex Simulation/apex-hud-manager-20261121",
+            "--script",
+            "res://tests/hud_rebroadcast_06681_restart.gd"
+          ],
+          "phase": "write"
+        },
+        {
+          "argv": [
+            "/home/jugdru/Downloads/Godot_v4.7.2-stable_linux.x86_64",
+            "--headless",
+            "--single-threaded-scene",
+            "--path",
+            "/home/jugdru/Documentos/ChatGPT/Apex Simulation/apex-hud-manager-20261121",
+            "--script",
+            "res://tests/hud_rebroadcast_06681_restart.gd"
+          ],
+          "phase": "read"
+        }
+      ],
+      "hud_sha256_at_start": {
+        "scripts/apex_race_hud_0622.gd": "28f7b42417f5d6eeaa1ef30bd1e836a8f580f9f13da7dab6122292844b1d0f7d",
+        "scripts/apex_race_hud_skin_ui01.gd": "214b1823a05d4c599170c9f3f8b3b4d8b547fdec929cec972774a60019f3dae7"
+      }
+    },
+    {
+      "name": "core2_06684_hidden_legacy_hud_test",
+      "group": "hud",
+      "script": "core2_06684_hidden_legacy_hud_test.gd",
+      "markers": [
+        "APEX_06684_HIDDEN_LEGACY",
+        "\"status\":\"PASS\""
+      ],
+      "status": "PASS",
+      "exit_codes": [
+        0
+      ],
+      "seconds": 2.17,
+      "log": "qa/hud_manager_20261121/logs/core2_06684_hidden_legacy_hud_test.log",
+      "missing_markers": [],
+      "errors": [],
+      "timeout": false,
+      "user_data": "/tmp/apex-hud-validation-core2_06684_hidden_legacy_hud_test-e2d81jkq",
+      "commands": [
+        {
+          "argv": [
+            "/home/jugdru/Downloads/Godot_v4.7.2-stable_linux.x86_64",
+            "--headless",
+            "--single-threaded-scene",
+            "--path",
+            "/home/jugdru/Documentos/ChatGPT/Apex Simulation/apex-hud-manager-20261121",
+            "--script",
+            "res://tests/core2_06684_hidden_legacy_hud_test.gd"
+          ],
+          "phase": ""
+        }
+      ],
+      "hud_sha256_at_start": {
+        "scripts/apex_race_hud_0622.gd": "28f7b42417f5d6eeaa1ef30bd1e836a8f580f9f13da7dab6122292844b1d0f7d",
+        "scripts/apex_race_hud_skin_ui01.gd": "214b1823a05d4c599170c9f3f8b3b4d8b547fdec929cec972774a60019f3dae7"
+      }
+    },
+    {
+      "name": "team_orders_066810_test",
+      "group": "core2_ci",
+      "script": "team_orders_066810_test.gd",
+      "markers": [
+        "TEAM_ORDERS_066810_PASS"
+      ],
+      "status": "PASS",
+      "exit_codes": [
+        0
+      ],
+      "seconds": 2.16,
+      "log": "qa/hud_manager_20261121/logs/team_orders_066810_test.log",
+      "missing_markers": [],
+      "errors": [],
+      "timeout": false,
+      "user_data": "/tmp/apex-hud-validation-team_orders_066810_test-acc8asix",
+      "commands": [
+        {
+          "argv": [
+            "/home/jugdru/Downloads/Godot_v4.7.2-stable_linux.x86_64",
+            "--headless",
+            "--single-threaded-scene",
+            "--path",
+            "/home/jugdru/Documentos/ChatGPT/Apex Simulation/apex-hud-manager-20261121",
+            "--script",
+            "res://tests/team_orders_066810_test.gd"
+          ],
+          "phase": ""
+        }
+      ],
+      "hud_sha256_at_start": {
+        "scripts/apex_race_hud_0622.gd": "28f7b42417f5d6eeaa1ef30bd1e836a8f580f9f13da7dab6122292844b1d0f7d",
+        "scripts/apex_race_hud_skin_ui01.gd": "214b1823a05d4c599170c9f3f8b3b4d8b547fdec929cec972774a60019f3dae7"
+      }
+    },
+    {
+      "name": "team_orders_066810_ui_test",
+      "group": "core2_ci",
+      "script": "team_orders_066810_ui_test.gd",
+      "markers": [
+        "TEAM_ORDERS_066810_UI_PASS"
+      ],
+      "status": "PASS",
+      "exit_codes": [
+        0
+      ],
+      "seconds": 2.45,
+      "log": "qa/hud_manager_20261121/logs/team_orders_066810_ui_test.log",
+      "missing_markers": [],
+      "errors": [],
+      "timeout": false,
+      "user_data": "/tmp/apex-hud-validation-team_orders_066810_ui_test-eoukzyha",
+      "commands": [
+        {
+          "argv": [
+            "/home/jugdru/Downloads/Godot_v4.7.2-stable_linux.x86_64",
+            "--headless",
+            "--single-threaded-scene",
+            "--path",
+            "/home/jugdru/Documentos/ChatGPT/Apex Simulation/apex-hud-manager-20261121",
+            "--script",
+            "res://tests/team_orders_066810_ui_test.gd"
+          ],
+          "phase": ""
+        }
+      ],
+      "hud_sha256_at_start": {
+        "scripts/apex_race_hud_0622.gd": "28f7b42417f5d6eeaa1ef30bd1e836a8f580f9f13da7dab6122292844b1d0f7d",
+        "scripts/apex_race_hud_skin_ui01.gd": "214b1823a05d4c599170c9f3f8b3b4d8b547fdec929cec972774a60019f3dae7"
+      }
+    },
+    {
+      "name": "team_radio_06689_advice_test",
+      "group": "core2_ci",
+      "script": "team_radio_06689_advice_test.gd",
+      "markers": [
+        "TEAM_RADIO_06689_PASS"
+      ],
+      "status": "PASS",
+      "exit_codes": [
+        0
+      ],
+      "seconds": 0.49,
+      "log": "qa/hud_manager_20261121/logs/team_radio_06689_advice_test.log",
+      "missing_markers": [],
+      "errors": [],
+      "timeout": false,
+      "user_data": "/tmp/apex-hud-validation-team_radio_06689_advice_test-u94ro2aq",
+      "commands": [
+        {
+          "argv": [
+            "/home/jugdru/Downloads/Godot_v4.7.2-stable_linux.x86_64",
+            "--headless",
+            "--single-threaded-scene",
+            "--path",
+            "/home/jugdru/Documentos/ChatGPT/Apex Simulation/apex-hud-manager-20261121",
+            "--script",
+            "res://tests/team_radio_06689_advice_test.gd"
+          ],
+          "phase": ""
+        }
+      ],
+      "hud_sha256_at_start": {
+        "scripts/apex_race_hud_0622.gd": "28f7b42417f5d6eeaa1ef30bd1e836a8f580f9f13da7dab6122292844b1d0f7d",
+        "scripts/apex_race_hud_skin_ui01.gd": "214b1823a05d4c599170c9f3f8b3b4d8b547fdec929cec972774a60019f3dae7"
+      }
+    },
+    {
+      "name": "radio_0668101_booked_pit_advice_test",
+      "group": "core2_ci",
+      "script": "radio_0668101_booked_pit_advice_test.gd",
+      "markers": [
+        "RADIO_0668101_BOOKED_PIT_PASS"
+      ],
+      "status": "PASS",
+      "exit_codes": [
+        0
+      ],
+      "seconds": 0.48,
+      "log": "qa/hud_manager_20261121/logs/radio_0668101_booked_pit_advice_test.log",
+      "missing_markers": [],
+      "errors": [],
+      "timeout": false,
+      "user_data": "/tmp/apex-hud-validation-radio_0668101_booked_pit_advice_test-_mahqizf",
+      "commands": [
+        {
+          "argv": [
+            "/home/jugdru/Downloads/Godot_v4.7.2-stable_linux.x86_64",
+            "--headless",
+            "--single-threaded-scene",
+            "--path",
+            "/home/jugdru/Documentos/ChatGPT/Apex Simulation/apex-hud-manager-20261121",
+            "--script",
+            "res://tests/radio_0668101_booked_pit_advice_test.gd"
+          ],
+          "phase": ""
+        }
+      ],
+      "hud_sha256_at_start": {
+        "scripts/apex_race_hud_0622.gd": "28f7b42417f5d6eeaa1ef30bd1e836a8f580f9f13da7dab6122292844b1d0f7d",
+        "scripts/apex_race_hud_skin_ui01.gd": "214b1823a05d4c599170c9f3f8b3b4d8b547fdec929cec972774a60019f3dae7"
+      }
+    },
+    {
+      "name": "team_radio_06689_ui_test",
+      "group": "core2_ci",
+      "script": "team_radio_06689_ui_test.gd",
+      "markers": [
+        "TEAM_RADIO_UI_06689_PASS"
+      ],
+      "status": "PASS",
+      "exit_codes": [
+        0
+      ],
+      "seconds": 2.25,
+      "log": "qa/hud_manager_20261121/logs/team_radio_06689_ui_test.log",
+      "missing_markers": [],
+      "errors": [],
+      "timeout": false,
+      "user_data": "/tmp/apex-hud-validation-team_radio_06689_ui_test-t3xnuy91",
+      "commands": [
+        {
+          "argv": [
+            "/home/jugdru/Downloads/Godot_v4.7.2-stable_linux.x86_64",
+            "--headless",
+            "--single-threaded-scene",
+            "--path",
+            "/home/jugdru/Documentos/ChatGPT/Apex Simulation/apex-hud-manager-20261121",
+            "--script",
+            "res://tests/team_radio_06689_ui_test.gd"
+          ],
+          "phase": ""
+        }
+      ],
+      "hud_sha256_at_start": {
+        "scripts/apex_race_hud_0622.gd": "28f7b42417f5d6eeaa1ef30bd1e836a8f580f9f13da7dab6122292844b1d0f7d",
+        "scripts/apex_race_hud_skin_ui01.gd": "214b1823a05d4c599170c9f3f8b3b4d8b547fdec929cec972774a60019f3dae7"
+      }
+    },
+    {
+      "name": "racecraft_06688_grip_defense_test",
+      "group": "core2_ci",
+      "script": "racecraft_06688_grip_defense_test.gd",
+      "markers": [
+        "RACECRAFT_06688_GRIP_PASS"
+      ],
+      "status": "PASS",
+      "exit_codes": [
+        0
+      ],
+      "seconds": 3.36,
+      "log": "qa/hud_manager_20261121/logs/racecraft_06688_grip_defense_test.log",
+      "missing_markers": [],
+      "errors": [],
+      "timeout": false,
+      "user_data": "/tmp/apex-hud-validation-racecraft_06688_grip_defense_test-z5dbfrnb",
+      "commands": [
+        {
+          "argv": [
+            "/home/jugdru/Downloads/Godot_v4.7.2-stable_linux.x86_64",
+            "--headless",
+            "--single-threaded-scene",
+            "--path",
+            "/home/jugdru/Documentos/ChatGPT/Apex Simulation/apex-hud-manager-20261121",
+            "--script",
+            "res://tests/racecraft_06688_grip_defense_test.gd"
+          ],
+          "phase": ""
+        }
+      ],
+      "hud_sha256_at_start": {
+        "scripts/apex_race_hud_0622.gd": "28f7b42417f5d6eeaa1ef30bd1e836a8f580f9f13da7dab6122292844b1d0f7d",
+        "scripts/apex_race_hud_skin_ui01.gd": "214b1823a05d4c599170c9f3f8b3b4d8b547fdec929cec972774a60019f3dae7"
+      }
+    },
+    {
+      "name": "driver_dynamics_06687_tyre_judgement_test",
+      "group": "core2_ci",
+      "script": "driver_dynamics_06687_tyre_judgement_test.gd",
+      "markers": [
+        "DRIVER_DYNAMICS_06687_PASS"
+      ],
+      "status": "PASS",
+      "exit_codes": [
+        0
+      ],
+      "seconds": 0.48,
+      "log": "qa/hud_manager_20261121/logs/driver_dynamics_06687_tyre_judgement_test.log",
+      "missing_markers": [],
+      "errors": [],
+      "timeout": false,
+      "user_data": "/tmp/apex-hud-validation-driver_dynamics_06687_tyre_judgement_test-pzba01vk",
+      "commands": [
+        {
+          "argv": [
+            "/home/jugdru/Downloads/Godot_v4.7.2-stable_linux.x86_64",
+            "--headless",
+            "--single-threaded-scene",
+            "--path",
+            "/home/jugdru/Documentos/ChatGPT/Apex Simulation/apex-hud-manager-20261121",
+            "--script",
+            "res://tests/driver_dynamics_06687_tyre_judgement_test.gd"
+          ],
+          "phase": ""
+        }
+      ],
+      "hud_sha256_at_start": {
+        "scripts/apex_race_hud_0622.gd": "28f7b42417f5d6eeaa1ef30bd1e836a8f580f9f13da7dab6122292844b1d0f7d",
+        "scripts/apex_race_hud_skin_ui01.gd": "214b1823a05d4c599170c9f3f8b3b4d8b547fdec929cec972774a60019f3dae7"
+      }
+    },
+    {
+      "name": "driver_dynamics_06687_ui_test",
+      "group": "core2_ci",
+      "script": "driver_dynamics_06687_ui_test.gd",
+      "markers": [
+        "DRIVER_DYNAMICS_06687_UI_PASS"
+      ],
+      "status": "PASS",
+      "exit_codes": [
+        0
+      ],
+      "seconds": 2.26,
+      "log": "qa/hud_manager_20261121/logs/driver_dynamics_06687_ui_test.log",
+      "missing_markers": [],
+      "errors": [],
+      "timeout": false,
+      "user_data": "/tmp/apex-hud-validation-driver_dynamics_06687_ui_test-kzke7xa8",
+      "commands": [
+        {
+          "argv": [
+            "/home/jugdru/Downloads/Godot_v4.7.2-stable_linux.x86_64",
+            "--headless",
+            "--single-threaded-scene",
+            "--path",
+            "/home/jugdru/Documentos/ChatGPT/Apex Simulation/apex-hud-manager-20261121",
+            "--script",
+            "res://tests/driver_dynamics_06687_ui_test.gd"
+          ],
+          "phase": ""
+        }
+      ],
+      "hud_sha256_at_start": {
+        "scripts/apex_race_hud_0622.gd": "28f7b42417f5d6eeaa1ef30bd1e836a8f580f9f13da7dab6122292844b1d0f7d",
+        "scripts/apex_race_hud_skin_ui01.gd": "214b1823a05d4c599170c9f3f8b3b4d8b547fdec929cec972774a60019f3dae7"
+      }
+    },
+    {
+      "name": "core2_06686_sort_contract",
+      "group": "core2_ci",
+      "script": "core2_06686_sort_contract.gd",
+      "markers": [
+        "CORE2_06686_SORT_CONTRACT_PASS"
+      ],
+      "status": "PASS",
+      "exit_codes": [
+        0
+      ],
+      "seconds": 0.48,
+      "log": "qa/hud_manager_20261121/logs/core2_06686_sort_contract.log",
+      "missing_markers": [],
+      "errors": [],
+      "timeout": false,
+      "user_data": "/tmp/apex-hud-validation-core2_06686_sort_contract-gv57_hwp",
+      "commands": [
+        {
+          "argv": [
+            "/home/jugdru/Downloads/Godot_v4.7.2-stable_linux.x86_64",
+            "--headless",
+            "--single-threaded-scene",
+            "--path",
+            "/home/jugdru/Documentos/ChatGPT/Apex Simulation/apex-hud-manager-20261121",
+            "--script",
+            "res://tests/core2_06686_sort_contract.gd"
+          ],
+          "phase": ""
+        }
+      ],
+      "hud_sha256_at_start": {
+        "scripts/apex_race_hud_0622.gd": "28f7b42417f5d6eeaa1ef30bd1e836a8f580f9f13da7dab6122292844b1d0f7d",
+        "scripts/apex_race_hud_skin_ui01.gd": "214b1823a05d4c599170c9f3f8b3b4d8b547fdec929cec972774a60019f3dae7"
+      }
+    },
+    {
+      "name": "driver_dynamics_0661_test",
+      "group": "core2_ci",
+      "script": "driver_dynamics_0661_test.gd",
+      "markers": [
+        "DRIVER_DYNAMICS_0661_PASS"
+      ],
+      "status": "PASS",
+      "exit_codes": [
+        0
+      ],
+      "seconds": 0.58,
+      "log": "qa/hud_manager_20261121/logs/driver_dynamics_0661_test.log",
+      "missing_markers": [],
+      "errors": [],
+      "timeout": false,
+      "user_data": "/tmp/apex-hud-validation-driver_dynamics_0661_test-8i_oe4_h",
+      "commands": [
+        {
+          "argv": [
+            "/home/jugdru/Downloads/Godot_v4.7.2-stable_linux.x86_64",
+            "--headless",
+            "--single-threaded-scene",
+            "--path",
+            "/home/jugdru/Documentos/ChatGPT/Apex Simulation/apex-hud-manager-20261121",
+            "--script",
+            "res://tests/driver_dynamics_0661_test.gd"
+          ],
+          "phase": ""
+        }
+      ],
+      "hud_sha256_at_start": {
+        "scripts/apex_race_hud_0622.gd": "28f7b42417f5d6eeaa1ef30bd1e836a8f580f9f13da7dab6122292844b1d0f7d",
+        "scripts/apex_race_hud_skin_ui01.gd": "214b1823a05d4c599170c9f3f8b3b4d8b547fdec929cec972774a60019f3dae7"
+      }
+    },
+    {
+      "name": "racecraft_0662_test",
+      "group": "core2_ci",
+      "script": "racecraft_0662_test.gd",
+      "markers": [
+        "RACECRAFT_0662_UNIT_PASS"
+      ],
+      "status": "PASS",
+      "exit_codes": [
+        0
+      ],
+      "seconds": 14.24,
+      "log": "qa/hud_manager_20261121/logs/racecraft_0662_test.log",
+      "missing_markers": [],
+      "errors": [],
+      "timeout": false,
+      "user_data": "/tmp/apex-hud-validation-racecraft_0662_test-hltiwy_4",
+      "commands": [
+        {
+          "argv": [
+            "/home/jugdru/Downloads/Godot_v4.7.2-stable_linux.x86_64",
+            "--headless",
+            "--single-threaded-scene",
+            "--path",
+            "/home/jugdru/Documentos/ChatGPT/Apex Simulation/apex-hud-manager-20261121",
+            "--script",
+            "res://tests/racecraft_0662_test.gd"
+          ],
+          "phase": ""
+        }
+      ],
+      "hud_sha256_at_start": {
+        "scripts/apex_race_hud_0622.gd": "28f7b42417f5d6eeaa1ef30bd1e836a8f580f9f13da7dab6122292844b1d0f7d",
+        "scripts/apex_race_hud_skin_ui01.gd": "214b1823a05d4c599170c9f3f8b3b4d8b547fdec929cec972774a60019f3dae7"
+      }
+    },
+    {
+      "name": "pit_incidents_double_stack_test",
+      "group": "core2_ci",
+      "script": "pit_incidents_double_stack_test.gd",
+      "markers": [
+        "APEX INCIDENT DOUBLE STACK OK"
+      ],
+      "status": "PASS",
+      "exit_codes": [
+        0
+      ],
+      "seconds": 1.42,
+      "log": "qa/hud_manager_20261121/logs/pit_incidents_double_stack_test.log",
+      "missing_markers": [],
+      "errors": [],
+      "timeout": false,
+      "user_data": "/tmp/apex-hud-validation-pit_incidents_double_stack_test-ahlkxgu1",
+      "commands": [
+        {
+          "argv": [
+            "/home/jugdru/Downloads/Godot_v4.7.2-stable_linux.x86_64",
+            "--headless",
+            "--single-threaded-scene",
+            "--path",
+            "/home/jugdru/Documentos/ChatGPT/Apex Simulation/apex-hud-manager-20261121",
+            "--script",
+            "res://tests/pit_incidents_double_stack_test.gd"
+          ],
+          "phase": ""
+        }
+      ],
+      "hud_sha256_at_start": {
+        "scripts/apex_race_hud_0622.gd": "28f7b42417f5d6eeaa1ef30bd1e836a8f580f9f13da7dab6122292844b1d0f7d",
+        "scripts/apex_race_hud_skin_ui01.gd": "214b1823a05d4c599170c9f3f8b3b4d8b547fdec929cec972774a60019f3dae7"
+      }
+    },
+    {
+      "name": "replay_0660_test",
+      "group": "core2_ci",
+      "script": "replay_0660_test.gd",
+      "markers": [
+        "REPLAY_UNIT_PASS"
+      ],
+      "status": "PASS",
+      "exit_codes": [
+        0
+      ],
+      "seconds": 14.06,
+      "log": "qa/hud_manager_20261121/logs/replay_0660_test.log",
+      "missing_markers": [],
+      "errors": [],
+      "timeout": false,
+      "user_data": "/tmp/apex-hud-validation-replay_0660_test-6j0vl4qw",
+      "commands": [
+        {
+          "argv": [
+            "/home/jugdru/Downloads/Godot_v4.7.2-stable_linux.x86_64",
+            "--headless",
+            "--single-threaded-scene",
+            "--path",
+            "/home/jugdru/Documentos/ChatGPT/Apex Simulation/apex-hud-manager-20261121",
+            "--script",
+            "res://tests/replay_0660_test.gd"
+          ],
+          "phase": ""
+        }
+      ],
+      "hud_sha256_at_start": {
+        "scripts/apex_race_hud_0622.gd": "28f7b42417f5d6eeaa1ef30bd1e836a8f580f9f13da7dab6122292844b1d0f7d",
+        "scripts/apex_race_hud_skin_ui01.gd": "214b1823a05d4c599170c9f3f8b3b4d8b547fdec929cec972774a60019f3dae7"
+      }
+    },
+    {
+      "name": "car_model_smoke_test",
+      "group": "core2_ci",
+      "script": "car_model_smoke_test.gd",
+      "markers": [
+        "APEX CAR MODEL TEST OK"
+      ],
+      "status": "PASS",
+      "exit_codes": [
+        0
+      ],
+      "seconds": 0.3,
+      "log": "qa/hud_manager_20261121/logs/car_model_smoke_test.log",
+      "missing_markers": [],
+      "errors": [],
+      "timeout": false,
+      "user_data": "/tmp/apex-hud-validation-car_model_smoke_test-kpn25gr3",
+      "commands": [
+        {
+          "argv": [
+            "/home/jugdru/Downloads/Godot_v4.7.2-stable_linux.x86_64",
+            "--headless",
+            "--single-threaded-scene",
+            "--path",
+            "/home/jugdru/Documentos/ChatGPT/Apex Simulation/apex-hud-manager-20261121",
+            "--script",
+            "res://tests/car_model_smoke_test.gd"
+          ],
+          "phase": ""
+        }
+      ],
+      "hud_sha256_at_start": {
+        "scripts/apex_race_hud_0622.gd": "ae264d21ad4ff7f23d957e8c15645b615e45f3e0582f62497453384eff5e75a3",
+        "scripts/apex_race_hud_skin_ui01.gd": "214b1823a05d4c599170c9f3f8b3b4d8b547fdec929cec972774a60019f3dae7"
+      }
+    },
+    {
+      "name": "core_0642_save_migration_test",
+      "group": "saves",
+      "script": "core_0642_save_migration_test.gd",
+      "markers": [
+        "APEX 0642 SAVE MIGRATION PASS"
+      ],
+      "status": "PASS",
+      "exit_codes": [
+        0
+      ],
+      "seconds": 0.31,
+      "log": "qa/hud_manager_20261121/logs/core_0642_save_migration_test.log",
+      "missing_markers": [],
+      "errors": [],
+      "timeout": false,
+      "user_data": "/tmp/apex-hud-validation-core_0642_save_migration_test-94i2cxol",
+      "commands": [
+        {
+          "argv": [
+            "/home/jugdru/Downloads/Godot_v4.7.2-stable_linux.x86_64",
+            "--headless",
+            "--single-threaded-scene",
+            "--path",
+            "/home/jugdru/Documentos/ChatGPT/Apex Simulation/apex-hud-manager-20261121",
+            "--script",
+            "res://tests/core_0642_save_migration_test.gd"
+          ],
+          "phase": ""
+        }
+      ],
+      "hud_sha256_at_start": {
+        "scripts/apex_race_hud_0622.gd": "ae264d21ad4ff7f23d957e8c15645b615e45f3e0582f62497453384eff5e75a3",
+        "scripts/apex_race_hud_skin_ui01.gd": "214b1823a05d4c599170c9f3f8b3b4d8b547fdec929cec972774a60019f3dae7"
+      }
+    },
+    {
+      "name": "gdunit4",
+      "group": "gdunit4",
+      "script": "addons/gdUnit4/bin/GdUnitCmdTool.gd",
+      "markers": [
+        "Overall Summary:",
+        "2 test cases | 0 errors | 0 failures",
+        "Executed test cases : (2/2)"
+      ],
+      "log_suffix": "_final",
+      "status": "PASS",
+      "exit_codes": [
+        0
+      ],
+      "seconds": 1.6,
+      "log": "qa/hud_manager_20261121/logs/gdunit4_final.log",
+      "missing_markers": [],
+      "errors": [],
+      "timeout": false,
+      "user_data": "/tmp/apex-hud-validation-gdunit4-vmjjttbq",
+      "commands": [
+        {
+          "argv": [
+            "/home/jugdru/Downloads/Godot_v4.7.2-stable_linux.x86_64",
+            "--headless",
+            "--single-threaded-scene",
+            "--path",
+            "/home/jugdru/Documentos/ChatGPT/Apex Simulation/apex-hud-manager-20261121",
+            "--script",
+            "res://addons/gdUnit4/bin/GdUnitCmdTool.gd",
+            "-a",
+            "res://tests/gdunit",
+            "--ignoreHeadlessMode",
+            "-rd",
+            "res://qa/hud_manager_20261121/gdunit-reports"
+          ],
+          "phase": ""
+        }
+      ],
+      "hud_sha256_at_start": {
+        "scripts/apex_race_hud_0622.gd": "ae264d21ad4ff7f23d957e8c15645b615e45f3e0582f62497453384eff5e75a3",
+        "scripts/apex_race_hud_skin_ui01.gd": "214b1823a05d4c599170c9f3f8b3b4d8b547fdec929cec972774a60019f3dae7",
+        "scripts/apex_mini_map.gd": "e7a710dd54f285c29b0ec4e3cccf3146298629e7d8681b828ffa18da7d97cea8"
+      },
+      "previous_attempts": [
+        {
+          "name": "gdunit4",
+          "group": "gdunit4",
+          "script": "addons/gdUnit4/bin/GdUnitCmdTool.gd",
+          "markers": [
+            "Overall Summary:",
+            "2 test cases | 0 errors | 0 failures",
+            "Executed test cases : (2/2)"
+          ],
+          "status": "FAIL",
+          "exit_codes": [
+            0
+          ],
+          "seconds": 1.23,
+          "log": "qa/hud_manager_20261121/logs/gdunit4.log",
+          "missing_markers": [
+            "Overall Summary:",
+            "2 test cases | 0 errors | 0 failures",
+            "Executed test cases : (2/2)"
+          ],
+          "errors": [],
+          "timeout": false,
+          "user_data": "/tmp/apex-hud-validation-gdunit4-01e7x_lz",
+          "commands": [
+            {
+              "argv": [
+                "/home/jugdru/Downloads/Godot_v4.7.2-stable_linux.x86_64",
+                "--headless",
+                "--single-threaded-scene",
+                "--path",
+                "/home/jugdru/Documentos/ChatGPT/Apex Simulation/apex-hud-manager-20261121",
+                "--script",
+                "res://addons/gdUnit4/bin/GdUnitCmdTool.gd",
+                "--",
+                "-a",
+                "res://tests/gdunit",
+                "--ignoreHeadlessMode",
+                "-rd",
+                "res://qa/hud_manager_20261121/gdunit-reports"
+              ],
+              "phase": ""
+            }
+          ],
+          "hud_sha256_at_start": {
+            "scripts/apex_race_hud_0622.gd": "ae264d21ad4ff7f23d957e8c15645b615e45f3e0582f62497453384eff5e75a3",
+            "scripts/apex_race_hud_skin_ui01.gd": "214b1823a05d4c599170c9f3f8b3b4d8b547fdec929cec972774a60019f3dae7"
+          }
+        }
+      ]
+    }
+  ],
+  "recheck_reason": "Final HUD adjustments: transparent minimap, dual-context overlap avoidance, explicit pit/finished/DSQ statuses. No engine changes.",
+  "rechecks": [
+    {
+      "name": "hud_rebroadcast_06681_pending_orders",
+      "group": "hud",
+      "script": "hud_rebroadcast_06681_pending_orders.gd",
+      "markers": [
+        "HUD_06681_PENDING_ORDERS",
+        "\"status\":\"PASS\""
+      ],
+      "log_suffix": "_final",
+      "status": "PASS",
+      "exit_codes": [
+        0
+      ],
+      "seconds": 1.89,
+      "log": "qa/hud_manager_20261121/logs/hud_rebroadcast_06681_pending_orders_final.log",
+      "missing_markers": [],
+      "errors": [],
+      "timeout": false,
+      "user_data": "/tmp/apex-hud-validation-hud_rebroadcast_06681_pending_orders-k10fxzp_",
+      "commands": [
+        {
+          "argv": [
+            "/home/jugdru/Downloads/Godot_v4.7.2-stable_linux.x86_64",
+            "--headless",
+            "--single-threaded-scene",
+            "--path",
+            "/home/jugdru/Documentos/ChatGPT/Apex Simulation/apex-hud-manager-20261121",
+            "--script",
+            "res://tests/hud_rebroadcast_06681_pending_orders.gd"
+          ],
+          "phase": ""
+        }
+      ],
+      "hud_sha256_at_start": {
+        "scripts/apex_race_hud_0622.gd": "ae264d21ad4ff7f23d957e8c15645b615e45f3e0582f62497453384eff5e75a3",
+        "scripts/apex_race_hud_skin_ui01.gd": "214b1823a05d4c599170c9f3f8b3b4d8b547fdec929cec972774a60019f3dae7",
+        "scripts/apex_mini_map.gd": "e7a710dd54f285c29b0ec4e3cccf3146298629e7d8681b828ffa18da7d97cea8"
+      }
+    },
+    {
+      "name": "hud_rebroadcast_0668_integration",
+      "group": "hud",
+      "script": "hud_rebroadcast_0668_integration.gd",
+      "markers": [
+        "HUD_REBROADCAST_0668_INTEGRATION_PASS"
+      ],
+      "log_suffix": "_final",
+      "status": "PASS",
+      "exit_codes": [
+        0
+      ],
+      "seconds": 1.98,
+      "log": "qa/hud_manager_20261121/logs/hud_rebroadcast_0668_integration_final.log",
+      "missing_markers": [],
+      "errors": [],
+      "timeout": false,
+      "user_data": "/tmp/apex-hud-validation-hud_rebroadcast_0668_integration-vgbepabs",
+      "commands": [
+        {
+          "argv": [
+            "/home/jugdru/Downloads/Godot_v4.7.2-stable_linux.x86_64",
+            "--headless",
+            "--single-threaded-scene",
+            "--path",
+            "/home/jugdru/Documentos/ChatGPT/Apex Simulation/apex-hud-manager-20261121",
+            "--script",
+            "res://tests/hud_rebroadcast_0668_integration.gd"
+          ],
+          "phase": ""
+        }
+      ],
+      "hud_sha256_at_start": {
+        "scripts/apex_race_hud_0622.gd": "ae264d21ad4ff7f23d957e8c15645b615e45f3e0582f62497453384eff5e75a3",
+        "scripts/apex_race_hud_skin_ui01.gd": "214b1823a05d4c599170c9f3f8b3b4d8b547fdec929cec972774a60019f3dae7",
+        "scripts/apex_mini_map.gd": "e7a710dd54f285c29b0ec4e3cccf3146298629e7d8681b828ffa18da7d97cea8"
+      }
+    },
+    {
+      "name": "team_orders_066810_ui_test",
+      "group": "core2_ci",
+      "script": "team_orders_066810_ui_test.gd",
+      "markers": [
+        "TEAM_ORDERS_066810_UI_PASS"
+      ],
+      "log_suffix": "_final",
+      "status": "PASS",
+      "exit_codes": [
+        0
+      ],
+      "seconds": 2.35,
+      "log": "qa/hud_manager_20261121/logs/team_orders_066810_ui_test_final.log",
+      "missing_markers": [],
+      "errors": [],
+      "timeout": false,
+      "user_data": "/tmp/apex-hud-validation-team_orders_066810_ui_test-hips1na2",
+      "commands": [
+        {
+          "argv": [
+            "/home/jugdru/Downloads/Godot_v4.7.2-stable_linux.x86_64",
+            "--headless",
+            "--single-threaded-scene",
+            "--path",
+            "/home/jugdru/Documentos/ChatGPT/Apex Simulation/apex-hud-manager-20261121",
+            "--script",
+            "res://tests/team_orders_066810_ui_test.gd"
+          ],
+          "phase": ""
+        }
+      ],
+      "hud_sha256_at_start": {
+        "scripts/apex_race_hud_0622.gd": "ae264d21ad4ff7f23d957e8c15645b615e45f3e0582f62497453384eff5e75a3",
+        "scripts/apex_race_hud_skin_ui01.gd": "214b1823a05d4c599170c9f3f8b3b4d8b547fdec929cec972774a60019f3dae7",
+        "scripts/apex_mini_map.gd": "e7a710dd54f285c29b0ec4e3cccf3146298629e7d8681b828ffa18da7d97cea8"
+      }
+    },
+    {
+      "name": "team_radio_06689_ui_test",
+      "group": "core2_ci",
+      "script": "team_radio_06689_ui_test.gd",
+      "markers": [
+        "TEAM_RADIO_UI_06689_PASS"
+      ],
+      "log_suffix": "_final",
+      "status": "PASS",
+      "exit_codes": [
+        0
+      ],
+      "seconds": 2.26,
+      "log": "qa/hud_manager_20261121/logs/team_radio_06689_ui_test_final.log",
+      "missing_markers": [],
+      "errors": [],
+      "timeout": false,
+      "user_data": "/tmp/apex-hud-validation-team_radio_06689_ui_test-9pi3uawh",
+      "commands": [
+        {
+          "argv": [
+            "/home/jugdru/Downloads/Godot_v4.7.2-stable_linux.x86_64",
+            "--headless",
+            "--single-threaded-scene",
+            "--path",
+            "/home/jugdru/Documentos/ChatGPT/Apex Simulation/apex-hud-manager-20261121",
+            "--script",
+            "res://tests/team_radio_06689_ui_test.gd"
+          ],
+          "phase": ""
+        }
+      ],
+      "hud_sha256_at_start": {
+        "scripts/apex_race_hud_0622.gd": "ae264d21ad4ff7f23d957e8c15645b615e45f3e0582f62497453384eff5e75a3",
+        "scripts/apex_race_hud_skin_ui01.gd": "214b1823a05d4c599170c9f3f8b3b4d8b547fdec929cec972774a60019f3dae7",
+        "scripts/apex_mini_map.gd": "e7a710dd54f285c29b0ec4e3cccf3146298629e7d8681b828ffa18da7d97cea8"
+      }
+    },
+    {
+      "name": "hud_rebroadcast_06681_replay_isolation",
+      "group": "hud",
+      "script": "hud_rebroadcast_06681_replay_isolation.gd",
+      "markers": [
+        "HUD_06681_REPLAY_ISOLATION_PASS"
+      ],
+      "log_suffix": "_final",
+      "status": "PASS",
+      "exit_codes": [
+        0
+      ],
+      "seconds": 6.35,
+      "log": "qa/hud_manager_20261121/logs/hud_rebroadcast_06681_replay_isolation_final.log",
+      "missing_markers": [],
+      "errors": [],
+      "timeout": false,
+      "user_data": "/tmp/apex-hud-validation-hud_rebroadcast_06681_replay_isolation-e8c8hexo",
+      "commands": [
+        {
+          "argv": [
+            "/home/jugdru/Downloads/Godot_v4.7.2-stable_linux.x86_64",
+            "--headless",
+            "--single-threaded-scene",
+            "--path",
+            "/home/jugdru/Documentos/ChatGPT/Apex Simulation/apex-hud-manager-20261121",
+            "--script",
+            "res://tests/hud_rebroadcast_06681_replay_isolation.gd"
+          ],
+          "phase": ""
+        }
+      ],
+      "hud_sha256_at_start": {
+        "scripts/apex_race_hud_0622.gd": "ae264d21ad4ff7f23d957e8c15645b615e45f3e0582f62497453384eff5e75a3",
+        "scripts/apex_race_hud_skin_ui01.gd": "214b1823a05d4c599170c9f3f8b3b4d8b547fdec929cec972774a60019f3dae7",
+        "scripts/apex_mini_map.gd": "e7a710dd54f285c29b0ec4e3cccf3146298629e7d8681b828ffa18da7d97cea8"
+      }
+    },
+    {
+      "name": "driver_dynamics_06687_ui_test",
+      "group": "core2_ci",
+      "script": "driver_dynamics_06687_ui_test.gd",
+      "markers": [
+        "DRIVER_DYNAMICS_06687_UI_PASS"
+      ],
+      "log_suffix": "_final",
+      "status": "PASS",
+      "exit_codes": [
+        0
+      ],
+      "seconds": 2.36,
+      "log": "qa/hud_manager_20261121/logs/driver_dynamics_06687_ui_test_final.log",
+      "missing_markers": [],
+      "errors": [],
+      "timeout": false,
+      "user_data": "/tmp/apex-hud-validation-driver_dynamics_06687_ui_test-86l9nygt",
+      "commands": [
+        {
+          "argv": [
+            "/home/jugdru/Downloads/Godot_v4.7.2-stable_linux.x86_64",
+            "--headless",
+            "--single-threaded-scene",
+            "--path",
+            "/home/jugdru/Documentos/ChatGPT/Apex Simulation/apex-hud-manager-20261121",
+            "--script",
+            "res://tests/driver_dynamics_06687_ui_test.gd"
+          ],
+          "phase": ""
+        }
+      ],
+      "hud_sha256_at_start": {
+        "scripts/apex_race_hud_0622.gd": "ae264d21ad4ff7f23d957e8c15645b615e45f3e0582f62497453384eff5e75a3",
+        "scripts/apex_race_hud_skin_ui01.gd": "214b1823a05d4c599170c9f3f8b3b4d8b547fdec929cec972774a60019f3dae7",
+        "scripts/apex_mini_map.gd": "e7a710dd54f285c29b0ec4e3cccf3146298629e7d8681b828ffa18da7d97cea8"
+      }
+    },
+    {
+      "name": "gdunit4",
+      "group": "gdunit4",
+      "script": "addons/gdUnit4/bin/GdUnitCmdTool.gd",
+      "markers": [
+        "Overall Summary:",
+        "2 test cases | 0 errors | 0 failures",
+        "Executed test cases : (2/2)"
+      ],
+      "log_suffix": "_final",
+      "status": "PASS",
+      "exit_codes": [
+        0
+      ],
+      "seconds": 1.6,
+      "log": "qa/hud_manager_20261121/logs/gdunit4_final.log",
+      "missing_markers": [],
+      "errors": [],
+      "timeout": false,
+      "user_data": "/tmp/apex-hud-validation-gdunit4-vmjjttbq",
+      "commands": [
+        {
+          "argv": [
+            "/home/jugdru/Downloads/Godot_v4.7.2-stable_linux.x86_64",
+            "--headless",
+            "--single-threaded-scene",
+            "--path",
+            "/home/jugdru/Documentos/ChatGPT/Apex Simulation/apex-hud-manager-20261121",
+            "--script",
+            "res://addons/gdUnit4/bin/GdUnitCmdTool.gd",
+            "-a",
+            "res://tests/gdunit",
+            "--ignoreHeadlessMode",
+            "-rd",
+            "res://qa/hud_manager_20261121/gdunit-reports"
+          ],
+          "phase": ""
+        }
+      ],
+      "hud_sha256_at_start": {
+        "scripts/apex_race_hud_0622.gd": "ae264d21ad4ff7f23d957e8c15645b615e45f3e0582f62497453384eff5e75a3",
+        "scripts/apex_race_hud_skin_ui01.gd": "214b1823a05d4c599170c9f3f8b3b4d8b547fdec929cec972774a60019f3dae7",
+        "scripts/apex_mini_map.gd": "e7a710dd54f285c29b0ec4e3cccf3146298629e7d8681b828ffa18da7d97cea8"
+      },
+      "previous_attempts": [
+        {
+          "name": "gdunit4",
+          "group": "gdunit4",
+          "script": "addons/gdUnit4/bin/GdUnitCmdTool.gd",
+          "markers": [
+            "Overall Summary:",
+            "2 test cases | 0 errors | 0 failures",
+            "Executed test cases : (2/2)"
+          ],
+          "status": "FAIL",
+          "exit_codes": [
+            0
+          ],
+          "seconds": 1.23,
+          "log": "qa/hud_manager_20261121/logs/gdunit4.log",
+          "missing_markers": [
+            "Overall Summary:",
+            "2 test cases | 0 errors | 0 failures",
+            "Executed test cases : (2/2)"
+          ],
+          "errors": [],
+          "timeout": false,
+          "user_data": "/tmp/apex-hud-validation-gdunit4-01e7x_lz",
+          "commands": [
+            {
+              "argv": [
+                "/home/jugdru/Downloads/Godot_v4.7.2-stable_linux.x86_64",
+                "--headless",
+                "--single-threaded-scene",
+                "--path",
+                "/home/jugdru/Documentos/ChatGPT/Apex Simulation/apex-hud-manager-20261121",
+                "--script",
+                "res://addons/gdUnit4/bin/GdUnitCmdTool.gd",
+                "--",
+                "-a",
+                "res://tests/gdunit",
+                "--ignoreHeadlessMode",
+                "-rd",
+                "res://qa/hud_manager_20261121/gdunit-reports"
+              ],
+              "phase": ""
+            }
+          ],
+          "hud_sha256_at_start": {
+            "scripts/apex_race_hud_0622.gd": "ae264d21ad4ff7f23d957e8c15645b615e45f3e0582f62497453384eff5e75a3",
+            "scripts/apex_race_hud_skin_ui01.gd": "214b1823a05d4c599170c9f3f8b3b4d8b547fdec929cec972774a60019f3dae7"
+          }
+        }
+      ]
+    }
+  ],
+  "final_hud_sha256": {
+    "scripts/apex_race_hud_0622.gd": "ae264d21ad4ff7f23d957e8c15645b615e45f3e0582f62497453384eff5e75a3",
+    "scripts/apex_race_hud_skin_ui01.gd": "214b1823a05d4c599170c9f3f8b3b4d8b547fdec929cec972774a60019f3dae7",
+    "scripts/apex_mini_map.gd": "e7a710dd54f285c29b0ec4e3cccf3146298629e7d8681b828ffa18da7d97cea8"
+  }
+}

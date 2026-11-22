@@ -12,6 +12,7 @@ var focus_id: int = -1
 var min_point: Vector2 = Vector2.ZERO
 var scale_factor: float = 1.0
 var offset_point: Vector2 = Vector2.ZERO
+var show_background: bool = true
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(170, 133)
@@ -31,7 +32,8 @@ func set_cars(new_cars: Array, focus: int) -> void:
 
 func _draw() -> void:
 	var bounds := Rect2(Vector2.ZERO, size)
-	draw_rect(bounds, DARK)
+	if show_background:
+		draw_rect(bounds, DARK)
 	if route.size() < 3:
 		return
 	var mn := route[0]

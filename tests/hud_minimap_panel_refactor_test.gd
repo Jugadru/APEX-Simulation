@@ -39,11 +39,11 @@ func _run() -> void:
 		_fail("Cabecalho alterado")
 		return
 	var title: Label = heading.get_child(0)
-	if title.text != "MINIMAPA" or title.get_theme_font_size("font_size") != 11:
+	if title.text != "MAPA DA CORRIDA" or title.get_theme_font_size("font_size") != 12:
 		hud.free()
 		_fail("Titulo alterado")
 		return
-	if title.get_theme_color("font_color") != HudSkin.ORANGE or title.size_flags_horizontal != Control.SIZE_EXPAND_FILL:
+	if title.get_theme_color("font_color") != HudSkin.MUTED or title.size_flags_horizontal != Control.SIZE_EXPAND_FILL:
 		hud.free()
 		_fail("Aparencia do titulo alterada")
 		return

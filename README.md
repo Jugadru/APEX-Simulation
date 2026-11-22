@@ -162,6 +162,36 @@ Para começar, use o download acima e a seção **Abrir o jogo**. As seções se
 
 ---
 
+**Cópia experimental HUD Manager — 21/11/2026.** Interface de corrida baseada na composição do F1 Manager 2024, com dados e comandos do APEX. Abra este `project.godot` para experimentar. [Comparação das referências](docs/HUD_COMPARATIVO_20261121.md) · [Imagens e validação](docs/HUD_MANAGER_20261121_VALIDACAO.md) · [Changelog](docs/arquivo/changelogs/HUD_MANAGER_20261121_CHANGELOG.md). Os downloads históricos abaixo não incluem esta alteração local.
+
+Simulador de gestão de automobilismo com equipes, estratégias, desenvolvimento de carros e corridas em 3D. O **Core 2** é o motor esportivo oficial deste repositório.
+
+## 📥 Baixar o jogo
+
+### [⬇ Baixar APEX Core 2 v0.6.6.8.6 — ZIP completo (121 MB)](https://github.com/Quereni/APEX-Simulation/releases/download/Versions/APEX_MOTORSPORT_MANAGER_v0.6.6.8.6_CORE2_RACE_STABILITY_COMPLETO.zip)
+
+[Ver a página do download](https://github.com/Quereni/APEX-Simulation/releases/tag/Versions) · [Como abrir](#abrir-o-jogo) · [Guia das pastas](#guia-das-pastas)
+
+**Versão do download:** v0.6.6.8.6. O código da branch `main` contém alterações posteriores; este ZIP não inclui automaticamente essas mudanças. Para abrir o projeto, extraia o pacote e importe o `project.godot` no **Godot 4.7.2**, seguindo as instruções abaixo. O download é um pacote do projeto, não um instalador Windows/Linux.
+
+O repositório é privado: é necessário estar conectado ao GitHub com uma conta que tenha acesso para baixar o arquivo.
+
+## Guia das pastas
+
+| Onde encontrar | Conteúdo |
+| --- | --- |
+| [`project.godot`](project.godot) | Arquivo para abrir o projeto no Godot |
+| [`scripts/`](scripts/) | Código do jogo |
+| [`scenes/`](scenes/) | Cenas e interfaces |
+| [`assets/`](assets/) e [`data/`](data/) | Recursos visuais e dados |
+| [`docs/`](docs/) | Guias e documentação |
+| [`docs/arquivo/`](docs/arquivo/README.md) | Relatórios e histórico de versões |
+| [`tests/`](tests/) e [`tools/`](tools/) | Testes e ferramentas de desenvolvimento |
+
+Para começar, use o download acima e a seção **Abrir o jogo**. As seções seguintes detalham as mudanças de cada versão.
+
+---
+
 ## Ordens de Equipe 1.0 — autorização real (v0.6.6.8.10)
 
 Na janela **RÁDIO**, primeiro escolha o piloto que está atrás e use **COMPARAR COMPANHEIRO**. Quando há duas voltas de vantagem sustentada, menos de 1,5 segundo de distância, posições adjacentes, pneus adequados e segurança, o botão **AUTORIZAR NÃO DEFENDER** envia uma ordem explícita ao companheiro da frente. O pedido é aplicado **no tick seguinte** pelo replay e permite que o líder evite uma defesa antecipada agressiva por até **15 segundos de tempo de simulação**, sem garantir passagem nem dar velocidade artificial. A pista continua respeitando ocupação lateral, segurança e espaço físico no Core 2. O jogador pode usar **CANCELAR AUTORIZAÇÃO**.

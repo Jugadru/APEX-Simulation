@@ -11,7 +11,7 @@ static func build(parent: Node, rank_idle_style: StyleBoxFlat, rank_selected_sty
 	var rank_header: HBoxContainer = line.call(left, 2)
 	var prev: Button = button.call(rank_header, "‹", move_metric.bind(-1), 27)
 	prev.tooltip_text = "Métrica anterior"
-	var standings_title: Label = label.call(rank_header, "INTERVALO", 11, HudSkin.ORANGE)
+	var standings_title: Label = label.call(rank_header, "INTERVALO", 13, HudSkin.WHITE)
 	standings_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	standings_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	var next: Button = button.call(rank_header, "›", move_metric.bind(1), 27)
@@ -25,30 +25,30 @@ static func build(parent: Node, rank_idle_style: StyleBoxFlat, rank_selected_sty
 	var standing_rows: Array = []
 	for i in range(24):
 		var row := HBoxContainer.new()
-		row.custom_minimum_size.y = 28
+		row.custom_minimum_size.y = 24
 		row.add_theme_constant_override("separation", 3)
 		entries.add_child(row)
 		var stripe := ColorRect.new()
 		stripe.custom_minimum_size = Vector2(3, 20)
 		stripe.color = HudSkin.MUTED
 		row.add_child(stripe)
-		var pos: Label = label.call(row, "%d" % (i + 1), 13, HudSkin.MUTED)
+		var pos: Label = label.call(row, "%d" % (i + 1), 14, HudSkin.WHITE)
 		pos.custom_minimum_size.x = 20
 		var driver: Button = button.call(row, "---", select_car.bind(i), 43)
 		driver.add_theme_stylebox_override("normal", rank_idle_style)
 		driver.add_theme_stylebox_override("hover", HudSkin.button_style("rank_hover"))
 		driver.add_theme_stylebox_override("pressed", rank_selected_style)
 		driver.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		driver.add_theme_font_size_override("font_size", 13)
+		driver.add_theme_font_size_override("font_size", 14)
 		driver.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		driver.custom_minimum_size.y = 26
+		driver.custom_minimum_size.y = 24
 		var tyre: Label = label.call(row, "—", 13, HudSkin.MUTED)
 		tyre.custom_minimum_size.x = 16
 		tyre.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		var state: Label = label.call(row, "", 11, HudSkin.WARNING)
 		state.custom_minimum_size.x = 31
 		state.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		var detail: Label = label.call(row, "—", 12, HudSkin.WHITE)
+		var detail: Label = label.call(row, "—", 14, HudSkin.WHITE)
 		detail.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		detail.custom_minimum_size.x = 66
 		standing_rows.append({"row":row, "stripe":stripe, "pos":pos, "driver":driver,

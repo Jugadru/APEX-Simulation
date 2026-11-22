@@ -1,17 +1,19 @@
 extends RefCounted
-## APEX v0.6.3.5 UI01: cosmetic-only race HUD skin, isolated from legacy menus.
+## APEX Manager HUD: original presentation inspired by management race broadcasts.
 ## The geometry, event bindings and RaceEngine stay in apex_race_hud_0622.gd.
 
-const BASE := Color("#111820")
-const SURFACE := Color(0.129, 0.169, 0.208, 0.94)
-const SURFACE_SOLID := Color("#212B35")
-const SURFACE_ALT := Color("#303842")
+const BASE := Color("#191A23")
+const SURFACE := Color(0.105, 0.110, 0.150, 0.92)
+const SURFACE_SOLID := Color("#23242F")
+const SURFACE_ALT := Color("#30313F")
+const HEADER := Color("#ECEDEB")
+const HEADER_INK := Color("#222430")
 const ORANGE := Color("#FF8A21")
 const ORANGE_LITE := Color("#FFB066")
 const WHITE := Color("#F3F5F6")
 const MUTED := Color("#B7C3CC")
-const BORDER := Color("#556471")
-const BORDER_SOFT := Color("#394958")
+const BORDER := Color("#646573")
+const BORDER_SOFT := Color("#454652")
 const WARNING := Color("#F2BE49")
 const TYRE_GREEN := Color("#8cdb34")
 
@@ -20,7 +22,7 @@ static func panel(bg: Color = SURFACE, radius: int = 7, edge: Color = BORDER_SOF
     sb.bg_color = bg
     sb.border_color = edge
     sb.set_border_width_all(1)
-    sb.set_corner_radius_all(maxi(radius, 8))
+    sb.set_corner_radius_all(clampi(radius, 0, 3))
     sb.set_content_margin_all(pad)
     if accent_left:
         # Only the left rail is orange; avoid a distracting full orange outline.
@@ -32,18 +34,18 @@ static func panel(bg: Color = SURFACE, radius: int = 7, edge: Color = BORDER_SOF
 static func button_style(state: String = "normal") -> StyleBoxFlat:
     match state:
         "hover":
-            return panel(Color("#293340"), 5, ORANGE, 6)
+            return panel(Color("#454654"), 2, WHITE, 6)
         "pressed", "selected":
-            return panel(Color("#ac4d00"), 5, ORANGE, 6)
+            return panel(Color("#555665"), 2, ORANGE, 6)
         "disabled":
-            return panel(Color("#1A222A"), 5, BORDER_SOFT, 6)
+            return panel(Color("#20212B"), 2, BORDER_SOFT, 6)
         "rank":
-            return panel(Color(0.0, 0.0, 0.0, 0.0), 3, Color(0.0, 0.0, 0.0, 0.0), 4)
+            return panel(Color.TRANSPARENT, 0, Color.TRANSPARENT, 2)
         "rank_hover":
-            return panel(Color("#27313C"), 3, BORDER_SOFT, 4)
+            return panel(Color("#3C3D4C"), 0, BORDER_SOFT, 2)
         "rank_selected":
-            return panel(Color("#8f450c"), 3, Color("#8f450c"), 4)
-    return panel(SURFACE_ALT, 5, BORDER, 6)
+            return panel(Color("#4A4B5C"), 0, Color("#A0A1AA"), 2)
+    return panel(SURFACE_ALT, 2, BORDER_SOFT, 6)
 
 static func build() -> Theme:
     var t := Theme.new()

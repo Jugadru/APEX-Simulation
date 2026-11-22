@@ -1,0 +1,14 @@
+[
+  {
+    "name": "hud_ranking_panel_refactor_test",
+    "status": "PASS"
+  },
+  {
+    "name": "hud_weather_panel_refactor_test",
+    "status": "PASS"
+  },
+  {
+    "name": "hud_minimap_panel_refactor_test",
+    "status": "PASS"
+  }
+]

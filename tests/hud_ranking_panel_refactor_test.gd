@@ -73,7 +73,7 @@ func _run() -> void:
 			_fail("Row hierarchy changed at index %d" % i)
 			hud.free()
 			return
-		if bar.custom_minimum_size.y != 28 or bar.get_theme_constant("separation") != 3:
+		if bar.custom_minimum_size.y != 24 or bar.get_theme_constant("separation") != 3:
 			_fail("Row geometry changed at %d" % i)
 			hud.free()
 			return

@@ -1,5 +1,5 @@
 extends Control
-## APEX Race HUD v0.6.6.8.1 — ReBroadcast visual QA; Core 2 remains authoritative.
+## APEX Manager HUD — reference-based composition; Core 2 remains authoritative.
 ## Reads the real RaceEngine state, and delegates all race commands to main.gd.
 ## No simulation values are invented here.
 
@@ -52,6 +52,7 @@ var standings_title: Label
 var lap_label: Label
 var session_label: Label
 var weather_line: Label
+var weather_track_line: Label
 var minimap
 var speed_label: OptionButton
 var pause_button: Button
@@ -198,9 +199,9 @@ func _create_ui() -> void:
 	tiny_top = _panel(self)
 	tiny_top.add_theme_stylebox_override("panel", HudSkin.panel(SURFACE, 6, HudSkin.BORDER_SOFT, 8, true))
 	var stats := _line(tiny_top, 9)
-	lap_label = _text(stats, "VOLTA —/—", 13, ACCENT)
+	lap_label = _text(stats, "VOLTA —/—", 15, WHITE)
 	session_label = _text(stats, "00:00:00", 12, MUTED)
-	status_banner = _text(stats, "PARADA", 11, YELLOW)
+	status_banner = _text(stats, "PARADA", 12, YELLOW)
 
 	actions_top = HBoxContainer.new()
 	actions_top.add_theme_constant_override("separation", 4)
@@ -236,6 +237,7 @@ func _create_ui() -> void:
 		Callable(self, "_panel"), Callable(self, "_column"), Callable(self, "_text"))
 	weather_box = weather_ui["weather_box"]
 	weather_line = weather_ui["weather_line"]
+	weather_track_line = weather_ui["weather_track_line"]
 	weather_box.minimum_size_changed.connect(layout_hud, CONNECT_DEFERRED)
 
 	# UI-only minimap assembly; HUD retains track ownership and layout.
@@ -349,60 +351,74 @@ func begin_race() -> void:
 	refresh_hud()
 
 func _create_driver_card(car: Dictionary, slot: int) -> void:
-	var base := _panel(player_strip, Color(0.033, 0.062, 0.099, 0.97))
-	var interior := _line(base, 7)
-	var controls := _column(interior, 3)
-	var tab_buttons: Array = []
-	for k in range(4):
-		var b := _btn(controls, ["T", "D", "E", "C"][k], _expand_driver.bind(slot, k), 31)
-		b.custom_minimum_size.y = 29
-		b.tooltip_text = CONTEXTS[k] + " — abrir detalhes acima do piloto"
-		tab_buttons.append(b)
-	# Show an optional openly licensed portrait. Without one, use a clean team-color badge.
-	var portrait_holder := _panel(interior, Color.from_string(str(car.get("color", "#253f57")), BORDER).darkened(0.58))
-	portrait_holder.custom_minimum_size = Vector2(74, 114)
-	var portrait_tex: Texture2D = null
-	if host != null and host.portrait_manager != null:
-		portrait_tex = host.portrait_manager.get_photo(str(car.get("name", "")))
-	if portrait_tex != null:
-		var face := TextureRect.new()
-		face.texture = portrait_tex
-		face.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		face.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-		portrait_holder.add_child(face)
-	else:
-		var name_bits: PackedStringArray = str(car.get("name", "Piloto")).split(" ", false)
-		var initials: String = name_bits[name_bits.size() - 1].left(3).to_upper()
-		var portrait_mark := _text(portrait_holder, initials, 18, WHITE)
-		portrait_mark.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		portrait_mark.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		portrait_mark.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	var core := _column(interior, 5)
-	core.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var title_line := _line(core, 6)
-	var pos := _text(title_line, "P%d" % int(car.get("position", 0)), 17, ACCENT)
-	var name := _text(title_line, str(car.get("name", "Piloto")), 15, WHITE)
+	# Three live information columns, with the existing command handlers intact.
+	# No proprietary art, invented fuel quantity or modern ERS is introduced.
+	var base := _panel(player_strip)
+	base.add_theme_stylebox_override("panel", HudSkin.panel(SURFACE, 3, BORDER, 0))
+	var shell := _column(base, 0)
+	var header := _panel(shell, HudSkin.HEADER)
+	header.add_theme_stylebox_override("panel", HudSkin.panel(HudSkin.HEADER, 0, HudSkin.HEADER, 6))
+	var title_line := _line(header, 9)
+	var pos := _text(title_line, "P%d" % int(car.get("position", 0)), 18, HudSkin.HEADER_INK)
+	var team_stripe := ColorRect.new()
+	team_stripe.custom_minimum_size = Vector2(4, 23)
+	team_stripe.color = Color.from_string(str(car.get("color", "#FF8A21")), ACCENT)
+	title_line.add_child(team_stripe)
+	var name := _text(title_line, str(car.get("name", "Piloto")), 17, HudSkin.HEADER_INK)
 	name.clip_text = true
 	name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var status := _text(core, "Pneu —  •  —%", 13, WHITE)
-	status.clip_text = true
-	var second_line := _text(core, "Ritmo —", 12, MUTED)
-	second_line.clip_text = true
-	var tyre_bar := ProgressBar.new()
-	tyre_bar.custom_minimum_size = Vector2(0.0, 8.0)
-	tyre_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	tyre_bar.min_value = 0
-	tyre_bar.max_value = 100
-	tyre_bar.show_percentage = false
-	tyre_bar.add_theme_stylebox_override("background", _frame(Color("#2F3944"), 3))
-	tyre_bar.add_theme_stylebox_override("fill", _frame(ACCENT, 3))
-	core.add_child(tyre_bar)
-	var action_line := _line(core, 5)
-	var follow := _btn(action_line, "SEGUIR", _follow.bind(int(car["id"])), 86)
+	var drs := _text(title_line, "DRS —", 12, HudSkin.HEADER_INK)
+	var follow := _btn(title_line, "CÂMERA", _follow.bind(int(car["id"])), 74)
 	follow.tooltip_text = "Seguir este piloto com a câmera"
-	var quick := _btn(action_line, "CHAMAR BOX", _quick_box.bind(slot), 110)
+	follow.custom_minimum_size.y = 25
+	var inset := MarginContainer.new()
+	for side in ["left", "right", "top", "bottom"]:
+		inset.add_theme_constant_override("margin_" + side, 9)
+	inset.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	shell.add_child(inset)
+	var core := _column(inset, 7)
+	var metrics := _line(core, 10)
+	metrics.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	var tyre_column := _column(metrics, 5)
+	tyre_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_text(tyre_column, "PNEUS / VIDA RESTANTE", 12, MUTED)
+	var status := _text(tyre_column, "—  •  —%", 20, WHITE)
+	status.clip_text = true
+	var tyre_temp := _text(tyre_column, "— °C  ·  0 voltas", 13, MUTED)
+	tyre_temp.clip_text = true
+	var tyre_bar := _card_gauge(tyre_column, SOUL_ACCENT)
+	metrics.add_child(VSeparator.new())
+	var pace_column := _column(metrics, 5)
+	pace_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_text(pace_column, "RITMO", 12, MUTED)
+	var pace_value := _text(pace_column, "Normal", 20, WHITE)
+	pace_value.clip_text = true
+	var lap_value := _text(pace_column, "Última volta —", 13, MUTED)
+	lap_value.clip_text = true
+	var pace_hint := _text(pace_column, "MANUAL", 11, MUTED)
+	metrics.add_child(VSeparator.new())
+	var energy_column := _column(metrics, 5)
+	energy_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_text(energy_column, "KERS / ENERGIA", 12, MUTED)
+	var energy_value := _text(energy_column, "— kJ", 20, YELLOW)
+	energy_value.clip_text = true
+	var energy_mode := _text(energy_column, "Equilibrado", 13, MUTED)
+	energy_mode.clip_text = true
+	var energy_bar := _card_gauge(energy_column, YELLOW)
+	energy_bar.max_value = 400.0
+	var second_line := _text(core, "Pista", 13, MUTED)
+	second_line.clip_text = true
+	var action_line := _line(core, 4)
+	var tab_buttons: Array = []
+	for k in range(4):
+		var b := _btn(action_line, ["TELEMETRIA", "RITMO", "ESTRATÉGIA", "CARRO"][k], _expand_driver.bind(slot, k))
+		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		b.add_theme_font_size_override("font_size", 12)
+		b.tooltip_text = CONTEXTS[k] + " — abrir detalhes acima do piloto"
+		tab_buttons.append(b)
+	var quick := _btn(action_line, "BOX", _quick_box.bind(slot), 60)
 	quick.tooltip_text = "Chamar imediatamente o carro para os boxes"
-	var expanded := _panel(player_strip, Color(0.039, 0.074, 0.115, 0.985))
+	var expanded := _panel(player_strip, HudSkin.SURFACE_SOLID)
 	var content := _column(expanded, 8)
 	var heading := _line(content, 5)
 	var heading_label := _text(heading, "", 14, ACCENT)
@@ -413,8 +429,21 @@ func _create_driver_card(car: Dictionary, slot: int) -> void:
 	race_card_panels.append({"base":base, "expanded":expanded, "content":detail_body, "heading":heading_label,
 		"id":int(car["id"]), "slot":slot, "pos":pos, "name":name, "status":status, "secondary":second_line,
 		"wear_bar":tyre_bar, "tabs":tab_buttons, "quick":quick, "context":-1,
+		"tyre_temp":tyre_temp, "pace_value":pace_value, "lap_value":lap_value, "pace_hint":pace_hint,
+		"energy_value":energy_value, "energy_mode":energy_mode, "energy_bar":energy_bar, "drs":drs,
 		"target_tire":str(car.get("pit_target", "Duro")), "tire_picker":null,
 		"lap_picker":null, "data_labels":[], "buttons":[], "follow":follow})
+
+func _card_gauge(parent: Node, tint: Color) -> ProgressBar:
+	var gauge := ProgressBar.new()
+	gauge.custom_minimum_size = Vector2(0.0, 5.0)
+	gauge.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	gauge.max_value = 100.0
+	gauge.show_percentage = false
+	gauge.add_theme_stylebox_override("background", HudSkin.panel(HudSkin.BORDER_SOFT, 0, Color.TRANSPARENT, 0))
+	gauge.add_theme_stylebox_override("fill", HudSkin.panel(tint, 0, Color.TRANSPARENT, 0))
+	parent.add_child(gauge)
+	return gauge
 
 func _driver_from_slot(slot: int) -> Dictionary:
 	if host == null or host.race == null or slot < 0 or slot >= race_card_panels.size():
@@ -428,8 +457,11 @@ func _expand_driver(slot: int, context: int) -> void:
 	if expanded_context[slot] == context:
 		_collapse_driver(slot)
 		return
-	# On small screens, opening both detail panels would cause overlap.
-	if get_viewport_rect().size.x < 1460.0:
+	# The wider manager cards also need more room for two expanded contexts.
+	var available_width: float = get_viewport_rect().size.x
+	var detail_width: float = clampf(available_width * 0.315, 390.0, 606.0)
+	var side_widths: float = (292.0 if hud_mode == 2 else 280.0) + 340.0 + 72.0
+	if available_width < 2.0 * detail_width + side_widths:
 		var other_slot: int = 1 - slot
 		if other_slot >= 0 and other_slot < race_card_panels.size() and expanded_context[other_slot] >= 0:
 			_collapse_driver(other_slot)
@@ -532,37 +564,37 @@ func layout_hud() -> void:
 	var full: bool = hud_mode == 2
 	var broadcast: bool = hud_mode == 0
 	# HUD uses full-rect anchors and follows the parent automatically.
-	tiny_top.position = Vector2(13.0, 9.0)
-	tiny_top.size = Vector2(300.0, 40.0)
-	actions_top.position = Vector2(width_px - 665.0, 9.0)
+	tiny_top.position = Vector2(24.0, 24.0)
+	tiny_top.size = Vector2(280.0, 42.0)
+	actions_top.position = Vector2(width_px - 676.0, 24.0)
 	actions_top.size = Vector2(652.0, 31.0)
 	var toast_width: float = minf(490.0, maxf(180.0, width_px - 515.0))
-	radio_reactive_toast.position = Vector2((width_px - toast_width) * 0.5, 54.0)
+	radio_reactive_toast.position = Vector2((width_px - toast_width) * 0.5, 74.0)
 	radio_reactive_toast.size = Vector2(toast_width, 43.0)
-	var left_width: float = 295.0 if full else 283.0
-	var right_width: float = 242.0 if full else 228.0
-	var card_height: float = 170.0 if full else 148.0
-	var card_y: float = height_px - card_height - 13.0
-	ranking.position = Vector2(12.0, 55.0)
+	var left_width: float = 292.0 if full else 280.0
+	var right_width: float = 340.0
+	var card_height: float = 232.0 if full else 224.0
+	var card_y: float = height_px - card_height - 24.0
+	ranking.position = Vector2(24.0, 73.0)
 	# The leaderboard must never collide vertically with the driver cards.
 	var rank_bottom: float = height_px - 70.0 if broadcast else card_y - 9.0
-	ranking.size = Vector2(left_width, maxf(155.0, minf(668.0, rank_bottom - 55.0)))
-	weather_box.position = Vector2(width_px - right_width - 12.0, 55.0)
-	weather_box.size = Vector2(right_width, 126.0)
-	map_box.position = Vector2(width_px - right_width - 12.0, 190.0)
-	map_box.size = Vector2(right_width, 199.0)
-	pit_quick_panel.position = Vector2(width_px - right_width - 12.0, 400.0)
+	ranking.size = Vector2(left_width, maxf(155.0, minf(668.0, rank_bottom - 73.0)))
+	weather_box.position = Vector2(width_px - right_width - 24.0, 83.0)
+	weather_box.size = Vector2(right_width, 235.0)
+	map_box.position = Vector2(width_px - right_width - 24.0, 332.0)
+	map_box.size = Vector2(right_width, 220.0)
+	pit_quick_panel.position = Vector2(width_px - right_width - 24.0, 564.0)
 	pit_quick_panel.size = Vector2(right_width, 109.0)
 	pit_quick_panel.visible = full
 	# Small island in the centre: only pause and speed, no full-width stripe.
 	bottom_bar.size = Vector2(255.0, 48.0)
-	bottom_bar.position = Vector2((width_px - bottom_bar.size.x) * 0.5, height_px - 57.0)
+	bottom_bar.position = Vector2((width_px - bottom_bar.size.x) * 0.5, height_px - 72.0)
 	player_strip.position = Vector2.ZERO
 	player_strip.size = Vector2(width_px, height_px)
-	var card_width: float = clampf((width_px - 295.0) * 0.5, 226.0, 428.0)
+	var card_width: float = clampf(width_px * 0.315, 390.0, 606.0)
 	for i in range(race_card_panels.size()):
 		var card: Dictionary = race_card_panels[i]
-		var xx: float = 17.0 if i == 0 else width_px - card_width - 17.0
+		var xx: float = 24.0 if i == 0 else width_px - card_width - 24.0
 		card["base"].position = Vector2(xx, card_y)
 		card["base"].size = Vector2(card_width, card_height)
 		card["base"].visible = not broadcast
@@ -579,7 +611,7 @@ func layout_hud() -> void:
 		expanded_height = maxf(expanded_height, (card["expanded"] as Control).get_combined_minimum_size().y)
 		# Details rise from each driver and shift toward the circuit to avoid
 		# covering the standings on the left or the weather/map on the right.
-		var detail_x: float = left_width + 24.0 if i == 0 else width_px - right_width - 24.0 - card_width
+		var detail_x: float = left_width + 36.0 if i == 0 else width_px - right_width - 36.0 - card_width
 		card["expanded"].position = Vector2(detail_x, card_y - expanded_height - 8.0)
 		card["expanded"].size = Vector2(card_width, expanded_height)
 	background_dimmer.position = Vector2.ZERO
@@ -650,12 +682,16 @@ func refresh_hud() -> void:
 	if speed_position >= 0 and speed_label.selected != speed_position:
 		speed_label.select(speed_position)
 	var weather: Dictionary = race.weather_snapshot()
-	var weather_brief: String = "%s • %s\nÁgua %.1f mm · umidade %d%%\nChuva %d%% · Prev. %d%% (15m)" % [
-		str(weather.get("sky", "—")), str(weather.get("track_state", "—")),
-		float(weather.get("water_mm", 0.0)), int(weather.get("surface_moisture_percent", 0)),
+	var weather_brief: String = "%s   ·   %.1f °C\nChuva %d%%   ·   Prev. 15 min: %d%%" % [
+		str(weather.get("sky", "—")), float(weather.get("air_c", 0.0)),
 		int(round(float(weather.get("rain_intensity", 0.0)) * 100.0)), int(weather.get("rain_probability", 0))]
 	ReBroadcast.set_text_if_changed(weather_line, weather_brief)
 	weather_line.tooltip_text = "Condição atual, água e umidade medidas; previsão é estimativa."
+	ReBroadcast.set_text_if_changed(weather_track_line,
+		"%s   ·   %.1f °C\nÁgua %.2f mm   ·   Umidade %d%%\nBorracha %d%%   ·   Aderência %s" % [
+			str(weather.get("track_state", "—")), float(weather.get("track_c", 0.0)),
+			float(weather.get("water_mm", 0.0)), int(weather.get("surface_moisture_percent", 0)),
+			int(weather.get("rubber", 0)), str(weather.get("grip", "—"))])
 	var order: Array = race.get_sorted()
 	# A scheduled UI order may still be in the deterministic command queue
 	# until the next tick. Showing it as confirmed would mislead the player.
@@ -683,13 +719,36 @@ func refresh_hud() -> void:
 		var tire: String = str(car.get("tire", "Médio"))
 		var pending: Dictionary = pending_pits.get(int(car.get("id", -1)), {})
 		var pit_text: String = "BOX CHAMADO" if bool(car.get("pit_request", false)) else ("PIT V%d" % int(car.get("pit_scheduled_lap", 0)) if int(car.get("pit_scheduled_lap", 0)) > 0 else str(car.get("pace", "Normal")))
+		if float(car.get("pit_left", 0.0)) > 0.0:
+			pit_text = "NOS BOXES"
+		if bool(car.get("finished", false)):
+			pit_text = "CORRIDA FINALIZADA"
+		if bool(car.get("disqualified", false)):
+			pit_text = "DESCLASSIFICADO"
 		if not pending.is_empty():
 			pit_text = "ORDEM PENDENTE " + ReBroadcast.pending_label(pending)
-		var warning: String = "⚠ CRÍTICO " if float(car.get("wear", 0.0)) >= 90.0 else ("⚠ " if float(car.get("wear", 0.0)) >= 75.0 else "")
-		card["status"].text = "%s%s · %dv • desgaste %d%%" % [warning, _compound(tire), int(car.get("stint_laps", 0)), int(round(float(car.get("wear", 0.0))))]
+		var life_remaining: float = clampf(100.0 - float(car.get("wear", 0.0)), 0.0, 100.0)
+		var warning: String = "PNEU CRÍTICO  ·  " if life_remaining <= 10.0 else ("PNEU GASTO  ·  " if life_remaining <= 25.0 else "")
+		card["status"].text = "%s   %d%%" % [_compound(tire), int(round(life_remaining))]
+		card["status"].add_theme_color_override("font_color", ReBroadcast.tyre_tint(_compound(tire)))
 		card["status"].tooltip_text = "PNEU ATUAL: %s (%d voltas). Planejado: %s. Controle: %s" % [tire, int(car.get("stint_laps", 0)), str(car.get("pit_target", "—")), str(car.get("pit_control_mode", "Manual"))]
-		card["secondary"].text = "Ritmo %s  •  %s" % [str(car.get("pace", "Normal")), pit_text if pit_text != str(car.get("pace", "Normal")) else "Pista"]
-		(card["wear_bar"] as ProgressBar).value = clampf(100.0 - float(car.get("wear", 0.0)), 0.0, 100.0)
+		card["tyre_temp"].text = ("%.0f °C" % float(car["tyre_surface_c"]) if car.has("tyre_surface_c") else "Temp. —") + "  ·  %d voltas" % int(car.get("stint_laps", 0))
+		card["tyre_temp"].tooltip_text = "Temperatura de superfície calculada pelo modelo térmico do jogo."
+		card["pace_value"].text = str(car.get("pace", "Normal"))
+		var last_lap: float = float(car.get("last_lap", 0.0))
+		card["lap_value"].text = "Última " + (host._format_lap(last_lap) if last_lap > 0.0 and last_lap < 9999.0 else "—")
+		card["pace_hint"].text = str(host._engineer_mode_for(int(car["id"]))).to_upper()
+		var energy: Dictionary = race.get_race_control_status(int(car["id"]))
+		var has_kers: bool = bool(energy.get("kers_equipped", false))
+		card["energy_value"].text = "%d kJ" % int(round(float(energy.get("kers_remaining_kj", 0.0)))) if has_kers else "SEM KERS"
+		card["energy_mode"].text = str(energy.get("kers_mode", "—")) if has_kers else "Não equipado"
+		card["energy_value"].tooltip_text = "Energia disponível nesta volta; limite de 400 kJ em 2012."
+		(card["energy_bar"] as ProgressBar).value = float(energy.get("kers_remaining_kj", 0.0))
+		card["drs"].text = "DRS ON" if bool(energy.get("drs_active", false)) else "DRS OFF"
+		card["drs"].tooltip_text = "DRS ativo" if bool(energy.get("drs_active", false)) else "DRS fechado"
+		card["secondary"].text = warning + (pit_text if pit_text != str(car.get("pace", "Normal")) else "NA PISTA  ·  Nenhuma parada marcada")
+		card["secondary"].tooltip_text = str(card["secondary"].text)
+		(card["wear_bar"] as ProgressBar).value = life_remaining
 		card["quick"].disabled = bool(car.get("finished", false)) or bool(car.get("pit_request", false)) or float(car.get("pit_left", 0.0)) > 0.0 or not pending.is_empty()
 		card["quick"].tooltip_text = ReBroadcast.pending_description(pending) if not pending.is_empty() else "Solicitar box na próxima entrada permitida"
 		_update_driver_context(i)
