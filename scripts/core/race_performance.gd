@@ -5,6 +5,7 @@ const WetPhysics = preload("res://scripts/core/race_wet_physics.gd")
 const TyreThermal = preload("res://scripts/core/race_tyre_thermal.gd")
 const WeatherSetup15 = preload("res://scripts/core/race_weather_setup_15.gd")
 const RaceLaunch14 = preload("res://scripts/core/race_launch_14.gd")
+const RaceStart066911 = preload("res://scripts/core/race_start_intelligence_066911.gd")
 
 static func evaluate(car: Dictionary, context: Dictionary) -> Dictionary:
 	var gap: float = float(context.get("gap", 999.0))
@@ -91,7 +92,11 @@ static func evaluate(car: Dictionary, context: Dictionary) -> Dictionary:
 	# Improvement 14: launch is a transient traction/reaction cost on actual pace.
 	# No RNG, grid-place bonus, or permanent effects on the lap time model.
 	if bool(context.get("launch_enabled", true)):
-		target += RaceLaunch14.pace_cost(car, float(context.get("clock", RaceLaunch14.PHASE_SECONDS)), rain_wetness)
+		if bool(context.get("race_start_intelligence_enabled", false)):
+			target += RaceStart066911.pace_cost(car, float(context.get("clock", RaceStart066911.PHASE_SECONDS)), weather)
+		else:
+			# Replay 021 and older must retain Improvement 14 byte-for-byte.
+			target += RaceLaunch14.pace_cost(car, float(context.get("clock", RaceLaunch14.PHASE_SECONDS)), rain_wetness)
 	target += float(setup_effect["pace_delta_s"])
 	target = clampf(target, maxf(58.0, base_lap * 0.80), maxf(205.0, base_lap * 2.20))
 	return {"target": target, "wear_factor": wear_factor, "heat": tyre_heat,
