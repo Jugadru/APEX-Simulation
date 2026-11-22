@@ -105,6 +105,29 @@
           "comparison": false
         }
       ]
+    },
+    {
+      "id": "setup_track_knowledge_0914",
+      "paths": [
+        "scripts/core/race_setup_track_knowledge_066914.gd",
+        "scripts/apex_race_hud_0622.gd",
+        "tests/setup_track_066914_test.gd"
+      ],
+      "fast_tests": [
+        {
+          "script": "setup_track_066914_test.gd",
+          "marker": "SETUP_TRACK_066914_PASS"
+        }
+      ],
+      "checks": [
+        {
+          "key": "setup_track_targeted_v0914",
+          "workflow": "apex-setup-track-ci.yml",
+          "job": "Godot 4.7.2 / 20 tracks / wet / V21 / HUD",
+          "area": "Setup & Track Knowledge 1.0",
+          "comparison": false
+        }
+      ]
     }
   ]
 }
