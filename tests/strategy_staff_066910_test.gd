@@ -143,7 +143,9 @@ func _run() -> void:
 	legacy.attach(Race.new(season["teams"], "Ferrari", 6611, {}, track, {}))
 	legacy.recorded_simulation_revision = Replay.PRE_STAFF_SIMULATION_REVISION
 	legacy.legacy_staff_strategy = true
+	legacy.legacy_start_intelligence = true
 	legacy.race.strategy_staff_intelligence_enabled = false
+	legacy.race.race_start_intelligence_enabled = false
 	legacy.policy.erase("strategy_staff")
 	legacy.checkpoints = [legacy.checkpoint()]
 	for i in range(30):

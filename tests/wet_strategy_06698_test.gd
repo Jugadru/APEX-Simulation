@@ -138,7 +138,9 @@ func _run() -> void:
 	recorded.attach(old_race)
 	recorded.recorded_simulation_revision = Replay.PRE_WET_SIMULATION_REVISION
 	recorded.legacy_wet_strategy = true
+	recorded.legacy_start_intelligence = true
 	recorded.race.wet_strategy_intelligence_enabled = false
+	recorded.race.race_start_intelligence_enabled = false
 	for tick in range(30):
 		check(recorded.step_tick(), "019 archive tick")
 	var old_archive: Dictionary = recorded.export_data()

@@ -112,6 +112,8 @@ func _run() -> void:
 	old_session.attach(old_engine)
 	old_engine.driver_soul3_enabled = false
 	old_engine.pit_coordination2_enabled = false
+	old_engine.race_start_intelligence_enabled = false
+	old_session.legacy_start_intelligence = true
 	old_session.legacy_soul_physics = true
 	old_session.legacy_pit_coordination = true
 	old_session.recorded_simulation_revision = Replay.TRAFFIC_SIMULATION_REVISION
