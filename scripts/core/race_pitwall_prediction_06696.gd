@@ -12,6 +12,46 @@ const CALIBRATION_MIN_SAMPLES: int = 3
 var records: Array[Dictionary] = []
 var next_id: int = 1
 
+func capture_decision(car: Dictionary, grid: Array, advice: Dictionary,
+		weather: Dictionary, specs: Dictionary, staff: Dictionary, pit_loss: float,
+		base_lap: float, pit_track_fraction: float, simulation_tick: int,
+		time_s: float, target_lap: int, compound: String, source: String) -> void:
+	# Separate a real recommendation or authorized order from pit-entry
+	# estimates. A long-horizon plan is logged, NOT retrospectively graded
+	# as an accurate three-lap forecast from the later entry moment.
+	if not specs.has(compound) or target_lap <= 0:
+		return
+	var car_id: int = int(car.get("id", -1))
+	var stop: int = int(car.get("stops", 0)) + 1
+	for record in records:
+		if int(record.get("car_id", -1)) == car_id and int(record.get("stop", -1)) == stop \
+				and int(record.get("target_lap", -1)) == target_lap \
+				and str(record.get("decision_source", "")) == source \
+				and str(record.get("status", "")) == "RECOMMENDED":
+			return
+	var hypothetical: Dictionary = car.duplicate(true)
+	hypothetical["pit_target"] = compound
+	capture_entry(hypothetical, grid, advice, weather, specs, staff, pit_loss,
+		base_lap, pit_track_fraction, simulation_tick, time_s)
+	var item: Dictionary = records[records.size() - 1]
+	item["phase"] = "DECISION"
+	item["status"] = "RECOMMENDED"
+	item["decision_source"] = source
+	item["target_lap"] = target_lap
+	item["issued_lap"] = int(car.get("laps_done", 0))
+	item["long_horizon"] = target_lap > int(car.get("laps_done", 0)) + 2
+	item["uncertainty_note"] = "Projeção instantânea na decisão; rever na entrada real do pit."
+
+func cancel_decision(car_id: int, target_lap: int) -> void:
+	for record in records:
+		if int(record.get("car_id", -1)) == car_id \
+				and int(record.get("target_lap", -1)) == target_lap \
+				and str(record.get("decision_source", "")) == "agendamento_manual" \
+				and str(record.get("status", "")) == "RECOMMENDED":
+			record["status"] = "CANCELLED"
+			record["reasons"].append("agendamento cancelado pelo jogador; não verificável")
+
+
 static func _valid_pace(value: float) -> bool:
 	return value > 1.0 and value < 500.0 and is_finite(value)
 
@@ -36,6 +76,23 @@ func capture_entry(car: Dictionary, grid: Array, advice: Dictionary, weather: Di
 	var car_id: int = int(car.get("id", -1))
 	if car_id < 0 or bool(car.get("finished", false)):
 		return
+	# Link the most recent executed recommendation, but preserve it unchanged.
+	# The actual pit-entry forecast is a separate scored measurement.
+	var actual_entry_lap: int = int(floor(float(car.get("progress", 0.0)))) + 1
+	var linked_decision_id: int = 0
+	for i in range(records.size() - 1, -1, -1):
+		var proposal: Dictionary = records[i]
+		if int(proposal.get("car_id", -1)) != car_id \
+				or int(proposal.get("stop", -1)) != int(car.get("stops", 0)) + 1:
+			continue
+		if str(proposal.get("status", "")) != "RECOMMENDED":
+			continue
+		if int(proposal.get("target_lap", -1)) == actual_entry_lap \
+				and str(proposal.get("compound_after", "")) == str(car.get("pit_target", "")):
+			proposal["status"] = "EXECUTED"
+			proposal["execution_tick"] = simulation_tick
+			linked_decision_id = int(proposal.get("id", 0))
+			break
 	var target: String = str(car.get("pit_target", ""))
 	var spec: Dictionary = specs.get(target, {})
 	var current: Dictionary = specs.get(str(car.get("tire", "")), {})
@@ -63,7 +120,8 @@ func capture_entry(car: Dictionary, grid: Array, advice: Dictionary, weather: Di
 			expected_pace = maxf(1.0, expected_pace)
 	var projected_water: float = clampf(float(advice.get("forecast_3", wet)), 0.0, 1.0)
 	var entry: Dictionary = {
-		"id":next_id, "car_id":car_id, "team":team,
+		"id":next_id, "car_id":car_id, "team":team, "phase":"EXECUTION",
+		"decision_id":linked_decision_id,
 		"driver":str(car.get("name", "")), "track_lap":int(floor(float(car.get("progress", 0.0)))) + 1,
 		"stop":int(car.get("stops", 0)) + 1, "tick":simulation_tick,
 		"time_s":time_s, "order_origin":str(car.get("pit_order_source", "")),
@@ -163,6 +221,9 @@ func close_unfinished() -> void:
 		if str(record["status"]) in ["AWAITING_EXIT", "AWAITING_HORIZON"]:
 			record["status"] = "UNVERIFIABLE"
 			record["reasons"].append("corrida encerrada antes do horizonte verificável")
+		elif str(record["status"]) == "RECOMMENDED":
+			record["status"] = "NOT_FOLLOWED"
+			record["reasons"].append("recomendação não executada até o encerramento")
 
 func snapshot(team_filter: String = "") -> Array:
 	var out: Array = []
