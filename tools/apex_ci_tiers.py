@@ -21,13 +21,15 @@ CASES = {
     "pit": ("pit_coordination_06697_test.gd", "PIT_COORD_06697_PASS"),
     "prediction": ("pitwall_prediction_06696_test.gd", "PITWALL_LEDGER_06696_PASS"),
     "radio": ("race_radio_06695_test.gd", "RACE_RADIO_06695_PASS"),
+    "save": ("core_0642_save_migration_test.gd", "APEX 0642 SAVE MIGRATION PASS"),
     "staff": ("strategy_staff_066910_test.gd", "STRATEGY_STAFF_066910_PASS"),
     "wet": ("wet_strategy_06698_test.gd", "WET_STRATEGY_06698_PASS"),
 }
 CORE = frozenset(("ai", "pit", "wet", "orders", "staff"))
 EXACT = {
     "scripts/race_engine.gd": CORE,
-    "scripts/core/race_replay_0660.gd": frozenset(("wet", "staff", "prediction")),
+    "scripts/core/race_replay_0660.gd": frozenset(("wet", "staff", "prediction", "save")),
+    "scripts/core/race_state_codec_0660.gd": frozenset(("save", "staff", "prediction")),
     "scripts/apex_race_session_controller.gd": frozenset(("ai", "staff", "wet")),
     "scripts/apex_race_hud_0622.gd": frozenset(("hud", "staff")),
     "data/season_2012.json": frozenset(("ai", "pit", "wet")),
@@ -52,6 +54,7 @@ def categories_for(paths: list[str]) -> set[str]:
             if "weather" in name or "wet" in name or "tyre" in name: local.add("wet")
             if "pit" in name: local.update(("pit", "prediction"))
             if "radio" in name: local.add("radio")
+            if "save" in name or "career" in name or "checkpoint" in name: local.add("save")
             if "driver" in name or "soul" in name: local.add("driver")
             if "replay" in name or "codec" in name: local.update(("wet", "staff", "prediction"))
             # Unknown Core module gets more tests, not fewer.

@@ -44,6 +44,13 @@ class SmartCITests(unittest.TestCase):
     def test_unknown_core_file_never_skips_strategy(self):
         self.assertIn("wet", categories_for(["scripts/core/unrecognized_future_feature.gd"]))
 
+    def test_save_codec_selects_migration_regression(self):
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "tests").mkdir()
+            (root / "tests" / CASES["save"][0]).touch()
+            self.assertIn(CASES["save"], select(["scripts/core/race_state_codec_0660.gd"], root))
+
     def test_invalid_git_identity_rejected(self):
         with self.assertRaises(ValueError):
             changed_files(Path("."), "main", "a" * 40)

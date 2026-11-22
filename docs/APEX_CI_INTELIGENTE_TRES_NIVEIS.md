@@ -6,7 +6,7 @@ de física, RNG, regras de 2012, saves ou replay** é introduzida nesta PR.
 **FAST — cada commit/PR.** `godot-setup.yml` importa o projeto e executa
 invariantes de largada, replay e pit. O seletor `tools/apex_ci_tiers.py`
 usa o diff real entre SHAs para escolher regressões extras de estratégia,
-chuva, Soul Driver, rádio, HUD e Pit Wall. Erro no diff bloqueia a execução.
+chuva, Soul Driver, rádio, HUD, saves e Pit Wall. Erro no diff bloqueia a execução.
 O plano selecionado é arquivado.
 
 **TARGETED — mudanças no subsistema.** Workflows de rádio, Soul Driver,

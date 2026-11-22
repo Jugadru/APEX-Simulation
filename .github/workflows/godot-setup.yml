@@ -60,11 +60,17 @@ jobs:
             status=$?
             set -e
             cp "godot-import-${attempt}.log" godot-import.log
-            if grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' godot-import.log; then
+            # A native crash may also print Godot ERROR: thread warnings.
+            # Retry exit 134/139 once, but NEVER retry GDScript parse errors.
+            if grep -Eiq '(SCRIPT ERROR:|Parse Error:)' godot-import.log; then
               cat godot-import.log
               exit 1
             fi
             if [ "$status" -eq 0 ]; then
+              if grep -Eiq '^ERROR:' godot-import.log; then
+                cat godot-import.log
+                exit 1
+              fi
               echo "APEX_CI_IMPORT_PASS attempt=$attempt"
               break
             fi
@@ -115,7 +121,7 @@ jobs:
             mapfile -t tests < ci-results/fast-plan.tsv
           fi
           echo "APEX_CI_TIER=$APEX_CI_TIER tests=${#tests[@]}"
-          printf '%s\\n' "${tests[@]}" > ci-results/test-plan.txt
+          printf '%s\n' "${tests[@]}" > ci-results/test-plan.txt
           for entry in "${tests[@]}"; do
             script="${entry%%|*}"
             marker="${entry#*|}"
