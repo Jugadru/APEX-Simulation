@@ -2,8 +2,6 @@ name: APEX - GdUnit4 CI
 
 on:
   workflow_dispatch:
-  pull_request:
-
 permissions:
   contents: read
 

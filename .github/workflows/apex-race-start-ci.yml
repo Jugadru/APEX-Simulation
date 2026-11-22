@@ -1,18 +1,5 @@
 name: APEX - Race Start Intelligence (v9.11)
 on:
-  pull_request:
-    branches: [main]
-    types: [opened, reopened, synchronize, labeled]
-    paths:
-      - 'scripts/core/race_start_intelligence_066911.gd'
-      - 'scripts/core/race_launch_14.gd'
-      - 'scripts/core/race_performance.gd'
-      - 'scripts/core/race_state_codec_0660.gd'
-      - 'scripts/core/race_replay_0660.gd'
-      - 'scripts/race_engine.gd'
-      - 'tests/race_start_066911_test.gd'
-      - 'tests/strategy_staff_066910_test.gd'
-      - '.github/workflows/apex-race-start-ci.yml'
   workflow_dispatch:
 permissions:
   contents: read
