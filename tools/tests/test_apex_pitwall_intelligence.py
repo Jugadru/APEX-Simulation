@@ -58,6 +58,8 @@ class PitWallAnalyzerContracts(unittest.TestCase):
             "lap": 7, "order_origin": "agendamento_manual",
             "old_tire": "Médio", "new_tire": "Duro", "wait": 0.0,
             "incident_delay": 0.0, "position_before": 2, "position_after": 4,
+            "entered_at": 270.0, "exited_at": 300.0,
+            "service_s": 2.5, "total_s": 30.0,
         }
         return {
             "scenario": scenario, "track": track, "weather": weather,
@@ -192,6 +194,51 @@ class PitWallAnalyzerContracts(unittest.TestCase):
         self.assertFalse(analyzer.number(True, 0, 1))
         self.assertFalse(analyzer.number(float("nan"), 0, 1))
         self.assertTrue(analyzer.number(0.5, 0, 1))
+
+
+    def test_pit_queue_58772_has_real_teammate_timing_not_causal_claim(self):
+        case = self.fixture("ita_manual_v7")
+        delayed = {
+            "car_id": 17, "driver": "Romain Grosjean", "team": "Lotus",
+            "lap": 9, "order_origin": "ia_estrategia",
+            "old_tire": "Médio", "new_tire": "Duro",
+            "wait": 5.8772, "incident_delay": 0.0,
+            "position_before": 8, "position_after": 10,
+            "entered_at": 410.0, "exited_at": 441.0,
+            "service_s": 2.8, "total_s": 31.0,
+        }
+        teammate = {
+            **delayed, "car_id": 18, "driver": "Lotus teammate",
+            "wait": 0.0, "entered_at": 408.0, "exited_at": 438.0,
+        }
+        case["pits"].extend([delayed, teammate])
+        analyzer.validate_result(case, "ita_manual_v7", self.nom)
+        report = analyzer.analyze_case(case)
+        entry = next(x for x in report["findings"]
+                     if x["code"] == "PIT_QUEUE" and x["car_id"] == 17)
+        self.assertEqual(entry["level"], "REVIEW")
+        self.assertEqual(entry["evidence"]["wait_s"], 5.8772)
+        self.assertEqual(entry["evidence"]["incident_s"], 0.0)
+        self.assertEqual(entry["evidence"]["teammate_context"]["car_id"], 18)
+        self.assertTrue(entry["evidence"]["teammate_context"]["pit_lane_intervals_overlap"])
+        self.assertEqual(entry["evidence"]["teammate_context"]["entry_gap_s"], 2.0)
+        self.assertNotIn("avoidable", entry["evidence"])
+
+    def test_pit_timing_evidence_rejects_corrupt_or_missing_history(self):
+        case = self.fixture("ita_manual_v7")
+        for change in (
+            {"entered_at": -1.0},
+            {"exited_at": 200.0},
+            {"total_s": float("nan")},
+        ):
+            faulty = self.fixture("ita_manual_v7")
+            faulty["pits"][0].update(change)
+            with self.subTest(change=change):
+                with self.assertRaises(analyzer.PitWallAnalyzerError):
+                    analyzer.validate_result(faulty, "ita_manual_v7", self.nom)
+        case["pits"][0].pop("entered_at")
+        with self.assertRaises(analyzer.PitWallAnalyzerError):
+            analyzer.validate_result(case, "ita_manual_v7", self.nom)
 
 
 if __name__ == "__main__":
