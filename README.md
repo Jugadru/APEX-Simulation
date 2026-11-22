@@ -1,4 +1,166 @@
-# APEX Motorsport Manager — Core 2 v0.6.6.8.10
+# APEX Motorsport Manager — Core 2 (v0.6.6.9.7)
+
+Simulador de gestão de automobilismo com equipes, estratégias, desenvolvimento de carros e corridas em 3D. O **Core 2** é o motor esportivo oficial deste repositório.
+
+## 📥 Baixar o jogo — v0.6.6.9.7 (versão atual)
+
+### [⬇ Baixar APEX v0.6.6.9.7 — Windows e Linux](https://github.com/Jugadru/APEX-Simulation/actions/runs/44973100017/artifacts/14734451599)
+
+Pacote exportado no **Godot 4.7.2**, com ZIPs para Windows x86_64 e Linux x86_64. Extraia o ZIP externo do GitHub Actions e depois o ZIP do seu sistema, mantendo o executável junto do arquivo `.pck`. No Linux, pode ser necessário `chmod +x APEX_Motorsport_Manager.x86_64`.
+
+**Artefato temporário até 06/12/2026**, sujeito a login/retention do GitHub Actions; não é uma GitHub Release permanente. O smoke de inicialização Linux passou; ainda não equivale a teste gráfico nativo na máquina do jogador.
+
+### [⬇ Baixar o código-fonte v0.6.6.9.7 — Godot 4.7.2](https://github.com/Jugadru/APEX-Simulation/archive/6c6560bd36f2eecda82cf7959b884464054bc03c.zip)
+
+A candidata aprovada no commit `689aaf7522002a3d8c385dd70a1ac5eb8b07f851` foi integrada à `main` via [PR #81](https://github.com/Jugadru/APEX-Simulation/pull/81), merge `6c6560bd36f2eecda82cf7959b884464054bc03c`. O ZIP do código-fonte é para desenvolvimento, não contém o executável.
+
+### 🛠️ Novidade — Pit Coordination 2.0
+
+- **FIFO física real:** quando dois pilotos disputam a mesma garagem, o acesso é decidido pelo instante calculado de chegada à equipe de mecânicos e, no empate, pelo ID estável do piloto — nunca pela ordem de processamento do array.
+- **Double stack verificável:** o segundo carro aguarda sua vez e acumula tempo real de fila. Serviço, reparo e retenção de segurança continuam exclusivos da única equipe de mecânicos por garagem.
+- **Pit Wall integrado:** mostra proprietário atual, etapa de atendimento, retenção factual, posição na fila, espera acumulada e estimativa de liberação. Não inventa tráfego nem acidentes.
+- **Autoridade preservada:** nenhuma antecipação indevida de ordem Manual V21, nem alteração da estratégia preventiva/IA, física de pneus ou probabilidade de incidentes.
+- **Compatibilidade de replay:** nova revisão esportiva `018_pit_coordination_v1`, com modo legado para reproduzir a regra antiga nos arquivos `017_driver_soul_v1`. Saves usam o mesmo schema.
+
+**Validação:** [20/20 workflows GitHub Actions PASS](https://github.com/Jugadru/APEX-Simulation/commit/689aaf7522002a3d8c385dd70a1ac5eb8b07f851/checks) e [Quality Gate READY 10/10](https://github.com/Jugadru/APEX-Simulation/actions/runs/44973100063) no commit aprovado. O módulo v9.7 passou **41 verificações**, SaveGuard **53**, além dos **20 circuitos**, testes visuais, versões legadas, Linux/Windows e [Monza 53 voltas, 24.229 ticks, replay integral com hash confirmado](https://github.com/Jugadru/APEX-Simulation/actions/runs/44973100029). Os benchmarks headless não substituem FPS 3D real do PC do usuário.
+
+**Limitação conhecida:** o [Pit Wall Intelligence Analyzer](https://github.com/Jugadru/APEX-Simulation/actions/runs/44973100061) encerrou com PASS, mas sinalizou **7 esperas de fila para revisão**, registradas na [issue #82](https://github.com/Jugadru/APEX-Simulation/issues/82). FIFO justo não significa que a IA eliminou todo double stack; eventuais refinamentos preventivos ficam para uma correção pequena e validada separadamente.
+
+**Documentação técnica:** [Pit Coordination 2.0](docs/APEX_RELEASE_v0.6.6.9.7_PIT_COORDINATION_2.md) · [PR #81](https://github.com/Jugadru/APEX-Simulation/pull/81).
+
+## 📦 Versão anterior — v0.6.6.9.6
+
+### 📥 Baixar o jogo — v0.6.6.9.6 (versão anterior)
+
+### [⬇ Baixar APEX v0.6.6.9.6 — Windows e Linux](https://github.com/Jugadru/APEX-Simulation/actions/runs/44970898039/artifacts/14733518226)
+
+Pacote para **Windows x86_64** e **Linux x86_64**, exportado no **Godot 4.7.2**. Extraia primeiro o arquivo externo do GitHub Actions, depois o ZIP do sistema operacional escolhido. Mantenha o executável e o arquivo `.pck` juntos. No Linux, pode ser necessário `chmod +x APEX_Motorsport_Manager.x86_64`.
+
+**Download temporário até 06/12/2026**, sujeito à disponibilidade do GitHub e possivelmente a login. O artefato não é uma GitHub Release pública permanente. A exportação e o smoke test Linux foram validados; não foi realizado teste gráfico nativo em um PC Windows do jogador.
+
+### [⬇ Baixar o código-fonte oficial v0.6.6.9.6 — Godot 4.7.2](https://github.com/Jugadru/APEX-Simulation/archive/3c0d99a6dca921ee0abea86f7d9d1f522f9e052a.zip)
+
+A candidata aprovada `72d2bcedcafe9c993330738658fce856bc65f861` foi integrada à branch `main` na [PR #80](https://github.com/Jugadru/APEX-Simulation/pull/80), commit `3c0d99a6dca921ee0abea86f7d9d1f522f9e052a`. O arquivo de código-fonte serve para editar o jogo, **não** é um executável.
+
+### 🧠 Novidade — Pit Wall Prediction Ledger 1.0
+
+- **Previsões auditáveis:** registra recomendações emitidas, ordens manuais, decisões da IA e cancelamentos. Uma recomendação não executada nunca vira acerto fictício.
+- **Resultado real:** relaciona cada previsão de entrada com o histórico confirmado de pit, posição de retorno e perda líquida de tempo, mostrando erros e motivos comprováveis (fila, incidente, treinamento).
+- **Pneus, chuva e cinco voltas:** compara desgaste, ritmo e água observados com as projeções. Quando possível, mede ganho/perda relativa de cinco voltas contra um mesmo rival sem nova parada; não inventa um cenário alternativo não observado.
+- **Aprendizado e STAFF:** calibração limitada após pelo menos três paradas verificadas da mesma equipe e nível de estrategista; relatórios de erro absoluto médio por categoria. Não presume precisão perfeita nem identidades individuais indisponíveis.
+- **Segurança esportiva:** nenhum comando implícito de pit, nenhuma alteração em RNG, física, ritmo ou replay. Uma parada manual agendada V21 continua protegida; arquivos antigos de saves são preservados.
+
+**Validação:** **[18/18 workflows PASS](https://github.com/Jugadru/APEX-Simulation/commit/72d2bcedcafe9c993330738658fce856bc65f861/checks)** e [Quality Gate READY 10/10](https://github.com/Jugadru/APEX-Simulation/actions/runs/44970898010) no mesmo commit. O teste específico passou **28 verificações**; Race Radio 3.0, 69; SaveGuard, Core 2, benchmarks, replay integral Monza 53 voltas, matriz de 20 circuitos, regressões visuais e exportação para PC também foram aprovados. Os benchmarks headless não demonstram FPS 3D real na máquina do jogador.
+
+**Limite da v1:** histórico e calibração da sessão de corrida não são persistidos automaticamente na carreira. Resultados de decisões emitidas muito antes da parada não são tratados como previsões meteorológicas verificáveis para a data futura.
+
+**Documentação técnica:** [Prediction Ledger 1.0](docs/APEX_RELEASE_v0.6.6.9.6_PITWALL_PREDICTION_LEDGER.md) · [PR #80](https://github.com/Jugadru/APEX-Simulation/pull/80).
+
+## 📦 Versão anterior — v0.6.6.9.5
+
+### 📥 Baixar o jogo — v0.6.6.9.5 (versão anterior)
+
+### [⬇ Baixar APEX v0.6.6.9.5 — Windows e Linux](https://github.com/Jugadru/APEX-Simulation/actions/runs/44966435731/artifacts/14731945591)
+
+Pacote de desktop exportado no **Godot 4.7.2**, com ZIPs para **Windows x86_64** e **Linux x86_64**. Extraia o arquivo externo do GitHub Actions e depois o ZIP do seu sistema; **mantenha o executável e o arquivo `.pck` juntos**. No Linux, pode ser necessário executar `chmod +x APEX_Motorsport_Manager.x86_64`.
+
+**Download temporário até 06/12/2026**, sujeito à disponibilidade do GitHub Actions e possivelmente a login no GitHub. O pacote não é uma GitHub Release pública permanente. As exportações Linux/Windows e o smoke test Linux passaram na CI; isso não equivale a teste gráfico nativo no Windows nem a medição de FPS na máquina do jogador.
+
+### [⬇ Baixar o código-fonte v0.6.6.9.5 — Godot 4.7.2](https://github.com/Jugadru/APEX-Simulation/archive/7ffa370708c2b4e096f58ec52531f217ff1664a1.zip)
+
+Código **integrado à `main` na [PR #79](https://github.com/Jugadru/APEX-Simulation/pull/79)**. O merge commit `7ffa370708c2b4e096f58ec52531f217ff1664a1` tem a **mesma árvore Git** da candidata aprovada `edcb579365ef1c68b7c75267eb48d5daf2aba8dc`; nenhum conteúdo foi modificado durante o merge. O ZIP de código-fonte é para editar o projeto, **não** é um executável.
+
+### 📻 Novidade — Race Radio 3.0 (texto primeiro)
+
+- **Cinco perfis de linguagem por piloto:** comunicação concisa, com diferenças consistentes entre estilos direto, explosivo, técnico, cauteloso e competitivo.
+- **Driver Soul 3.0 integrado:** a pressão emocional pode influenciar a maneira de falar, sem conceder velocidade ou aderência artificial.
+- **Mensagens ancoradas em acontecimentos reais da simulação:** desgaste, temperatura, tráfego, chuva, pedidos de estratégia e dúvidas sobre parada agendada. Mensagens legadas desconhecidas permanecem sem transformação.
+- **Diálogo contextual:** respostas escritas do engenheiro, memória de até oito entradas por piloto e supressão de reclamações triviais repetidas.
+- **Sem comandos ocultos:** comunicação e previsões textuais não alteram BOX agendado, ordens manuais, pneus, ritmo, física, RNG, saves ou regras de replay.
+- **Preparado para vozes futuras:** pacotes de mensagem incluem `text_key`, `locale`, `voice_profile_id`, `simulation_tick` e `conversation_id`. **A versão 9.5 ainda não possui vozes nem síntese de áudio.** As novas falas do cockpit estão inicialmente em inglês.
+
+**Testes:** [17/17 workflows GitHub Actions PASS na candidata](https://github.com/Jugadru/APEX-Simulation/commit/edcb579365ef1c68b7c75267eb48d5daf2aba8dc/checks). O teste dedicado Race Radio 3.0 aprovou **69 verificações**, incluindo imutabilidade esportiva, cinco perfis, continuidade e proteção do BOX V21. Passaram também Soul 2.0/3.0, SaveGuard, Pit Wall, Core 2, GdUnit4, exportações Windows/Linux, regressão visual, comparação A/B e matriz dos **20 circuitos**. O endurance confirmou **Monza 53 voltas, 24.229 ticks e replay integral determinístico**, com hash esportivo igual; os benchmarks headless **não demonstram FPS 3D real nem 32× sustentado**.
+
+**Documentação técnica:** [Race Radio 3.0 — v9.5](docs/APEX_RELEASE_v0.6.6.9.5_RACE_RADIO.md) · [PR #79 e relatório final](https://github.com/Jugadru/APEX-Simulation/pull/79).
+
+## 🗺️ Próximas versões planejadas (ainda não implementadas)
+
+| Versão | Foco | Objetivo |
+| --- | --- | --- |
+| v0.6.6.9.8 | Wet Strategy Intelligence | Refinar recomendações em chuva, transição entre compostos e pista secando. |
+| v0.6.6.9.9 | Race Quality Release | Regressões, estabilidade e refinamento da experiência de corrida. |
+
+Cada atualização deve ter **uma funcionalidade principal**, testes direcionados e regressões antes do merge. Questões ainda abertas: [desempenho 32× sustentado — #74](https://github.com/Jugadru/APEX-Simulation/issues/74) e [ressincronização visual em Mônaco/Spa — #77](https://github.com/Jugadru/APEX-Simulation/issues/77).
+
+---
+
+## 📦 Versão anterior — v0.6.6.9.4
+
+### Baixar o jogo — v0.6.6.9.4
+
+#### [⬇ Baixar APEX v0.6.6.9.4 — Windows e Linux](https://github.com/Jugadru/APEX-Simulation/actions/runs/44950950040/artifacts/14725252948)
+
+**Pacote para PC**, compilado no **Godot 4.7.2** a partir do commit candidato testado `63d7953cc21184d6902ebc8cc34b7e696ec927ba` e integrado à `main` na [PR #76](https://github.com/Jugadru/APEX-Simulation/pull/76). O artefato contém ZIPs separados para **Windows x86_64** e **Linux x86_64**. Extraia o pacote externo do GitHub Actions e o ZIP do seu sistema; mantenha o executável e o arquivo `.pck` na mesma pasta.
+
+**Download temporário até 05/12/2026**, possivelmente exigindo login no GitHub. A exportação verificou a identificação `APEX Motorsport Manager v0.6.6.9.4` nos dois pacotes. Houve teste básico de inicialização no Linux. Não foi feito teste gráfico nativo no Windows do usuário; **nenhuma Release pública permanente v9.4 foi publicada**.
+
+#### [⬇ Baixar código-fonte oficial da v0.6.6.9.4 — Godot 4.7.2](https://github.com/Jugadru/APEX-Simulation/archive/17ad31b1402d67b239d148e7fb2f5e9c5013b8d0.zip)
+
+O código integrado no commit `17ad31b1402d67b239d148e7fb2f5e9c5013b8d0` tem a **mesma árvore de arquivos** do commit testado e exportado `63d7953cc21184d6902ebc8cc34b7e696ec927ba`. O ZIP do código-fonte serve para edição no Godot, não contém executáveis prontos.
+
+**Novidade Driver Soul 3.0:** pilotos têm intenção por volta, refletindo confiança, foco, pressão, iniciativa e desgaste percebido. Esses valores influenciam **o limiar para assumir uma ultrapassagem**, não a velocidade ou aderência do carro. O rádio transmite pedidos fictícios baseados nos fatos da corrida e preserva controles IA/manual e agendamentos de box. Replays da v9.3 usam as próprias regras históricas para evitar divergências silenciosas.
+
+**Validação:** **17/17 workflows PASS** e [Quality Gate READY 10/10](https://github.com/Jugadru/APEX-Simulation/actions/runs/44950949960) no commit candidato. [Monza 53 voltas PASS](https://github.com/Jugadru/APEX-Simulation/actions/runs/44950950061) com 24 carros classificados, 24.229 ticks e replay integral com hash igual. SaveGuard e 20 circuitos PASS. O comparador visual A/B verificou zero colisões, nenhuma piora em ressincronização/lag e repetibilidade dentro de cada revisão. O agregado headless mediano foi ~0,30% menor que na v9.3, mas **não prova ganho de FPS**. Problema de 32× sustentados segue na [issue #74](https://github.com/Jugadru/APEX-Simulation/issues/74), e ressincronizações visuais antigas em Mônaco/Spa na [issue #77](https://github.com/Jugadru/APEX-Simulation/issues/77).
+
+## 📦 Versão anterior — v0.6.6.9.3
+
+### [⬇ Baixar APEX v0.6.6.9.3 — Windows e Linux](https://github.com/Jugadru/APEX-Simulation/actions/runs/44944744266/artifacts/14722189740)
+
+Pacote de rollback para a última revisão antes do Soul 3.0. [Código-fonte v9.3](https://github.com/Jugadru/APEX-Simulation/archive/53c0adf0da87a93e4b79c8a2c240c063b7c201f2.zip). Também é um download temporário do GitHub Actions.
+
+## 📦 Versão anterior — v0.6.6.9.2
+
+### [⬇ Baixar APEX v0.6.6.9.2 — Windows e Linux](https://github.com/Jugadru/APEX-Simulation/actions/runs/44938862417/artifacts/14720252805)
+
+Pacote de rollback e comparação, também para Godot 4.7.2. [Código-fonte da v9.2](https://github.com/Jugadru/APEX-Simulation/archive/8e0490be3d4d20459354971c766c1179acd2d7bc.zip). A v9.2 introduziu otimização de cache no hash esportivo e preservou o determinismo; veja a [PR #70](https://github.com/Jugadru/APEX-Simulation/pull/70). O download binário é temporário e requer conferência de disponibilidade no GitHub.
+
+## 📦 Versão anterior — v0.6.6.9.1
+
+### [⬇ Baixar ZIPs CORRIGIDOS para Windows e Linux — v0.6.6.9.1](https://github.com/Jugadru/APEX-Simulation/actions/runs/44934421047/artifacts/14718572939)
+
+Esse link abre o **artefato de build corrigido da versão v0.6.6.9.1**: dentro dele estão os ZIPs de **Windows x86_64** e **Linux x86_64**, ambos com o executável e o arquivo `.pck`, gerados no Godot 4.7.2. **Verificação realizada nos dois `.pck`: ambos contêm a identificação v0.6.6.9.1 e não contêm mais a identificação v0.6.6.8.10.** Extraia o arquivo externo do GitHub Actions e, em seguida, o ZIP do seu sistema operacional. Pode ser necessário entrar na sua conta GitHub para baixar o artefato.
+
+**Atenção: download temporário.** O GitHub Actions mantém esse artefato até **05/12/2026**. O ZIP corrigido foi gerado a partir do commit `61101ee3f53494340111715a6a782e297934fd53` ([PR #67](https://github.com/Jugadru/APEX-Simulation/pull/67)), com exportação Linux/Windows e checagem da identificação interna aprovadas. A otimização v0.6.6.9.1 anterior passou 16/16 workflows no [PR #65](https://github.com/Jugadru/APEX-Simulation/pull/65). A correção da identificação foi **integrada à `main` na [PR #67](https://github.com/Jugadru/APEX-Simulation/pull/67)**, após **15/15 workflows aprovados e Quality Gate READY 10/10**. O pacote corrigido **ainda não é uma Release pública permanente**.
+
+### [⬇ Baixar ZIP do código-fonte corrigido v0.6.6.9.1 — Godot 4.7.2](https://github.com/Jugadru/APEX-Simulation/archive/def8fdfcd638dc0f5b539ef816a014e9673bc1ff.zip)
+
+Esse segundo link aponta para o **commit definitivo da `main` que integrou a correção da versão**, preservando o mesmo código executável do pacote validado; o artefato binário foi construído no commit candidato descrito acima. Use-o para **editar o jogo no Godot**; não substitui os executáveis de Windows/Linux.
+
+### [⬇ Última Release pública permanente — v0.6.6.8.10](https://github.com/Jugadru/APEX-Simulation/releases/tag/v0.6.6.8.10-core2-current)
+
+A Release pública acima é da **v0.6.6.8.10**, **não** contém a otimização 3D da v0.6.6.9.1. Serve como alternativa estável de download quando o artefato temporário expirar, até que a versão 9.1 seja publicada oficialmente.
+
+**Para jogar:** descompacte o ZIP específico de Windows ou Linux e execute o programa; no Linux, talvez seja preciso `chmod +x APEX_Motorsport_Manager.x86_64`. Os pacotes de desktop são exportações para PC, sem teste nativo de execução no Windows ou medição de FPS na GPU do usuário.
+
+**Versão histórica preservada:** [v0.6.6.8.6 — ZIP completo do projeto](https://github.com/Jugadru/APEX-Simulation/releases/download/Versions/APEX_MOTORSPORT_MANAGER_v0.6.6.8.6_CORE2_RACE_STABILITY_COMPLETO.zip). Esse pacote não contém as atualizações recentes da `main`.
+
+[Como abrir no Godot](#abrir-o-jogo) · [Histórico de Releases](https://github.com/Jugadru/APEX-Simulation/releases) · [Guia das pastas](#guia-das-pastas)
+
+## Guia das pastas
+
+| Onde encontrar | Conteúdo |
+| --- | --- |
+| [`project.godot`](project.godot) | Arquivo para abrir o projeto no Godot |
+| [`scripts/`](scripts/) | Código do jogo |
+| [`scenes/`](scenes/) | Cenas e interfaces |
+| [`assets/`](assets/) e [`data/`](data/) | Recursos visuais e dados |
+| [`docs/`](docs/) | Guias e documentação |
+| [`docs/arquivo/`](docs/arquivo/README.md) | Relatórios e histórico de versões |
+| [`tests/`](tests/) e [`tools/`](tools/) | Testes e ferramentas de desenvolvimento |
+
+Para começar, use o download acima e a seção **Abrir o jogo**. As seções seguintes detalham as mudanças de cada versão.
+
+---
 
 **Cópia experimental HUD Manager — 21/11/2026.** Interface de corrida baseada na composição do F1 Manager 2024, com dados e comandos do APEX. Abra este `project.godot` para experimentar. [Comparação das referências](docs/HUD_COMPARATIVO_20261121.md) · [Imagens e validação](docs/HUD_MANAGER_20261121_VALIDACAO.md) · [Changelog](docs/arquivo/changelogs/HUD_MANAGER_20261121_CHANGELOG.md). Os downloads históricos abaixo não incluem esta alteração local.
 
@@ -78,7 +240,7 @@ O projeto inclui corrida com 24 carros, 3D, HUD ReBroadcast, Pit Wall, replay de
 
 ## Versão completa e histórico
 
-- [Release-base Core 2 v0.6.6.8.6 (ZIP original)](https://github.com/Quereni/APEX-Simulation/releases/tag/Versions)
+- [Release-base Core 2 v0.6.6.8.6 (ZIP original)](https://github.com/Jugadru/APEX-Simulation/releases/tag/Versions)
 - [Relatório técnico v0.6.6.8.7](docs/arquivo/relatorios/APEX_06687_RELATORIO_TECNICO.md)
 - [Matriz histórica de testes](docs/arquivo/qualidade/APEX_06687_MATRIZ_TESTES.json)
 - [Changelog da versão](docs/arquivo/changelogs/APEX_06687_CHANGELOG.md)

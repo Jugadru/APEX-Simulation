@@ -6,6 +6,11 @@ extends Control
 const MiniMap = preload("res://scripts/apex_mini_map.gd")
 const HudSkin = preload("res://scripts/apex_race_hud_skin_ui01.gd")
 const ReBroadcast = preload("res://scripts/apex_hud_rebroadcast_0668.gd")
+const HudStandingMetric = preload("res://scripts/presentation/apex_hud_standings_metric.gd")
+const HudRankingPanel = preload("res://scripts/presentation/apex_hud_ranking_panel.gd")
+const HudPitWallQuickPanel = preload("res://scripts/presentation/apex_hud_pitwall_quick_panel.gd")
+const HudWeatherPanel = preload("res://scripts/presentation/apex_hud_weather_panel.gd")
+const HudMiniMapPanel = preload("res://scripts/presentation/apex_hud_minimap_panel.gd")
 const Stints = preload("res://scripts/apex_strategy_planner_0620.gd")
 const EngineerInteractive = preload("res://scripts/core/race_engineer_interactive.gd")
 const DriverPerception = preload("res://scripts/core/race_driver_perception_0633.gd")
@@ -16,6 +21,7 @@ const SoulReactive = preload("res://scripts/core/race_soul_reactive_0637.gd")
 const Engineer2 = preload("res://scripts/core/race_engineer_0645.gd")
 const Engineer3 = preload("res://scripts/core/race_engineer_0646.gd")
 const DriverSoul2 = preload("res://scripts/core/race_driver_soul_0647.gd")
+const Radio3 = preload("res://scripts/presentation/race_radio_06695.gd")
 const TeamRadioAdvice = preload("res://scripts/core/race_team_radio_advice_06689.gd")
 const RaceEngineer = preload("res://scripts/core/race_engineer_0639.gd")
 const PitWallIntel = preload("res://scripts/core/race_pitwall_intelligence_0640.gd")
@@ -81,6 +87,8 @@ var radio_reactive_latest: String = "Aguardando acontecimentos da corrida."
 var radio_soul_status: Label
 var radio_soul_request_label: Label
 var radio_soul_notified: Dictionary = {}
+# Race Radio 3.0: HUD-only bounded conversation state, never saved in race.
+var radio3_memories: Dictionary = {}
 var radio_soul_last_refresh: float = -999.0
 var media_buttons: Array = []
 var speed_index: int = 0
@@ -98,6 +106,8 @@ var engineer_reports: Dictionary = {}
 var engineer_cards: Array = []
 var pitwall3_cards: Array = []
 var pitwall3_feedback: Label
+var pitcoord2_queue_label: Label
+var pitwall3_ledger_label: Label
 var dynamic_graph_data = StrategyGraphData06498.new()
 var dynamic_chart_views: Array = []
 var dynamic_garage_status: Label
@@ -213,89 +223,35 @@ func _create_ui() -> void:
 	radio_reactive_toast.clip_text = true
 	radio_reactive_toast.hide()
 
-	ranking = _panel(self)
-	var left := _column(ranking, 3)
-	var rank_header := _line(left, 2)
-	var prev := _btn(rank_header, "‹", _move_metric.bind(-1), 27)
-	prev.tooltip_text = "Métrica anterior"
-	standings_title = _text(rank_header, "INTERVALO", 13, WHITE)
-	standings_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	standings_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	var next := _btn(rank_header, "›", _move_metric.bind(1), 27)
-	next.tooltip_text = "Próxima métrica"
-	var standings_scroll := ScrollContainer.new()
-	standings_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	standings_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	left.add_child(standings_scroll)
-	var entries := _column(standings_scroll, 1)
-	entries.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	for i in range(24):
-		var row := HBoxContainer.new()
-		row.custom_minimum_size.y = 24
-		row.add_theme_constant_override("separation", 3)
-		entries.add_child(row)
-		var stripe := ColorRect.new()
-		stripe.custom_minimum_size = Vector2(3, 20)
-		stripe.color = MUTED
-		row.add_child(stripe)
-		var pos := _text(row, "%d" % (i + 1), 14, WHITE)
-		pos.custom_minimum_size.x = 20
-		var driver := _btn(row, "---", _select_grid_car.bind(i), 43)
-		driver.add_theme_stylebox_override("normal", rank_idle_style)
-		driver.add_theme_stylebox_override("hover", HudSkin.button_style("rank_hover"))
-		driver.add_theme_stylebox_override("pressed", rank_selected_style)
-		driver.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		driver.add_theme_font_size_override("font_size", 14)
-		driver.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		driver.custom_minimum_size.y = 24
-		var tyre := _text(row, "—", 13, MUTED)
-		tyre.custom_minimum_size.x = 16
-		tyre.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		var state := _text(row, "", 11, YELLOW)
-		state.custom_minimum_size.x = 31
-		state.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		var detail := _text(row, "—", 14, WHITE)
-		detail.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-		detail.custom_minimum_size.x = 66
-		standing_rows.append({"row":row, "stripe":stripe, "pos":pos, "driver":driver,
-			"tyre":tyre, "state":state, "detail":detail})
+	# UI-only panel assembly; same callbacks, node hierarchy, rows and styles.
+	var ranking_ui: Dictionary = HudRankingPanel.build(self, rank_idle_style, rank_selected_style,
+		Callable(self, "_panel"), Callable(self, "_column"), Callable(self, "_line"),
+		Callable(self, "_text"), Callable(self, "_btn"),
+		Callable(self, "_move_metric"), Callable(self, "_select_grid_car"))
+	ranking = ranking_ui["ranking"]
+	standings_title = ranking_ui["standings_title"]
+	standing_rows = ranking_ui["standing_rows"]
 
-	weather_box = _panel(self)
+	# UI-only weather panel; the HUD still owns its layout and live data.
+	var weather_ui: Dictionary = HudWeatherPanel.build(self,
+		Callable(self, "_panel"), Callable(self, "_column"), Callable(self, "_text"))
+	weather_box = weather_ui["weather_box"]
+	weather_line = weather_ui["weather_line"]
+	weather_track_line = weather_ui["weather_track_line"]
 	weather_box.minimum_size_changed.connect(layout_hud, CONNECT_DEFERRED)
-	var weather_column := _column(weather_box, 4)
-	_text(weather_column, "CLIMA  /  PREVISÃO", 13, MUTED)
-	weather_line = _text(weather_column, "Aguardando clima", 15, WHITE)
-	weather_line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	weather_column.add_child(HSeparator.new())
-	_text(weather_column, "CONDIÇÕES DA PISTA", 13, MUTED)
-	weather_track_line = _text(weather_column, "Aguardando pista", 14, WHITE)
-	weather_track_line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
-	map_box = _panel(self)
-	map_box.add_theme_stylebox_override("panel", HudSkin.panel(Color(0.105, 0.110, 0.150, 0.50), 3, Color.TRANSPARENT, 8))
-	var map_column := _column(map_box, 2)
-	var map_heading := _line(map_column, 5)
-	var mini_heading := _text(map_heading, "MAPA DA CORRIDA", 12, MUTED)
-	mini_heading.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_btn(map_heading, "2D ↗", _set_view.bind(0), 52)
-	minimap = MiniMap.new()
-	minimap.show_background = false
-	minimap.custom_minimum_size = Vector2(190, 143)
-	minimap.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	minimap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	map_column.add_child(minimap)
+	# UI-only minimap assembly; HUD retains track ownership and layout.
+	var map_ui: Dictionary = HudMiniMapPanel.build(self, MiniMap,
+		Callable(self, "_panel"), Callable(self, "_column"),
+		Callable(self, "_line"), Callable(self, "_text"),
+		Callable(self, "_btn"), Callable(self, "_set_view"))
+	map_box = map_ui["map_box"]
+	minimap = map_ui["minimap"]
 
-	# FULL-only quick links; every button opens an existing, functional
-	# Pit Wall/strategy/engineering window, without writing to race state.
-	pit_quick_panel = _panel(self, HudSkin.SURFACE)
-	var quick_column := _column(pit_quick_panel, 5)
-	_text(quick_column, "PIT WALL / CENTRO DE DECISÕES", 11, ACCENT)
-	var quick_first := _line(quick_column, 4)
-	_btn(quick_first, "RESUMO", _open_window.bind("pitwall3"), 101).tooltip_text = "Pit Wall 3.0 e situações dos dois carros"
-	_btn(quick_first, "PLANO", _open_window.bind("estrategia"), 99).tooltip_text = "Planejar stints e agendar paradas"
-	var quick_second := _line(quick_column, 4)
-	_btn(quick_second, "DECISÃO", _open_window.bind("engineer"), 101).tooltip_text = "Ordens e análises do engenheiro"
-	_btn(quick_second, "ANÁLISE", _open_window.bind("graficos"), 99).tooltip_text = "Gráficos dinâmicos baseados na simulação"
+	# FULL-only quick links; builder keeps the original actions and node hierarchy.
+	pit_quick_panel = HudPitWallQuickPanel.build(self, Callable(self, "_panel"),
+		Callable(self, "_column"), Callable(self, "_line"), Callable(self, "_text"),
+		Callable(self, "_btn"), Callable(self, "_open_window"))
 
 	player_strip = Control.new()
 	player_strip.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -358,6 +314,7 @@ func begin_race() -> void:
 	radio_stint_memory.clear()
 	radio_soul_profiles.clear()
 	radio_soul_notified.clear()
+	radio3_memories.clear()
 	radio_reactive_memories.clear()
 	radio_reactive_event_id = 0
 	radio_reactive_last_check = -999.0
@@ -804,23 +761,10 @@ func refresh_hud() -> void:
 		_update_window_data()
 
 func _standing_value(sorted_cars: Array, idx: int) -> String:
-	var car: Dictionary = sorted_cars[idx]
+	# Public HUD adapter: metric selection and sports data remain unchanged.
 	var final: bool = host != null and host.race != null and bool(host.race.finished)
-	match metric_index:
-		0: return "—" if idx == 0 else (str(car.get("interval_label", "")) if final else "+%.2fs" % float(car.get("interval", 0.0)))
-		1: return "—" if idx == 0 else (str(car.get("gap_label", "")) if final else "+%.2fs" % float(car.get("gap", 0.0)))
-		2: return str(int(car.get("stops", 0)))
-		3: return host._format_lap(float(car.get("best_lap", 9999.0)))
-		4: return "%s %d" % [_compound(str(car.get("tire", "Médio"))), int(car.get("stint_laps", 0))]
-		5:
-			if idx >= sorted_cars.size() - 1:
-				return "—"
-			var behind: Dictionary = sorted_cars[idx + 1]
-			return str(behind.get("interval_label", "")) if final else "+%.2fs" % float(behind.get("interval", 0.0))
-		6:
-			var last_time: float = float(car.get("last_lap", 0.0))
-			return host._format_lap(last_time) if last_time > 0.0 and last_time < 9999.0 else "—"
-	return "—"
+	return HudStandingMetric.value(sorted_cars, idx, metric_index, final,
+		Callable(self, "_compound"), Callable(host, "_format_lap"))
 
 func _compound(tire: String) -> String:
 	return str(host.race.tyre_code(tire)) if host != null and host.race != null else tire.left(1)
@@ -1200,7 +1144,7 @@ func _build_radio_window() -> void:
 	_btn(request_row, "OUVIR PEDIDO", _answer_soul_request.bind("ouvir"), 125).tooltip_text = "Reconhece a solicitação do piloto. Nenhum comando é enviado."
 	_btn(request_row, "EXPLICAR PLANO", _answer_soul_request.bind("explicar"), 148).tooltip_text = "Resposta do pit wall no rádio; não muda a estratégia."
 	_text(request_row, "Pedidos consultivos · sem ordens automáticas.", 11, MUTED)
-	radio_soul_request_label = _text(overlay_content, "SOUL 2.0 · Aguardando pedido do piloto.", 11, SOUL_ACCENT)
+	radio_soul_request_label = _text(overlay_content, "SOUL · Aguardando pedido do piloto.", 11, SOUL_ACCENT)
 	radio_soul_request_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	radio_soul_request_label.custom_minimum_size.y = 38
 	_update_soul_status()
@@ -1281,13 +1225,19 @@ func _announce_soul_requests() -> void:
 		var name: String = str(car.get("name", "Piloto"))
 		var message: String = str(request.get("message", ""))
 		var reason: String = str(request.get("reason", ""))
+		var words: Dictionary = Radio3.driver(car, str(request.get("kind", "")), {
+			"lap": int(request.get("lap", 0)), "event_id": -1})
+		if not words.is_empty():
+			message = str(words["text"])
 		radio_reactive_latest = "PEDIDO · %s: %s" % [name, message]
 		if radio_reactive_toast != null:
 			radio_reactive_toast.text = "📻  %s: %s" % [name, message]
 			radio_reactive_toast.tooltip_text = reason + " · Clique para abrir o rádio."
 			radio_reactive_toast_until = Time.get_ticks_msec() + 9000
 			radio_reactive_toast.show()
-		if host.commentary != null:
+		# Soul3 requests are already published as deterministic driver_radio
+		# events by RaceEngine. Keep the toast but avoid duplicate commentary.
+		if host.commentary != null and str((car.get("driver_soul", {}) as Dictionary).get("version", "")) != "3.0":
 			host.commentary.add_soul_spontaneous(float(host.race.clock), name, message,
 				"Pedido recebido para análise, nenhuma ordem foi executada.", car_id)
 		if active_window == "radio":
@@ -1311,12 +1261,17 @@ func _answer_soul_request(choice: String) -> void:
 		radio_response_label.text = str(answer.get("reason", "Pedido já respondido."))
 		return
 	var name: String = str(car.get("name", "Piloto"))
-	radio_response_label.text = "%s: %s\nENGENHEIRO: %s" % [
-		name, str(answer.get("driver", "")), str(answer.get("engineer", ""))]
+	var driver_words: String = str(answer.get("driver", ""))
+	var engineer_words: String = str(answer.get("engineer", ""))
+	var brief: Dictionary = Radio3.choice_response(car, choice)
+	if not brief.is_empty():
+		driver_words = str(brief["text"])
+		engineer_words = "Copy. We're reviewing it. No pit or pace order changed."
+	radio_response_label.text = "%s: %s\nENGENHEIRO: %s" % [name, driver_words, engineer_words]
 	if host.commentary != null:
 		host.commentary.add_soul_alignment(float(host.race.clock), name,
 			"Pedido %s — %s" % [str(request.get("kind", "")), choice],
-			str(answer.get("driver", "")), str(answer.get("engineer", "")), car_id)
+			driver_words, engineer_words, car_id)
 	_update_soul_status()
 	_set_radio_category(2)
 
@@ -1353,6 +1308,20 @@ func _update_reactive_radio() -> void:
 		var name: String = str(result.get("car_name", "Piloto"))
 		var driver_words: String = str(result.get("message", ""))
 		var engineer_words: String = str(result.get("engineer", ""))
+		var context: Dictionary = {"lap": int(car.get("laps_done", 0)),
+			"event_id": -1, "priority": 60}
+		var previous: Dictionary = radio3_memories.get(car_id, {})
+		var packet: Dictionary = Radio3.driver(car, str(result.get("kind", "")), context, previous)
+		if not packet.is_empty():
+			if not Radio3.should_transmit(packet, previous):
+				continue
+			driver_words = str(packet["text"])
+			var engineer_packet: Dictionary = Radio3.engineer(car, str(result.get("kind", "")), {
+				"lap": int(car.get("laps_done", 0)),
+				"conversation_id": str(packet.get("conversation_id", ""))})
+			if not engineer_packet.is_empty():
+				engineer_words = str(engineer_packet["text"])
+			radio3_memories[car_id] = Radio3.remember(previous, packet)
 		radio_reactive_latest = "%s · %s: %s" % [str(result.get("kind", "alerta")).to_upper(), name, driver_words]
 		if radio_reactive_toast != null:
 			radio_reactive_toast.text = "📻  %s: %s" % [name, driver_words]
@@ -1380,11 +1349,16 @@ func _update_soul_status() -> void:
 	if radio_soul_request_label != null and is_instance_valid(radio_soul_request_label):
 		var request: Dictionary = DriverSoul2.latest(car)
 		if request.is_empty():
-			radio_soul_request_label.text = "SOUL 2.0 · Nenhum pedido contextual nesta corrida."
+			radio_soul_request_label.text = "SOUL · Nenhum pedido contextual nesta corrida."
 		else:
+			var request_words: String = str(request.get("message", ""))
+			var packet: Dictionary = Radio3.driver(car, str(request.get("kind", "")),
+				{"lap": int(request.get("lap", 0))})
+			if not packet.is_empty():
+				request_words = str(packet["text"])
 			radio_soul_request_label.text = "V%d · %s: %s [%s]" % [
 				int(request.get("lap", 0)), str(request.get("kind", "")).to_upper(),
-				str(request.get("message", "")),
+				request_words,
 				"RESPONDIDO" if bool(request.get("answered", false)) else "AGUARDANDO RESPOSTA"]
 	radio_soul_last_refresh = float(host.race.clock)
 
@@ -1427,8 +1401,13 @@ func _ask_driver() -> void:
 		return
 	var driver_name: String = str(thought["car_name"])
 	var impression: String = str(thought["message"])
+	var pilot_car: Dictionary = host._car_by_id(car_id)
+	var radio3_words: Dictionary = Radio3.consultation(pilot_car, "perception",
+		{"lap": int(pilot_car.get("laps_done", 0))})
+	if not radio3_words.is_empty():
+		impression = str(radio3_words["text"])
 	var feeling: Dictionary = SoulDriver.perceive(car_id, snapshot, _soul_profile(car_id))
-	if absf(float(feeling.get("difference", 0.0))) >= 7.0:
+	if absf(float(feeling.get("difference", 0.0))) >= 7.0 and radio3_words.is_empty():
 		impression += " Minha percepção de desgaste está %s da leitura dos sensores." % ("acima" if float(feeling["difference"]) > 0.0 else "abaixo")
 	if bool(thought.get("repeat", false)):
 		radio_response_label.text = "%s: %s" % [driver_name, str(thought["message"])]
@@ -1466,8 +1445,14 @@ func _compare_teammate() -> void:
 			teammate = entry
 			break
 	var evaluation: Dictionary = TeamRadioAdvice.evaluate(selected, teammate, snapshot.get("weather", {}))
+	var teammate_words: String = str(evaluation.get("driver", ""))
+	if str(evaluation.get("state", "")) == "avaliar_passagem" and int(evaluation.get("chasing_id", -1)) == car_id:
+		var voice: Dictionary = Radio3.driver(selected, "troca_equipe", {
+			"lap": int(selected.get("laps_done", 0))})
+		if not voice.is_empty():
+			teammate_words = str(voice["text"])
 	radio_response_label.text = "%s: %s\nENGENHEIRO: %s" % [
-		str(selected.get("name", "Piloto")), str(evaluation.get("driver", "")), str(evaluation.get("engineer", ""))]
+		str(selected.get("name", "Piloto")), teammate_words, str(evaluation.get("engineer", ""))]
 	_set_radio_category(2)
 
 # Explicit player command, not a radio question. The leader is asked to avoid
@@ -1543,6 +1528,13 @@ func _discuss_stint() -> void:
 	var driver_name: String = str(exchange["car_name"])
 	var driver_words: String = str(exchange["driver"])
 	var engineer_words: String = str(exchange["engineer"])
+	var pilot_car: Dictionary = host._car_by_id(car_id)
+	var radio3_words: Dictionary = Radio3.consultation(pilot_car, "stint", {
+		"lap": int(pilot_car.get("laps_done", 0)),
+		"pit_active": bool(pilot_car.get("pit_request", false)) or float(pilot_car.get("pit_left", 0.0)) > 0.0,
+		"wants_extend": bool(exchange.get("wants_extend", false))})
+	if not radio3_words.is_empty() and not bool(pilot_car.get("finished", false)):
+		driver_words = str(radio3_words["text"])
 	radio_stint_memory[car_id] = exchange["memory"]
 	radio_soul_profiles[car_id] = SoulDriver.begin_discussion(profile)
 	radio_response_label.text = "%s: %s\nENGENHEIRO: %s" % [driver_name, driver_words, engineer_words]
@@ -1662,7 +1654,7 @@ func _update_engineer_reports() -> void:
 		_refresh_pitwall3_window()
 
 func _build_engineer_window() -> void:
-	overlay_title.text = "RACE ENGINEER 3.0  /  HUD UI03 · SOUL 2.0 · REVISÃO POR VOLTA"
+	overlay_title.text = "RACE ENGINEER 3.0  /  HUD UI03 · SOUL 3.0 · REVISÃO POR VOLTA"
 	_text(overlay_content, "Evidências e cenários baseados no estado real do motor. Em MANUAL e ASSISTIDO, o BOX depende de confirmação; qualquer ordem agendada permanece protegida.", 12, MUTED).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	var controls := _line(overlay_content, 8)
 	_text(controls, "CONTROLE GLOBAL (AMBOS)", 12, ACCENT)
@@ -1889,6 +1881,8 @@ func _build_pitwall3_window() -> void:
 	_text(overlay_content, "Comparação consultiva dos DOIS pilotos. Retorno ~P e tráfego são estimativas instantâneas que não incluem futuras paradas, acidentes ou variação exata do ritmo.", 12, MUTED).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	pitwall3_feedback = _text(overlay_content, "Nada agendado por este painel.", 11, YELLOW)
 	pitwall3_feedback.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	pitcoord2_queue_label = _text(overlay_content, "PIT COORDINATION 2.0 · garagem livre", 11, SOUL_ACCENT)
+	pitcoord2_queue_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	pitwall3_cards.clear()
 	for car in host.race.player_cars():
 		var id: int = int(car.get("id", -1))
@@ -1910,12 +1904,16 @@ func _build_pitwall3_window() -> void:
 			"scenarios":scenarios, "notes":notes, "schedule":schedule,
 			"extend":extend, "accept":accept})
 	_text(overlay_content, "AGENDAR altera a estratégia somente após o clique. Os dois botões recusam conflito direto de volta com o companheiro. Para alterar uma ordem existente, use ESTRATÉGIA e confirme o cancelamento/agendamento.", 11, MUTED).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	pitwall3_ledger_label = _text(overlay_content, "PREDICTION LEDGER 1.0 · aguardando paradas verificáveis", 11, SOUL_ACCENT)
+	pitwall3_ledger_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_refresh_pitwall3_window()
 
 func _refresh_pitwall3_window() -> void:
 	if host == null or host.race == null or active_window != "pitwall3":
 		return
 	var players: Array = host.race.player_cars()
+	_refresh_pitcoord2_queue()
+	_refresh_prediction_ledger()
 	for ui in pitwall3_cards:
 		var id: int = int(ui["id"])
 		var car: Dictionary = host._car_by_id(id)
@@ -1959,6 +1957,91 @@ func _refresh_pitwall3_window() -> void:
 			entry+1, int(host.race.lap_count))
 		var confirmed: Dictionary = engineer_reports.get(id, {})
 		(ui["accept"] as Button).disabled = driver_mode == "Automático" or not bool(confirmed.get("can_call_pit", false)) or bool(report.get("team_overlap", false))
+
+func _refresh_pitcoord2_queue() -> void:
+	if pitcoord2_queue_label == null or host == null or host.race == null:
+		return
+	var info: Dictionary = host.race.get_team_pit_status(host.selected_team)
+	var owner: int = int(info.get("owner_id", -1))
+	var lines: Array[String] = ["PIT COORDINATION 2.0 · %s" % (
+		"garagem livre" if owner < 0 else ("garagem ocupada pelo carro #%d" % owner))]
+	if owner >= 0:
+		lines.append("Etapa: %s · liberação estimada %.1fs · %s" % [
+			str(info.get("owner_stage", "")),
+			float(info.get("remaining_occupation_s", 0.0)),
+			str(info.get("release_note", ""))])
+	for waiting_car in info.get("waiting", []):
+		lines.append("FILA #%d: %s · espera medida %.1fs · espera adicional estimada ~%.1fs" % [
+			int(waiting_car.get("queue_position", 0)),
+			str(waiting_car.get("name", "")),
+			float(waiting_car.get("wait", 0.0)),
+			float(waiting_car.get("estimated_additional_wait_s", 0.0))])
+	pitcoord2_queue_label.text = "\n".join(lines)
+
+func _refresh_prediction_ledger() -> void:
+	if pitwall3_ledger_label == null or host == null or host.race == null:
+		return
+	var history: Array = host.race.get_prediction_ledger(host.selected_team)
+	var summary: Dictionary = host.race.get_prediction_summary(host.selected_team)
+	var lines: Array[String] = ["PREDICTION LEDGER 1.0 · %d registros / %d pits verificados" % [
+		int(summary.get("total", 0)), int(summary.get("verified_pits", 0))]]
+	if int(summary.get("verified_pits", 0)) > 0:
+		lines.append("ERRO ABSOLUTO MÉDIO · perda de pit %.2fs · posição %.2f" % [
+			float(summary.get("mae_loss_s", 0.0)), float(summary.get("mae_position", 0.0))])
+	var by_level: Dictionary = summary.get("by_strategist_level", {})
+	for level in by_level:
+		var group: Dictionary = by_level[level]
+		var count: int = int(group.get("count", 0))
+		if count > 0:
+			lines.append("ESTRATEGISTA %s/3 · %d pits · MAE %.2fs / %.2f posições" % [
+				str(level) if int(level) >= 0 else "?", count,
+				float(group.get("abs_loss_s", 0.0)) / float(count),
+				float(group.get("abs_position", 0.0)) / float(count)])
+	for index in range(maxi(0, history.size() - 4), history.size()):
+		var record: Dictionary = history[index]
+		var title: String = "V%d %s → %s | prevê P%d, %.1fs líquidos" % [
+			int(record.get("track_lap", 0)), str(record.get("driver", "")),
+			str(record.get("compound_after", "?")), int(record.get("predicted_position", 0)),
+			float(record.get("predicted_net_loss_s", 0.0))]
+		var phase: String = str(record.get("phase", "EXECUTION"))
+		var state: String = str(record.get("status", ""))
+		if phase == "DECISION":
+			title = "DECISÃO V%d → BOX V%d: %s · %s | estimativa instantânea ~P%d / %.1fs" % [
+				int(record.get("issued_lap", 0)), int(record.get("target_lap", 0)),
+				str(record.get("driver", "")), str(record.get("decision_source", "")),
+				int(record.get("predicted_position", 0)),
+				float(record.get("predicted_net_loss_s", 0.0))]
+			title += " | %s" % ("executada" if state == "EXECUTED" else (
+				"cancelada" if state == "CANCELLED" else (
+				"não seguida" if state == "NOT_FOLLOWED" else "aguardando decisão")))
+			if bool(record.get("long_horizon", false)):
+				title += " (horizonte distante, não pontuável)"
+		elif bool(record.get("pit_verified", false)):
+			title += " | real P%d, %.1fs (erro %+.1fs)" % [
+				int(record.get("actual_position", 0)), float(record.get("actual_net_loss_s", 0.0)),
+				float(record.get("pit_loss_error_s", 0.0))]
+		elif state == "AWAITING_EXIT":
+			title += " | aguardando saída do box"
+		else:
+			title += " | %s" % state
+		lines.append(title)
+		if str(record.get("status", "")) == "COMPLETE":
+			if record.has("actual_relative_gain_5_s") and bool(record.get("relative_forecast_valid", false)):
+				lines.append("  GANHO RELATIVO 5V VS RIVAL #%d: previsto %+.2fs / real %+.2fs (erro %+.2fs)" % [
+					int(record.get("reference_rival_id", -1)),
+					float(record.get("predicted_relative_gain_5_s", 0.0)),
+					float(record.get("actual_relative_gain_5_s", 0.0)),
+					float(record.get("relative_gain_error_5_s", 0.0))])
+			var wear_text: String = "%.0f%% previsto / %.0f%% real" % [
+				float(record.get("predicted_wear_5", -1.0)), float(record.get("actual_wear_5", -1.0))] if float(record.get("predicted_wear_5", -1.0)) >= 0.0 else "previsão indisponível"
+			lines.append("  PNEUS 5V: %s · CLIMA 3V: %s" % [
+				wear_text, ("%.0f%% previsto / %.0f%% real" % [
+					100.0 * float(record.get("predicted_water_3", 0.0)),
+					100.0 * float(record.get("actual_water_3", 0.0))]) if bool(record.get("weather_verified", false)) else "não verificado"])
+		var reasons: Array = record.get("reasons", [])
+		if not reasons.is_empty():
+			lines.append("  MOTIVOS / LIMITAÇÕES: %s" % "; ".join(reasons))
+	pitwall3_ledger_label.text = "\n".join(lines)
 
 func _pitwall3_schedule(id: int, offset: int) -> void:
 	if host == null or host.race == null or offset not in [0, 1]:

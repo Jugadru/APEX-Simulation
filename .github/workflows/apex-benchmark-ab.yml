@@ -100,10 +100,25 @@ jobs:
         run: python3 -m unittest discover -s "$APEX_AB_TOOLS_ROOT/tools/tests" -p 'test_compare_apex_benchmarks.py' -v
 
       - name: Importar referencia
-        run: godot --headless --path base --import
+        run: godot --headless --single-threaded-scene --path base --import
 
       - name: Importar candidata
-        run: godot --headless --path candidate --import
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Preserve semantic failures: retry only intermittent engine crashes.
+          for attempt in 1 2 3; do
+            set +e
+            godot --headless --single-threaded-scene --path candidate --import > "candidate-import-${attempt}.log" 2>&1
+            status=$?
+            set -e
+            cat "candidate-import-${attempt}.log"
+            if grep -Eiq 'SCRIPT ERROR:|Parse Error:' "candidate-import-${attempt}.log"; then exit 1; fi
+            if ((status==0)); then exit 0; fi
+            if ((status!=134 && status!=139)); then exit "$status"; fi
+            echo "::warning::Transient Godot import crash (exit $status), attempt $attempt/3"
+          done
+          exit 139
 
       - name: Rodar benchmarks alternados
         shell: bash
@@ -133,6 +148,113 @@ jobs:
             --ticks 1000 \
             --repetitions 3 \
             --output-dir benchmark-ab
+
+      - name: A-B ocupacao visual (4 pistas, 24 carros; poses iguais)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p benchmark-ab
+          for index in 0 1 2; do
+            if (( index % 2 == 0 )); then
+              order=(base candidate)
+            else
+              order=(candidate base)
+            fi
+            for label in "${order[@]}"; do
+              export HOME="$RUNNER_TEMP/apex-visual-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${label}-${index}"
+              export XDG_DATA_HOME="$HOME/data"
+              export XDG_CONFIG_HOME="$HOME/config"
+              export XDG_CACHE_HOME="$HOME/cache"
+              mkdir -p "$XDG_DATA_HOME" "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME"
+              timeout 240s godot --headless --single-threaded-scene --path "$label" \
+                --script res://tests/visual_stutter_06672_benchmark.gd \
+                > "benchmark-ab/visual-${label}-${index}.log" 2>&1
+              grep -Fq 'VISUAL_STUTTER_06672_BENCHMARK' "benchmark-ab/visual-${label}-${index}.log"
+            done
+          done
+          python3 - <<'PY'
+          import json, statistics
+          from pathlib import Path
+          markers = 'VISUAL_STUTTER_06672_BENCHMARK '
+          data = {}
+          for label in ('base', 'candidate'):
+              data[label] = []
+              for index in range(3):
+                  log = Path(f'benchmark-ab/visual-{label}-{index}.log').read_text()
+                  rows = [line.split(markers, 1)[1].strip() for line in log.splitlines() if markers in line]
+                  assert len(rows) == 1, (label, index, len(rows))
+                  report = json.loads(rows[0])
+                  assert report['failures'] == 0, (label, index, report['failures'])
+                  cases = {x['code']: x for x in report['results']}
+                  assert set(cases) == {'GBR', 'MON', 'BEL', 'SIN'}
+                  data[label].append(cases)
+          import re
+          def revision(project):
+              script = Path(project, 'scripts/core/race_replay_0660.gd').read_text(encoding='utf-8')
+              found = re.search(r'^const SIMULATION_REVISION := "([^"]+)"', script, re.MULTILINE)
+              assert found, f'{project}: missing sporting revision'
+              return found.group(1)
+          revisions = {label: revision(label) for label in ('base', 'candidate')}
+          equivalent = revisions['base'] == revisions['candidate']
+          timing = {'mean_us', 'p95_us', 'p99_us', 'max_us'}
+          def sporting(case):
+              return {k:v for k,v in case.items() if k not in timing}
+          for label in ('base', 'candidate'):
+              for track in ('GBR', 'MON', 'BEL', 'SIN'):
+                  # The same revision, repeated with the same initial conditions,
+                  # MUST reproduce identical physical statistics.
+                  reference = sporting(data[label][0][track])
+                  for index in (1, 2):
+                      assert sporting(data[label][index][track]) == reference, (
+                          'within-revision nondeterminism', label, track, index)
+                  for case in (rep[track] for rep in data[label]):
+                      assert case['collisions'] == 0 and not case['collisions_detail'], (label, track, 'collision')
+                      assert case['max_stationary'] <= 2 and not case['long_holds'], (label, track, 'stalled')
+          # Mônaco and Spa already have some render resync/lag on the 9.3
+          # baseline. Never conceal those old measurements, but reject new
+          # regressions in the current candidate (per track, same scene).
+          for index in range(3):
+              for track in ('GBR', 'MON', 'BEL', 'SIN'):
+                  base_case = data['base'][index][track]
+                  new_case = data['candidate'][index][track]
+                  assert new_case['resynced'] <= base_case['resynced'], (track, index, 'resync regression')
+                  assert new_case['max_resync_step_meters'] <= base_case['max_resync_step_meters'] + 0.0001, (track, index, 'resync distance regression')
+                  assert new_case['lag_count'] <= base_case['lag_count'], (track, index, 'lag regression')
+                  assert new_case['max_progress_lag'] <= base_case['max_progress_lag'] + 0.0001, (track, index, 'max lag regression')
+          if equivalent:
+              for index in range(3):
+                  for track in ('GBR', 'MON', 'BEL', 'SIN'):
+                      lhs = sporting(data['base'][index][track])
+                      rhs = sporting(data['candidate'][index][track])
+                      assert lhs == rhs, (track, index, lhs, rhs)
+          # When the sporting rules change, exact poses are NOT a meaningful
+          # cross-version equivalence contract. Keep strict independent safety
+          # and within-version determinism, and disclose incomparability.
+          times = {
+              label: [sum(case['mean_us'] for case in rep.values()) for rep in data[label]]
+              for label in ('base', 'candidate')
+          }
+          b = statistics.median(times['base'])
+          c = statistics.median(times['candidate'])
+          delta = (c / b - 1.0) * 100.0
+          result = {'status': 'COMPARABLE' if equivalent else 'INCOMPARABLE_SPORTING_REVISION',
+                    'visual_equal': True if equivalent else None,
+                    'safety_pass': True, 'no_resync_or_lag_regression_vs_baseline': True, 'within_revision_determinism': True,
+                    'sporting_revisions': revisions, 'cases': 4,
+                    'repetitions': 3, 'base_mean_us_sum': times['base'],
+                    'candidate_mean_us_sum': times['candidate'],
+                    'baseline_median_us_sum': b, 'candidate_median_us_sum': c,
+                    'delta_percent': delta,
+                    'limitations': 'headless CPU per visual update, not GPU FPS; three repeats; sporting rules may differ; machine noise'}
+          Path('benchmark-ab/visual_occupancy_06691.json').write_text(json.dumps(result, indent=2))
+          print('APEX_VISUAL_OCCUPANCY_06691_AB', json.dumps(result))
+          with open('/dev/null', 'w') as _:
+              pass
+          # Do not convert random small CPU noise into a false performance claim.
+          # Very large candidate slowdown is a regression to investigate.
+          if delta > 20.0:
+              raise SystemExit('Visual occupancy A/B slowdown exceeds 20%')
+          PY
 
       - name: Mostrar resumo A-B
         if: always()

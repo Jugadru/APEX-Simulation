@@ -1,0 +1,171 @@
+{
+  "base": "8e5f176",
+  "status": "PASS",
+  "scripts": 32,
+  "results": [
+    {
+      "script": "team_orders_066810_test.gd",
+      "status": "PASS",
+      "exit": 0
+    },
+    {
+      "script": "team_orders_066810_ui_test.gd",
+      "status": "PASS",
+      "exit": 0
+    },
+    {
+      "script": "team_radio_06689_advice_test.gd",
+      "status": "PASS",
+      "exit": 0
+    },
+    {
+      "script": "radio_0668101_booked_pit_advice_test.gd",
+      "status": "PASS",
+      "exit": 0
+    },
+    {
+      "script": "team_radio_06689_ui_test.gd",
+      "status": "PASS",
+      "exit": 0
+    },
+    {
+      "script": "racecraft_06688_grip_defense_test.gd",
+      "status": "PASS",
+      "exit": 0
+    },
+    {
+      "script": "racecraft_0654_test.gd",
+      "status": "PASS",
+      "exit": 0
+    },
+    {
+      "script": "racecraft_broadphase_06691_test.gd",
+      "status": "PASS",
+      "exit": 0
+    },
+    {
+      "script": "driver_dynamics_06687_tyre_judgement_test.gd",
+      "status": "PASS",
+      "exit": 0
+    },
+    {
+      "script": "driver_dynamics_06687_ui_test.gd",
+      "status": "PASS",
+      "exit": 0
+    },
+    {
+      "script": "core2_06686_sort_contract.gd",
+      "status": "PASS",
+      "exit": 0
+    },
+    {
+      "script": "driver_dynamics_0661_test.gd",
+      "status": "PASS",
+      "exit": 0
+    },
+    {
+      "script": "race_launch_14_test.gd",
+      "status": "PASS",
+      "exit": 0
+    },
+    {
+      "script": "weather_setup_15_test.gd",
+      "status": "PASS",
+      "exit": 0
+    },
+    {
+      "script": "standings_refactor_test.gd",
+      "status": "PASS",
+      "exit": 0
+    },
+    {
+      "script": "hud_metric_refactor_test.gd",
+      "status": "PASS",
+      "exit": 0
+    },
+    {
+      "script": "hud_ranking_panel_refactor_test.gd",
+      "status": "PASS",
+      "exit": 1
+    },
+    {
+      "script": "hud_pitwall_quick_panel_refactor_test.gd",
+      "status": "PASS",
+      "exit": 0
+    },
+    {
+      "script": "hud_weather_panel_refactor_test.gd",
+      "status": "PASS",
+      "exit": 1
+    },
+    {
+      "script": "hud_minimap_panel_refactor_test.gd",
+      "status": "PASS",
+      "exit": 1
+    },
+    {
+      "script": "racecraft_0662_test.gd",
+      "status": "PASS",
+      "exit": 0
+    },
+    {
+      "script": "pit_incidents_double_stack_test.gd",
+      "status": "PASS",
+      "exit": 0
+    },
+    {
+      "script": "replay_0660_test.gd",
+      "status": "PASS",
+      "exit": 0
+    },
+    {
+      "script": "hash_cache_06692_test.gd",
+      "status": "PASS",
+      "exit": 0
+    },
+    {
+      "script": "car_model_smoke_test.gd",
+      "status": "PASS",
+      "exit": 0
+    },
+    {
+      "script": "hud_rebroadcast_0668_integration.gd",
+      "status": "PASS",
+      "exit": 0
+    },
+    {
+      "script": "hud_rebroadcast_06681_pending_orders.gd",
+      "status": "PASS",
+      "exit": 0
+    },
+    {
+      "script": "hud_rebroadcast_06681_replay_isolation.gd",
+      "status": "PASS",
+      "exit": 0
+    },
+    {
+      "script": "hud_rebroadcast_06681_race_scenarios.gd",
+      "status": "PASS",
+      "exit": 0
+    },
+    {
+      "script": "core_0642_save_migration_test.gd",
+      "status": "PASS",
+      "exit": 0
+    },
+    {
+      "script": "pit_coordination_06697_test.gd",
+      "status": "PASS",
+      "exit": 0
+    },
+    {
+      "script": "race_radio_06695_test.gd",
+      "status": "PASS",
+      "exit": 0
+    }
+  ],
+  "gdunit": "2/2 PASS",
+  "visual": "PASS",
+  "pit_queue_prevention": "PASS 28 checks",
+  "limits": "No full GP or FPS benchmark"
+}

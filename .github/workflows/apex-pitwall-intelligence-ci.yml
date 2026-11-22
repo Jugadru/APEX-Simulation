@@ -1,0 +1,72 @@
+name: APEX - Pit Wall Intelligence Analyzer 1.0
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'tests/performance_baseline_06690.gd'
+      - 'project.godot'
+      - 'scripts/**'
+      - 'data/**'
+      - 'tests/ci/apex_pitwall_intelligence_probe.gd'
+      - 'tools/apex_pitwall_intelligence.py'
+      - 'tools/run_pitwall_local.sh'
+      - 'tools/tests/test_apex_pitwall_intelligence.py'
+      - '.github/workflows/apex-pitwall-intelligence-ci.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: apex-pitwall-analyzer-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pitwall-intelligence:
+    name: Analisar escolhas do Pit Wall / 2012, sem modificar IA
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+
+    steps:
+      - name: Checkout do APEX
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Preparar Godot 4.7.2
+        timeout-minutes: 15
+        uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c # v3.0.1
+        with:
+          version: 4.7.2-stable
+
+      - name: Validar contratos, importar Godot e executar oito simulacoes reais
+        shell: bash
+        env:
+          GODOT_BIN: godot
+          APEX_PITWALL_OUTPUT: ci_artifacts/pitwall_intelligence
+        run: |
+          set -euo pipefail
+          bash tools/run_pitwall_local.sh
+
+      - name: Publicar analise com ressalvas
+        if: always()
+        shell: bash
+        run: |
+          if test -f ci_artifacts/pitwall_intelligence/report.md; then
+            cat ci_artifacts/pitwall_intelligence/report.md >> "$GITHUB_STEP_SUMMARY"
+          elif test -f ci_artifacts/pitwall_intelligence/error.txt; then
+            echo '### Pit Wall Intelligence Analyzer — FAIL / INCONCLUSIVE' >> "$GITHUB_STEP_SUMMARY"
+            cat ci_artifacts/pitwall_intelligence/error.txt >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo '### Pit Wall Intelligence Analyzer — INCONCLUSIVE: missing report' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Arquivar logs de Godot, evidencias e relatorios
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: apex-pitwall-intelligence-report
+          path: |
+            ci_artifacts/pitwall_intelligence/
+          retention-days: 14
+          if-no-files-found: warn

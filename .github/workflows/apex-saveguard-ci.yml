@@ -17,6 +17,7 @@ on:
     # Include project configuration changes that may affect test behavior.
     branches: [main]
     paths:
+      - 'tests/performance_baseline_06690.gd'
       - 'project.godot'
       - 'scripts/**'
       - 'tests/ci/apex_saveguard_cross_revision.gd'
@@ -66,10 +67,10 @@ jobs:
             -p 'test_apex_saveguard_ci.py' -v
 
       - name: Importar recursos da revisao de referencia
-        run: godot --headless --path baseline --import
+        run: godot --headless --single-threaded-scene --path baseline --import
 
       - name: Importar recursos da versao candidata
-        run: godot --headless --path candidate --import
+        run: godot --headless --single-threaded-scene --path candidate --import
 
       - name: Gerar fixtures reais na base e conferir na candidata
         shell: bash

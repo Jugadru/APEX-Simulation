@@ -10,8 +10,8 @@ config_version=5
 
 [application]
 
-config/name="APEX Motorsport Manager v0.6.6.8.10 — Ordens de Equipe 1.0"
-config/description="v0.6.6.8.10: autorização manual e cancelável para não defender companheiro, com replay determinístico."
+config/name="APEX Motorsport Manager v0.6.6.9.7 — Core 2"
+config/description="v0.6.6.9.7: Pit Coordination 2.0 — fila FIFO na garagem, double stack e liberação segura auditáveis."
 run/main_scene="res://scenes/main.tscn"
 config/use_custom_user_dir=true
 config/custom_user_dir_name="APEX_0650_SOUL_STAFF"

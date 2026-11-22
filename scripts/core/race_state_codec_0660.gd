@@ -3,7 +3,7 @@ extends RefCounted
 const Race = preload("res://scripts/race_engine.gd")
 const SCHEMA := 1
 const CHILDREN := ["weather", "track_dynamics", "telemetry"]
-const EXCLUDED := ["command_session", "rng", "weather", "track_dynamics", "telemetry", "_engineer_advice_cache"]
+const EXCLUDED := ["command_session", "rng", "weather", "track_dynamics", "telemetry", "_engineer_advice_cache", "prediction_ledger", "prediction_staff", "driver_traffic_enabled", "driver_soul3_enabled", "pit_coordination2_enabled", "pit_queue_prevention_enabled"]
 
 static func fields(obj: Object, excluded: Array = [], clone: bool = true) -> Dictionary:
 	var result: Dictionary = {}
@@ -74,12 +74,34 @@ static func digest(value: Variant) -> String:
 	ctx.update(var_to_bytes(value))
 	return ctx.finish().hex_encode()
 
+# 06692: only cache *names* of sporting script properties. Values are read
+# freshly on every tick, and the public fields()/checkpoint schema is untouched.
+# String (not StringName) keys and declaration order preserve var_to_bytes hashes.
+static var _sporting_property_names: Dictionary = {}
+
+static func _sporting_fields(obj: Object, excluded: Array = []) -> Dictionary:
+	var script_ref: Script = obj.get_script()
+	var script_id: int = script_ref.get_instance_id()
+	if not _sporting_property_names.has(script_id):
+		var names: Array[String] = []
+		for prop in script_ref.get_script_property_list():
+			if int(prop.usage) & PROPERTY_USAGE_SCRIPT_VARIABLE:
+				names.append(str(prop.name))
+		_sporting_property_names[script_id] = names
+	var result: Dictionary = {}
+	for key in _sporting_property_names[script_id]:
+		if key in excluded: continue
+		var value: Variant = obj.get(key)
+		assert(not value is Object, "Unregistered checkpoint object: " + key)
+		result[key] = value
+	return result
+
 static func sporting_hash(race, policy: Dictionary) -> String:
-	# All authoritative fields, including event/car/pit histories and RNG.
-	# Telemetry is a derived observer, checked separately on checkpoint round-trips.
-	var e := fields(race, EXCLUDED, false)
+	# Same ordered fields, same hashing input and digest as v0.6.6.9.1.
+	# This is an allocation/reflection optimization, not a replay revision.
+	var e := _sporting_fields(race, EXCLUDED)
 	e.erase("running")
-	return digest([e, race.rng.seed, race.rng.state, fields(race.weather, [], false), fields(race.track_dynamics, [], false), policy])
+	return digest([e, race.rng.seed, race.rng.state, _sporting_fields(race.weather), _sporting_fields(race.track_dynamics), policy])
 
 static func canonical_hash(state: Dictionary) -> String:
 	# For offline audits irrespective of Dictionary insertion order. The hot-path

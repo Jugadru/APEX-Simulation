@@ -1,0 +1,58 @@
+name: APEX - Driver Soul 3.0 (v9.4)
+on:
+  pull_request:
+    paths:
+      - 'scripts/**'
+      - 'tests/driver_soul_06694_test.gd'
+      - 'tests/driver_traffic_06693_test.gd'
+      - 'tests/race_0647_soul2_test.gd'
+      - 'project.godot'
+      - '.github/workflows/apex-driver-soul-ci.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  driver-soul:
+    name: Soul 3.0 / radio factual / 017 + legacy 016 / determinismo
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - name: Godot 4.7.2
+        uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c # v3.0.1
+        with:
+          version: 4.7.2-stable
+      - name: Importar projeto
+        run: godot --headless --single-threaded-scene --path . --import
+      - name: Testar julgamento, radio e compatibilidade historica
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ci_artifacts/driver_soul
+          run_test() {
+            local script="$1"
+            local marker="$2"
+            timeout 180s godot --headless --single-threaded-scene --path . \
+              --script "res://tests/$script" \
+              > "ci_artifacts/driver_soul/${script%.gd}.log" 2>&1 || {
+              cat "ci_artifacts/driver_soul/${script%.gd}.log"
+              exit 1
+            }
+            cat "ci_artifacts/driver_soul/${script%.gd}.log"
+            grep -Fq "$marker" "ci_artifacts/driver_soul/${script%.gd}.log"
+            if grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:|_FAIL)' "ci_artifacts/driver_soul/${script%.gd}.log"; then
+              exit 1
+            fi
+          }
+          run_test driver_soul_06694_test.gd DRIVER_SOUL_06694_PASS
+          run_test driver_traffic_06693_test.gd DRIVER_TRAFFIC_06693_PASS
+          run_test driver_dynamics_0661_test.gd DRIVER_DYNAMICS_0661_PASS
+          run_test race_0647_soul2_test.gd SOUL2_PASS
+      - name: Guardar logs para auditoria
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apex-driver-soul-06694
+          path: ci_artifacts/driver_soul/
+          retention-days: 14
+          if-no-files-found: warn

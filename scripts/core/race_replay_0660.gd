@@ -2,9 +2,16 @@ extends RefCounted
 const Codec = preload("res://scripts/core/race_state_codec_0660.gd")
 const RacecraftAudit = preload("res://scripts/core/racecraft_audit_0662.gd")
 const Engineer = preload("res://scripts/core/race_engineer_0639.gd")
+const Perf = preload("res://scripts/debug/apex_perf_trace_0657.gd")
 const STEP := 0.20
 # A replay is tied to the exact sporting rules, not only its Godot runtime.
-const SIMULATION_REVISION := "066810_team_yield"
+const SIMULATION_REVISION := "019_last_legal_pit_queue_v1"
+const PIT_COORDINATION_SIMULATION_REVISION := "018_pit_coordination_v1"
+const SOUL_SIMULATION_REVISION := "017_driver_soul_v1"
+const TRAFFIC_SIMULATION_REVISION := "016_driver_traffic_v1"
+const BASELINE_SIMULATION_REVISION := "015_weather_setup_v1"
+const PREVIOUS_SIMULATION_REVISION := "014_launch_v1"
+const LEGACY_SIMULATION_REVISION := "066810_team_yield"
 const CHECKPOINT_TICKS := 300
 const MAX_CHECKPOINTS := 9
 # 0666: at most four compressed, RAM-only seek anchors. Never serialized.
@@ -26,6 +33,16 @@ var cursor: int = 0
 var sequence: int = 0
 var applying: bool = false
 var playback: bool = false
+# Session-only switch; never enters a checkpoint or sporting hash.
+# Legacy archives continue under the exact pre-launch race pace contract.
+var legacy_launch_physics: bool = false
+var legacy_traffic_physics: bool = false
+var legacy_soul_physics: bool = false
+# 018 only: keep old 017 pit queue order when replaying archived races.
+var legacy_pit_coordination: bool = false
+# 019 only: disable new anticipatory decisions for archived 018 and older.
+var legacy_pit_queue_prevention: bool = false
+var recorded_simulation_revision: String = SIMULATION_REVISION
 var policy: Dictionary = {"modes": {}, "fingerprints": {}, "staff": {}}
 var checkpoints: Array = []
 var hot_seek_checkpoints: Array = []
@@ -39,6 +56,16 @@ var racecraft_audit_enabled: bool = true
 var racecraft_audit = RacecraftAudit.new()
 
 func attach(engine, modes: Dictionary = {}, staff: Dictionary = {}) -> void:
+	legacy_launch_physics = false
+	legacy_traffic_physics = false
+	legacy_soul_physics = false
+	legacy_pit_coordination = false
+	legacy_pit_queue_prevention = false
+	recorded_simulation_revision = SIMULATION_REVISION
+	engine.driver_traffic_enabled = true
+	engine.driver_soul3_enabled = true
+	engine.pit_coordination2_enabled = true
+	engine.pit_queue_prevention_enabled = true
 	race = engine
 	race.command_session = weakref(self)
 	policy = {"modes": modes.duplicate(true), "fingerprints": {}, "staff": staff.duplicate(true)}
@@ -204,7 +231,10 @@ func step_tick() -> bool:
 	race._engineer_advice_cache = ui_cache
 	applying = false
 	tick += 1
+	# 06692: diagnostic only; measured inside the actual tick pipeline.
+	var perf_hash_started: int = Perf.begin() if Perf.enabled else 0
 	var value := Codec.sporting_hash(race,policy)
+	if Perf.enabled: Perf.end(&"replay.sporting_hash", perf_hash_started)
 	if playback:
 		if tick > hashes.size() or value != hashes[tick-1]:
 			first_divergence = tick
@@ -313,6 +343,10 @@ func seek(target: int) -> bool:
 		if restored == null:
 			return fail("Checkpoint incompatível.")
 		race = restored
+		race.driver_traffic_enabled = not legacy_traffic_physics
+		race.driver_soul3_enabled = not legacy_soul_physics
+		race.pit_coordination2_enabled = not legacy_pit_coordination
+		race.pit_queue_prevention_enabled = not legacy_pit_queue_prevention
 		race.command_session = weakref(self)
 		tick = int(chosen.tick)
 		cursor = int(chosen.cursor)
@@ -339,7 +373,7 @@ func export_data() -> Dictionary:
 	var legacy: Array = _export_checkpoints()
 	if legacy.is_empty():
 		return {}
-	return {"format":"APEX_REPLAY_0660", "simulation_revision": SIMULATION_REVISION, "runtime":Engine.get_version_info().string, "step":STEP, "end_tick":end_tick, "commands":commands.duplicate(true), "hashes":hashes.duplicate(), "checkpoints":legacy}
+	return {"format":"APEX_REPLAY_0660", "simulation_revision": recorded_simulation_revision, "runtime":Engine.get_version_info().string, "step":STEP, "end_tick":end_tick, "commands":commands.duplicate(true), "hashes":hashes.duplicate(), "checkpoints":legacy}
 
 # 0664 Replay Session Fork 1.0: only for locally recorded sessions.
 # The in-memory replay is copied from the recorder's *packed* checkpoints;
@@ -370,6 +404,12 @@ func load_live_session(recorded) -> bool:
 	hashes = recorded.hashes.duplicate()
 	checkpoints = recorded.checkpoints.duplicate(true)
 	end_tick = recorded.end_tick
+	legacy_launch_physics = bool(recorded.legacy_launch_physics)
+	legacy_traffic_physics = bool(recorded.legacy_traffic_physics)
+	legacy_soul_physics = bool(recorded.legacy_soul_physics)
+	legacy_pit_coordination = bool(recorded.legacy_pit_coordination)
+	legacy_pit_queue_prevention = bool(recorded.legacy_pit_queue_prevention)
+	recorded_simulation_revision = str(recorded.recorded_simulation_revision)
 	playback = true
 	if not seek(0):
 		# No half-initialized playback should be exposed to the HUD.
@@ -385,7 +425,8 @@ func load_data(data: Dictionary) -> bool:
 	# Validate before touching this session; caller creates a fresh controller.
 	# v0.6.6.0 recordings have different physics and must not be replayed under
 	# v0.6.6.1 rules: silently accepting them would mislabel desync as corruption.
-	if data.get("simulation_revision", "") != SIMULATION_REVISION:
+	var archive_revision: String = str(data.get("simulation_revision", ""))
+	if archive_revision not in [SIMULATION_REVISION, PIT_COORDINATION_SIMULATION_REVISION, SOUL_SIMULATION_REVISION, TRAFFIC_SIMULATION_REVISION, BASELINE_SIMULATION_REVISION, PREVIOUS_SIMULATION_REVISION, LEGACY_SIMULATION_REVISION]:
 		error = "Replay de outra revisão da simulação. Use a versão que o gravou."
 		return false
 	if data.get("format") != "APEX_REPLAY_0660" or data.get("runtime") != Engine.get_version_info().string or data.get("step") != STEP:
@@ -428,6 +469,12 @@ func load_data(data: Dictionary) -> bool:
 	for i in range(1, data.checkpoints.size()):
 		checkpoints.append(_packed_checkpoint(data.checkpoints[i].duplicate(true)))
 	end_tick=data.end_tick
+	legacy_launch_physics = archive_revision == LEGACY_SIMULATION_REVISION
+	legacy_traffic_physics = archive_revision not in [SIMULATION_REVISION, PIT_COORDINATION_SIMULATION_REVISION, SOUL_SIMULATION_REVISION, TRAFFIC_SIMULATION_REVISION]
+	legacy_soul_physics = archive_revision not in [SIMULATION_REVISION, PIT_COORDINATION_SIMULATION_REVISION, SOUL_SIMULATION_REVISION]
+	legacy_pit_coordination = archive_revision not in [SIMULATION_REVISION, PIT_COORDINATION_SIMULATION_REVISION]
+	legacy_pit_queue_prevention = archive_revision != SIMULATION_REVISION
+	recorded_simulation_revision = archive_revision
 	playback=true
 	return seek(0)
 

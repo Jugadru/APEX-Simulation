@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://djfpo4650mo3k"
+
+[deps]
+
+files=["res://docs/arquivo/resultados/RESULTADOS_CARREIRA_8_GP_0645.GP.translation", "res://docs/arquivo/resultados/RESULTADOS_CARREIRA_8_GP_0645.voltas.translation", "res://docs/arquivo/resultados/RESULTADOS_CARREIRA_8_GP_0645.ticks.translation", "res://docs/arquivo/resultados/RESULTADOS_CARREIRA_8_GP_0645.tempo.translation", "res://docs/arquivo/resultados/RESULTADOS_CARREIRA_8_GP_0645.vencedor.translation", "res://docs/arquivo/resultados/RESULTADOS_CARREIRA_8_GP_0645.paradas.translation", "res://docs/arquivo/resultados/RESULTADOS_CARREIRA_8_GP_0645.Ferrari.translation", "res://docs/arquivo/resultados/RESULTADOS_CARREIRA_8_GP_0645.premio.translation", "res://docs/arquivo/resultados/RESULTADOS_CARREIRA_8_GP_0645.despesa.translation", "res://docs/arquivo/resultados/RESULTADOS_CARREIRA_8_GP_0645.saldo.translation", "res://docs/arquivo/resultados/RESULTADOS_CARREIRA_8_GP_0645.motor.translation", "res://docs/arquivo/resultados/RESULTADOS_CARREIRA_8_GP_0645.asa.translation", "res://docs/arquivo/resultados/RESULTADOS_CARREIRA_8_GP_0645.chassi.translation", "res://docs/arquivo/resultados/RESULTADOS_CARREIRA_8_GP_0645.upgrades.translation"]
+
+source_file="res://docs/arquivo/resultados/RESULTADOS_CARREIRA_8_GP_0645.csv"
+dest_files=["res://docs/arquivo/resultados/RESULTADOS_CARREIRA_8_GP_0645.GP.translation", "res://docs/arquivo/resultados/RESULTADOS_CARREIRA_8_GP_0645.voltas.translation", "res://docs/arquivo/resultados/RESULTADOS_CARREIRA_8_GP_0645.ticks.translation", "res://docs/arquivo/resultados/RESULTADOS_CARREIRA_8_GP_0645.tempo.translation", "res://docs/arquivo/resultados/RESULTADOS_CARREIRA_8_GP_0645.vencedor.translation", "res://docs/arquivo/resultados/RESULTADOS_CARREIRA_8_GP_0645.paradas.translation", "res://docs/arquivo/resultados/RESULTADOS_CARREIRA_8_GP_0645.Ferrari.translation", "res://docs/arquivo/resultados/RESULTADOS_CARREIRA_8_GP_0645.premio.translation", "res://docs/arquivo/resultados/RESULTADOS_CARREIRA_8_GP_0645.despesa.translation", "res://docs/arquivo/resultados/RESULTADOS_CARREIRA_8_GP_0645.saldo.translation", "res://docs/arquivo/resultados/RESULTADOS_CARREIRA_8_GP_0645.motor.translation", "res://docs/arquivo/resultados/RESULTADOS_CARREIRA_8_GP_0645.asa.translation", "res://docs/arquivo/resultados/RESULTADOS_CARREIRA_8_GP_0645.chassi.translation", "res://docs/arquivo/resultados/RESULTADOS_CARREIRA_8_GP_0645.upgrades.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

@@ -33,7 +33,8 @@ class ScenarioMatrixContractTests(unittest.TestCase):
             "finished_cars": 24, "classified_positions": list(range(1, 25)),
             "race_hash": "f" * 64, "pits_total": 2, "max_stops": 1,
             "pit_laps_by_player": [[6], [7]] if scenario["mode"] != "IA" else [[], []],
-            "disqualified": 0, "wetness_peak": 0.58 if scenario["weather"] == "Chuva intensa" else 0.0,
+            "disqualified": 0, "disqualification_evidence": [],
+            "wetness_peak": 0.58 if scenario["weather"] == "Chuva intensa" else 0.0,
             "on_track_pass_events": 5,  # nosec B105: sporting overtakes, not a password
         }
 
@@ -134,6 +135,31 @@ class ScenarioMatrixContractTests(unittest.TestCase):
             with self.subTest(change=change):
                 with self.assertRaises(matrix.MatrixError):
                     matrix._validated(bad, case)
+
+    def test_disqualification_evidence_is_validated_and_deterministic(self):
+        case = matrix.plan(self.root, "smoke", 0, 4, 12012)[0]
+        row = self.good(case)
+        entry = {
+            "car_id": 12, "driver": "Paul di Resta", "team": "Force India Mercedes",
+            "used_tires": ["Médio", "Médio"], "tyre_rule_violation": True,
+            "tire": "Médio", "stops": 1,
+        }
+        row["disqualified"] = 1
+        row["disqualification_evidence"] = [entry]
+        self.assertEqual(matrix._validated(row, case)["disqualified"], 1)
+        for mutation in [
+            {"disqualification_evidence": []},
+            {"disqualification_evidence": [dict(entry, car_id=-1)]},
+            {"disqualification_evidence": [entry, entry]},
+        ]:
+            with self.subTest(mutation=mutation):
+                bad = {**row, **mutation}
+                with self.assertRaisesRegex(matrix.MatrixError, "disqualification evidence"):
+                    matrix._validated(bad, case)
+        self.write(case, 1, row)
+        self.write(case, 2, {**row, "disqualification_evidence": [dict(entry, car_id=13)]})
+        with self.assertRaisesRegex(matrix.MatrixError, "NONDETERMINISTIC"):
+            matrix.validate(self.root, self.output, "smoke", 0, 4, 12012)
 
     def test_markdown_shows_warning_reasons(self):
         case = matrix.plan(self.root, "smoke", 0, 4, 12012)[0]

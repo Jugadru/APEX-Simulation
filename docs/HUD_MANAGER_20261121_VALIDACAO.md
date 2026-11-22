@@ -1,5 +1,7 @@
 # HUD Manager implementação e validação
 
+Atualização de 22/11/2026: integrada à main `8e5f176` (v0.6.6.9.7.1), preservando os novos módulos da HUD e os sistemas esportivos. As capturas em `after/` foram regeneradas nessa integração. Os resultados de 21/11 abaixo são históricos; a nova bateria está em `qa/hud_merge_20261122/`.
+
 Primeira versão funcional inspirada na composição da HUD de corrida do F1 Manager 2024. Base: APEX Core 2 v0.6.6.8.10, commit `65b93fa`. Branch local: `feat/hud-manager-reference-20261121`. A cópia anterior em `apex-security-b108-git` permanece independente.
 
 ## Resultado visual
