@@ -1,4 +1,4 @@
-# APEX v0.6.6.9.6 — Pit Wall Prediction Ledger 1.0 (CANDIDATE)
+# APEX v0.6.6.9.6 — Pit Wall Prediction Ledger 1.0 (INTEGRADA À MAIN)
 
 **Base:** `main` em `2364be6a5d138d6b9cf56c29a3336c1b166527b0`, Race Radio 3.0. Uma única funcionalidade: previsões versus resultados verificáveis.
 
@@ -19,13 +19,13 @@ Após **três** saídas de pit verificadas da **mesma equipe e nível de estrate
 
 **Limitações explícitas v1:** recomendações e agendamentos são preservados no instante da decisão e ligados à entrada se executados; **somente o snapshot de entrada** é pontuado contra os resultados subsequentes, para não comparar clima de V4 com V24. Agendamentos cancelados não geram resultados fictícios. O ledger é diagnóstico **da sessão ativa**; não é salvo automaticamente na carreira nem exportado como replay histórico. Resultados de ritmo de cinco voltas são aproximações; a diferença relativa de tempo contra o mesmo rival (sem pit rival) pode ser medida e contrastada com previsão de ritmo, mas **não** prova quanto se ganharia se o próprio piloto tivesse permanecido na pista. Uma diferença de posição não prova por si só uma causa específica de tráfego. Uma segunda parada interrompe a verificação do mesmo composto.
 
-## QA de liberação (NÃO CONFIRMADA)
+## QA de liberação (VERIFICADA)
 
-A PR deve executar o Godot 4.7.2, as regressões da v0.6.6.9.5 e Pit Wall V21, replay, saves antigos, benchmarking e inspeção visual real. Resultados específicos devem ser consultados na execução de GitHub Actions vinculada ao commit mais recente; **não reaproveitar PASS de commits anteriores**. Uma PR aberta não é release estável. A fonte de evidência será o CI do commit exato.
+**18/18 workflows PASS** no commit candidato `72d2bcedcafe9c993330738658fce856bc65f861`, incluindo importação Godot 4.7.2, 28 verificações dedicadas, Race Radio 3.0 (69), Pit Wall V21, replay Monza 53 voltas, SaveGuard, benchmarks, regressão visual, 20 circuitos, GdUnit4 e exportações Linux/Windows. [Evidências por SHA](https://github.com/Jugadru/APEX-Simulation/commit/72d2bcedcafe9c993330738658fce856bc65f861/checks). O Quality Gate passou para **READY 10/10** após reexecutar a auditoria com todas as evidências disponíveis, [run `44970898010`](https://github.com/Jugadru/APEX-Simulation/actions/runs/44970898010). A [PR #80](https://github.com/Jugadru/APEX-Simulation/pull/80) foi mesclada na `main` no commit `3c0d99a6dca921ee0abea86f7d9d1f522f9e052a`. Os testes não representam validação gráfica nativa no PC Windows do usuário.
 
 ## Rollback
 
-Não alterar `main` antes dos gates. Para reverter, fechar a PR/descartar a branch, deixando `main` no commit original.
+A atualização já foi integrada. Em caso de regressão comprovada, realizar `git revert 3c0d99a6dca921ee0abea86f7d9d1f522f9e052a` em branch de correção e aprovar uma nova PR após regressões, preservando o histórico da `main`.
 
 ## CI: robustez de importação
 
