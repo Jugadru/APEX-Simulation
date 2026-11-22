@@ -48,3 +48,7 @@ segurança de BOX manual V21, determinismo das sementes, saves antigos,
 ausência de novos problemas de CPU/visual, e exportação Windows/Linux.
 As execuções são evidências técnicas; não substituem testes manuais
 de jogabilidade.
+
+## Dynamic Quality Gate 2.0
+
+O registro .github/apex-quality-suites.json incorpora automaticamente testes FAST e verificações FULL de funcionalidades novas. O gate exige as dez verificações históricas e os quatro shards da matriz de circuitos, sem contagem fixa de READY. O manifesto confiável da branch padrão é combinado com o candidato para impedir remoção de exigências. Para FULL-180, aplicar ci:full e ci:extended; leia as condições de obrigatoriedade e a ressalva de validação manual em docs/APEX_REGRAS_DESENVOLVIMENTO_2_0.md.

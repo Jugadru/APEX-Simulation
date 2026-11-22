@@ -1,4 +1,4 @@
-name: APEX - Quality Gate 1.0
+name: APEX - Quality Gate 2.0
 
 on:
   workflow_dispatch:
@@ -33,7 +33,6 @@ concurrency:
 
 jobs:
   quality-gate-unit:
-    if: ${{ github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'ci:full') }}
     name: Quality Gate / testes de contrato
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -43,7 +42,8 @@ jobs:
       - name: Exercitar criterio fail-closed sem depender de rede
         run: |
           python3 -m unittest discover -s tools/tests \
-            -p 'test_apex_quality_gate.py' -v
+            -p 'test_apex_quality_gate*.py' -v
+          python3 -m unittest discover -s tools/tests -p 'test_apex_dynamic_quality_gate.py' -v
 
   quality-gate-evidence:
     if: ${{ github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'ci:full') }}
@@ -79,12 +79,16 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p ci_artifacts/quality_gate
+          TRUSTED_ARGS=()
+          if grep -Fq -- '--trusted-project' gate/tools/apex_quality_gate.py; then
+            TRUSTED_ARGS=(--trusted-project gate)
+          fi
           if [[ "$APEX_AUTOMATED_FULL" != "true" ]]; then
             python3 gate/tools/apex_quality_gate.py \
               --repository "$GITHUB_REPOSITORY" --sha "$APEX_TARGET_SHA" \
               --mode "$APEX_MODE" --wait-seconds 90 \
               --pr-number "$APEX_PR_NUMBER" --base-sha "$APEX_BASE_SHA" \
-              --project candidate --output ci_artifacts/quality_gate
+              --project candidate "${TRUSTED_ARGS[@]}" --output ci_artifacts/quality_gate
             exit 0
           fi
           # The reliable FULL gate polls only once per minute to limit API calls,
@@ -94,13 +98,13 @@ jobs:
               --repository "$GITHUB_REPOSITORY" --sha "$APEX_TARGET_SHA" \
               --mode audit --wait-seconds 0 \
               --pr-number "$APEX_PR_NUMBER" --base-sha "$APEX_BASE_SHA" \
-              --project candidate --output ci_artifacts/quality_gate
+              --project candidate "${TRUSTED_ARGS[@]}" --output ci_artifacts/quality_gate
             verdict=$(python3 - <<'PY'
           import json
           from pathlib import Path
           data = json.loads(Path("ci_artifacts/quality_gate/report.json").read_text())
           statuses = {item["status"] for item in data["checks"]}
-          if data["status"] == "READY" and (data["passed"], data["total"]) == (10, 10):
+          if data["status"] == "READY" and data["passed"] == data["total"] and data["total"] >= 10:
               print("READY")
           elif statuses.intersection({"FAILED", "JOB_NOT_SUCCESSFUL", "MISSING_WORKFLOW"}):
               print("FAILED")
@@ -110,7 +114,7 @@ jobs:
             )
             echo "APEX_CI_FULL_GATE attempt=$attempt verdict=$verdict sha=$APEX_TARGET_SHA"
             if [[ "$verdict" == "READY" ]]; then
-              echo "APEX_CI_FULL_GATE_READY 10/10 sha=$APEX_TARGET_SHA"
+              echo "APEX_CI_FULL_GATE_READY dynamic sha=$APEX_TARGET_SHA"
               exit 0
             fi
             if [[ "$verdict" == "FAILED" ]]; then
@@ -134,7 +138,7 @@ jobs:
             cat ci_artifacts/quality_gate/error.txt >> "$GITHUB_STEP_SUMMARY"
           fi
           echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo 'PR ci:full exige READY 10/10 no SHA exato. AUDIT manual e informativo; branch protection e independente.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'PR ci:full exige READY para todos os checks, inclusive manifesto do SHA exato. AUDIT manual e informativo; branch protection e independente.' >> "$GITHUB_STEP_SUMMARY"
 
       - name: Guardar matriz de verificacao
         if: always()

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""APEX Quality Gate 1.0 — truthful, commit-specific CI evidence.
+"""APEX Quality Gate 2.0 — truthful, commit-specific CI evidence.
 
 A successful run from a different branch, commit, or unrelated pull request is
 NEVER sufficient. Audit mode reports missing checks without pretending they
@@ -18,6 +18,7 @@ import re
 import sys
 import time
 from typing import Any
+from apex_quality_manifest import load_suites, full_checks
 from urllib import parse
 
 SHA_RE = re.compile(r"^[0-9a-fA-F]{40}$")
@@ -83,7 +84,7 @@ class GitHubAPI:
             "Authorization": "Bearer " + self.token,
             "Accept": "application/vnd.github+json",
             "X-GitHub-Api-Version": "2022-11-28",
-            "User-Agent": "APEX-Quality-Gate/1.0",
+            "User-Agent": "APEX-Quality-Gate/2.0",
         }
         conn = client.HTTPSConnection("api.github.com", timeout=20)
         try:
@@ -251,7 +252,7 @@ def assess(installed: set[str], runs: list[dict], sha: str, jobs_loader,
 
 def markdown_report(data: dict, mode: str) -> str:
     result = [
-        "### APEX Quality Gate 1.0 — relatório por commit",
+        "### APEX Quality Gate 2.0 — relatório por commit",
         "",
         f"**Readiness: {data['status']}** | **Modo: {mode.upper()}** | {data['passed']}/{data['total']} checks.",
         "",
@@ -275,22 +276,39 @@ def markdown_report(data: dict, mode: str) -> str:
         if item["status"] != "PASSED":
             result.append(f"- **{item['key']}** ({item['status']}): {item['note']}")
     if data["status"] == "READY":
-        result.append("- Nenhuma pendência detectada nas dez verificações desta política.")
+        result.append("- Nenhuma pendência detectada nas verificações obrigatórias desta política.")
     result.extend(["", "#### Limites"] + ["- " + v for v in data["limitations"]] + [""])
     return "\n".join(result)
 
 
 def run_gate(root: Path, repository: str, sha: str, mode: str,
              output: Path, api: GitHubAPI,
-             pr_number: int = 0, base_sha: str = "") -> tuple[int, dict]:
+             pr_number: int = 0, base_sha: str = "",
+             trusted_project: Path | None = None) -> tuple[int, dict]:
     validate_identity(repository, sha)
     validate_pr_context(pr_number, base_sha)
     workflow_dir = root / ".github" / "workflows"
     installed = {path.name for path in workflow_dir.glob("*.yml")} | {
         path.name for path in workflow_dir.glob("*.yaml")
     }
-    report = assess(installed, api.runs(sha), sha, api.jobs,
-                    pr_number=pr_number, base_sha=base_sha)
+    suites = load_suites(root, trusted_project)
+    extra = full_checks(suites)
+    if any(item["key"] in {req.key for req in REQUIREMENTS} for item in extra):
+        raise GateError("Manifest duplicates a protected built-in check key")
+    checks = REQUIREMENTS + tuple(
+        Requirement(len(REQUIREMENTS) + idx + 1,
+                    item["key"], item["workflow"], item["job"], item["area"],
+                    item["comparison"])
+        for idx, item in enumerate(extra)
+    )
+    # A four-shard workflow should be fetched once, not once per shard.
+    cache: dict[int, list[dict]] = {}
+    def cached_jobs(run_id: int) -> list[dict]:
+        if run_id not in cache:
+            cache[run_id] = api.jobs(run_id)
+        return cache[run_id]
+    report = assess(installed, api.runs(sha), sha, cached_jobs,
+                    checks=checks, pr_number=pr_number, base_sha=base_sha)
     report["mode"] = mode
     report["repository"] = repository
     output.mkdir(parents=True, exist_ok=True)
@@ -315,6 +333,8 @@ def main() -> int:
         help="Bounded retry for still-pending workflows (never treats missing as success)",
     )
     parser.add_argument("--project", type=Path, default=Path("."))
+    parser.add_argument("--trusted-project", type=Path, default=None,
+                        help="Trusted base checkout; candidate cannot remove its required checks")
     parser.add_argument("--output", type=Path, default=Path("ci_artifacts/quality_gate"))
     args = parser.parse_args()
     output = args.output.resolve()
@@ -329,7 +349,8 @@ def main() -> int:
         while True:
             code, report = run_gate(
                 args.project.resolve(), args.repository, args.sha, args.mode,
-                output, api, args.pr_number, args.base_sha
+                output, api, args.pr_number, args.base_sha,
+                args.trusted_project.resolve() if args.trusted_project else None
             )
             # Never wait when dependent workflows are not installed; report
             # the correct MISSING_WORKFLOW state immediately.
@@ -349,7 +370,7 @@ def main() -> int:
             flush=True
         )
         return code
-    except (OSError, GateError, KeyError, TypeError) as exc:
+    except (OSError, GateError, ValueError, KeyError, TypeError) as exc:
         (output / "error.txt").write_text(str(exc) + "\n", encoding="utf-8")
         print("APEX_QUALITY_GATE_ERROR " + str(exc), file=sys.stderr, flush=True)
         return 2

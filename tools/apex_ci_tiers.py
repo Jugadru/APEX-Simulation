@@ -6,6 +6,7 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+from apex_quality_manifest import load_suites, fast_tests_for
 
 SHA = re.compile(r"[0-9a-fA-F]{40}\Z")
 ALWAYS = (
@@ -58,12 +59,17 @@ def categories_for(paths: list[str]) -> set[str]:
             if "driver" in name or "soul" in name: local.add("driver")
             if "replay" in name or "codec" in name: local.update(("wet", "staff", "prediction"))
             # Unknown Core module gets more tests, not fewer.
-            if not local and path.endswith(".gd"): local.update(("ai", "orders", "wet"))
+            if not local and path.endswith(".gd"): local.update(CASES)
         if path.startswith("scripts/") and ("hud" in name or "panel" in name):
             local.add("hud")
         if path.startswith("tests/") and path.endswith(".gd"):
             for category, (script, _) in CASES.items():
                 if path == "tests/" + script: local.add(category)
+        # Unknown modules outside Core are also high-risk until registered.
+        if not local and path.startswith("scripts/") and path.endswith(".gd"):
+            local.update(CASES)
+        if not local and path.startswith("data/") and path.endswith((".json", ".csv", ".tres")):
+            local.update(CASES)
         categories.update(local)
     return categories
 
@@ -72,6 +78,11 @@ def select(paths: list[str], root: Path) -> list[tuple[str, str]]:
     for category in sorted(categories_for(paths)):
         script, marker = CASES[category]
         if (root / "tests" / script).is_file() and (script, marker) not in chosen:
+            chosen.append((script, marker))
+    for script, marker in fast_tests_for(paths, load_suites(root)):
+        if not (root / 'tests' / script).is_file():
+            raise ValueError('Missing mandatory FAST test: tests/' + script)
+        if (script, marker) not in chosen:
             chosen.append((script, marker))
     return chosen
 
