@@ -103,7 +103,22 @@ jobs:
         run: godot --headless --single-threaded-scene --path base --import
 
       - name: Importar candidata
-        run: godot --headless --single-threaded-scene --path candidate --import
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Preserve semantic failures: retry only intermittent engine crashes.
+          for attempt in 1 2 3; do
+            set +e
+            godot --headless --single-threaded-scene --path candidate --import > "candidate-import-${attempt}.log" 2>&1
+            status=$?
+            set -e
+            cat "candidate-import-${attempt}.log"
+            if grep -Eiq 'SCRIPT ERROR:|Parse Error:' "candidate-import-${attempt}.log"; then exit 1; fi
+            if ((status==0)); then exit 0; fi
+            if ((status!=134 && status!=139)); then exit "$status"; fi
+            echo "::warning::Transient Godot import crash (exit $status), attempt $attempt/3"
+          done
+          exit 139
 
       - name: Rodar benchmarks alternados
         shell: bash

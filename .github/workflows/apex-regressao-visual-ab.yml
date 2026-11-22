@@ -80,10 +80,27 @@ jobs:
           echo 'APEX_VISUAL_AB_SAME_FIXTURE'
 
       - name: Importar projeto de referencia
-        run: godot --headless --path baseline --import
+        run: godot --headless --single-threaded-scene --path baseline --import
 
       - name: Importar projeto candidato
-        run: godot --headless --path candidate --import
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Godot 4.7.2 can sporadically crash in headless import with a
+          # threaded scene tree (signal 11/134). Retry *only* engine crashes,
+          # never hide parser failures, and preserve logs per attempt.
+          for attempt in 1 2 3; do
+            set +e
+            godot --headless --single-threaded-scene --path candidate --import > "candidate-import-${attempt}.log" 2>&1
+            status=$?
+            set -e
+            cat "candidate-import-${attempt}.log"
+            if grep -Eiq 'SCRIPT ERROR:|Parse Error:' "candidate-import-${attempt}.log"; then exit 1; fi
+            if ((status==0)); then exit 0; fi
+            if ((status!=134 && status!=139)); then exit "$status"; fi
+            echo "::warning::Transient Godot import crash (exit $status), attempt $attempt/3"
+          done
+          exit 139
 
       - name: Gerar imagens reais da versao de referencia
         shell: bash
@@ -96,7 +113,7 @@ jobs:
           export XDG_CACHE_HOME="$HOME/cache"
           mkdir -p "$HOME" "$XDG_DATA_HOME" "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME"
           xvfb-run -a -s '-screen 0 1920x1080x24' \
-            godot --path baseline \
+            godot --single-threaded-scene --path baseline \
               --rendering-method gl_compatibility \
               --rendering-driver opengl3 \
               --script res://tests/ci/apex_capture_screenshots.gd \
@@ -117,7 +134,7 @@ jobs:
           export XDG_CACHE_HOME="$HOME/cache"
           mkdir -p "$HOME" "$XDG_DATA_HOME" "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME"
           xvfb-run -a -s '-screen 0 1920x1080x24' \
-            godot --path candidate \
+            godot --single-threaded-scene --path candidate \
               --rendering-method gl_compatibility \
               --rendering-driver opengl3 \
               --script res://tests/ci/apex_capture_screenshots.gd \

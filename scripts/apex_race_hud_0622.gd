@@ -21,6 +21,7 @@ const SoulReactive = preload("res://scripts/core/race_soul_reactive_0637.gd")
 const Engineer2 = preload("res://scripts/core/race_engineer_0645.gd")
 const Engineer3 = preload("res://scripts/core/race_engineer_0646.gd")
 const DriverSoul2 = preload("res://scripts/core/race_driver_soul_0647.gd")
+const Radio3 = preload("res://scripts/presentation/race_radio_06695.gd")
 const TeamRadioAdvice = preload("res://scripts/core/race_team_radio_advice_06689.gd")
 const RaceEngineer = preload("res://scripts/core/race_engineer_0639.gd")
 const PitWallIntel = preload("res://scripts/core/race_pitwall_intelligence_0640.gd")
@@ -85,6 +86,8 @@ var radio_reactive_latest: String = "Aguardando acontecimentos da corrida."
 var radio_soul_status: Label
 var radio_soul_request_label: Label
 var radio_soul_notified: Dictionary = {}
+# Race Radio 3.0: HUD-only bounded conversation state, never saved in race.
+var radio3_memories: Dictionary = {}
 var radio_soul_last_refresh: float = -999.0
 var media_buttons: Array = []
 var speed_index: int = 0
@@ -307,6 +310,7 @@ func begin_race() -> void:
 	radio_stint_memory.clear()
 	radio_soul_profiles.clear()
 	radio_soul_notified.clear()
+	radio3_memories.clear()
 	radio_reactive_memories.clear()
 	radio_reactive_event_id = 0
 	radio_reactive_last_check = -999.0
@@ -1160,6 +1164,10 @@ func _announce_soul_requests() -> void:
 		var name: String = str(car.get("name", "Piloto"))
 		var message: String = str(request.get("message", ""))
 		var reason: String = str(request.get("reason", ""))
+		var words: Dictionary = Radio3.driver(car, str(request.get("kind", "")), {
+			"lap": int(request.get("lap", 0)), "event_id": -1})
+		if not words.is_empty():
+			message = str(words["text"])
 		radio_reactive_latest = "PEDIDO · %s: %s" % [name, message]
 		if radio_reactive_toast != null:
 			radio_reactive_toast.text = "📻  %s: %s" % [name, message]
@@ -1192,12 +1200,17 @@ func _answer_soul_request(choice: String) -> void:
 		radio_response_label.text = str(answer.get("reason", "Pedido já respondido."))
 		return
 	var name: String = str(car.get("name", "Piloto"))
-	radio_response_label.text = "%s: %s\nENGENHEIRO: %s" % [
-		name, str(answer.get("driver", "")), str(answer.get("engineer", ""))]
+	var driver_words: String = str(answer.get("driver", ""))
+	var engineer_words: String = str(answer.get("engineer", ""))
+	var brief: Dictionary = Radio3.choice_response(car, choice)
+	if not brief.is_empty():
+		driver_words = str(brief["text"])
+		engineer_words = "Copy. We're reviewing it. No pit or pace order changed."
+	radio_response_label.text = "%s: %s\nENGENHEIRO: %s" % [name, driver_words, engineer_words]
 	if host.commentary != null:
 		host.commentary.add_soul_alignment(float(host.race.clock), name,
 			"Pedido %s — %s" % [str(request.get("kind", "")), choice],
-			str(answer.get("driver", "")), str(answer.get("engineer", "")), car_id)
+			driver_words, engineer_words, car_id)
 	_update_soul_status()
 	_set_radio_category(2)
 
@@ -1234,6 +1247,20 @@ func _update_reactive_radio() -> void:
 		var name: String = str(result.get("car_name", "Piloto"))
 		var driver_words: String = str(result.get("message", ""))
 		var engineer_words: String = str(result.get("engineer", ""))
+		var context: Dictionary = {"lap": int(car.get("laps_done", 0)),
+			"event_id": -1, "priority": 60}
+		var previous: Dictionary = radio3_memories.get(car_id, {})
+		var packet: Dictionary = Radio3.driver(car, str(result.get("kind", "")), context, previous)
+		if not packet.is_empty():
+			if not Radio3.should_transmit(packet, previous):
+				continue
+			driver_words = str(packet["text"])
+			var engineer_packet: Dictionary = Radio3.engineer(car, str(result.get("kind", "")), {
+				"lap": int(car.get("laps_done", 0)),
+				"conversation_id": str(packet.get("conversation_id", ""))})
+			if not engineer_packet.is_empty():
+				engineer_words = str(engineer_packet["text"])
+			radio3_memories[car_id] = Radio3.remember(previous, packet)
 		radio_reactive_latest = "%s · %s: %s" % [str(result.get("kind", "alerta")).to_upper(), name, driver_words]
 		if radio_reactive_toast != null:
 			radio_reactive_toast.text = "📻  %s: %s" % [name, driver_words]
@@ -1263,9 +1290,14 @@ func _update_soul_status() -> void:
 		if request.is_empty():
 			radio_soul_request_label.text = "SOUL · Nenhum pedido contextual nesta corrida."
 		else:
+			var request_words: String = str(request.get("message", ""))
+			var packet: Dictionary = Radio3.driver(car, str(request.get("kind", "")),
+				{"lap": int(request.get("lap", 0))})
+			if not packet.is_empty():
+				request_words = str(packet["text"])
 			radio_soul_request_label.text = "V%d · %s: %s [%s]" % [
 				int(request.get("lap", 0)), str(request.get("kind", "")).to_upper(),
-				str(request.get("message", "")),
+				request_words,
 				"RESPONDIDO" if bool(request.get("answered", false)) else "AGUARDANDO RESPOSTA"]
 	radio_soul_last_refresh = float(host.race.clock)
 
@@ -1308,8 +1340,13 @@ func _ask_driver() -> void:
 		return
 	var driver_name: String = str(thought["car_name"])
 	var impression: String = str(thought["message"])
+	var pilot_car: Dictionary = host._car_by_id(car_id)
+	var radio3_words: Dictionary = Radio3.consultation(pilot_car, "perception",
+		{"lap": int(pilot_car.get("laps_done", 0))})
+	if not radio3_words.is_empty():
+		impression = str(radio3_words["text"])
 	var feeling: Dictionary = SoulDriver.perceive(car_id, snapshot, _soul_profile(car_id))
-	if absf(float(feeling.get("difference", 0.0))) >= 7.0:
+	if absf(float(feeling.get("difference", 0.0))) >= 7.0 and radio3_words.is_empty():
 		impression += " Minha percepção de desgaste está %s da leitura dos sensores." % ("acima" if float(feeling["difference"]) > 0.0 else "abaixo")
 	if bool(thought.get("repeat", false)):
 		radio_response_label.text = "%s: %s" % [driver_name, str(thought["message"])]
@@ -1347,8 +1384,14 @@ func _compare_teammate() -> void:
 			teammate = entry
 			break
 	var evaluation: Dictionary = TeamRadioAdvice.evaluate(selected, teammate, snapshot.get("weather", {}))
+	var teammate_words: String = str(evaluation.get("driver", ""))
+	if str(evaluation.get("state", "")) == "avaliar_passagem" and int(evaluation.get("chasing_id", -1)) == car_id:
+		var voice: Dictionary = Radio3.driver(selected, "troca_equipe", {
+			"lap": int(selected.get("laps_done", 0))})
+		if not voice.is_empty():
+			teammate_words = str(voice["text"])
 	radio_response_label.text = "%s: %s\nENGENHEIRO: %s" % [
-		str(selected.get("name", "Piloto")), str(evaluation.get("driver", "")), str(evaluation.get("engineer", ""))]
+		str(selected.get("name", "Piloto")), teammate_words, str(evaluation.get("engineer", ""))]
 	_set_radio_category(2)
 
 # Explicit player command, not a radio question. The leader is asked to avoid
@@ -1424,6 +1467,13 @@ func _discuss_stint() -> void:
 	var driver_name: String = str(exchange["car_name"])
 	var driver_words: String = str(exchange["driver"])
 	var engineer_words: String = str(exchange["engineer"])
+	var pilot_car: Dictionary = host._car_by_id(car_id)
+	var radio3_words: Dictionary = Radio3.consultation(pilot_car, "stint", {
+		"lap": int(pilot_car.get("laps_done", 0)),
+		"pit_active": bool(pilot_car.get("pit_request", false)) or float(pilot_car.get("pit_left", 0.0)) > 0.0,
+		"wants_extend": bool(exchange.get("wants_extend", false))})
+	if not radio3_words.is_empty() and not bool(pilot_car.get("finished", false)):
+		driver_words = str(radio3_words["text"])
 	radio_stint_memory[car_id] = exchange["memory"]
 	radio_soul_profiles[car_id] = SoulDriver.begin_discussion(profile)
 	radio_response_label.text = "%s: %s\nENGENHEIRO: %s" % [driver_name, driver_words, engineer_words]
