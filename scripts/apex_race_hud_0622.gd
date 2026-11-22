@@ -1943,6 +1943,12 @@ func _refresh_prediction_ledger() -> void:
 			title += " | %s" % state
 		lines.append(title)
 		if str(record.get("status", "")) == "COMPLETE":
+			if record.has("actual_relative_gain_5_s") and bool(record.get("relative_forecast_valid", false)):
+				lines.append("  GANHO RELATIVO 5V VS RIVAL #%d: previsto %+.2fs / real %+.2fs (erro %+.2fs)" % [
+					int(record.get("reference_rival_id", -1)),
+					float(record.get("predicted_relative_gain_5_s", 0.0)),
+					float(record.get("actual_relative_gain_5_s", 0.0)),
+					float(record.get("relative_gain_error_5_s", 0.0))])
 			var wear_text: String = "%.0f%% previsto / %.0f%% real" % [
 				float(record.get("predicted_wear_5", -1.0)), float(record.get("actual_wear_5", -1.0))] if float(record.get("predicted_wear_5", -1.0)) >= 0.0 else "previsão indisponível"
 			lines.append("  PNEUS 5V: %s · CLIMA 3V: %s" % [
