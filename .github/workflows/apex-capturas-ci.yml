@@ -5,6 +5,8 @@ on:
   pull_request:
     paths:
       - 'tests/performance_baseline_06690.gd'
+      # Race Quality 9.9 deliberately requests this complete regression.
+      - 'docs/APEX_RELEASE_v0.6.6.9.9_RACE_QUALITY.md'
       - 'project.godot'
       - 'scenes/**'
       - 'scripts/**'
