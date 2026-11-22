@@ -34,8 +34,9 @@ jobs:
     timeout-minutes: 70
     strategy:
       fail-fast: false
-      # Avoid four simultaneous Godot release downloads on cold runners.
-      max-parallel: 2
+      # Run the 20-track smoke shards in parallel (~3 min/shard observed);
+      # keep the expensive 180-case profile at two concurrent runners.
+      max-parallel: ${{ (inputs.profile == 'full' || contains(github.event.pull_request.labels.*.name, 'ci:extended')) && 2 || 4 }}
       matrix:
         shard: [0, 1, 2, 3]
     env:
