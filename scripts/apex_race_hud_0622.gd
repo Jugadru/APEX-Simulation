@@ -1252,6 +1252,8 @@ func _update_reactive_radio() -> void:
 		var previous: Dictionary = radio3_memories.get(car_id, {})
 		var packet: Dictionary = Radio3.driver(car, str(result.get("kind", "")), context, previous)
 		if not packet.is_empty():
+			if not Radio3.should_transmit(packet, previous):
+				continue
 			driver_words = str(packet["text"])
 			var engineer_packet: Dictionary = Radio3.engineer(car, str(result.get("kind", "")), {
 				"lap": int(car.get("laps_done", 0)),
@@ -1338,8 +1340,13 @@ func _ask_driver() -> void:
 		return
 	var driver_name: String = str(thought["car_name"])
 	var impression: String = str(thought["message"])
+	var pilot_car: Dictionary = host._car_by_id(car_id)
+	var radio3_words: Dictionary = Radio3.consultation(pilot_car, "perception",
+		{"lap": int(pilot_car.get("laps_done", 0))})
+	if not radio3_words.is_empty():
+		impression = str(radio3_words["text"])
 	var feeling: Dictionary = SoulDriver.perceive(car_id, snapshot, _soul_profile(car_id))
-	if absf(float(feeling.get("difference", 0.0))) >= 7.0:
+	if absf(float(feeling.get("difference", 0.0))) >= 7.0 and radio3_words.is_empty():
 		impression += " Minha percepção de desgaste está %s da leitura dos sensores." % ("acima" if float(feeling["difference"]) > 0.0 else "abaixo")
 	if bool(thought.get("repeat", false)):
 		radio_response_label.text = "%s: %s" % [driver_name, str(thought["message"])]
@@ -1377,8 +1384,14 @@ func _compare_teammate() -> void:
 			teammate = entry
 			break
 	var evaluation: Dictionary = TeamRadioAdvice.evaluate(selected, teammate, snapshot.get("weather", {}))
+	var teammate_words: String = str(evaluation.get("driver", ""))
+	if str(evaluation.get("state", "")) == "avaliar_passagem" and int(evaluation.get("chasing_id", -1)) == car_id:
+		var voice: Dictionary = Radio3.driver(selected, "troca_equipe", {
+			"lap": int(selected.get("laps_done", 0))})
+		if not voice.is_empty():
+			teammate_words = str(voice["text"])
 	radio_response_label.text = "%s: %s\nENGENHEIRO: %s" % [
-		str(selected.get("name", "Piloto")), str(evaluation.get("driver", "")), str(evaluation.get("engineer", ""))]
+		str(selected.get("name", "Piloto")), teammate_words, str(evaluation.get("engineer", ""))]
 	_set_radio_category(2)
 
 # Explicit player command, not a radio question. The leader is asked to avoid
@@ -1454,6 +1467,13 @@ func _discuss_stint() -> void:
 	var driver_name: String = str(exchange["car_name"])
 	var driver_words: String = str(exchange["driver"])
 	var engineer_words: String = str(exchange["engineer"])
+	var pilot_car: Dictionary = host._car_by_id(car_id)
+	var radio3_words: Dictionary = Radio3.consultation(pilot_car, "stint", {
+		"lap": int(pilot_car.get("laps_done", 0)),
+		"pit_active": bool(pilot_car.get("pit_request", false)) or float(pilot_car.get("pit_left", 0.0)) > 0.0,
+		"wants_extend": bool(exchange.get("wants_extend", false))})
+	if not radio3_words.is_empty() and not bool(pilot_car.get("finished", false)):
+		driver_words = str(radio3_words["text"])
 	radio_stint_memory[car_id] = exchange["memory"]
 	radio_soul_profiles[car_id] = SoulDriver.begin_discussion(profile)
 	radio_response_label.text = "%s: %s\nENGENHEIRO: %s" % [driver_name, driver_words, engineer_words]
