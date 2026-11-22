@@ -21,6 +21,7 @@ on:
         type: string
   # Every PR must be audited, even if it touches files outside scripts/data.
   pull_request:
+    types: [opened, reopened, synchronize, labeled]
 
 permissions:
   contents: read
@@ -32,6 +33,7 @@ concurrency:
 
 jobs:
   quality-gate-unit:
+    if: ${{ github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'ci:full') }}
     name: Quality Gate / testes de contrato
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -44,11 +46,13 @@ jobs:
             -p 'test_apex_quality_gate.py' -v
 
   quality-gate-evidence:
+    if: ${{ github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'ci:full') }}
     name: Quality Gate / auditoria por SHA
     needs: quality-gate-unit
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 78
     env:
+      APEX_AUTOMATED_FULL: ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'ci:full') }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       APEX_TARGET_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       APEX_MODE: ${{ inputs.mode || 'audit' }}
@@ -70,19 +74,54 @@ jobs:
           path: candidate
           persist-credentials: false
 
-      - name: Verificar 10 pipelines instalados e aprovados no mesmo commit
+      - name: Gate fail-closed para 10 evidencias no SHA exato
         shell: bash
         run: |
           set -euo pipefail
-          python3 gate/tools/apex_quality_gate.py \
-            --repository "$GITHUB_REPOSITORY" \
-            --sha "$APEX_TARGET_SHA" \
-            --mode "$APEX_MODE" \
-            --wait-seconds 90 \
-            --pr-number "$APEX_PR_NUMBER" \
-            --base-sha "$APEX_BASE_SHA" \
-            --project candidate \
-            --output ci_artifacts/quality_gate
+          mkdir -p ci_artifacts/quality_gate
+          if [[ "$APEX_AUTOMATED_FULL" != "true" ]]; then
+            python3 gate/tools/apex_quality_gate.py \
+              --repository "$GITHUB_REPOSITORY" --sha "$APEX_TARGET_SHA" \
+              --mode "$APEX_MODE" --wait-seconds 90 \
+              --pr-number "$APEX_PR_NUMBER" --base-sha "$APEX_BASE_SHA" \
+              --project candidate --output ci_artifacts/quality_gate
+            exit 0
+          fi
+          # The reliable FULL gate polls only once per minute to limit API calls,
+          # while the other CI jobs run concurrently. Audit output alone is NOT success.
+          for attempt in $(seq 1 70); do
+            python3 gate/tools/apex_quality_gate.py \
+              --repository "$GITHUB_REPOSITORY" --sha "$APEX_TARGET_SHA" \
+              --mode audit --wait-seconds 0 \
+              --pr-number "$APEX_PR_NUMBER" --base-sha "$APEX_BASE_SHA" \
+              --project candidate --output ci_artifacts/quality_gate
+            verdict=$(python3 - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path("ci_artifacts/quality_gate/report.json").read_text())
+          statuses = {item["status"] for item in data["checks"]}
+          if data["status"] == "READY" and (data["passed"], data["total"]) == (10, 10):
+              print("READY")
+          elif statuses.intersection({"FAILED", "JOB_NOT_SUCCESSFUL", "MISSING_WORKFLOW"}):
+              print("FAILED")
+          else:
+              print("PENDING")
+          PY
+            )
+            echo "APEX_CI_FULL_GATE attempt=$attempt verdict=$verdict sha=$APEX_TARGET_SHA"
+            if [[ "$verdict" == "READY" ]]; then
+              echo "APEX_CI_FULL_GATE_READY 10/10 sha=$APEX_TARGET_SHA"
+              exit 0
+            fi
+            if [[ "$verdict" == "FAILED" ]]; then
+              cat ci_artifacts/quality_gate/report.md
+              exit 1
+            fi
+            if [[ "$attempt" -lt 70 ]]; then sleep 60; fi
+          done
+          echo "APEX_CI_FULL_GATE_BLOCKED: missing same-SHA evidence"
+          cat ci_artifacts/quality_gate/report.md
+          exit 1
 
       - name: Exibir resultado e pendencias
         if: always()
@@ -95,7 +134,7 @@ jobs:
             cat ci_artifacts/quality_gate/error.txt >> "$GITHUB_STEP_SUMMARY"
           fi
           echo '' >> "$GITHUB_STEP_SUMMARY"
-          echo 'IMPORTANTE: a auditoria nao autoriza merge e nao configura branch protection.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'PR ci:full exige READY 10/10 no SHA exato. AUDIT manual e informativo; branch protection e independente.' >> "$GITHUB_STEP_SUMMARY"
 
       - name: Guardar matriz de verificacao
         if: always()

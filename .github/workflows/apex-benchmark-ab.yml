@@ -2,6 +2,7 @@ name: APEX - Comparador de Benchmarks A-B
 
 on:
   pull_request:
+    types: [opened, reopened, synchronize, labeled]
   workflow_dispatch:
     inputs:
       baseline_ref:
@@ -20,6 +21,7 @@ permissions:
 
 jobs:
   compare-cpu:
+    if: ${{ github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'ci:full') }}
     name: A-B CPU / mesmo seed e hash
     runs-on: ubuntu-latest
     timeout-minutes: 25

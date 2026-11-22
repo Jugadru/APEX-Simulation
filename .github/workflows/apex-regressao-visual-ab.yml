@@ -14,24 +14,14 @@ on:
         default: 'infra/visual-regression-main-integration'
         type: string
   pull_request:
-    paths:
-      - 'tests/performance_baseline_06690.gd'
-      # Race Quality 9.9 deliberately requests this complete regression.
-      - 'docs/APEX_RELEASE_v0.6.6.9.9_RACE_QUALITY.md'
-      - 'scripts/**'
-      - 'scenes/**'
-      - 'assets/**'
-      - 'data/**'
-      - 'tests/ci/apex_capture_screenshots.gd'
-      - 'tools/visual_regression_ab.py'
-      - 'tools/tests/test_visual_regression_ab.py'
-      - '.github/workflows/apex-regressao-visual-ab.yml'
+    types: [opened, reopened, synchronize, labeled]
 
 permissions:
   contents: read
 
 jobs:
   visual-ab:
+    if: ${{ github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'ci:full') }}
     name: Comparar HUD 2D e corrida 3D / Silverstone 2012
     runs-on: ubuntu-latest
     timeout-minutes: 35

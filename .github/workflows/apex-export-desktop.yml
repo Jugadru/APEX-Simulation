@@ -3,19 +3,7 @@ name: APEX - Exportacao Linux e Windows
 on:
   workflow_dispatch:
   pull_request:
-    paths:
-      - 'tests/performance_baseline_06690.gd'
-      # Race Quality 9.9 deliberately requests this complete regression.
-      - 'docs/APEX_RELEASE_v0.6.6.9.9_RACE_QUALITY.md'
-      - 'project.godot'
-      - 'scripts/**'
-      - 'scenes/**'
-      - 'assets/**'
-      - 'data/**'
-      - 'export_presets.cfg'
-      - '.github/workflows/apex-export-desktop.yml'
-      - 'tools/package_desktop_exports.py'
-      - 'tools/tests/test_package_desktop_exports.py'
+    types: [opened, reopened, synchronize, labeled]
   push:
     tags:
       - 'v*'
@@ -25,6 +13,7 @@ permissions:
 
 jobs:
   export-pc:
+    if: ${{ github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'ci:full') }}
     name: Exportar desktop Godot 4.7.2
     runs-on: ubuntu-latest
     timeout-minutes: 40

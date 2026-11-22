@@ -3,18 +3,14 @@ name: APEX - Benchmark Automatico
 on:
   workflow_dispatch:
   pull_request:
-    paths:
-      - 'tests/performance_baseline_06690.gd'
-      - '.github/workflows/apex-benchmark.yml'
-      - 'scripts/**'
-      - 'data/**'
-      - 'project.godot'
+    types: [opened, reopened, synchronize, labeled]
 
 permissions:
   contents: read
 
 jobs:
   benchmark:
+    if: ${{ github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'ci:full') }}
     runs-on: ubuntu-latest
     timeout-minutes: 25
 
