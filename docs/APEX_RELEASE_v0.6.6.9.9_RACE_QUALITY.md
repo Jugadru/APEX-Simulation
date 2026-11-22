@@ -1,6 +1,6 @@
 # APEX Motorsport Manager — v0.6.6.9.9 Race Quality Release
 
-**Estado:** CANDIDATE / NOT_RUN no momento da abertura do PR. Não declarar ESTÁVEL até evidências da CI no SHA exato.
+**Estado:** CANDIDATE — homologação condicionada aos testes da PR #87 no SHA exato. Não declarar ESTÁVEL antes da aprovação.
 **Base:** `main` v0.6.6.9.8 (commit `736ba64e9edb8230804001d19a60df8dc8e39288`), Wet Strategy Intelligence homologada.
 **Escopo:** qualidade, estabilidade e correções de falhas **comprovadas**. Sem mecânicas novas, mudanças de física, RNG, IA estratégica, sem trocar revisão 020 de replay/schema, sem reescrever a HUD.
 
@@ -13,6 +13,7 @@ O primeiro patch desta versão é estritamente **passivo**:
 - `tools/apex_pitwall_intelligence.py` valida a presença/consistência dos horários, associa a parada do companheiro mais próximo da mesma equipe e exibe separação de entradas e interseção dos **intervalos de passagem pela pit lane**.
 - Sobreposição da passagem na pit lane **não prova** trabalho simultâneo dos mecânicos, nem fila evitável. Os alertas seguem `REVIEW`; não alterar limiar de 3s ou esconder ocorrências.
 - `tools/tests/test_apex_pitwall_intelligence.py` exerce o caso sintético 5,8772s e rejeita evidências ausentes, invertidas e não finitas. Testes Python **não são execução de GP**.
+- A repetição nativa observou Grosjean entrando em **790,6 s** e saindo em **822,2 s**; Räikkönen entrou em **785,6 s** e saiu em **815,8 s**. O intervalo de entrada foi 5,0 s; a sobreposição da passagem pela pit lane **não prova** tempo de ocupação exclusiva da equipe nem erro causal da estratégia.
 
 ## Matriz de regressão da release (resultado a preencher somente com evidência)
 
@@ -23,14 +24,16 @@ O primeiro patch desta versão é estritamente **passivo**:
 | Pit Coordination | FIFO, uma equipe por garagem, double stack, revisão 018/019 | NOT_RUN |
 | Wet Strategy | 020/019, chuva, incerteza, sem conhecer clima futuro | NOT_RUN |
 | Ordens protegidas | Manual V21 nunca antecipada para V4 | NOT_RUN |
-| Silverstone e Monza | Seco/molhado/transição, corridas completas e replay | NOT_RUN |
+| Silverstone e Monza | 12 GPs completos (2 pistas × 3 climas × 2 repetições), integridade e clima observado | NOT_RUN |
 | Matriz de 20 circuitos | 20 circuitos × clima/modo; repetir sementes (full 180 casos quando executado) | NOT_RUN |
 | Endurance | Monza oficial 53 voltas/24 carros, hashes de replay, GBR molhado | NOT_RUN |
 | UI 2D/3D | Baseline da HUD da PR #85, 1600×900 e 1920×1080 | NOT_RUN |
 | Performance | Tick/FPS, 1×/10×/16×/32×, RSS, comparação A/B | NOT_RUN |
 | Persistência | SaveGuard e migração de save/replays antigos | NOT_RUN |
 | Export | Linux e Windows x86_64; smoke de execução | NOT_RUN |
-| Quality Gate | READY 10/10 no commit exato, sem suposições | NOT_RUN |
+| Quality Gate | READY 10/10 no commit exato + Gate final estrito 19/19 (incluindo a matriz completa e os 12 GPs) | NOT_RUN |
+
+**Identidade da build:** `project.godot` apresenta `v0.6.6.9.9 — Core 2` nos PCK Linux/Windows; diretório de saves e revisão esportiva 020 não foram alterados. A identidade da build não garante aprovação funcional.
 
 Status permitidos: `PASS`, `FAIL`, `NOT_RUN`, `INCONCLUSIVE`, `BLOCKED`. Um aviso de qualidade não pode ser apagado por mudança arbitrária de thresholds.
 
@@ -47,6 +50,12 @@ godot --headless --path . --script res://tests/wet_strategy_06698_test.gd
 ```
 
 Usar ainda os workflows existentes de matriz, endurance, replay, SaveGuard, visuais, benchmarks e exportação. A branch candidata `qa/v0.6.6.9.9-race-quality` executa automaticamente a matriz `full` de **180 casos × 2 repetições** em PR, por configuração explícita do workflow. Nos demais PRs, o padrão continua `smoke`, com somente 20 combinações (10 voltas cada). Um job enfileirado ou interrompido não equivale a PASS.
+
+## Homologação final
+
+O workflow `apex-race-quality-final-gate.yml` verifica exclusivamente no SHA da candidata **19 jobs** obrigatórios: os 10 do Quality Gate existente, os quatro grupos da matriz full, regressões específicas Pit Wall/Pit Coordination/Wet Strategy/Core 2 e os **12 GPs integrais**. Retorna erro se qualquer check faltar ou falhar. O workflow genérico `apex-quality-gate.yml` continua operando em modo de auditoria e pode exibir `BLOCKED` apesar de o job técnico estar verde: esse resultado **não** é liberação.
+
+O teste integral de clima variável exige evidência de mudança observada de pelo menos 0,05 no fator de água; ausência é `INCONCLUSIVE`, não PASS. Resultados devem ser recuperados dos logs/artefatos de execução reais.
 
 ## Bloqueadores de publicação
 
