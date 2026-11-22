@@ -92,6 +92,7 @@ func _run() -> void:
 		{"length":1000.0},dry,true,true,false)
 	var modern: Dictionary = Space.plan(grid,metrics,0.2,track,
 		{"length":1000.0},dry,true,true,true)
+	print("OVERTAKING_066912_DIAG legacy=", legacy[1].states, " modern=", modern[1].states)
 	check(str(legacy[1].states.combat_last_side) == "right"
 		and str(modern[1].states.combat_last_side) == "left",
 		"real RaceSpace uses 9.12 only when the revision switch is enabled")
