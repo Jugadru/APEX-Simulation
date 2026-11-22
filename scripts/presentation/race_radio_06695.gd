@@ -133,6 +133,61 @@ const PILOT_LINES := {
 	]
 }
 
+# The same driver keeps the same vocabulary, but severe pressure can change
+# the *delivery*. Avoid a generic angry suffix attached to every sentence.
+# Emotional state is a fictional Soul3 observation, never a performance bonus.
+const PRESSURED_LINES := {
+	"revisar_plano": [
+		"Need a decision on lap %d.",
+		"Lap %d! Are we changing it or not?!",
+		"Confirm lap %d. Conditions have changed.",
+		"Not sure lap %d still works. Please check.",
+		"Are we staying with lap %d? Need an answer."
+	],
+	"avaliar_box": [
+		"Grip's gone. Check the window now.",
+		"I can't drive these tyres! We need an answer!",
+		"Grip loss is severe. Review the stop window.",
+		"I'm struggling badly. Can we check the window?",
+		"We're losing grip. Need a pit decision."
+	],
+	"troca_equipe": [
+		"I'm faster. Sort it out.",
+		"I'm quicker! Come on, get me past!",
+		"Pace advantage confirmed. Check the team order.",
+		"I'm stuck behind our car. What can we do?",
+		"I'm losing time here. We need to talk."
+	],
+	"perda_ritmo": [
+		"No pace. Check it.",
+		"Where has all the pace gone?!",
+		"Lap-time loss is significant. Check the cause.",
+		"I really can't find the pace.",
+		"We're losing too much time. Need an answer."
+	],
+	"aderencia": [
+		"No grip left. Check the stop.",
+		"These tyres are finished! No grip!",
+		"Tyre performance is falling away. Check the window.",
+		"I'm fighting the tyres now. Please check the plan.",
+		"These tyres are costing us. Need a call."
+	],
+	"temperatura": [
+		"Tyres too hot.",
+		"Tyres are overheating! I can't push!",
+		"Temperatures are too high. Need to manage.",
+		"I'm struggling to keep the tyres cool.",
+		"Temperatures are hurting us. Need an answer."
+	],
+	"desgaste": [
+		"Grip's going. Badly.",
+		"No grip! These tyres are done!",
+		"Degradation has become severe.",
+		"I can't keep these tyres alive much longer.",
+		"We're losing grip. We need to watch this."
+	]
+}
+
 const ENGINEER_LINES := {
 	"revisar_plano": "Copy. We're checking the conditions.",
 	"avaliar_box": "Copy. Reviewing the window. No call yet.",
@@ -236,9 +291,14 @@ static func driver(car: Dictionary, kind: String, context: Dictionary = {}, prev
 	var index: int = int(p["index"])
 	var lines: Array = PILOT_LINES[kind]
 	var words: String = str(lines[index])
+	if int(p["intensity"]) >= 2 and PRESSURED_LINES.has(kind):
+		words = str((PRESSURED_LINES[kind] as Array)[index])
 	if kind == "revisar_plano":
 		words = words % booked
-	var repeated: bool = str(previous.get("last_pilot_kind", "")) == kind 			and int(context.get("lap", car.get("laps_done", 0))) > int(previous.get("last_pilot_lap", -1))
+	var current_lap: int = int(context.get("lap", car.get("laps_done", 0)))
+	var previous_lap: int = int(previous.get("last_pilot_lap", -100))
+	var repeated: bool = str(previous.get("last_pilot_kind", "")) == kind \
+		and current_lap > previous_lap and current_lap - previous_lap <= 6
 	if repeated and kind in ["desgaste", "trafego", "perda_ritmo", "avaliar_box"]:
 		words = "Same issue. " + words
 	return _packet(car, kind, context, "PILOTO", words, index)
@@ -349,4 +409,5 @@ static func should_transmit(packet: Dictionary, previous: Dictionary) -> bool:
 	var kind: String = str(packet.get("intent", ""))
 	if kind not in ["desgaste", "tráfego", "ritmo", "disputa", "temperatura"]:
 		return true
-	return not (str(previous.get("last_pilot_kind", "")) == kind 		and int(packet.get("lap", 0)) - int(previous.get("last_pilot_lap", -100)) < 3)
+	var delta_laps: int = int(packet.get("lap", 0)) - int(previous.get("last_pilot_lap", -100))
+	return not (str(previous.get("last_pilot_kind", "")) == kind and delta_laps >= 0 and delta_laps < 3)
