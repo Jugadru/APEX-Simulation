@@ -121,6 +121,22 @@ func capture_entry(car: Dictionary, grid: Array, advice: Dictionary, weather: Di
 			expected_pace += float(WetPhysics.modifier(target, wet).get("penalty", 0.0))
 			expected_pace -= float(WetPhysics.modifier(str(car.get("tire", "")), wet).get("penalty", 0.0))
 			expected_pace = maxf(1.0, expected_pace)
+	# A real relative-pace comparison needs a stable on-track opponent.
+	# This is NOT the unobservable counterfactual "what if we never pitted".
+	var rival_id: int = -1
+	var rival_pace_s: float = 0.0
+	var nearest_distance: float = INF
+	for candidate in grid:
+		if int(candidate.get("id", -1)) == car_id or bool(candidate.get("finished", false)) \
+				or str(candidate.get("team", "")) == team:
+			continue
+		var distance: float = absf(float(candidate.get("progress", 0.0)) - float(car.get("progress", 0.0)))
+		if distance < nearest_distance:
+			nearest_distance = distance
+			rival_id = int(candidate.get("id", -1))
+			rival_pace_s = float(candidate.get("last_lap", 0.0))
+	var relative_forecast_valid: bool = rival_id >= 0 and _valid_pace(rival_pace_s) and _valid_pace(expected_pace)
+	var predicted_relative_gain_s: float = (rival_pace_s - expected_pace) * float(STINT_HORIZON) if relative_forecast_valid else 0.0
 	var projected_water: float = clampf(float(advice.get("forecast_3", wet)), 0.0, 1.0)
 	var entry: Dictionary = {
 		"id":next_id, "car_id":car_id, "team":team, "phase":"EXECUTION",
@@ -134,6 +150,8 @@ func capture_entry(car: Dictionary, grid: Array, advice: Dictionary, weather: Di
 		"predicted_total_s":corrected_loss + base_lap * pit_track_fraction,
 		"predicted_wear_5":minf(100.0, rate * float(STINT_HORIZON)) if rate > 0.0 else -1.0,
 		"predicted_pace_5":expected_pace,
+		"reference_rival_id":rival_id, "relative_forecast_valid":relative_forecast_valid,
+		"predicted_relative_gain_5_s":predicted_relative_gain_s,
 		"weather_at_prediction":wet, "predicted_water_3":projected_water,
 		"strategist_level":level, "engineer_level":engineer_level,
 		"confidence":str(advice.get("confidence", "NAO_CALIBRADA")),
@@ -148,7 +166,8 @@ func capture_entry(car: Dictionary, grid: Array, advice: Dictionary, weather: Di
 	while records.size() > MAX_RECORDS:
 		records.pop_front()
 
-func observe_exit(history: Dictionary, base_lap: float, pit_track_fraction: float) -> void:
+func observe_exit(history: Dictionary, base_lap: float, pit_track_fraction: float,
+		grid: Array = []) -> void:
 	for idx in range(records.size() - 1, -1, -1):
 		var record: Dictionary = records[idx]
 		if int(record["car_id"]) != int(history.get("car_id", -1)) or int(record["stop"]) != int(history.get("stop", -1)) or str(record["status"]) != "AWAITING_EXIT":
@@ -181,9 +200,23 @@ func observe_exit(history: Dictionary, base_lap: float, pit_track_fraction: floa
 		if absf(float(record["pit_loss_error_s"])) > 0.75 and reasons.is_empty():
 			reasons.append("diferença residual de tempo; sem causa isolada")
 		record["reasons"] = reasons
+		# Measure the same two cars at the actual pit exit. A rival's own
+		# subsequent stop invalidates a straightforward pace comparison.
+		var driver: Dictionary = {}
+		var reference: Dictionary = {}
+		for candidate in grid:
+			if int(candidate.get("id", -1)) == int(record["car_id"]):
+				driver = candidate
+			elif int(candidate.get("id", -1)) == int(record.get("reference_rival_id", -1)):
+				reference = candidate
+		if not driver.is_empty() and not reference.is_empty() and not bool(reference.get("finished", false)):
+			record["relative_observable"] = true
+			record["initial_relative_gap_s"] = (float(reference.get("progress", 0.0)) - float(driver.get("progress", 0.0))) * base_lap
+			record["reference_stops_exit"] = int(reference.get("stops", 0))
 		return
 
-func observe_lap(car: Dictionary, weather: Dictionary) -> void:
+func observe_lap(car: Dictionary, weather: Dictionary,
+		grid: Array = [], base_lap: float = 0.0) -> void:
 	var completed: int = int(car.get("laps_done", 0))
 	for record in records:
 		if int(record["car_id"]) != int(car.get("id", -1)) or str(record["status"]) != "AWAITING_HORIZON":
@@ -217,6 +250,22 @@ func observe_lap(car: Dictionary, weather: Dictionary) -> void:
 			if int(record["pace_samples"]) == STINT_HORIZON and float(record["predicted_pace_5"]) > 0.0:
 				record["actual_pace_5"] = float(record["pace_sum_s"]) / float(STINT_HORIZON)
 				record["pace_error_5"] = float(record["actual_pace_5"]) - float(record["predicted_pace_5"])
+			# Relative pace gain versus the SAME real opponent, only if that
+			# car made no new pit and neither car disappeared from observation.
+			if bool(record.get("relative_observable", false)) and base_lap > 0.0:
+				var reference: Dictionary = {}
+				for candidate in grid:
+					if int(candidate.get("id", -1)) == int(record.get("reference_rival_id", -1)):
+						reference = candidate
+						break
+				if not reference.is_empty() and not bool(reference.get("finished", false)) \
+						and int(reference.get("stops", -1)) == int(record.get("reference_stops_exit", -2)):
+					var gap_after: float = (float(reference.get("progress", 0.0)) - float(car.get("progress", 0.0))) * base_lap
+					record["actual_relative_gain_5_s"] = float(record.get("initial_relative_gap_s", 0.0)) - gap_after
+					if bool(record.get("relative_forecast_valid", false)):
+						record["relative_gain_error_5_s"] = float(record["actual_relative_gain_5_s"]) - float(record["predicted_relative_gain_5_s"])
+				else:
+					record["relative_gain_note"] = "rival mudou de estado ou fez pit; ganho relativo não comparável"
 			record["status"] = "COMPLETE"
 
 func close_unfinished() -> void:
