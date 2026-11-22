@@ -65,6 +65,11 @@ def categories_for(paths: list[str]) -> set[str]:
         if path.startswith("tests/") and path.endswith(".gd"):
             for category, (script, _) in CASES.items():
                 if path == "tests/" + script: local.add(category)
+        # Unknown modules outside Core are also high-risk until registered.
+        if not local and path.startswith("scripts/") and path.endswith(".gd"):
+            local.update(CASES)
+        if not local and path.startswith("data/") and path.endswith((".json", ".csv", ".tres")):
+            local.update(CASES)
         categories.update(local)
     return categories
 
