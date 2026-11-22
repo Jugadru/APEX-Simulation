@@ -147,7 +147,9 @@ func _run() -> void:
 	recorder.attach(legacy_race)
 	recorder.recorded_simulation_revision = Replay.SOUL_SIMULATION_REVISION
 	recorder.legacy_pit_coordination = true
+	recorder.legacy_start_intelligence = true
 	recorder.race.pit_coordination2_enabled = false
+	recorder.race.race_start_intelligence_enabled = false
 	for i in range(14):
 		check(recorder.step_tick(), "legacy 017 recording tick")
 	var historical: Dictionary = recorder.export_data()
