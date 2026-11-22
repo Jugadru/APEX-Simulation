@@ -1651,14 +1651,14 @@ func _engineer_report(car: Dictionary, teammate: Dictionary) -> Dictionary:
 	var report: Dictionary = RaceEngineer.evaluate(car, advice, conditions, staff, host.race.lap_count)
 	var base_report: Dictionary = Engineer2.enrich(car,
 		PitWallIntel.enrich(car, report, advice, conditions, teammate, float(host.race.pit_loss)), advice)
-	var report: Dictionary = Engineer3.assess(car, base_report, advice, conditions, teammate, staff,
+	var enriched: Dictionary = Engineer3.assess(car, base_report, advice, conditions, teammate, staff,
 		host.race.available_pit_compounds(), int(host.race.lap_count),
 		float(host.race.pit_loss), float(host.race.base_lap),
 		int(host.race._next_pit_entry_lap(car)))
 	# 9.14 is a read-only catalogue interpretation: no change to report pit gates.
-	report["setup_track_066914"] = TrackKnowledge066914.assess(host.race.track,
+	enriched["setup_track_066914"] = TrackKnowledge066914.assess(host.race.track,
 		conditions, car, staff)
-	return report
+	return enriched
 
 func _record_engineer_history(id: int, note: String, at_lap: int) -> void:
 	var history: Array = engineer_history_by_driver.get(id, [])
