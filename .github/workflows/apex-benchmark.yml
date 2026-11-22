@@ -4,12 +4,6 @@ on:
   workflow_dispatch:
   pull_request:
     types: [opened, reopened, synchronize, labeled]
-    paths:
-      - 'tests/performance_baseline_06690.gd'
-      - '.github/workflows/apex-benchmark.yml'
-      - 'scripts/**'
-      - 'data/**'
-      - 'project.godot'
 
 permissions:
   contents: read

@@ -14,19 +14,6 @@ on:
   pull_request:
     types: [opened, reopened, synchronize, labeled]
     # Include project configuration changes that may affect test behavior.
-    paths:
-      - 'tests/performance_baseline_06690.gd'
-      # Race Quality 9.9 deliberately requests this complete regression.
-      - 'docs/APEX_RELEASE_v0.6.6.9.9_RACE_QUALITY.md'
-      - 'project.godot'
-      - 'scripts/**'
-      - 'data/**'
-      - 'tests/high_speed_growth_066723_benchmark.gd'
-      - 'tests/ci/apex_full_gp_endurance.gd'
-      - 'tests/career_0667_20_season_data_stress.gd'
-      - 'tools/apex_endurance_ci.py'
-      - 'tools/tests/test_apex_endurance_ci.py'
-      - '.github/workflows/apex-endurance-ci.yml'
   schedule:
     # Domingo 12h UTC / 9h no Tocantins, ao integrar na branch padrao.
     - cron: '0 12 * * 0'

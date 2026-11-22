@@ -21,13 +21,21 @@ regressão visual. Se houver novo commit enquanto a etiqueta estiver ativa,
 os testes full voltam a executar no commit novo. A maioria desses workflows
 também permite `workflow_dispatch`, e o endurance mantém seu agendamento.
 
-O **Quality Gate 1.0** não deve gerar uma auditoria prematura com status
-`BLOCKED` para cada pequeno commit. Na PR, só roda com `ci:full`.
-Sua auditoria automática é informativa; o modo manual `enforce` deve ser
-executado **depois** de todos os workflows necessários concluírem no
-mesmo SHA, com o número de PR e SHA da base informados. Resultado
-`BLOCKED` impede homologação, ainda que o diagnóstico tenha sido
-executado corretamente.
+O **Quality Gate 1.0** não roda em commits FAST comuns. Em `ci:full`,
+o gate **aguarda até 70 minutos pelas dez evidências obrigatórias no SHA
+exato**, falha imediatamente diante de uma verificação definitivamente
+reprovada e encerra como falha se as demais não terminarem. Status técnico
+`BLOCKED` nunca passa como homologação. O avaliador roda da branch
+padrão confiável, não do código candidato com acesso ao token.
+`workflow_dispatch` continua disponível com `audit` (informativo) e
+`enforce` (estrito).
+
+Os workflows pesados agora usam o status da etiqueta, e não filtros de
+caminhos, para ativar a fase FULL — incluindo PRs apenas de documentação.
+Sem a etiqueta, os jobs pesados permanecem `skipped` e não consomem
+minutos de execução. O job de segurança Python continua verificando
+cada PR para poder contribuir para a evidência FULL.
+
 
 Não confundir `skipped` (teste pesado propositalmente omitido na fase
 rápida) com `PASSED` (evidência válida de homologação). As regras de

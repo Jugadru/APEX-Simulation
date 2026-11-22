@@ -4,19 +4,6 @@ on:
   workflow_dispatch:
   pull_request:
     types: [opened, reopened, synchronize, labeled]
-    paths:
-      - 'tests/performance_baseline_06690.gd'
-      # Race Quality 9.9 deliberately requests this complete regression.
-      - 'docs/APEX_RELEASE_v0.6.6.9.9_RACE_QUALITY.md'
-      - 'project.godot'
-      - 'scripts/**'
-      - 'scenes/**'
-      - 'assets/**'
-      - 'data/**'
-      - 'export_presets.cfg'
-      - '.github/workflows/apex-export-desktop.yml'
-      - 'tools/package_desktop_exports.py'
-      - 'tools/tests/test_package_desktop_exports.py'
   push:
     tags:
       - 'v*'

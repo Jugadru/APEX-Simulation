@@ -4,16 +4,6 @@ on:
   workflow_dispatch:
   pull_request:
     types: [opened, reopened, synchronize, labeled]
-    paths:
-      - 'tests/performance_baseline_06690.gd'
-      - 'project.godot'
-      - 'scripts/**'
-      - 'data/**'
-      - 'tests/ci/apex_pitwall_intelligence_probe.gd'
-      - 'tools/apex_pitwall_intelligence.py'
-      - 'tools/run_pitwall_local.sh'
-      - 'tools/tests/test_apex_pitwall_intelligence.py'
-      - '.github/workflows/apex-pitwall-intelligence-ci.yml'
 
 permissions:
   contents: read

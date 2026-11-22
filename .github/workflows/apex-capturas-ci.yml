@@ -4,18 +4,6 @@ on:
   workflow_dispatch:
   pull_request:
     types: [opened, reopened, synchronize, labeled]
-    paths:
-      - 'tests/performance_baseline_06690.gd'
-      # Race Quality 9.9 deliberately requests this complete regression.
-      - 'docs/APEX_RELEASE_v0.6.6.9.9_RACE_QUALITY.md'
-      - 'project.godot'
-      - 'scenes/**'
-      - 'scripts/**'
-      - 'data/**'
-      - 'assets/**'
-      - 'tests/ci/apex_capture_screenshots.gd'
-      - 'tools/verify_ci_captures.py'
-      - '.github/workflows/apex-capturas-ci.yml'
 
 permissions:
   contents: read

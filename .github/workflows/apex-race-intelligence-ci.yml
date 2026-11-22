@@ -5,21 +5,6 @@ on:
   pull_request:
     types: [opened, reopened, synchronize, labeled]
     # Include project configuration changes that may affect test behavior.
-    paths:
-      - 'tests/performance_baseline_06690.gd'
-      # Race Quality 9.9 deliberately requests this complete regression.
-      - 'docs/APEX_RELEASE_v0.6.6.9.9_RACE_QUALITY.md'
-      - 'project.godot'
-      - 'scripts/**'
-      - 'data/**'
-      - 'tests/ci/apex_race_intelligence_probe.gd'
-      - 'tests/core_0552_tyre_ai_smoke_test.gd'
-      - 'tests/core_0570_ai_director_smoke_test.gd'
-      - 'tests/lap_strategy_06496_auto_gate_test.gd'
-      - 'tests/pitwall_0667_same_tick_regression.gd'
-      - 'tools/apex_race_intelligence_ci.py'
-      - 'tools/tests/test_apex_race_intelligence_ci.py'
-      - '.github/workflows/apex-race-intelligence-ci.yml'
 
 permissions:
   contents: read

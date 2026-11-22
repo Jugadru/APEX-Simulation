@@ -18,18 +18,6 @@ on:
         default: '12012'
   pull_request:
     types: [opened, reopened, synchronize, labeled]
-    paths:
-      - 'tests/performance_baseline_06690.gd'
-      # Race Quality 9.9 deliberately requests this complete regression.
-      - 'docs/APEX_RELEASE_v0.6.6.9.9_RACE_QUALITY.md'
-      - 'data/season_2012.json'
-      - 'data/tyres_2012.json'
-      - 'scripts/**'
-      - 'tests/ci/apex_scenario_matrix_probe.gd'
-      - 'tests/ci/apex_monaco_deadlock_099_test.gd'
-      - 'tools/apex_scenario_matrix.py'
-      - 'tools/tests/test_apex_scenario_matrix.py'
-      - '.github/workflows/apex-scenario-matrix-ci.yml'
 
 permissions:
   contents: read
