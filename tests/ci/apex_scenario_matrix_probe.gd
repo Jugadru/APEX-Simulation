@@ -89,8 +89,6 @@ func _run() -> void:
     var max_stops_observed: int = 0
     var wetness_peak: float = 0.0
     while not race.finished and steps < MAX_STEPS:
-        if trace_monaco:
-            print("APEX_MATRIX_DIAG phase=step_begin step=", steps, " lap=", race.lap_count)
         if mode == "Assistido" and steps % 40 == 0:
             # Delegates actual TeamAutonomy pace/KERS decisions, while keeping
             # the player's pit authority manual. Does not emulate full HUD/staff.
@@ -102,12 +100,32 @@ func _run() -> void:
                     {"Engenheiro": 2, "Estrategista": 2}, race.lap_count)
                 race.set_pace(driver_id, str(decision.get("pace", "Normal")))
                 race.set_kers_mode(driver_id, str(decision.get("kers", "Equilibrado")))
-        if trace_monaco:
-            print("APEX_MATRIX_DIAG phase=race_step_enter step=", steps)
         race.step(STEP_SECONDS)
-        if trace_monaco:
-            print("APEX_MATRIX_DIAG phase=race_step_exit step=", steps, " lap=", race.lap_count)
         steps += 1
+        # Read-only diagnostic snapshots, without modifying the race, AI, RNG,
+        # step budget, finish criteria or sporting report.
+        if trace_monaco and (steps == 1 or steps % 100 == 0 or race.finished):
+            var cars_state: Array[Dictionary] = []
+            for diag_car in race.cars:
+                cars_state.append({
+                    "id": int(diag_car.get("id", -1)),
+                    "progress": snappedf(float(diag_car.get("progress", 0.0)), 0.0001),
+                    "laps_done": int(diag_car.get("laps_done", 0)),
+                    "finished": bool(diag_car.get("finished", false)),
+                    "pit_stage": str(diag_car.get("pit_stage", "none")),
+                    "pit_left": snappedf(float(diag_car.get("pit_left", 0.0)), 0.001),
+                    "pit_wait": snappedf(float(diag_car.get("pit_wait", 0.0)), 0.001),
+                    "pit_request": bool(diag_car.get("pit_request", false)),
+                    "pit_scheduled_lap": int(diag_car.get("pit_scheduled_lap", 0)),
+                    "pace": str(diag_car.get("pace", "")),
+                    "race_space_blocked": bool(diag_car.get("race_space_blocked", false)),
+                    "lane": snappedf(float(diag_car.get("race_lane", 0.0)), 0.001),
+                })
+            print("APEX_MATRIX_DIAG_SNAPSHOT ", JSON.stringify({
+                "step": steps, "clock": snappedf(float(race.clock), 0.001),
+                "lap": race.lap, "first_finish_at": race.first_finish_at,
+                "finished": race.finished, "cars": cars_state,
+            }))
         wetness_peak = maxf(wetness_peak,
             float(race.weather_snapshot().get("wetness_factor", 0.0)))
         for car in race.cars:
