@@ -1,0 +1,61 @@
+{
+  "schema": 1,
+  "suites": [
+    {
+      "id": "scenario_matrix_2012",
+      "paths": [
+        "scripts/core/**",
+        "scripts/race_engine.gd",
+        "data/**",
+        "tests/ci/apex_scenario_matrix_probe.gd",
+        "tools/apex_scenario_matrix.py"
+      ],
+      "fast_tests": [],
+      "checks": [
+        {
+          "key": "scenario_matrix_shard_0",
+          "workflow": "apex-scenario-matrix-ci.yml",
+          "job": "Matrix 2012 / grupo 0 de 4",
+          "area": "Matriz 2012 (20 circuitos)",
+          "comparison": false
+        },
+        {
+          "key": "scenario_matrix_shard_1",
+          "workflow": "apex-scenario-matrix-ci.yml",
+          "job": "Matrix 2012 / grupo 1 de 4",
+          "area": "Matriz 2012 (20 circuitos)",
+          "comparison": false
+        },
+        {
+          "key": "scenario_matrix_shard_2",
+          "workflow": "apex-scenario-matrix-ci.yml",
+          "job": "Matrix 2012 / grupo 2 de 4",
+          "area": "Matriz 2012 (20 circuitos)",
+          "comparison": false
+        },
+        {
+          "key": "scenario_matrix_shard_3",
+          "workflow": "apex-scenario-matrix-ci.yml",
+          "job": "Matrix 2012 / grupo 3 de 4",
+          "area": "Matriz 2012 (20 circuitos)",
+          "comparison": false
+        }
+      ]
+    },
+    {
+      "id": "race_launch_2012",
+      "paths": [
+        "scripts/core/*launch*.gd",
+        "scripts/core/*start*.gd",
+        "tests/race_launch_14_test.gd"
+      ],
+      "fast_tests": [
+        {
+          "script": "race_launch_14_test.gd",
+          "marker": "RACE_LAUNCH_14_PASS"
+        }
+      ],
+      "checks": []
+    }
+  ]
+}
