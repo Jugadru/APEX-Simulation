@@ -3,6 +3,7 @@ extends RefCounted
 ## consumes real events from the APEX simulation, never third-party telemetry.
 
 const MAX_LINES: int = 72
+const Radio3 = preload("res://scripts/presentation/race_radio_06695.gd")
 const CAST := {
 	"NARRADOR": "#d9eaff",
 	"ANALISTA": "#75d8df",
@@ -20,6 +21,8 @@ var _last_battle_pair_at: Dictionary = {}
 var _rng := RandomNumberGenerator.new()
 var _last_interlude := 0.0
 var _last_event_id: int = 0
+# Bounded, presentation-only conversations; do not store in the race/save.
+var _radio3_memory: Dictionary = {}
 
 func reset(race_seed: int) -> void:
 	lines.clear()
@@ -30,6 +33,7 @@ func reset(race_seed: int) -> void:
 	_rng.seed = race_seed + 731
 	_last_interlude = 0.0
 	_last_event_id = 0
+	_radio3_memory.clear()
 
 func ingest(race, player_team: String) -> bool:
 	var changed := false
@@ -69,6 +73,8 @@ func _event_line(event: Dictionary, race, player_team: String) -> bool:
 	var is_ours: bool = str(car.get("team", "")) == player_team
 	var role := "NARRADOR"
 	var phrases: Array[String] = []
+	var radio_packet: Dictionary = {}
+	var soul_request: bool = false
 	match kind:
 		"grid":
 			phrases = ["Está tudo preparado em %s. %d carros para uma prova de %d voltas." % [str(race.track_name), race.cars.size(), int(race.lap_count)],
@@ -121,11 +127,33 @@ func _event_line(event: Dictionary, race, player_team: String) -> bool:
 				return false
 			role = "PILOTO"
 			phrases = [source]
+			var intent: String = Radio3.classify_source(source)
+			if intent != "":
+				var previous: Dictionary = _radio3_memory.get(car_id, {})
+				var facts: Dictionary = {"lap": int(car.get("laps_done", 0)),
+					"event_id": int(event.get("event_id", -1)),
+					"priority": int(event.get("priority", 60))}
+				radio_packet = Radio3.driver(car, intent, facts, previous)
+				if not radio_packet.is_empty():
+					phrases = ["RÁDIO FICTÍCIO | %s: %s" % [name, str(radio_packet["text"])]]
+					_radio3_memory[car_id] = Radio3.remember(previous, radio_packet)
+					soul_request = intent in ["revisar_plano", "avaliar_box", "troca_equipe",
+						"perda_ritmo", "estender_stint"]
 		"engineer_reply":
 			if not is_ours:
 				return false
 			role = "ENGENHEIRO"
 			phrases = [source]
+			var prior: Dictionary = _radio3_memory.get(car_id, {})
+			var prior_kind: String = str(prior.get("last_pilot_kind", ""))
+			if prior_kind != "" and not source.is_empty():
+				radio_packet = Radio3.engineer(car, prior_kind, {
+					"lap": int(car.get("laps_done", 0)),
+					"event_id": int(event.get("event_id", -1)),
+					"priority": int(event.get("priority", 60)),
+					"conversation_id": str(prior.get("last_conversation_id", ""))})
+				if not radio_packet.is_empty():
+					phrases = ["RÁDIO FICTÍCIO | Engenheiro: %s" % str(radio_packet["text"])]
 		"radio":
 			role = "ENGENHEIRO" if is_ours else "ANALISTA"
 			phrases = [source]
@@ -161,6 +189,22 @@ func _event_line(event: Dictionary, race, player_team: String) -> bool:
 			index = (index + 1) % phrases.size()
 	_last_style[kind] = index
 	_push(t, role, phrases[index], is_ours, kind, car_id)
+	if not radio_packet.is_empty():
+		lines[-1]["radio3"] = radio_packet
+	# Soul3 has no automatic engineer message; this is presentation-only
+	# acknowledgement of the already-verified request. The next real driver
+	# command remains under the existing manual/AI Pit Wall validation.
+	if soul_request:
+		var context: Dictionary = {
+			"lap": int(car.get("laps_done", 0)),
+			"event_id": int(event.get("event_id", -1)),
+			"conversation_id": str(radio_packet.get("conversation_id", ""))}
+		var answer: Dictionary = Radio3.engineer(car, str(radio_packet["intent"]), context)
+		if not answer.is_empty():
+			_push(t, "ENGENHEIRO", "RÁDIO FICTÍCIO | Engenheiro: " + str(answer["text"]),
+				is_ours, "radio3_ack", car_id)
+			lines[-1]["radio3"] = answer
+			_radio3_memory[car_id] = Radio3.remember(_radio3_memory.get(car_id, {}), answer)
 	return true
 
 func _ambient_line(race) -> bool:
