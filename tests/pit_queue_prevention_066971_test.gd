@@ -97,7 +97,9 @@ func _run() -> void:
 	recorded.attach(race)
 	recorded.recorded_simulation_revision = Replay.PIT_COORDINATION_SIMULATION_REVISION
 	recorded.legacy_pit_queue_prevention = true
+	recorded.legacy_start_intelligence = true
 	recorded.race.pit_queue_prevention_enabled = false
+	recorded.race.race_start_intelligence_enabled = false
 	for i in range(14):
 		_check(recorded.step_tick(), "018 archive recording tick")
 	var archive: Dictionary = recorded.export_data()
