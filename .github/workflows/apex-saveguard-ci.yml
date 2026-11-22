@@ -14,6 +14,7 @@ on:
         default: 'main'
         type: string
   pull_request:
+    types: [opened, reopened, synchronize, labeled]
     # Include project configuration changes that may affect test behavior.
     branches: [main]
     paths:
@@ -39,6 +40,7 @@ concurrency:
 
 jobs:
   compatibility:
+    if: ${{ github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'ci:full') }}
     name: Saves / Replay / corrupcao — baseline vs candidata
     runs-on: ubuntu-latest
     timeout-minutes: 25

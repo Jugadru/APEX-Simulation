@@ -3,6 +3,7 @@ name: APEX - Pit Wall Intelligence Analyzer 1.0
 on:
   workflow_dispatch:
   pull_request:
+    types: [opened, reopened, synchronize, labeled]
     paths:
       - 'tests/performance_baseline_06690.gd'
       - 'project.godot'
@@ -23,6 +24,7 @@ concurrency:
 
 jobs:
   pitwall-intelligence:
+    if: ${{ github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'ci:full') }}
     name: Analisar escolhas do Pit Wall / 2012, sem modificar IA
     runs-on: ubuntu-24.04
     timeout-minutes: 35

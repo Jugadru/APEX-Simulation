@@ -3,6 +3,7 @@ name: APEX - Race Intelligence Tester
 on:
   workflow_dispatch:
   pull_request:
+    types: [opened, reopened, synchronize, labeled]
     # Include project configuration changes that may affect test behavior.
     paths:
       - 'tests/performance_baseline_06690.gd'
@@ -29,6 +30,7 @@ concurrency:
 
 jobs:
   race-intelligence:
+    if: ${{ github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'ci:full') }}
     name: Pit Wall, chuva, manual e IA / 2012
     runs-on: ubuntu-latest
     timeout-minutes: 25

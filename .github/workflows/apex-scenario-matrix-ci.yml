@@ -17,6 +17,7 @@ on:
         type: string
         default: '12012'
   pull_request:
+    types: [opened, reopened, synchronize, labeled]
     paths:
       - 'tests/performance_baseline_06690.gd'
       # Race Quality 9.9 deliberately requests this complete regression.
@@ -39,6 +40,7 @@ concurrency:
 
 jobs:
   matrix:
+    if: ${{ github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'ci:full') }}
     name: Matrix 2012 / grupo ${{ matrix.shard }} de 4
     runs-on: ubuntu-latest
     timeout-minutes: 70

@@ -14,6 +14,7 @@ on:
         default: 'infra/visual-regression-main-integration'
         type: string
   pull_request:
+    types: [opened, reopened, synchronize, labeled]
     paths:
       - 'tests/performance_baseline_06690.gd'
       # Race Quality 9.9 deliberately requests this complete regression.
@@ -32,6 +33,7 @@ permissions:
 
 jobs:
   visual-ab:
+    if: ${{ github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'ci:full') }}
     name: Comparar HUD 2D e corrida 3D / Silverstone 2012
     runs-on: ubuntu-latest
     timeout-minutes: 35
