@@ -132,6 +132,7 @@ func _event_line(event: Dictionary, race, player_team: String) -> bool:
 				var previous: Dictionary = _radio3_memory.get(car_id, {})
 				var facts: Dictionary = {"lap": int(car.get("laps_done", 0)),
 					"event_id": int(event.get("event_id", -1)),
+					"sim_time": float(event.get("time", -1.0)),
 					"priority": int(event.get("priority", 60))}
 				radio_packet = Radio3.driver(car, intent, facts, previous)
 				if not radio_packet.is_empty():
@@ -146,7 +147,11 @@ func _event_line(event: Dictionary, race, player_team: String) -> bool:
 			phrases = [source]
 			var prior: Dictionary = _radio3_memory.get(car_id, {})
 			var prior_kind: String = str(prior.get("last_pilot_kind", ""))
-			if prior_kind != "" and not source.is_empty():
+			# Only pair with a confirmed driver report at the SAME sporting
+			# timestamp. An older Soul request must not answer a new unrelated event.
+			if prior_kind in ["grip_molhado", "chuva_secando", "inter_secando",
+				"aderencia", "temperatura", "trafego"] and absf(
+				float(event.get("time", -1.0)) - float(prior.get("last_pilot_time", -9999.0))) < 0.01:
 				radio_packet = Radio3.engineer(car, prior_kind, {
 					"lap": int(car.get("laps_done", 0)),
 					"event_id": int(event.get("event_id", -1)),
