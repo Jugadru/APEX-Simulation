@@ -71,11 +71,37 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          godot --headless --single-threaded-scene --path . --import > matrix-import.log 2>&1
-          if grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' matrix-import.log; then
-            cat matrix-import.log
-            exit 1
-          fi
+          # A native Godot importer can rarely crash with SIGSEGV (139) on
+          # ephemeral CI runners while identical shards import successfully.
+          # Retry ONLY native crashes, from a clean import cache; never mask
+          # parser errors or a failed third attempt as success.
+          for attempt in 1 2 3; do
+            rm -rf .godot
+            set +e
+            timeout 180s godot --headless --single-threaded-scene --path . --import > "matrix-import-${attempt}.log" 2>&1
+            status=$?
+            set -e
+            cp "matrix-import-${attempt}.log" matrix-import.log
+            if grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' matrix-import.log; then
+              cat matrix-import.log
+              exit 1
+            fi
+            if test "$status" -eq 0; then
+              echo "Godot import PASS (attempt ${attempt})"
+              exit 0
+            fi
+            if test "$status" -ne 139 -a "$status" -ne 134; then
+              echo "Godot import failed with exit ${status}; no retry for non-native crashes" >&2
+              cat matrix-import.log
+              exit "$status"
+            fi
+            echo "Native Godot importer crashed with exit ${status}, attempt ${attempt}/3" >&2
+            if test "$attempt" -eq 3; then
+              cat matrix-import.log
+              exit "$status"
+            fi
+            sleep "$attempt"
+          done
 
       - name: Executar cenarios reais e comparar duas repeticoes
         shell: bash
@@ -140,5 +166,6 @@ jobs:
           path: |
             ci_artifacts/scenario_matrix/shard-${{ matrix.shard }}/
             matrix-import.log
+            matrix-import-*.log
           retention-days: 14
           if-no-files-found: warn
