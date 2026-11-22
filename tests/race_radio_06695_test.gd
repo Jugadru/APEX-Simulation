@@ -102,7 +102,7 @@ func _run() -> void:
 	check((once.get("history", []) as Array).size() <= Radio3.MAX_MEMORY, "Replay ingestion cannot grow history")
 	check(var_to_bytes(once) == var_to_bytes(memory),
 		"Replayed duplicate packet cannot rewrite the conversation")
-	var repeated: Dictionary = Radio3.driver(booked, "desgaste", {"event_id": 93, "lap": 30}, memory)
+	var repeated: Dictionary = Radio3.driver(booked, "desgaste", {"event_id": 93, "lap": 29}, memory)
 	check(str(repeated.get("text", "")).begins_with("Same issue."), "Later complaints acknowledge earlier discussion")
 	# Real engine emits 9.4 source events; Radio3 acts ONLY in Commentary.
 	var season: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/season_2012.json"))
