@@ -5,6 +5,8 @@ extends RefCounted
 ## Only race_engine.gd can execute a pit stop; this module never authorizes an
 ## operation not already admitted by the engine's strategy and race state.
 
+const EngineerIntelligence = preload("res://scripts/core/race_engineer_intelligence_066913.gd")
+
 const SLICKS := ["Supermacio", "Macio", "Médio", "Duro"]
 
 static func assess(car: Dictionary, previous: Dictionary, advice: Dictionary,
@@ -175,6 +177,9 @@ static func assess(car: Dictionary, previous: Dictionary, advice: Dictionary,
     r["radio_key_3"] = radio_key
     r["next_entry_lap"] = next_pit_entry
     r["risk"] = "CRÍTICO" if priority >= 3 else ("ATENÇÃO" if priority >= 2 else "ACOMPANHAR")
+    # Session/HUD-only advisory. Existing 3.0 pit authorization is unchanged.
+    r["intelligence_066913"] = EngineerIntelligence.evaluate(car, teammate, advice,
+        weather, staff, total_laps)
     return r
 
 static func answer(report: Dictionary, topic: String) -> String:
@@ -182,6 +187,9 @@ static func answer(report: Dictionary, topic: String) -> String:
     # There are no audio samples, historical quotations or automatic orders.
     var lead: String = "Engenheiro (simulação): "
     match topic:
+        "engenheiro":
+            var intelligence: Dictionary = report.get("intelligence_066913", {})
+            return str(intelligence.get("radio", lead + "Análise técnica indisponível."))
         "pneus":
             return lead + str(report.get("thermal_note", "")) + " " + str(report.get("pace_note", "")) + " " + str(report.get("hold_case", ""))
         "clima":

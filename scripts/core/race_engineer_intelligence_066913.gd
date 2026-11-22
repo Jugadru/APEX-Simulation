@@ -4,7 +4,7 @@ extends RefCounted
 ## (imperfect) strategist forecast. Never alters pace, pits, tyres or replay.
 ## Heuristic game thresholds, NOT measured F1 telemetry or calibrated risk.
 
-const SLICKS: Array[String] = ["Supermacio", "Macio", "Médio", "Duro"]
+const SLICKS := ["Supermacio", "Macio", "Médio", "Duro"]
 
 static func evaluate(car: Dictionary, teammate: Dictionary, advice: Dictionary,
 		weather: Dictionary, staff: Dictionary, race_laps: int) -> Dictionary:
