@@ -53,6 +53,22 @@ jobs:
           run_test race_launch_14_test.gd RACE_LAUNCH_14_PASS
           run_test strategy_staff_066910_test.gd STRATEGY_STAFF_066910_PASS
           run_test replay_0660_test.gd REPLAY_UNIT_PASS
+      - name: Start-line visual safety (four tracks; fail on new collisions)
+        shell: bash
+        run: |
+          set -euo pipefail
+          log=ci_artifacts/race_start_066911/visual_stutter.log
+          timeout 240s godot --headless --single-threaded-scene --path . \
+            --script res://tests/visual_stutter_06672_benchmark.gd > "$log" 2>&1
+          cat "$log"
+          python3 - "$log" <<'PY'
+          import json, sys
+          text = open(sys.argv[1], encoding="utf-8").read()
+          marker = "VISUAL_STUTTER_06672_BENCHMARK "
+          reports = [json.loads(line.split(marker, 1)[1]) for line in text.splitlines() if marker in line]
+          if len(reports) != 1 or reports[0]["failures"] != 0:
+              raise SystemExit("Race-start visual collisions/holds require investigation")
+          PY
       - name: Upload actual logs
         if: always()
         uses: actions/upload-artifact@v4
