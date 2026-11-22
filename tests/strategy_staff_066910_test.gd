@@ -92,6 +92,29 @@ func _run() -> void:
 	var two = Race.new(season["teams"], "Ferrari", 6610, {}, track, {})
 	one.strategy_staff_profile = staff.duplicate(true)
 	two.strategy_staff_profile = staff.duplicate(true)
+
+	var integrated_staff_report: Dictionary = one.get_engineer_advice(int(one.player_cars()[0]["id"])).get("staff_strategy_066910", {})
+	check(str(integrated_staff_report.get("staff_name", "")) == "Elisa Nogueira"
+		and str(integrated_staff_report.get("source", "")) == "observacoes_e_previsoes_imperfeitas",
+		"real RaceEngine engineer advice exposes signed strategist without issuing an order")
+	var protective = Race.new(season["teams"], "Ferrari", 6612, {}, track, {})
+	protective.strategy_staff_profile = staff.duplicate(true)
+	var protected_driver: Dictionary = protective.player_cars()[0]
+	var protected_id: int = int(protected_driver["id"])
+	check(protective.schedule_pit(protected_id, str(protective.available_pit_compounds()[1]), 21),
+		"real RaceEngine accepts explicit BOX V21 with active strategist")
+	var protected_staff_report: Dictionary = protective.get_engineer_advice(protected_id).get("staff_strategy_066910", {})
+	check(str(protected_staff_report.get("recommendation", "")) == "ORDEM MANUAL PROTEGIDA",
+		"real staff advice defers to confirmed player order")
+	protective.configure_weather("Chuva intensa")
+	protected_driver["progress"] = 3.94
+	protective.running = true
+	for tick in range(36):
+		protective.step(0.2)
+	check(int(protected_driver["pit_scheduled_lap"]) == 21
+		and not bool(protected_driver["pit_request"])
+		and int(protected_driver["stops"]) == 0,
+		"real V21 stays V21 even with live 83 percent rain and active strategist")
 	var initial_state: Dictionary = Codec.capture(one)
 	check(not initial_state["engine"].has("strategy_staff_intelligence_enabled")
 		and not initial_state["engine"].has("strategy_staff_profile")

@@ -36,7 +36,8 @@ O workflow `.github/workflows/apex-strategy-staff-ci.yml` também executa regres
 - Decisão +1V: NOT_RUN
 - Proteções V21, chuva, desgaste, gerente e double stack: NOT_RUN
 - Replay novo 021, replay legado 020 e hashes: NOT_RUN
-- Corrida integral de Silverstone/Monza/Spa/Singapura: NOT_RUN
+- Corrida integral com STAFF real, Silverstone (seco) e Monza (variável), duas seeds repetidas: NOT_RUN
+- Corrida integral Spa/Singapura: NOT_RUN
 - Importação headless Godot 4.7.2: NOT_RUN
 - UI real 1600×900 e 1920×1080: NOT_RUN
 - Benchmarks 10×/16×/32×: NOT_RUN
