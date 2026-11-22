@@ -1,8 +1,36 @@
-# APEX Motorsport Manager — Core 2 (v0.6.6.9.7)
+# APEX Motorsport Manager — Core 2 (v0.6.6.9.8)
 
 Simulador de gestão de automobilismo com equipes, estratégias, desenvolvimento de carros e corridas em 3D. O **Core 2** é o motor esportivo oficial deste repositório.
 
-## 📥 Baixar o jogo — v0.6.6.9.7 (versão atual)
+## 📥 Baixar o jogo — v0.6.6.9.8 (versão oficial)
+
+### [⬇ Baixar APEX v0.6.6.9.8 — Windows e Linux](https://github.com/Jugadru/APEX-Simulation/actions/runs/44984972921/artifacts/14738384976)
+
+Pacote x86_64 exportado em **Godot 4.7.2**; os dois arquivos `.pck` foram verificados com a identificação correta `v0.6.6.9.8`. A inicialização headless no Linux passou. Extraia o ZIP do GitHub Actions e, depois, o ZIP do seu sistema, mantendo executável e `.pck` juntos. No Linux pode ser necessário `chmod +x APEX_Motorsport_Manager.x86_64`.
+
+**Artefato temporário até 06/12/2026**, possivelmente exige login no GitHub. Não é uma GitHub Release permanente nem comprova FPS 3D nativo no PC do jogador.
+
+### [⬇ Baixar o código-fonte oficial v0.6.6.9.8 — Godot 4.7.2](https://github.com/Jugadru/APEX-Simulation/archive/c62dc42d0745d6796db1403622f046e515fec7b8.zip)
+
+A candidata `40fa39ab75ebd2c25258f72638d92cbdda387071` foi integrada à `main` pela [PR #86](https://github.com/Jugadru/APEX-Simulation/pull/86), merge `c62dc42d0745d6796db1403622f046e515fec7b8`. As árvores Git são idênticas. O código-fonte não é um executável.
+
+### 🌧️ Novidade — Wet Strategy Intelligence
+
+- **Previsão imperfeita observacional:** a IA analisa água na linha e fora dela, umidade, chuva observada e drenagem sem consultar tempestades futuras ocultas no motor.
+- **Estratégia com incerteza:** recomendações conservadoras em transições molhado/seco; o modelo não inventa probabilidade estatística calibrada.
+- **Proteção esportiva:** paradas críticas não são bloqueadas, comandos manuais e V21 continuam protegidos, fila FIFO e mecânica de 2012 preservadas.
+- **Replay compatível:** novas corridas usam revisão `020_wet_strategy_intelligence_v1`, com manutenção das regras meteorológicas antigas para arquivos `019` e anteriores; schema de save inalterado.
+- **Build identificada corretamente:** versão 9.8 validada dentro dos PCKs Linux/Windows; sem alterar a pasta de usuário/saves.
+
+**Homologação:** [21/21 workflows PASS](https://github.com/Jugadru/APEX-Simulation/commit/40fa39ab75ebd2c25258f72638d92cbdda387071/checks), [Quality Gate READY 10/10](https://github.com/Jugadru/APEX-Simulation/actions/runs/44984972797), teste Wet Strategy **83 verificações**, [20 circuitos 4/4](https://github.com/Jugadru/APEX-Simulation/actions/runs/44984972857), [Monza 53 voltas com 24.229 ticks e replay integral verificado](https://github.com/Jugadru/APEX-Simulation/actions/runs/44984972885), SaveGuard e exportações PASS. A primeira auditoria do gate registrou BLOCKED enquanto faltavam verificações; a nova auditoria pós-CI confirmou READY.
+
+**Caso em acompanhamento:** Pit Wall Analyzer aprovou 8 execuções, mas manteve uma observação `REVIEW/PIT_QUEUE` de 5,8772 s em Monza. Não equivale a teste falhado; a v9.8 não promete eliminar todas as filas. Benchmarks headless não substituem testes reais de GPU/FPS.
+
+**Documentação técnica:** [Relatório Wet Strategy 9.8](docs/APEX_RELEASE_v0.6.6.9.8_WET_STRATEGY.md).
+
+## 📦 Versão anterior — v0.6.6.9.7
+
+### 📥 Baixar o jogo — v0.6.6.9.7
 
 ### [⬇ Baixar APEX v0.6.6.9.7 — Windows e Linux](https://github.com/Jugadru/APEX-Simulation/actions/runs/44973100017/artifacts/14734451599)
 
