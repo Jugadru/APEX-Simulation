@@ -1,8 +1,36 @@
-# APEX Motorsport Manager — Core 2 (v0.6.6.9.5)
+# APEX Motorsport Manager — Core 2 (v0.6.6.9.6)
 
 Simulador de gestão de automobilismo com equipes, estratégias, desenvolvimento de carros e corridas em 3D. O **Core 2** é o motor esportivo oficial deste repositório.
 
-## 📥 Baixar o jogo — v0.6.6.9.5 (versão atual)
+## 📥 Baixar o jogo — v0.6.6.9.6 (versão atual)
+
+### [⬇ Baixar APEX v0.6.6.9.6 — Windows e Linux](https://github.com/Jugadru/APEX-Simulation/actions/runs/44970898039/artifacts/14733518226)
+
+Pacote para **Windows x86_64** e **Linux x86_64**, exportado no **Godot 4.7.2**. Extraia primeiro o arquivo externo do GitHub Actions, depois o ZIP do sistema operacional escolhido. Mantenha o executável e o arquivo `.pck` juntos. No Linux, pode ser necessário `chmod +x APEX_Motorsport_Manager.x86_64`.
+
+**Download temporário até 06/12/2026**, sujeito à disponibilidade do GitHub e possivelmente a login. O artefato não é uma GitHub Release pública permanente. A exportação e o smoke test Linux foram validados; não foi realizado teste gráfico nativo em um PC Windows do jogador.
+
+### [⬇ Baixar o código-fonte oficial v0.6.6.9.6 — Godot 4.7.2](https://github.com/Jugadru/APEX-Simulation/archive/3c0d99a6dca921ee0abea86f7d9d1f522f9e052a.zip)
+
+A candidata aprovada `72d2bcedcafe9c993330738658fce856bc65f861` foi integrada à branch `main` na [PR #80](https://github.com/Jugadru/APEX-Simulation/pull/80), commit `3c0d99a6dca921ee0abea86f7d9d1f522f9e052a`. O arquivo de código-fonte serve para editar o jogo, **não** é um executável.
+
+### 🧠 Novidade — Pit Wall Prediction Ledger 1.0
+
+- **Previsões auditáveis:** registra recomendações emitidas, ordens manuais, decisões da IA e cancelamentos. Uma recomendação não executada nunca vira acerto fictício.
+- **Resultado real:** relaciona cada previsão de entrada com o histórico confirmado de pit, posição de retorno e perda líquida de tempo, mostrando erros e motivos comprováveis (fila, incidente, treinamento).
+- **Pneus, chuva e cinco voltas:** compara desgaste, ritmo e água observados com as projeções. Quando possível, mede ganho/perda relativa de cinco voltas contra um mesmo rival sem nova parada; não inventa um cenário alternativo não observado.
+- **Aprendizado e STAFF:** calibração limitada após pelo menos três paradas verificadas da mesma equipe e nível de estrategista; relatórios de erro absoluto médio por categoria. Não presume precisão perfeita nem identidades individuais indisponíveis.
+- **Segurança esportiva:** nenhum comando implícito de pit, nenhuma alteração em RNG, física, ritmo ou replay. Uma parada manual agendada V21 continua protegida; arquivos antigos de saves são preservados.
+
+**Validação:** **[18/18 workflows PASS](https://github.com/Jugadru/APEX-Simulation/commit/72d2bcedcafe9c993330738658fce856bc65f861/checks)** e [Quality Gate READY 10/10](https://github.com/Jugadru/APEX-Simulation/actions/runs/44970898010) no mesmo commit. O teste específico passou **28 verificações**; Race Radio 3.0, 69; SaveGuard, Core 2, benchmarks, replay integral Monza 53 voltas, matriz de 20 circuitos, regressões visuais e exportação para PC também foram aprovados. Os benchmarks headless não demonstram FPS 3D real na máquina do jogador.
+
+**Limite da v1:** histórico e calibração da sessão de corrida não são persistidos automaticamente na carreira. Resultados de decisões emitidas muito antes da parada não são tratados como previsões meteorológicas verificáveis para a data futura.
+
+**Documentação técnica:** [Prediction Ledger 1.0](docs/APEX_RELEASE_v0.6.6.9.6_PITWALL_PREDICTION_LEDGER.md) · [PR #80](https://github.com/Jugadru/APEX-Simulation/pull/80).
+
+## 📦 Versão anterior — v0.6.6.9.5
+
+### 📥 Baixar o jogo — v0.6.6.9.5 (versão anterior)
 
 ### [⬇ Baixar APEX v0.6.6.9.5 — Windows e Linux](https://github.com/Jugadru/APEX-Simulation/actions/runs/44966435731/artifacts/14731945591)
 
@@ -31,7 +59,6 @@ Código **integrado à `main` na [PR #79](https://github.com/Jugadru/APEX-Simula
 
 | Versão | Foco | Objetivo |
 | --- | --- | --- |
-| **v0.6.6.9.6** | **Pit Wall Prediction Ledger 1.0** | Registrar previsões de paradas, pneus, tráfego e condições meteorológicas, comparando estimativas com resultados verificados sem fabricar fatos. |
 | v0.6.6.9.7 | Pit Coordination 2.0 | Aperfeiçoar filas, `double stack` e coordenação operacional da equipe. |
 | v0.6.6.9.8 | Wet Strategy Intelligence | Refinar recomendações em chuva, transição entre compostos e pista secando. |
 | v0.6.6.9.9 | Race Quality Release | Regressões, estabilidade e refinamento da experiência de corrida. |
