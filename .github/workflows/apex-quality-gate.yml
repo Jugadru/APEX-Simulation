@@ -50,7 +50,7 @@ jobs:
     name: Quality Gate / auditoria por SHA
     needs: quality-gate-unit
     runs-on: ubuntu-latest
-    timeout-minutes: 78
+    timeout-minutes: 26
     env:
       APEX_AUTOMATED_FULL: ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'ci:full') }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -74,7 +74,7 @@ jobs:
           path: candidate
           persist-credentials: false
 
-      - name: Gate fail-closed para 10 evidencias no SHA exato
+      - name: Gate fail-closed por SHA e modulo afetado
         shell: bash
         run: |
           set -euo pipefail
@@ -83,22 +83,44 @@ jobs:
           if grep -Fq -- '--trusted-project' gate/tools/apex_quality_gate.py; then
             TRUSTED_ARGS=(--trusted-project gate)
           fi
+          CHANGED_ARGS=()
+          if [[ "$APEX_PR_NUMBER" != "0" ]]; then
+            # Scope targeted checks using the exact base/candidate diff.
+            # The ten original requirements cannot be removed by this file.
+            test "$(git -C candidate rev-parse HEAD)" = "$APEX_TARGET_SHA"
+            git -C candidate fetch --no-tags --depth=1 origin "$APEX_BASE_SHA"
+            python3 - <<'PY'
+          import json, os, subprocess
+          from pathlib import Path
+          base, head = os.environ["APEX_BASE_SHA"], os.environ["APEX_TARGET_SHA"]
+          raw = subprocess.check_output(
+              ["git", "-C", "candidate", "diff", "--name-only", "-z",
+               base, head, "--"], timeout=30)
+          paths = sorted({p.decode("utf-8") for p in raw.split(b"\\0") if p})
+          if not paths:
+              raise SystemExit("APEX_GATE_DIFF_FAIL: empty exact base/head diff")
+          Path("ci_artifacts/quality_gate/changed-files.json").write_text(
+              json.dumps(paths), encoding="utf-8")
+          print(f"APEX_GATE_DIFF_READY changed_files={len(paths)}")
+          PY
+            CHANGED_ARGS=(--changed-files ci_artifacts/quality_gate/changed-files.json)
+          fi
           if [[ "$APEX_AUTOMATED_FULL" != "true" ]]; then
             python3 gate/tools/apex_quality_gate.py \
               --repository "$GITHUB_REPOSITORY" --sha "$APEX_TARGET_SHA" \
               --mode "$APEX_MODE" --wait-seconds 90 \
               --pr-number "$APEX_PR_NUMBER" --base-sha "$APEX_BASE_SHA" \
-              --project candidate "${TRUSTED_ARGS[@]}" --output ci_artifacts/quality_gate
+              --project candidate "${TRUSTED_ARGS[@]}" "${CHANGED_ARGS[@]}" --output ci_artifacts/quality_gate
             exit 0
           fi
-          # The reliable FULL gate polls only once per minute to limit API calls,
-          # while the other CI jobs run concurrently. Audit output alone is NOT success.
-          for attempt in $(seq 1 70); do
+          # Parallel FULL workflows already run independently (~14 min for endurance).
+          # Bound polling to 20 checks; never spend 70 minutes waiting for invalid evidence.
+          for attempt in $(seq 1 20); do
             python3 gate/tools/apex_quality_gate.py \
               --repository "$GITHUB_REPOSITORY" --sha "$APEX_TARGET_SHA" \
               --mode audit --wait-seconds 0 \
               --pr-number "$APEX_PR_NUMBER" --base-sha "$APEX_BASE_SHA" \
-              --project candidate "${TRUSTED_ARGS[@]}" --output ci_artifacts/quality_gate
+              --project candidate "${TRUSTED_ARGS[@]}" "${CHANGED_ARGS[@]}" --output ci_artifacts/quality_gate
             verdict=$(python3 - <<'PY'
           import json
           from pathlib import Path
@@ -121,9 +143,9 @@ jobs:
               cat ci_artifacts/quality_gate/report.md
               exit 1
             fi
-            if [[ "$attempt" -lt 70 ]]; then sleep 60; fi
+            if [[ "$attempt" -lt 20 ]]; then sleep 60; fi
           done
-          echo "APEX_CI_FULL_GATE_BLOCKED: missing same-SHA evidence"
+          echo "APEX_CI_FULL_GATE_BLOCKED: missing same-SHA evidence after 20 checks"
           cat ci_artifacts/quality_gate/report.md
           exit 1
 
