@@ -14,6 +14,9 @@ var driver_traffic_enabled: bool = true
 var driver_soul3_enabled: bool = true
 # v9.7 changes only same-garage arbitration; legacy 017 replay remains on its old rule.
 var pit_coordination2_enabled: bool = true
+# v9.7.1: sporting rules for new sessions; 018 and earlier recordings disable
+# only this preventive decision, leaving the physical 018 FIFO untouched.
+var pit_queue_prevention_enabled: bool = true
 const Combat = preload("res://scripts/core/race_combat.gd")
 const Strategy = preload("res://scripts/core/race_strategy.gd")
 const RaceIntelligence = preload("res://scripts/core/race_intelligence_0645.gd")
@@ -1243,9 +1246,21 @@ func _request_ai_pit(car: Dictionary, urgent: bool = false) -> void:
 				break
 		if not coordinated_mate.is_empty():
 			var teammate_baseline: Dictionary = _build_strategy_plan(coordinated_mate, false)
+			# Only estimate the crew's known dock/service occupation when both
+			# independently planned windows end at the last legal pit entrance.
+			# This does not predict future incidents or alter pit service timing.
+			var garage_occupation_s: float = 0.0
+			if (pit_queue_prevention_enabled
+					and int(recommendation.get("planned_pit_lap", 0)) == lap_count - 1
+					and int(teammate_baseline.get("planned_pit_lap", 0)) == lap_count - 1):
+				var nominal: float = pit_loss + base_lap * PIT_TRACK_FRACTION
+				var durations: Dictionary = PitMath.service_durations(nominal,
+					PIT_SERVICE_BEGIN, PIT_SERVICE_END, PIT_QUEUE_PHASE, _crew_bonus_for(car))
+				garage_occupation_s = float(durations["dock_total"]) + float(durations["service_total"])
 			var coordinate: Dictionary = TeamPitCoordinator06497.assess(car, coordinated_mate,
 				recommendation, teammate_baseline, weather_snapshot(), lap_count,
-				_next_pit_entry_lap(car), team_name, available_pit_compounds())
+				_next_pit_entry_lap(car), team_name, available_pit_compounds(),
+				pit_queue_prevention_enabled, garage_occupation_s, base_lap)
 			car["team_pit_coord_06497"] = coordinate.duplicate(true)
 			if bool(coordinate.get("executable", false)):
 				if str(coordinate.get("decision", "")) == "ANTECIPAR":
