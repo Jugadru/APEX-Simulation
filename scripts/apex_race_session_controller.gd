@@ -4,6 +4,7 @@ extends RefCounted
 
 const DirectorScript = preload("res://scripts/tv_director.gd")
 const RaceScript = preload("res://scripts/race_engine.gd")
+const StrategyStaff066910 = preload("res://scripts/core/race_strategy_staff_intelligence_066910.gd")
 static func _start_race(host) -> void:
 	if host.replay_ui != null: host.replay_ui.leave()
 	host.replay_session = null
@@ -37,8 +38,10 @@ static func _start_race(host) -> void:
 	host.championship_race_active = host.championship_mode
 	host.championship_result_saved = false
 	host.race = RaceScript.new(host.teams, host.selected_team, host.championship.round_seed() if host.championship_race_active else int(host.seed_picker.value), host.garage.get_team(host.selected_team)["levels"], track, host.garage.effective_crew_levels(host.selected_team))
-	# Personnel levels only inform the observer; never influence sporting physics.
+	# Prediction Ledger keeps its historic observer-only staff levels.
 	host.race.prediction_staff = host.garage.effective_staff_levels(host.selected_team).duplicate(true)
+	# Independent, immutable race-session snapshot for staff decisions and replays.
+	host.race.strategy_staff_profile = StrategyStaff066910.profile(team_state)
 	host.garage.inventory_begin(host.selected_team, {"season": int(host.championship.state.get("serial", 0)), "round": int(host.championship.state.get("round_index", 0)) + 1, "mode": "championship" if host.championship_mode else "single"})
 	if host.championship_race_active:
 		host.race.set_championship_round(int(host.championship.state.get("round_index", 0)))
