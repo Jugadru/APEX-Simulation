@@ -114,3 +114,16 @@ def full_checks(suites: list[dict]) -> list[dict]:
                 raise ValueError(f"Conflicting FULL check key: {check['key']}")
             out[check["key"]] = check
     return [out[k] for k in sorted(out)]
+
+def full_checks_for_paths(suites: list[dict], paths: list[str]) -> list[dict]:
+    """Require targeted FULL jobs only for modules touched by exact PR diff.
+
+    All ten built-in requirements remain unconditional. Trusted manifests are
+    combined with candidate manifests before evaluating affected modules.
+    """
+    if not paths or any(not isinstance(p, str) or not p for p in paths):
+        raise ValueError("Cannot scope FULL checks to an empty or invalid diff")
+    affected = [suite for suite in suites
+                if any(fnmatchcase(path, pattern)
+                       for path in paths for pattern in suite["paths"])]
+    return full_checks(affected)
