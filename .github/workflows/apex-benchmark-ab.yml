@@ -1,8 +1,6 @@
 name: APEX - Comparador de Benchmarks A-B
 
 on:
-  pull_request:
-    types: [opened, reopened, synchronize, labeled]
   workflow_dispatch:
     inputs:
       baseline_ref:
