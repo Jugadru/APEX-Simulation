@@ -75,7 +75,8 @@ func _run() -> void:
 		"driver wear never cached across calls or cars")
 	check(wet.get("track_factors", {}) == TrackDynamics.profile_for("ITA"),
 		"returned factors identical to uncached profile")
-	(wet["track_factors"] as Dictionary)["abrasion"] = 9999.0
+	var exposed_factors: Dictionary = wet["track_factors"]
+	exposed_factors["abrasion"] = 9999.0
 	check(float(Knowledge.assess(ita,storm).track_factors.abrasion) < 2.0,
 		"mutating a result never corrupts the cached catalog")
 	check(Knowledge._profile_cached("NOT_2012").is_empty() and
@@ -88,20 +89,20 @@ func _run() -> void:
 
 	# Observed diagnostic: uncached JSON parse vs cached profile fetch for the
 	# SAME queries. Do not gate machine-dependent timing or claim GPU/FPS gain.
-	const REPETITIONS := 600
+	var repetitions: int = 600
 	var start_uncached: int = Time.get_ticks_usec()
-	for i in range(REPETITIONS):
+	for i in range(repetitions):
 		TrackDynamics.profile_for(codes[i % codes.size()])
 	var uncached_us: int = Time.get_ticks_usec() - start_uncached
 	var start_cached: int = Time.get_ticks_usec()
-	for i in range(REPETITIONS):
+	for i in range(repetitions):
 		Knowledge._profile_cached(codes[i % codes.size()])
 	var cached_us: int = Time.get_ticks_usec() - start_cached
 	check(uncached_us > 0 and cached_us > 0, "benchmark measured both code paths")
 	check(Knowledge.cache_stats().get("catalog_loads") == 1,
 		"600 additional HUD-equivalent queries still consume zero catalog parses")
 	print("PERFORMANCE_POLISH_066915_BENCH ", JSON.stringify({
-		"iterations":REPETITIONS,"uncached_us":uncached_us,
+		"iterations":repetitions,"uncached_us":uncached_us,
 		"cached_us":cached_us,"ratio_observed":float(uncached_us) / maxf(1.0,float(cached_us)),
 		"note":"Headless local CPU microbenchmark only; no guarantee of measured FPS improvement."}))
 
