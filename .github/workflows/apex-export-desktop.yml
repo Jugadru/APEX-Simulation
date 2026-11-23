@@ -5,13 +5,18 @@ on:
   push:
     tags:
       - 'v*'
+  # Optional playtest export. Triggered ONLY by deliberately applying
+  # build:preview to a PR; the normal FAST + Test Lab path is unchanged.
+  pull_request:
+    branches: [main]
+    types: [labeled]
 
 permissions:
   contents: read
 
 jobs:
   export-pc:
-    if: ${{ github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'ci:full') }}
+    if: ${{ github.event_name != 'pull_request' || (github.event.action == 'labeled' && github.event.label.name == 'build:preview') }}
     name: Exportar desktop Godot 4.7.2
     runs-on: ubuntu-latest
     timeout-minutes: 40
@@ -39,8 +44,40 @@ jobs:
           python3 -m unittest discover -s tools/tests \
             -p 'test_package_desktop_exports.py' -v
 
-      - name: Importar os recursos
-        run: godot --headless --path . --import
+      - name: Importar os recursos com recuperacao de crash nativo
+        shell: bash
+        run: |
+          set -euo pipefail
+          # The 4.7.2 editor occasionally aborts on Linux runner threads.
+          # Retry only exit 134/139; parser/scene/script errors are real failures.
+          for attempt in 1 2 3; do
+            rm -rf .godot
+            set +e
+            timeout 240s godot --headless --single-threaded-scene --path . --import > "ci_import_${attempt}.log" 2>&1
+            code=$?
+            set -e
+            if grep -Eiq '(SCRIPT ERROR:|Parse Error:)' "ci_import_${attempt}.log"; then
+              cat "ci_import_${attempt}.log"
+              exit 1
+            fi
+            if [ "$code" -eq 0 ]; then
+              if grep -Eiq '^ERROR:' "ci_import_${attempt}.log"; then
+                cat "ci_import_${attempt}.log"
+                exit 1
+              fi
+              echo "APEX_EXPORT_IMPORT_PASS attempt=$attempt"
+              break
+            fi
+            if [ "$code" -ne 134 ] && [ "$code" -ne 139 ]; then
+              cat "ci_import_${attempt}.log"
+              exit "$code"
+            fi
+            if [ "$attempt" -eq 3 ]; then
+              cat "ci_import_${attempt}.log"
+              exit "$code"
+            fi
+            echo "Native Godot import crash $code; retrying with clean cache"
+          done
 
       - name: Exportar jogo para Linux x86_64
         shell: bash
@@ -97,6 +134,14 @@ jobs:
             --builds builds --output dist \
             --godot-version 4.7.2-stable
 
+      - name: Verificar procedencia dos pacotes de teste
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq 'v0.6.6.9.15' project.godot
+          git rev-parse HEAD > dist/SOURCE_COMMIT.txt
+          (cd dist && sha256sum *.zip > SHA256SUMS.txt)
+          echo "APEX_PLAYTEST_RELEASE_SOURCE=$(cat dist/SOURCE_COMMIT.txt)"
       - name: Smoke de inicializacao Linux sem tela
         shell: bash
         run: |
@@ -131,6 +176,8 @@ jobs:
           path: |
             dist/*.zip
             dist/manifest.json
+            dist/SHA256SUMS.txt
+            dist/SOURCE_COMMIT.txt
           retention-days: 14
           if-no-files-found: error
           compression-level: 0

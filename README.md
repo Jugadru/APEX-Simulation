@@ -2,9 +2,11 @@
 
 **Código-fonte atual na `main`: v0.6.6.9.15 — Performance & Race Polish 1.0.** Otimização do catálogo de pistas no painel do engenheiro, integrada pelo [PR #104](https://github.com/Jugadru/APEX-Simulation/pull/104) com FAST no Godot 4.7.2.
 
-**Última versão oficial publicada para baixar e jogar: v0.6.6.9.9 — Race Quality Release.** Publicada em 22/11/2026 para Windows e Linux x86_64, com código-fonte para **Godot 4.7.2**. Os ZIPs e a tag da release permanecem inalterados.
+**Última compilação jogável para TESTES: v0.6.6.9.15 — Linux e Windows x86_64.** Gerada em 23/11/2026 no Godot 4.7.2, com validação de identificação dos PCKs e smoke Linux. **[⬇ Baixar APEX 9.15 para testar](https://github.com/Jugadru/APEX-Simulation/actions/runs/45263299614/artifacts/14860803687)** (ZIP externo com pacotes de Linux e Windows; pode exigir login GitHub; artefato expira em **07/12/2026**).
 
-> **Importante:** a `main` contém funcionalidades até a **9.15**, mas ainda não existe **release binária 9.15** publicada. Para jogar com executável pronto, use a 9.9 abaixo; para desenvolver o código mais recente, abra `project.godot` da `main`.
+**Última release oficial permanente: v0.6.6.9.9 — Race Quality Release.** Publicada em 22/11/2026 para Windows e Linux x86_64. Os ZIPs e a tag dessa release continuam disponíveis, sem alterações.
+
+> **Importante:** a `main` contém a **9.15** e agora existe **build jogável 9.15 para teste**, disponível como artefato temporário do GitHub Actions. Isso **não é uma GitHub Release permanente**. Para baixar sem prazo de expiração, a release oficial mais recente ainda é a 9.9. Para desenvolver, abra `project.godot` da `main`.
 
 ### Evolução do código após a release 9.9
 
@@ -21,7 +23,20 @@ Na 9.14, o setup é **consultivo**: não aplica ajustes de asa/suspensão nem mu
 
 **Desenvolvimento atual:** somente **FAST + APEX Test Lab + regressões direcionadas** automaticamente. Matriz 20/180, endurance, comparações, exportações e Quality Gate histórico são executados manualmente quando solicitados. Consulte o [guia FAST](docs/APEX_CI_INTELIGENTE_TRES_NIVEIS.md).
 
-## 📥 Baixar o jogo — v0.6.6.9.9
+## 📥 Baixar o jogo — v0.6.6.9.15 (prévia para teste)
+
+### [⬇ Baixar APEX 9.15 — Linux e Windows x86_64](https://github.com/Jugadru/APEX-Simulation/actions/runs/45263299614/artifacts/14860803687)
+
+**Versão atual do código jogável**, compilada com Godot 4.7.2. Abra o link, entre no GitHub se necessário e baixe o artefato `apex-pc-linux-windows-godot-4-7-2`. Extraia primeiro o ZIP externo e depois **o ZIP de seu sistema operacional**. Em cada pasta, mantenha o executável e o arquivo `APEX_Motorsport_Manager.pck` juntos:
+
+- **Linux:** execute `chmod +x APEX_Motorsport_Manager.x86_64` se necessário e abra o executável.
+- **Windows:** execute `APEX_Motorsport_Manager.exe`. O pacote foi validado, mas ainda não passou por teste gráfico nativo em Windows.
+
+**Validações:** build Linux e Windows aprovadas, identificação `v0.6.6.9.15` dentro de ambos os PCKs, integridade dos ZIPs e teste de inicialização Linux sem tela. O artefato inclui `SHA256SUMS.txt`, `manifest.json` e `SOURCE_COMMIT.txt`. Não representa homologação gráfica em PC real. **Link temporário, expira em 07/12/2026.**
+
+**Origem:** [build aprovada no GitHub Actions](https://github.com/Jugadru/APEX-Simulation/actions/runs/45263299614) · Código do jogo baseado na `main` v9.15 (`3187e889`); o commit do artefato (`913293d3`) inclui apenas a configuração de exportação opt-in.
+
+## 📦 Release oficial anterior — v0.6.6.9.9
 
 - **[Windows x86_64 — ZIP oficial](https://github.com/Jugadru/APEX-Simulation/releases/download/v0.6.6.9.9/APEX_Motorsport_Manager_4.7.2-stable_windows_x86_64.zip)**
 - **[Linux x86_64 — ZIP oficial](https://github.com/Jugadru/APEX-Simulation/releases/download/v0.6.6.9.9/APEX_Motorsport_Manager_4.7.2-stable_linux_x86_64.zip)**
