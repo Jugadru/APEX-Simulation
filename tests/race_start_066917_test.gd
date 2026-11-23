@@ -40,8 +40,8 @@ func _run() -> void:
 
 	var wide: float = Start20.congestion_cost(follower, 1.0, dry, grid, 1000.0, 1.0)
 	var narrow: float = Start20.congestion_cost(follower, 1.0, dry, grid, 1000.0, 0.0)
-	var rainy: float = Start20.congestion_cost(follower, 1.0, wet, grid, 1000.0, 0.0)
-	check(wide > 0.0 and narrow > wide and rainy > narrow,
+	var wet_congestion: float = Start20.congestion_cost(follower, 1.0, wet, grid, 1000.0, 0.0)
+	check(wide > 0.0 and narrow > wide and wet_congestion > narrow,
 		"real headway, narrow sector and rain produce increasing bounded cost")
 	check(Start20.headway_units(follower, grid, 1000.0) > 6.0
 		and Start20.headway_units(follower, grid, 1000.0) < 7.0,
@@ -65,7 +65,7 @@ func _run() -> void:
 		"awareness mitigates congestion without granting free speed")
 	var risk: Dictionary = follower.duplicate(true)
 	risk["risk_tolerance"] = 95.0
-	check(Start20.congestion_cost(risk, 1.0, wet, grid, 1000.0, 0.0) > rainy,
+	check(Start20.congestion_cost(risk, 1.0, wet, grid, 1000.0, 0.0) > wet_congestion,
 		"aggressive wet approach has a traction/safety tradeoff")
 	check(Start20.congestion_cost(follower, -0.1, dry, grid, 1000.0, 0.0) == 0.0
 		and Start20.congestion_cost(follower, 18.0, dry, grid, 1000.0, 0.0) == 0.0,
@@ -83,7 +83,7 @@ func _run() -> void:
 	check(Start20.pace_cost(follower, 18.0, wet, 0.0, grid, 1000.0) == 0.0,
 		"neither launch nor corner model changes the following race")
 	check(var_to_bytes([grid, dry, wet]) == original
-		and Start20.congestion_cost(follower, 1.0, wet, grid, 1000.0, 0.0) == rainy,
+		and Start20.congestion_cost(follower, 1.0, wet, grid, 1000.0, 0.0) == wet_congestion,
 		"pure model has no RNG and never mutates its inputs")
 
 	var season_data: Variant = JSON.parse_string(
