@@ -1,6 +1,6 @@
-# APEX Motorsport Manager — Core 2 (código v0.6.6.9.17, candidato)
+# APEX Motorsport Manager — Core 2 (código v0.6.6.9.17)
 
-**Código candidato nesta branch: v0.6.6.9.17 — Largada 2.0.** Avalia trânsito do grid e cautela na aproximação da primeira curva com base no corredor ocupado, estreitamento do traçado e chuva. A `main` de referência ainda está na 9.16 e o último **binário jogável verificado continua sendo o 9.16**. O código 9.17 deve passar pelo FAST + APEX Test Lab antes do merge. [Escopo e testes](docs/APEX_RELEASE_v0.6.6.9.17_LARGADA_2.md).
+**Código-fonte atual na `main`: v0.6.6.9.17 — Largada 2.0.** Aproximação da primeira curva com custo causal de congestionamento, chuva, largura e percepção do piloto. **FAST + APEX Test Lab aprovado** no código da PR #110; exportação Linux/Windows 9.17 e smoke Linux headless aprovados. [Detalhes e rollback](docs/APEX_RELEASE_v0.6.6.9.17_LARGADA_2.md). **A última build jogável para teste é 9.17**, em artefato temporário do GitHub Actions.
 
 
 ### ✅ Política oficial permanente: FAST + APEX Test Lab
@@ -16,7 +16,7 @@
 **Para colaboradores e assistentes de código:** consultar também [AGENTS.md](AGENTS.md) e o [guia do FAST permanente](docs/APEX_CI_INTELIGENTE_TRES_NIVEIS.md). **Não restaurar a política antiga de FULL obrigatório sem nova decisão explícita do projeto.**
 
 
-**Última compilação jogável para TESTES: v0.6.6.9.16 — Linux e Windows x86_64.** Gerada em 23/11/2026 com Godot 4.7.2, identidade 9.16 confirmada nos dois PCKs e inicialização Linux headless aprovada. **[⬇ Baixar APEX 9.16 para testar](https://github.com/Jugadru/APEX-Simulation/actions/runs/45268711293/artifacts/14863723230)** (artefato externo com os ZIPs de Linux e Windows; pode exigir login GitHub; expira em **07/12/2026**).
+**Compilação jogável anterior: v0.6.6.9.16 — Linux e Windows x86_64.** Gerada em 23/11/2026 com Godot 4.7.2, identidade 9.16 confirmada nos dois PCKs e inicialização Linux headless aprovada. **[⬇ Baixar APEX 9.16 para testar](https://github.com/Jugadru/APEX-Simulation/actions/runs/45268711293/artifacts/14863723230)** (artefato externo com os ZIPs de Linux e Windows; pode exigir login GitHub; expira em **07/12/2026**).
 
 **Última release oficial permanente: v0.6.6.9.9 — Race Quality Release.** Publicada em 22/11/2026 para Windows e Linux x86_64. Os ZIPs e a tag dessa release continuam disponíveis, sem alterações.
 
@@ -33,13 +33,23 @@
 | 9.14 | Setup & Track Knowledge — 20 perfis de pista de 2012, recomendações qualitativas e consulta `SETUP/PISTA` no HUD |
 | **9.15** | **Performance & Race Polish** — cache dos perfis estáticos de pista na HUD, preservando clima, pneus e BOX manuais |
 | **9.16** | **Race Gaps & Overtaking 2.0 (1ª etapa)** — métrica `DIST. PISTA` com proximidade física no HUD: F=frente, T=trás, unidades esquemáticas (não tempo cronometrado); carro retardatário também conta, sem mudar a física/replay. [Detalhes](docs/APEX_RELEASE_v0.6.6.9.16_RACE_GAPS_OVERTAKING.md) |
-| **9.17 — CANDIDATA** | **Largada 2.0** — cautela causal na saída e primeira curva, com trânsito, chuva, largura e replay 024 versionado. [Detalhes](docs/APEX_RELEASE_v0.6.6.9.17_LARGADA_2.md) |
+| **9.17** | **Largada 2.0** — cautela causal na saída e primeira curva, com trânsito, chuva, largura e replay 024 versionado. [Detalhes](docs/APEX_RELEASE_v0.6.6.9.17_LARGADA_2.md) |
 
 Na 9.14, o setup é **consultivo**: não aplica ajustes de asa/suspensão nem muda ordens de box. A 9.16 utiliza a revisão esportiva `023_overtaking_intelligence_v1`; a candidata 9.17 passa para `024_race_start_spatial_v1` e mantém os replays históricos sob suas revisões originais.
 
 **Desenvolvimento atual:** somente **FAST + APEX Test Lab + regressões direcionadas** automaticamente. Matriz 20/180, endurance, comparações, exportações e Quality Gate histórico são executados manualmente quando solicitados. Consulte o [guia FAST](docs/APEX_CI_INTELIGENTE_TRES_NIVEIS.md).
 
-## 📥 Baixar o jogo — v0.6.6.9.16 (prévia para teste)
+## 📥 Baixar o jogo — v0.6.6.9.17 Largada 2.0 (prévia para teste)
+
+### [⬇ Baixar APEX 9.17 — Linux e Windows x86_64](https://github.com/Jugadru/APEX-Simulation/actions/runs/45276017937/artifacts/14868390715)
+
+**Pacotes jogáveis de teste 9.17**, gerados com Godot 4.7.2-stable após FAST + APEX Test Lab passar no SHA `a0b3ba9bfcdbfb9962ae7c51bc38265920b2f4fb`. O artefato inclui ZIPs separados de Linux e Windows, `SOURCE_COMMIT.txt`, `SHA256SUMS.txt` e `manifest.json`. As exportações, identificação da versão nos PCKs, integridade dos arquivos e inicialização headless Linux passaram. **Não há teste de FPS/GPU nem execução em Windows real.**
+
+- **Linux:** extraia o ZIP interno, mantenha `APEX_Motorsport_Manager.pck` junto do executável e execute `chmod +x APEX_Motorsport_Manager.x86_64 && ./APEX_Motorsport_Manager.x86_64`.
+- **Windows:** extraia o ZIP interno e abra `APEX_Motorsport_Manager.exe` na pasta com o `.pck`.
+- **Artefato temporário:** [build aprovada](https://github.com/Jugadru/APEX-Simulation/actions/runs/45276017937) expira em **07/12/2026** e pode exigir login. Última release oficial permanente permanece 9.9.
+
+## 📦 Compilação de teste anterior — v0.6.6.9.16
 
 ### [⬇ Baixar APEX 9.16 — Linux e Windows x86_64](https://github.com/Jugadru/APEX-Simulation/actions/runs/45268711293/artifacts/14863723230)
 
@@ -87,7 +97,7 @@ A exportação Windows foi validada, mas **não** executada em um PC Windows nat
 
 A PR [#90 — HUD](https://github.com/Jugadru/APEX-Simulation/pull/90) foi integrada antes da release, e as PRs [#87 — QA](https://github.com/Jugadru/APEX-Simulation/pull/87) e [#88 — Publicação](https://github.com/Jugadru/APEX-Simulation/pull/88) também foram integradas. A tag `v0.6.6.9.9` e seus ZIPs permanecem imutáveis; atualizações de documentação e descrição no ramo `main` feitas depois da publicação não alteram os pacotes já lançados.
 
-**Funcionalidade candidata nesta branch:** v9.17 — Largada 2.0. Ainda requer CI FAST + APEX Test Lab; não há ZIP 9.17 validado nesta etapa. O último pacote jogável comprovado permanece o 9.16.
+**Funcionalidade integrada:** v9.17 — Largada 2.0, após FAST + APEX Test Lab aprovado no commit `a0b3ba9bfcdb` e merge da PR #110 (`8c26e6ffacfe`). [Prévia jogável Linux/Windows 9.17](https://github.com/Jugadru/APEX-Simulation/actions/runs/45276017937/artifacts/14868390715). Não confundir prévia com GitHub Release oficial.
 
 ---
 
