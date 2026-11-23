@@ -31,6 +31,7 @@ CASES = {
     "overtake": ("overtaking_066912_test.gd", "OVERTAKING_066912_PASS"),
     "engineer": ("engineer_intelligence_066913_test.gd", "ENGINEER_066913_PASS"),
     "setup": ("setup_track_066914_test.gd", "SETUP_TRACK_066914_PASS"),
+    "performance": ("performance_polish_066915_test.gd", "PERFORMANCE_POLISH_066915_PASS"),
     "wet": ("wet_strategy_06698_test.gd", "WET_STRATEGY_06698_PASS"),
 }
 CORE = frozenset(("ai", "pit", "wet", "orders", "staff", "start", "overtake", "engineer", "setup"))
@@ -43,6 +44,7 @@ EXACT = {
     "scripts/core/race_performance.gd": frozenset(("start", "wet", "driver")),
     "scripts/apex_race_session_controller.gd": frozenset(("ai", "staff", "wet")),
     "scripts/apex_race_hud_0622.gd": frozenset(("hud", "staff", "engineer", "setup")),
+    "scripts/core/race_setup_track_knowledge_066914.gd": frozenset(("setup", "performance")),
     "data/season_2012.json": frozenset(("ai", "pit", "wet")),
     "data/tyres_2012.json": frozenset(("ai", "pit", "wet")),
 }
