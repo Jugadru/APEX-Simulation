@@ -1,0 +1,169 @@
+name: APEX - Comparacao nativa 9.9 vs 9.17
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, synchronize]
+    paths:
+      - 'qa/comparisons/99_vs_917/**'
+      - '.github/workflows/apex-ab-99-vs-917.yml'
+
+permissions:
+  contents: read
+
+# Isolated user-requested QA; never run this matrix on the normal main push.
+concurrency:
+  group: apex-99-vs-917-once
+  cancel-in-progress: true
+
+jobs:
+  comparison:
+    name: A/B - ${{ matrix.profile }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: [launch, scenarios, full, visual, bench, integrity]
+    env:
+      APEX_COMPARE_PROFILE: ${{ matrix.profile }}
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - name: Checkout exact unchanged v9.9 baseline
+        uses: actions/checkout@v4
+        with:
+          path: base
+          ref: 15ba6d7aab5d4681c76bbd59d9450edcd81397e3
+          persist-credentials: false
+      - name: Checkout exact v9.17 game merged source
+        uses: actions/checkout@v4
+        with:
+          path: candidate
+          ref: 8c26e6ffacfe271399ea78960bbf811f4c092015
+          persist-credentials: false
+      - name: Checkout independent QA tools (no game modifications)
+        uses: actions/checkout@v4
+        with:
+          path: comparison
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Install official Godot 4.7.2
+        uses: lihop/godot-setup@v3.0.1
+        with:
+          version: 4.7.2-stable
+      - name: Validate references and import both Godot projects
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C base rev-parse HEAD)" = '15ba6d7aab5d4681c76bbd59d9450edcd81397e3'
+          test "$(git -C candidate rev-parse HEAD)" = '8c26e6ffacfe271399ea78960bbf811f4c092015'
+          echo 'APEX_AB_VERSION_PINS_PASS'
+          godot --version
+          for repo in base candidate; do
+            for attempt in 1 2 3; do
+              set +e
+              timeout 240s godot --headless --single-threaded-scene \
+                --path "$repo" --import > "import-$repo.log" 2>&1
+              code=$?
+              set -e
+              if grep -Eiq 'SCRIPT ERROR:|Parse Error:' "import-$repo.log"; then
+                cat "import-$repo.log"; exit 1
+              fi
+              if ((code==0)); then echo "APEX_AB_IMPORT_PASS $repo"; break; fi
+              if ((code!=134 && code!=139)) || ((attempt==3)); then
+                cat "import-$repo.log"; exit "$code"
+              fi
+              rm -rf "$repo/.godot"
+            done
+          done
+      - name: Execute identical gameplay comparisons
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ab-evidence
+          case "$APEX_COMPARE_PROFILE" in
+            launch)
+              for repo in base candidate; do
+                cp comparison/qa/comparisons/99_vs_917/apex_ab_launch_probe.gd \
+                  "$repo/tests/ci/apex_ab_launch_probe.gd"
+                export APEX_AB_OUTPUT="$PWD/ab-evidence/start_$repo.json"
+                timeout 840s godot --headless --single-threaded-scene \
+                  --path "$repo" --script res://tests/ci/apex_ab_launch_probe.gd \
+                  > "ab-evidence/start_$repo.log" 2>&1 || {
+                    tail -n 90 "ab-evidence/start_$repo.log"; exit 1;
+                  }
+                grep -F 'APEX_AB_STARTS' "ab-evidence/start_$repo.log"
+              done
+              python3 comparison/qa/comparisons/99_vs_917/compare.py \
+                starts --dir ab-evidence
+              cat ab-evidence/start_comparison.md >> "$GITHUB_STEP_SUMMARY"
+              ;;
+            scenarios)
+              python3 comparison/qa/comparisons/99_vs_917/compare.py \
+                scenarios --dir ab-evidence
+              test -s ab-evidence/matrix_comparison.md
+              cat ab-evidence/matrix_comparison.md >> "$GITHUB_STEP_SUMMARY"
+              ;;
+            full)
+              python3 comparison/qa/comparisons/99_vs_917/compare.py \
+                full --dir ab-evidence
+              test -s ab-evidence/full_comparison.md
+              cat ab-evidence/full_comparison.md >> "$GITHUB_STEP_SUMMARY"
+              ;;
+            visual)
+              cmp base/tests/visual_stutter_06672_benchmark.gd \
+                candidate/tests/visual_stutter_06672_benchmark.gd
+              python3 comparison/qa/comparisons/99_vs_917/compare.py \
+                visual --dir ab-evidence
+              ;;
+            bench)
+              cmp base/tests/high_speed_growth_066723_benchmark.gd \
+                candidate/tests/high_speed_growth_066723_benchmark.gd
+              python3 comparison/qa/comparisons/99_vs_917/compare.py \
+                bench --dir ab-evidence
+              ;;
+            integrity)
+              mkdir -p ab-evidence/integrity
+              checks=(
+                'replay_0660_test.gd|REPLAY_UNIT_PASS'
+                'core_0642_save_migration_test.gd|APEX 0642 SAVE MIGRATION PASS'
+                'pit_incidents_double_stack_test.gd|APEX INCIDENT DOUBLE STACK OK'
+                'core_0560_kers_drs_smoke_test.gd|APEX v0.5.6.0 KERS + DRS: smoke tests OK'
+                'core_0550_weather_smoke_test.gd|APEX v0.5.5.0 WEATHER SMOKE OK'
+                'driver_dynamics_0661_test.gd|DRIVER_DYNAMICS_0661_PASS'
+              )
+              for repo in base candidate; do
+                for item in "${checks[@]}"; do
+                  IFS='|' read -r script marker <<< "$item"
+                  log="ab-evidence/integrity/$repo-$script.log"
+                  if ! timeout 240s godot --headless --single-threaded-scene \
+                    --path "$repo" --script "res://tests/$script" \
+                    > "$log" 2>&1; then
+                    tail -n 75 "$log"; exit 1
+                  fi
+                  if ! grep -Fq "$marker" "$log"; then
+                    echo "::error::Missing mandatory marker $marker"; exit 1
+                  fi
+                  if grep -Eiq 'SCRIPT ERROR:|Parse Error:' "$log"; then
+                    tail -n 75 "$log"; exit 1
+                  fi
+                  echo "APEX_AB_INTEGRITY_PASS $repo $script"
+                done
+              done
+              echo "APEX_AB_INTEGRITY_SUITE_PASS 12 checks"
+              ;;
+            *)
+              echo "::error::Unknown profile"; exit 2
+              ;;
+          esac
+      - name: Preserve all raw logs, JSON, comparison tables and import logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apex-99-vs-917-${{ matrix.profile }}
+          path: |
+            ab-evidence/
+            import-base.log
+            import-candidate.log
+          retention-days: 14
+          if-no-files-found: warn
