@@ -2,6 +2,20 @@
 
 **Código-fonte atual na `main`: v0.6.6.9.15 — Performance & Race Polish 1.0.** Otimização do catálogo de pistas no painel do engenheiro, integrada pelo [PR #104](https://github.com/Jugadru/APEX-Simulation/pull/104) com FAST no Godot 4.7.2.
 
+
+### ✅ Política oficial permanente: FAST + APEX Test Lab
+
+**Decisão do projeto (23/11/2026): para atualizações comuns, a homologação obrigatória é somente FAST + APEX Test Lab + regressões direcionadas, no commit exato do PR.** Esta regra se aplica às próximas versões (9.16 em diante) e prevalece sobre relatórios históricos que exigiam FULL como condição de merge.
+
+- **FAST obrigatório:** importar no **Godot 4.7.2**, executar o workflow único `APEX Core 2 - Godot 4.7.2 CI`, o **APEX Test Lab** (24 carros, seco/chuva, determinismo/hash, CPU e memória) e os testes selecionados conforme o código alterado. Regressões relevantes de pit manual, IA, saves e replays devem continuar passando.
+- **Aprovação para merge:** FAST concluído com **PASS no SHA da versão**, sem erros ou testes obrigatórios ausentes; corrigir falhas reais antes da integração. Um teste `skipped`, `NOT_RUN` ou `INCONCLUSIVE` não pode ser contado como PASS.
+- **FULL NÃO é obrigatório por padrão:** **não** acionar automaticamente `ci:full`, matriz completa 20/180, endurance longo, comparador visual completo, benchmark abrangente, exportação ou Quality Gate histórico para cada PR. Eles são **opcionais e manuais**, quando o responsável solicitar expressamente.
+- **Exceções de risco:** se houver mudança de física, replay, save, clima ou um defeito específico de circuito, acrescentar **regressões direcionadas proporcionais ao risco**, inclusive em pista real, sem transformar a alteração em homologação FULL automática. Se não houver evidência suficiente, manter o PR aberto.
+- **Uma funcionalidade principal por versão.** Publicar um ZIP jogável ou uma GitHub Release é uma etapa distinta do merge do código e requer validação do pacote.
+
+**Para colaboradores e assistentes de código:** consultar também [AGENTS.md](AGENTS.md) e o [guia do FAST permanente](docs/APEX_CI_INTELIGENTE_TRES_NIVEIS.md). **Não restaurar a política antiga de FULL obrigatório sem nova decisão explícita do projeto.**
+
+
 **Última compilação jogável para TESTES: v0.6.6.9.15 — Linux e Windows x86_64.** Gerada em 23/11/2026 no Godot 4.7.2, com validação de identificação dos PCKs e smoke Linux. **[⬇ Baixar APEX 9.15 para testar](https://github.com/Jugadru/APEX-Simulation/actions/runs/45263299614/artifacts/14860803687)** (ZIP externo com pacotes de Linux e Windows; pode exigir login GitHub; artefato expira em **07/12/2026**).
 
 **Última release oficial permanente: v0.6.6.9.9 — Race Quality Release.** Publicada em 22/11/2026 para Windows e Linux x86_64. Os ZIPs e a tag dessa release continuam disponíveis, sem alterações.
