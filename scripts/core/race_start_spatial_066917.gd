@@ -53,7 +53,7 @@ static func congestion_cost(car: Dictionary, elapsed_s: float, weather: Dictiona
 			maxf(0.0, float(car.get("progress", 0.0))) / EXIT_PROGRESS, 0.0, 1.0)
 	# Model coefficients are conservative gameplay estimates. Both dense
 	# traffic and a narrow/wet approach INCREASE time cost, never add speed.
-	return clampf(2.5 * density * (0.70 + 0.85 * narrowness) *
+	return clampf(1.75 * density * (0.70 + 0.85 * narrowness) *
 			(1.0 + 0.80 * wet) * driver_caution * remaining_time *
 			remaining_road, 0.0, 5.0)
 
