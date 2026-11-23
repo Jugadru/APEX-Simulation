@@ -1,6 +1,6 @@
 # APEX Motorsport Manager — Core 2 (código v0.6.6.9.16)
 
-**Código-fonte atual na `main`: v0.6.6.9.16 — Race Gaps & Overtaking 2.0 (radar de proximidade).** Nova métrica de distância física de pista na HUD, sem alterar as lacunas cronométricas da classificação ou a simulação esportiva. A última versão binária disponível para teste continua sendo a **9.15**.
+**Código-fonte atual na `main`: v0.6.6.9.16 — Race Gaps & Overtaking 2.0 (radar de proximidade).** Nova métrica de distância física de pista na HUD, sem alterar as lacunas cronométricas da classificação ou a simulação esportiva. A última compilação binária disponível para teste já é a **9.16** (artefato temporário).
 
 
 ### ✅ Política oficial permanente: FAST + APEX Test Lab
@@ -16,11 +16,11 @@
 **Para colaboradores e assistentes de código:** consultar também [AGENTS.md](AGENTS.md) e o [guia do FAST permanente](docs/APEX_CI_INTELIGENTE_TRES_NIVEIS.md). **Não restaurar a política antiga de FULL obrigatório sem nova decisão explícita do projeto.**
 
 
-**Última compilação jogável para TESTES: v0.6.6.9.15 — Linux e Windows x86_64.** Gerada em 23/11/2026 no Godot 4.7.2, com validação de identificação dos PCKs e smoke Linux. **[⬇ Baixar APEX 9.15 para testar](https://github.com/Jugadru/APEX-Simulation/actions/runs/45263299614/artifacts/14860803687)** (ZIP externo com pacotes de Linux e Windows; pode exigir login GitHub; artefato expira em **07/12/2026**).
+**Última compilação jogável para TESTES: v0.6.6.9.16 — Linux e Windows x86_64.** Gerada em 23/11/2026 com Godot 4.7.2, identidade 9.16 confirmada nos dois PCKs e inicialização Linux headless aprovada. **[⬇ Baixar APEX 9.16 para testar](https://github.com/Jugadru/APEX-Simulation/actions/runs/45268711293/artifacts/14863723230)** (artefato externo com os ZIPs de Linux e Windows; pode exigir login GitHub; expira em **07/12/2026**).
 
 **Última release oficial permanente: v0.6.6.9.9 — Race Quality Release.** Publicada em 22/11/2026 para Windows e Linux x86_64. Os ZIPs e a tag dessa release continuam disponíveis, sem alterações.
 
-> **Importante:** a `main` contém código até a **9.16**, mas a build jogável disponível para teste ainda é a **9.15**, distribuída como artefato temporário do GitHub Actions. Isso **não é uma GitHub Release permanente**. Para baixar sem prazo de expiração, a release oficial mais recente ainda é a 9.9. Para desenvolver, abra `project.godot` da `main`.
+> **Importante:** a `main` contém código até a **9.16** e a build jogável **9.16** já está disponível para teste como artefato temporário do GitHub Actions. Isso **não é uma GitHub Release permanente**. Para baixar sem prazo de expiração, a release oficial mais recente ainda é a 9.9. Para desenvolver, abra `project.godot` da `main`.
 
 ### Evolução do código após a release 9.9
 
@@ -38,11 +38,24 @@ Na 9.14, o setup é **consultivo**: não aplica ajustes de asa/suspensão nem mu
 
 **Desenvolvimento atual:** somente **FAST + APEX Test Lab + regressões direcionadas** automaticamente. Matriz 20/180, endurance, comparações, exportações e Quality Gate histórico são executados manualmente quando solicitados. Consulte o [guia FAST](docs/APEX_CI_INTELIGENTE_TRES_NIVEIS.md).
 
-## 📥 Baixar o jogo — v0.6.6.9.15 (prévia para teste)
+## 📥 Baixar o jogo — v0.6.6.9.16 (prévia para teste)
+
+### [⬇ Baixar APEX 9.16 — Linux e Windows x86_64](https://github.com/Jugadru/APEX-Simulation/actions/runs/45268711293/artifacts/14863723230)
+
+**Jogo atualizado com o indicador `DIST. PISTA` da 9.16.** O artefato do GitHub Actions contém os ZIPs separados de Linux e Windows. Baixe o arquivo externo, extraia o ZIP do seu sistema e mantenha `APEX_Motorsport_Manager.pck` na mesma pasta do executável.
+
+- **Linux:** execute `chmod +x APEX_Motorsport_Manager.x86_64` se necessário e inicie `./APEX_Motorsport_Manager.x86_64`.
+- **Windows:** inicie `APEX_Motorsport_Manager.exe`. Exportação validada; execução gráfica em máquina Windows real ainda não comprovada.
+
+**Verificado:** exportações Linux e Windows passaram, ambos os PCKs contêm `v0.6.6.9.16`, ZIPs e hashes SHA-256 validados, teste simples de inicialização headless no Linux aprovado. O artefato inclui `SOURCE_COMMIT.txt`, `SHA256SUMS.txt` e `manifest.json`. **Não comprova FPS ou qualidade gráfica no seu PC.**
+
+**Origem:** [execução de exportação aprovada](https://github.com/Jugadru/APEX-Simulation/actions/runs/45268711293) · código baseado na `main` `4d11dfaa` (PR #108). **Artefato temporário até 07/12/2026**, pode exigir login GitHub. Não é release oficial permanente.
+
+## 📦 Compilação de teste anterior — v0.6.6.9.15
 
 ### [⬇ Baixar APEX 9.15 — Linux e Windows x86_64](https://github.com/Jugadru/APEX-Simulation/actions/runs/45263299614/artifacts/14860803687)
 
-**Versão atual do código jogável**, compilada com Godot 4.7.2. Abra o link, entre no GitHub se necessário e baixe o artefato `apex-pc-linux-windows-godot-4-7-2`. Extraia primeiro o ZIP externo e depois **o ZIP de seu sistema operacional**. Em cada pasta, mantenha o executável e o arquivo `APEX_Motorsport_Manager.pck` juntos:
+**Versão anterior para testes de comparação**, compilada com Godot 4.7.2. Abra o link, entre no GitHub se necessário e baixe o artefato `apex-pc-linux-windows-godot-4-7-2`. Extraia primeiro o ZIP externo e depois **o ZIP de seu sistema operacional**. Em cada pasta, mantenha o executável e o arquivo `APEX_Motorsport_Manager.pck` juntos:
 
 - **Linux:** execute `chmod +x APEX_Motorsport_Manager.x86_64` se necessário e abra o executável.
 - **Windows:** execute `APEX_Motorsport_Manager.exe`. O pacote foi validado, mas ainda não passou por teste gráfico nativo em Windows.
