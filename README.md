@@ -1,6 +1,6 @@
-# APEX Motorsport Manager — Core 2 (código v0.6.6.9.15)
+# APEX Motorsport Manager — Core 2 (código v0.6.6.9.16)
 
-**Código-fonte atual na `main`: v0.6.6.9.15 — Performance & Race Polish 1.0.** Otimização do catálogo de pistas no painel do engenheiro, integrada pelo [PR #104](https://github.com/Jugadru/APEX-Simulation/pull/104) com FAST no Godot 4.7.2.
+**Código-fonte atual na `main`: v0.6.6.9.16 — Race Gaps & Overtaking 2.0 (radar de proximidade).** Nova métrica de distância física de pista na HUD, sem alterar as lacunas cronométricas da classificação ou a simulação esportiva. A última versão binária disponível para teste continua sendo a **9.15**.
 
 
 ### ✅ Política oficial permanente: FAST + APEX Test Lab
@@ -20,7 +20,7 @@
 
 **Última release oficial permanente: v0.6.6.9.9 — Race Quality Release.** Publicada em 22/11/2026 para Windows e Linux x86_64. Os ZIPs e a tag dessa release continuam disponíveis, sem alterações.
 
-> **Importante:** a `main` contém a **9.15** e agora existe **build jogável 9.15 para teste**, disponível como artefato temporário do GitHub Actions. Isso **não é uma GitHub Release permanente**. Para baixar sem prazo de expiração, a release oficial mais recente ainda é a 9.9. Para desenvolver, abra `project.godot` da `main`.
+> **Importante:** a `main` contém código até a **9.16**, mas a build jogável disponível para teste ainda é a **9.15**, distribuída como artefato temporário do GitHub Actions. Isso **não é uma GitHub Release permanente**. Para baixar sem prazo de expiração, a release oficial mais recente ainda é a 9.9. Para desenvolver, abra `project.godot` da `main`.
 
 ### Evolução do código após a release 9.9
 
@@ -32,6 +32,7 @@
 | 9.13 | Race Engineer Intelligence — relatórios consultivos do engenheiro |
 | 9.14 | Setup & Track Knowledge — 20 perfis de pista de 2012, recomendações qualitativas e consulta `SETUP/PISTA` no HUD |
 | **9.15** | **Performance & Race Polish** — cache dos perfis estáticos de pista na HUD, preservando clima, pneus e BOX manuais |
+| **9.16** | **Race Gaps & Overtaking 2.0 (1ª etapa)** — métrica `DIST. PISTA` com proximidade física no HUD: F=frente, T=trás, unidades esquemáticas (não tempo cronometrado); carro retardatário também conta, sem mudar a física/replay. [Detalhes](docs/APEX_RELEASE_v0.6.6.9.16_RACE_GAPS_OVERTAKING.md) |
 
 Na 9.14, o setup é **consultivo**: não aplica ajustes de asa/suspensão nem muda ordens de box. A revisão esportiva continua `023_overtaking_intelligence_v1`; BOX manual V21 e saves/replays são preservados.
 
@@ -72,7 +73,7 @@ A exportação Windows foi validada, mas **não** executada em um PC Windows nat
 
 A PR [#90 — HUD](https://github.com/Jugadru/APEX-Simulation/pull/90) foi integrada antes da release, e as PRs [#87 — QA](https://github.com/Jugadru/APEX-Simulation/pull/87) e [#88 — Publicação](https://github.com/Jugadru/APEX-Simulation/pull/88) também foram integradas. A tag `v0.6.6.9.9` e seus ZIPs permanecem imutáveis; atualizações de documentação e descrição no ramo `main` feitas depois da publicação não alteram os pacotes já lançados.
 
-**Próxima funcionalidade:** a definir após a 9.15. Uma atualização do código não publica automaticamente nova release binária.
+**Próxima funcionalidade planejada:** v9.17 — Largada 2.0, respeitando uma melhoria principal por versão. Uma atualização do código não publica automaticamente nova release binária.
 
 ---
 

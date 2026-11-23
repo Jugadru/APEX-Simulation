@@ -115,6 +115,7 @@ jobs:
             'race_launch_14_test.gd|RACE_LAUNCH_14_PASS'
             'race_start_066911_test.gd|RACE_START_066911_PASS'
             'overtaking_066912_test.gd|OVERTAKING_066912_PASS'
+            'race_gaps_066916_test.gd|RACE_GAPS_066916_PASS'
             'engineer_intelligence_066913_test.gd|ENGINEER_066913_PASS'
             'setup_track_066914_test.gd|SETUP_TRACK_066914_PASS'
             'performance_polish_066915_test.gd|PERFORMANCE_POLISH_066915_PASS'

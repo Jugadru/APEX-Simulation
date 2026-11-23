@@ -118,6 +118,25 @@
         }
       ],
       "checks": []
+    },
+    {
+      "id": "race_gaps_proximity_0916",
+      "paths": [
+        "scripts/presentation/apex_hud_race_gaps_066916.gd",
+        "scripts/apex_race_hud_0622.gd",
+        "tests/race_gaps_066916_test.gd"
+      ],
+      "fast_tests": [
+        {
+          "script": "race_gaps_066916_test.gd",
+          "marker": "RACE_GAPS_066916_PASS"
+        },
+        {
+          "script": "overtaking_066912_test.gd",
+          "marker": "OVERTAKING_066912_PASS"
+        }
+      ],
+      "checks": []
     }
   ]
 }
