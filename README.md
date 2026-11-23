@@ -1,10 +1,10 @@
-# APEX Motorsport Manager — Core 2 (código v0.6.6.9.14)
+# APEX Motorsport Manager — Core 2 (código v0.6.6.9.15)
 
-**Código-fonte atual na `main`: v0.6.6.9.14 — Setup & Track Knowledge 1.0.** Integrado pelo [PR #98](https://github.com/Jugadru/APEX-Simulation/pull/98), com FAST aprovado no Godot 4.7.2 antes e depois do merge.
+**Código-fonte atual na `main`: v0.6.6.9.15 — Performance & Race Polish 1.0.** Otimização do catálogo de pistas no painel do engenheiro, integrada pelo [PR #104](https://github.com/Jugadru/APEX-Simulation/pull/104) com FAST no Godot 4.7.2.
 
 **Última versão oficial publicada para baixar e jogar: v0.6.6.9.9 — Race Quality Release.** Publicada em 22/11/2026 para Windows e Linux x86_64, com código-fonte para **Godot 4.7.2**. Os ZIPs e a tag da release permanecem inalterados.
 
-> **Importante:** a `main` contém funcionalidades até a **9.14**, mas ainda não existe **release binária 9.14** publicada. Para jogar com executável pronto, use a 9.9 abaixo; para desenvolver o código mais recente, abra `project.godot` da `main`.
+> **Importante:** a `main` contém funcionalidades até a **9.15**, mas ainda não existe **release binária 9.15** publicada. Para jogar com executável pronto, use a 9.9 abaixo; para desenvolver o código mais recente, abra `project.godot` da `main`.
 
 ### Evolução do código após a release 9.9
 
@@ -14,7 +14,8 @@
 | 9.11 | Race Start Intelligence — decisões na largada |
 | 9.12 | Overtaking Intelligence — ultrapassagem e replay |
 | 9.13 | Race Engineer Intelligence — relatórios consultivos do engenheiro |
-| **9.14** | **Setup & Track Knowledge** — 20 perfis de pista de 2012, recomendações qualitativas e consulta `SETUP/PISTA` no HUD |
+| 9.14 | Setup & Track Knowledge — 20 perfis de pista de 2012, recomendações qualitativas e consulta `SETUP/PISTA` no HUD |
+| **9.15** | **Performance & Race Polish** — cache dos perfis estáticos de pista na HUD, preservando clima, pneus e BOX manuais |
 
 Na 9.14, o setup é **consultivo**: não aplica ajustes de asa/suspensão nem muda ordens de box. A revisão esportiva continua `023_overtaking_intelligence_v1`; BOX manual V21 e saves/replays são preservados.
 
@@ -42,7 +43,7 @@ A exportação Windows foi validada, mas **não** executada em um PC Windows nat
 
 A PR [#90 — HUD](https://github.com/Jugadru/APEX-Simulation/pull/90) foi integrada antes da release, e as PRs [#87 — QA](https://github.com/Jugadru/APEX-Simulation/pull/87) e [#88 — Publicação](https://github.com/Jugadru/APEX-Simulation/pull/88) também foram integradas. A tag `v0.6.6.9.9` e seus ZIPs permanecem imutáveis; atualizações de documentação e descrição no ramo `main` feitas depois da publicação não alteram os pacotes já lançados.
 
-**Próxima funcionalidade:** a definir após a 9.14. Uma atualização do código não publica automaticamente nova release binária.
+**Próxima funcionalidade:** a definir após a 9.15. Uma atualização do código não publica automaticamente nova release binária.
 
 ---
 
@@ -159,7 +160,7 @@ Código **integrado à `main` na [PR #79](https://github.com/Jugadru/APEX-Simula
 
 ## 🗺️ Situação do desenvolvimento após a 9.9
 
-As versões **9.10 (Strategy Staff), 9.11 (Race Start), 9.12 (Overtaking), 9.13 (Race Engineer) e 9.14 (Setup & Track Knowledge)** já foram integradas à `main`. Isso não significa que foram publicadas novas GitHub Releases para Windows/Linux. Para baixar o jogo pronto, a última release continua sendo **9.9**.
+As versões **9.10 (Strategy Staff), 9.11 (Race Start), 9.12 (Overtaking), 9.13 (Race Engineer), 9.14 (Setup & Track Knowledge) e 9.15 (Performance & Race Polish)** já foram integradas à `main`. Isso não significa que foram publicadas novas GitHub Releases para Windows/Linux. Para baixar o jogo pronto, a última release continua sendo **9.9**.
 
 Próximas mudanças: uma funcionalidade principal, FAST + APEX Test Lab e testes específicos. Homologação extensa apenas quando solicitada. Pendências conhecidas: [32× sustentado — #74](https://github.com/Jugadru/APEX-Simulation/issues/74) e [ressincronização visual — #77](https://github.com/Jugadru/APEX-Simulation/issues/77).
 
