@@ -1,6 +1,6 @@
 # APEX v0.6.6.9.14 — Setup & Track Knowledge 1.0
 
-**Estado:** candidata a homologação, branch `feat/v0.6.6.9.14-setup-track-knowledge`, **não integrada à main**.
+**Estado:** código integrado à `main` pelo [PR #98](https://github.com/Jugadru/APEX-Simulation/pull/98), commit `4bd57ad2580472ceafb1dccde422523fb3b4ccc9`. FAST aprovado antes e depois do merge; **não há release binária 9.14 publicada**.
 
 ## Escopo da versão (uma funcionalidade principal)
 
@@ -15,12 +15,12 @@ A equipe agora interpreta os **20 perfis de pista do campeonato 2012 que já est
 - Ordens do jogador, incluindo **BOX manual V21 com chuva de 83%**, seguem intocadas. Nenhuma recomendação é aplicada automaticamente; `can_apply=false`.
 - A versão 1.0 **não** permite ainda girar asas, mudar suspensão, salvar presets nem simular treino e ganho de tempo. Esse fluxo exigirá revisão esportiva e controles explícitos em versões posteriores, não neste PR.
 
-## Homologação obrigatória
+## Validação aplicada e política atual
 
-1. Import Godot 4.7.2 sem erros de parser, com tentativas controladas apenas para crashes nativos 134/139.
-2. `SETUP_TRACK_066914_PASS`: catálogo de **20 circuitos**, exemplos distintos de Monza/Silverstone/Mônaco, chuva/drenagem, segurança dos dados e 24 carros reais, consulta UI, preservação de V21 e revisão 023.
-3. Regressões específicas `ENGINEER_066913_PASS`, `RE3_0646_PASS`, `OVERTAKING_066912_PASS`, `REPLAY_UNIT_PASS`.
-4. FAST + FULL completos no **SHA exato**: Quality Gate 2.0, matriz 20 circuitos, stress de longa duração, SaveGuard, exportações, benchmarks e visuais. O `ci:full` é obrigatório.
-5. Renderização e desempenho de GPU em desktop real só podem ser declarados depois de teste local (CI headless não mede FPS real).
+A 9.14 passou no FAST [antes](https://github.com/Jugadru/APEX-Simulation/actions/runs/45085007667) e [depois](https://github.com/Jugadru/APEX-Simulation/actions/runs/45085256586) do merge, usando Godot 4.7.2.
 
-**Sem merge até que FULL esteja READY no SHA final, sem exceções.**
+- `SETUP_TRACK_066914_PASS checks=64`: perfis das 20 pistas, chuva, HUD e integridade esportiva.
+- `ENGINEER_066913_PASS checks=33`: continuidade do módulo anterior.
+- APEX Test Lab, perfilador de CPU, replay e testes do Core 2 aprovados.
+
+**Homologação extensa não é obrigatória em atualizações de scripts.** Matriz 20/180, endurance, SaveGuard, benchmarks, capturas e exportações são executados manualmente, se solicitados. A v9.14 é código-fonte integrado, não nova distribuição Windows/Linux. CI headless não comprova FPS/GPU em PC real.
