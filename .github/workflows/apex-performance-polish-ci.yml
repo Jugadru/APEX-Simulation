@@ -1,0 +1,94 @@
+name: APEX - Performance & Race Polish (v9.15)
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, synchronize, labeled]
+    paths:
+      - 'scripts/core/race_setup_track_knowledge_066914.gd'
+      - 'tests/performance_polish_066915_test.gd'
+      - 'tools/apex_ci_tiers.py'
+      - '.github/apex-quality-suites.json'
+      - '.github/workflows/apex-performance-polish-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  performance-targeted:
+    name: Godot 4.7.2 / cache parity / 20 tracks / V21 / Replay
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Godot 4.7.2
+        uses: lihop/godot-setup@v3.0.1
+        with:
+          version: 4.7.2-stable
+      - name: Syntax validation
+        shell: bash
+        run: |
+          set -euo pipefail
+          godot --headless --single-threaded-scene --path . --script \
+            res://scripts/core/race_setup_track_knowledge_066914.gd --check-only
+          godot --headless --single-threaded-scene --path . --script \
+            res://tests/performance_polish_066915_test.gd --check-only
+      - name: Import real Godot project (retry native crashes, not parse errors)
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            rm -rf .godot
+            set +e
+            timeout 240s godot --headless --single-threaded-scene --path . --import > godot-import.log 2>&1
+            status=$?
+            set -e
+            if grep -Eiq '(SCRIPT ERROR:|Parse Error:)' godot-import.log; then
+              cat godot-import.log
+              exit 1
+            fi
+            if [ "$status" -eq 0 ]; then
+              if grep -Eiq '^ERROR:' godot-import.log; then cat godot-import.log; exit 1; fi
+              echo "PERFORMANCE_POLISH_066915_IMPORT_PASS attempt=$attempt"
+              break
+            fi
+            if [ "$status" -ne 139 ] && [ "$status" -ne 134 ]; then
+              cat godot-import.log
+              exit "$status"
+            fi
+            if [ "$attempt" -eq 3 ]; then cat godot-import.log; exit "$status"; fi
+            echo "Transient Godot native crash $status; retrying clean import"
+          done
+      - name: Run targeted native and historic regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ci_artifacts/performance_066915
+          run_test() {
+            local script="$1" marker="$2" logfile="ci_artifacts/performance_066915/${1}.log"
+            timeout 360s godot --headless --single-threaded-scene --path . \
+              --script "res://tests/${script}" > "${logfile}" 2>&1 || {
+                cat "${logfile}"
+                exit 1
+              }
+            cat "${logfile}"
+            grep -Fq "${marker}" "${logfile}" || exit 1
+            if grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:|PERFORMANCE_POLISH_066915_FAIL)' "${logfile}"; then exit 1; fi
+          }
+          run_test performance_polish_066915_test.gd PERFORMANCE_POLISH_066915_PASS
+          run_test setup_track_066914_test.gd SETUP_TRACK_066914_PASS
+          run_test engineer_intelligence_066913_test.gd ENGINEER_066913_PASS
+          run_test replay_0660_test.gd REPLAY_UNIT_PASS
+          run_test race_0646_engineer_3_test.gd RE3_0646_PASS
+          run_test overtaking_066912_test.gd OVERTAKING_066912_PASS
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apex-performance-polish-066915
+          path: |
+            godot-import.log
+            ci_artifacts/performance_066915/
+          retention-days: 14
+          if-no-files-found: warn
