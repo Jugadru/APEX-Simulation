@@ -6,10 +6,41 @@ extends RefCounted
 
 const TrackDynamics = preload("res://scripts/core/race_track_dynamics.gd")
 
+# v9.15 performance: the HUD calls assess() for both engineers at each
+# refresh. 9.14 parsed the same 20-track JSON on EVERY call. Keep a
+# process-local, bounded catalogue snapshot ONLY in this presentation helper:
+# never cache live weather, tyre wear, driver states or executable advice.
+# RaceTrackDynamics and sporting physics retain their original data path.
+static var _profile_catalog: Dictionary = {}
+static var _catalog_ready: bool = false
+static var _catalog_loads: int = 0
+
+static func _profile_cached(track_code: String) -> Dictionary:
+	if track_code.is_empty():
+		return {}
+	if not _catalog_ready:
+		var loaded: Dictionary = TrackDynamics.catalog().get("tracks", {})
+		if loaded.is_empty():
+			# Do not mark a failed read as successfully cached.
+			return {}
+		_profile_catalog = loaded.duplicate(true)
+		_catalog_ready = true
+		_catalog_loads += 1
+	# Preserve the old profile_for() ownership contract: never leak a
+	# mutable reference to the cached dictionary into a HUD/report caller.
+	var match_profile: Dictionary = _profile_catalog.get(track_code, {})
+	return match_profile.duplicate(true)
+
+static func cache_stats() -> Dictionary:
+	# Observability only, not a sporting metric, save field or FPS claim.
+	return {"catalog_loads":_catalog_loads, "profiles":_profile_catalog.size(),
+		"ready":_catalog_ready}
+
+
 static func assess(track: Dictionary, weather: Dictionary, car: Dictionary = {},
 		staff: Dictionary = {}) -> Dictionary:
 	var code: String = str(track.get("code", ""))
-	var profile: Dictionary = TrackDynamics.profile_for(code)
+	var profile: Dictionary = _profile_cached(code)
 	if code.is_empty() or profile.is_empty():
 		return {"available":false, "version":"0.6.6.9.14", "read_only":true,
 			"track_code":code, "reason":"Perfil de pista indisponível no catálogo 2012.",
