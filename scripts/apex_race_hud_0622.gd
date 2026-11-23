@@ -13,6 +13,7 @@ const HudStandingMetric = preload("res://scripts/presentation/apex_hud_standings
 const HudRankingPanel = preload("res://scripts/presentation/apex_hud_ranking_panel.gd")
 const HudPitWallQuickPanel = preload("res://scripts/presentation/apex_hud_pitwall_quick_panel.gd")
 const HudRaceContext = preload("res://scripts/presentation/apex_hud_race_context.gd")
+const HudRaceGaps066916 = preload("res://scripts/presentation/apex_hud_race_gaps_066916.gd")
 const WetForecast = preload("res://scripts/core/race_wet_strategy_intelligence_06698.gd")
 const HudWeatherPanel = preload("res://scripts/presentation/apex_hud_weather_panel.gd")
 const HudMiniMapPanel = preload("res://scripts/presentation/apex_hud_minimap_panel.gd")
@@ -45,12 +46,14 @@ const WHITE := HudSkin.WHITE
 const MUTED := HudSkin.MUTED
 const YELLOW := HudSkin.WARNING
 const BORDER := HudSkin.BORDER
-const METRICS := ["INTERVALO", "LÍDER", "PITS", "MELHOR VOLTA", "PNEUS", "ATRÁS", "ÚLTIMA VOLTA"]
+const METRICS := ["INTERVALO", "LÍDER", "PITS", "MELHOR VOLTA", "PNEUS", "ATRÁS", "ÚLTIMA VOLTA", "DIST. PISTA"]
 const CONTEXTS := ["Telemetria", "Desempenho", "Estratégia", "Carro"]
 const SPEEDS := [1.0, 2.0, 5.0, 10.0, 16.0, 32.0]
 
 var host
 var metric_index: int = 0
+# HUD-only proximity; computed from the same frozen sorted snapshot.
+var race_gap_radar_066916: Dictionary = {}
 var active_window: String = ""
 var race_card_panels: Array = []
 var standing_rows: Array = []
@@ -727,6 +730,9 @@ func refresh_hud() -> void:
 			float(weather.get("water_mm", 0.0)), int(weather.get("surface_moisture_percent", 0)),
 			int(weather.get("rubber", 0)), str(weather.get("grip", "—"))])
 	var order: Array = race.get_sorted()
+	# 9.16: physical next-car distance is NOT a classification time interval.
+	race_gap_radar_066916 = HudRaceGaps066916.observe(order,
+		float(race.space_profile.get("length", 1000.0)), bool(race.finished))
 	# A scheduled UI order may still be in the deterministic command queue
 	# until the next tick. Showing it as confirmed would mislead the player.
 	var pending_pits: Dictionary = ReBroadcast.pending_pit_by_driver(host.replay_session)
@@ -743,6 +749,10 @@ func refresh_hud() -> void:
 			_standing_value(order, i), _compound(str(car.get("tire", "Médio"))),
 			int(host.manual_driver), rank_idle_style, rank_selected_style,
 			pending_pits.get(int(car.get("id", -1)), {}))
+		var proximity_hint: String = HudRaceGaps066916.hint_for(race_gap_radar_066916,
+			int(car.get("id", -1))) if metric_index == 7 else ""
+		if (row["detail"] as Label).tooltip_text != proximity_hint:
+			(row["detail"] as Label).tooltip_text = proximity_hint
 	for i in range(race_card_panels.size()):
 		var card: Dictionary = race_card_panels[i]
 		var car: Dictionary = _driver_from_slot(i)
@@ -802,6 +812,9 @@ func refresh_hud() -> void:
 		_update_window_data()
 
 func _standing_value(sorted_cars: Array, idx: int) -> String:
+	if metric_index == 7:
+		return HudRaceGaps066916.label_for(race_gap_radar_066916,
+			int((sorted_cars[idx] as Dictionary).get("id", -1)))
 	# Public HUD adapter: metric selection and sports data remain unchanged.
 	var final: bool = host != null and host.race != null and bool(host.race.finished)
 	return HudStandingMetric.value(sorted_cars, idx, metric_index, final,
