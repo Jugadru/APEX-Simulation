@@ -108,8 +108,9 @@ func _run() -> void:
 		and race.rng.state == rng_before
 		and int(player.get("pit_scheduled_lap",0)) == 21,
 		"full native snapshot, RNG and manual pit unchanged by radar")
-	check(Replay.SIMULATION_REVISION == "023_overtaking_intelligence_v1",
-		"saved replay rules unchanged; no new sporting revision")
+	check(Replay.SIMULATION_REVISION in ["023_overtaking_intelligence_v1", "024_race_start_spatial_v1"]
+		and Replay.PRE_START20_SIMULATION_REVISION == "023_overtaking_intelligence_v1",
+		"9.16 HUD remains advisory; archived replay 023 still supported")
 	var first = Replay.new()
 	first.attach(race)
 	race.running = true
