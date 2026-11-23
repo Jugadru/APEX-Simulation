@@ -8,6 +8,7 @@ import argparse
 import json
 import math
 import os
+import shlex
 from pathlib import Path
 import statistics
 import subprocess
@@ -56,7 +57,8 @@ def invoke(project: Path, script: str, label: str, out: Path,
             str(project.resolve()), "--script", script]
     started = time.monotonic()
     try:
-        proc = subprocess.run(args, text=True, stdout=subprocess.PIPE,
+        proc = subprocess.run(["bash", "-c", " ".join(shlex.quote(x) for x in args)],
+                              text=True, stdout=subprocess.PIPE,
                               stderr=subprocess.STDOUT, env=variables,
                               timeout=timeout, check=False)
         raw = proc.stdout
