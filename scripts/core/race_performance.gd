@@ -6,6 +6,7 @@ const TyreThermal = preload("res://scripts/core/race_tyre_thermal.gd")
 const WeatherSetup15 = preload("res://scripts/core/race_weather_setup_15.gd")
 const RaceLaunch14 = preload("res://scripts/core/race_launch_14.gd")
 const RaceStart066911 = preload("res://scripts/core/race_start_intelligence_066911.gd")
+const RaceStart066917 = preload("res://scripts/core/race_start_spatial_066917.gd")
 
 static func evaluate(car: Dictionary, context: Dictionary) -> Dictionary:
 	var gap: float = float(context.get("gap", 999.0))
@@ -92,7 +93,11 @@ static func evaluate(car: Dictionary, context: Dictionary) -> Dictionary:
 	# Improvement 14: launch is a transient traction/reaction cost on actual pace.
 	# No RNG, grid-place bonus, or permanent effects on the lap time model.
 	if bool(context.get("launch_enabled", true)):
-		if bool(context.get("race_start_intelligence_enabled", false)):
+		if bool(context.get("race_start20_enabled", false)):
+			target += RaceStart066917.pace_cost(car, float(context.get("clock", RaceStart066917.CORNER_PHASE_SECONDS)), weather,
+				float(context.get("launch_space_clearance", 1.0)),
+				context.get("launch_grid", []), float(context.get("launch_circuit_length", 1000.0)))
+		elif bool(context.get("race_start_intelligence_enabled", false)):
 			target += RaceStart066911.pace_cost(car, float(context.get("clock", RaceStart066911.PHASE_SECONDS)), weather,
 				float(context.get("launch_space_clearance", 1.0)))
 		else:
