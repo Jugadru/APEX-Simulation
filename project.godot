@@ -10,8 +10,8 @@ config_version=5
 
 [application]
 
-config/name="APEX Motorsport Manager v0.6.6.9.10 — Core 2"
-config/description="v0.6.6.9.10: Strategy Staff Intelligence 1.0 CANDIDATE (Godot 4.7.2) — estrategia do STAFF com limites de seguranca, HUD contextual e replay 021; saves e replays 020 preservados; aguardando homologacao e publicacao."
+config/name="APEX Motorsport Manager v0.6.6.9.15 — Core 2"
+config/description="v0.6.6.9.15: Performance & Race Polish 1.0 (Godot 4.7.2) — cache privado dos perfis estaticos no Race Engineer; clima, pneus, comandos BOX manual V21 e replay preservados; CI FAST + APEX Test Lab; ultima release binaria oficial v0.6.6.9.9."
 run/main_scene="res://scenes/main.tscn"
 config/use_custom_user_dir=true
 config/custom_user_dir_name="APEX_0650_SOUL_STAFF"

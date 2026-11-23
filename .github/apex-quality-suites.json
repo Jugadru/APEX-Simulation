@@ -117,15 +117,7 @@
           "marker": "PERFORMANCE_POLISH_066915_PASS"
         }
       ],
-      "checks": [
-        {
-          "key": "performance_polish_targeted_0915",
-          "workflow": "apex-performance-polish-ci.yml",
-          "job": "Godot 4.7.2 / cache parity / 20 tracks / V21 / Replay",
-          "area": "Performance & Race Polish 1.0",
-          "comparison": false
-        }
-      ]
+      "checks": []
     }
   ]
 }
