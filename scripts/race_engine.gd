@@ -6,8 +6,10 @@ const RaceStandingsText = preload("res://scripts/presentation/race_standings_tex
 const Rules = preload("res://scripts/core/race_rules.gd")
 const RacePerformance = preload("res://scripts/core/race_performance.gd")
 const RaceStart066911 = preload("res://scripts/core/race_start_intelligence_066911.gd")
+const RaceStart066917 = preload("res://scripts/core/race_start_spatial_066917.gd")
 const RaceSpace = preload("res://scripts/core/race_space_0655.gd")
 const OVERTAKING_SIM_REVISION := "023_overtaking_intelligence_v1"
+const START20_SIM_REVISION := "024_race_start_spatial_v1"
 var command_session: WeakRef
 var space_profile: Dictionary = {}
 # Session-only replay compatibility: older sporting traces use pre-9.3 traffic logic.
@@ -25,6 +27,8 @@ var wet_strategy_intelligence_enabled: bool = true
 var strategy_staff_intelligence_enabled: bool = true
 # Session-only replay gate: 021 and earlier keep Improvement 14 launch physics.
 var race_start_intelligence_enabled: bool = true
+# Session-only replay gate: 023 and earlier retain their original first-turn pace.
+var race_start20_enabled: bool = true
 # v9.12 is session-only; old replay revisions retain original tactical calls.
 var overtaking_intelligence_enabled: bool = true
 const Combat = preload("res://scripts/core/race_combat.gd")
@@ -669,14 +673,24 @@ func _advance(dt: float) -> void:
 	# Session metadata lives outside sporting state/checkpoints and has no RNG effect.
 	var launch_legacy: bool = false
 	var overtaking_rules: bool = overtaking_intelligence_enabled
+	var start20_rules: bool = race_start20_enabled
 	if command_session != null:
 		var attached_session: Object = command_session.get_ref()
 		if attached_session != null:
 			launch_legacy = bool(attached_session.get("legacy_launch_physics"))
-			overtaking_rules = overtaking_rules and str(attached_session.get("recorded_simulation_revision")) == OVERTAKING_SIM_REVISION
+			var revision: String = str(attached_session.get("recorded_simulation_revision"))
+			overtaking_rules = overtaking_rules and revision in [OVERTAKING_SIM_REVISION, START20_SIM_REVISION]
+			start20_rules = start20_rules and revision == START20_SIM_REVISION
+	var launch_clearance: float = 1.0
+	var launch_limit: float = RaceStart066917.CORNER_PHASE_SECONDS if start20_rules else RaceStart066911.PHASE_SECONDS
+	if race_start_intelligence_enabled and clock < launch_limit:
+		launch_clearance = RaceStart066911.first_sector_clearance(track, space_profile)
 	var context: Dictionary = {"gap": 999.0, "lap": lap, "clock": clock, "launch_enabled": not launch_legacy,
 		"race_start_intelligence_enabled": race_start_intelligence_enabled,
-		"launch_space_clearance": RaceStart066911.first_sector_clearance(track, space_profile) if race_start_intelligence_enabled and clock < RaceStart066911.PHASE_SECONDS else 1.0,
+		"race_start20_enabled": start20_rules,
+		"launch_space_clearance": launch_clearance,
+		"launch_grid": old_order if start20_rules and clock < RaceStart066917.CORNER_PHASE_SECONDS else [],
+		"launch_circuit_length": float(space_profile.get("length", 1000.0)),
 		"race_laps": lap_count, "base_lap": base_lap,
 		"upgrades": team_upgrades, "player_car": false, "track": track,
 		"tyre_specs": tyre_specs, "tyre_track_severity": tyre_severity(),
