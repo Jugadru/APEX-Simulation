@@ -58,29 +58,56 @@ devem produzir resultados iguais.
 Respeitar as regras históricas de 2012:
 motores V8, KERS, DRS e pneus correspondentes.
 
-## 5. TESTES OBRIGATÓRIOS
+## 5. POLÍTICA OFICIAL DE HOMOLOGAÇÃO — FAST + APEX TEST LAB
 
-Antes de aprovar qualquer atualização:
+**Decisão permanente do APEX (23/11/2026): FAST + APEX Test Lab +
+regressões direcionadas são o padrão obrigatório de validação para cada
+versão comum. A homologação FULL não é pré-requisito de merge.**
 
-- Executar a importação do projeto no Godot.
-- Verificar erros de scripts e recursos.
-- Executar os testes existentes com GdUnit4.
-- Testar determinismo e replays.
-- Verificar pit stops e estratégias.
-- Testar salvamento e carregamento.
-- Verificar regressões de física e IA.
-- Avaliar desempenho quando aplicável.
+Para colaborar, programar, revisar ou integrar uma versão:
 
-Cenários prioritários:
-Silverstone, Monza, Spa e Singapura.
+1. Verificar a `main` atual e o escopo; uma funcionalidade principal por versão.
+2. Importar o projeto no **Godot 4.7.2**; falhas reais de parse ou recurso
+   impedem aprovação. Só crashes nativos transitórios permitem retentativa
+   controlada, sem ocultar falhas reais.
+3. Exigir **FAST** do workflow consolidado
+   `.github/workflows/godot-setup.yml`, com **APEX Test Lab** e testes
+   direcionados selecionados por `tools/apex_ci_tiers.py` e
+   `.github/apex-quality-suites.json`.
+4. Usar o Lab para 24 carros, clima seco/chuva, determinismo/hashes,
+   CPU e memória; testar regressões do subsistema alterado em pit stops,
+   estratégia, IA, saves e replay quando aplicável.
+5. Aprovar merge somente com o FAST obrigatório **PASS no SHA exato**,
+   sem falhas ou cobertura essencial ausente. Não considerar `skipped`,
+   `NOT_RUN`, `INCONCLUSIVE` ou `BLOCKED` como aprovados.
+6. **Não** adicionar automaticamente etiqueta `ci:full`, nem exigir
+   matriz 20/180, endurance longo, benchmark completo, exportação ou
+   Quality Gate histórico como condições universais de merge.
+   Homologações ampliadas são **manuais e opcionais**, acionadas
+   **apenas com pedido explícito do responsável pelo projeto**.
+7. Se a alteração envolver física, segurança de saves, revisão de replay,
+   clima ou bug de pista real, adicionar testes direcionados adequados
+   ao risco; não impor FULL por reflexo. Na ausência de prova suficiente,
+   não integrar a PR.
+8. Manter separado o processo de **merge de código** e a
+   **publicação de binários**; builds de teste e releases requerem
+   verificação dos respectivos executáveis e arquivos `.pck`.
 
-Uma ordem manual de pit na volta 21 não pode
-ser executada na volta 4 por decisão automática.
+Exemplos de regressões reais: Silverstone, Monza, Spa e Singapura quando
+a falha depende de suas características. A checagem rápida de cadastro
+das 20 pistas NÃO significa simular uma matriz de 20 GPs.
 
-Classificar os testes como:
-PASS, FAIL, NOT_RUN, INCONCLUSIVE ou BLOCKED.
+Uma ordem manual BOX V21 não pode virar uma parada na volta 4 por
+decisão automática. Preservar determinismo e compatibilidade com
+saves/replays mesmo em alterações visuais e de performance.
 
-Nunca declarar um teste aprovado sem executá-lo.
+Classificar os testes como PASS, FAIL, NOT_RUN, INCONCLUSIVE ou BLOCKED.
+Nunca declarar teste aprovado sem executá-lo nem prometer ganho de
+FPS/GPU com base só em benchmark sintético/headless.
+
+Esta regra substitui instruções antigas de FULL obrigatório presentes
+em relatórios históricos. Referência detalhada:
+`docs/APEX_CI_INTELIGENTE_TRES_NIVEIS.md`.
 
 ## 6. DESEMPENHO
 
