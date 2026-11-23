@@ -106,8 +106,9 @@ func _run() -> void:
 		and sport_before == var_to_bytes(race.get_state_snapshot())
 		and int(native_car.get("pit_scheduled_lap",0)) == 21,
 		"pure advisory does not consume RNG or affect sporting state")
-	check(Replay.SIMULATION_REVISION == "023_overtaking_intelligence_v1",
-		"no sporting revision change from 9.13")
+	check(Replay.SIMULATION_REVISION in ["023_overtaking_intelligence_v1", "024_race_start_spatial_v1"]
+		and Replay.PRE_START20_SIMULATION_REVISION == "023_overtaking_intelligence_v1",
+		"setup remains advisory across 023/024 while preserving archived 023")
 
 	var game = load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)

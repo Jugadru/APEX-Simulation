@@ -1,6 +1,6 @@
-# APEX Motorsport Manager — Core 2 (código v0.6.6.9.16)
+# APEX Motorsport Manager — Core 2 (código v0.6.6.9.17, candidato)
 
-**Código-fonte atual na `main`: v0.6.6.9.16 — Race Gaps & Overtaking 2.0 (radar de proximidade).** Nova métrica de distância física de pista na HUD, sem alterar as lacunas cronométricas da classificação ou a simulação esportiva. A última compilação binária disponível para teste já é a **9.16** (artefato temporário).
+**Código candidato nesta branch: v0.6.6.9.17 — Largada 2.0.** Avalia trânsito do grid e cautela na aproximação da primeira curva com base no corredor ocupado, estreitamento do traçado e chuva. A `main` de referência ainda está na 9.16 e o último **binário jogável verificado continua sendo o 9.16**. O código 9.17 deve passar pelo FAST + APEX Test Lab antes do merge. [Escopo e testes](docs/APEX_RELEASE_v0.6.6.9.17_LARGADA_2.md).
 
 
 ### ✅ Política oficial permanente: FAST + APEX Test Lab
@@ -33,8 +33,9 @@
 | 9.14 | Setup & Track Knowledge — 20 perfis de pista de 2012, recomendações qualitativas e consulta `SETUP/PISTA` no HUD |
 | **9.15** | **Performance & Race Polish** — cache dos perfis estáticos de pista na HUD, preservando clima, pneus e BOX manuais |
 | **9.16** | **Race Gaps & Overtaking 2.0 (1ª etapa)** — métrica `DIST. PISTA` com proximidade física no HUD: F=frente, T=trás, unidades esquemáticas (não tempo cronometrado); carro retardatário também conta, sem mudar a física/replay. [Detalhes](docs/APEX_RELEASE_v0.6.6.9.16_RACE_GAPS_OVERTAKING.md) |
+| **9.17 — CANDIDATA** | **Largada 2.0** — cautela causal na saída e primeira curva, com trânsito, chuva, largura e replay 024 versionado. [Detalhes](docs/APEX_RELEASE_v0.6.6.9.17_LARGADA_2.md) |
 
-Na 9.14, o setup é **consultivo**: não aplica ajustes de asa/suspensão nem muda ordens de box. A revisão esportiva continua `023_overtaking_intelligence_v1`; BOX manual V21 e saves/replays são preservados.
+Na 9.14, o setup é **consultivo**: não aplica ajustes de asa/suspensão nem muda ordens de box. A 9.16 utiliza a revisão esportiva `023_overtaking_intelligence_v1`; a candidata 9.17 passa para `024_race_start_spatial_v1` e mantém os replays históricos sob suas revisões originais.
 
 **Desenvolvimento atual:** somente **FAST + APEX Test Lab + regressões direcionadas** automaticamente. Matriz 20/180, endurance, comparações, exportações e Quality Gate histórico são executados manualmente quando solicitados. Consulte o [guia FAST](docs/APEX_CI_INTELIGENTE_TRES_NIVEIS.md).
 
@@ -86,7 +87,7 @@ A exportação Windows foi validada, mas **não** executada em um PC Windows nat
 
 A PR [#90 — HUD](https://github.com/Jugadru/APEX-Simulation/pull/90) foi integrada antes da release, e as PRs [#87 — QA](https://github.com/Jugadru/APEX-Simulation/pull/87) e [#88 — Publicação](https://github.com/Jugadru/APEX-Simulation/pull/88) também foram integradas. A tag `v0.6.6.9.9` e seus ZIPs permanecem imutáveis; atualizações de documentação e descrição no ramo `main` feitas depois da publicação não alteram os pacotes já lançados.
 
-**Próxima funcionalidade planejada:** v9.17 — Largada 2.0, respeitando uma melhoria principal por versão. Uma atualização do código não publica automaticamente nova release binária.
+**Funcionalidade candidata nesta branch:** v9.17 — Largada 2.0. Ainda requer CI FAST + APEX Test Lab; não há ZIP 9.17 validado nesta etapa. O último pacote jogável comprovado permanece o 9.16.
 
 ---
 

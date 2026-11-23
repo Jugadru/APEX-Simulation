@@ -137,6 +137,32 @@
         }
       ],
       "checks": []
+    },
+    {
+      "id": "race_start_spatial_0917",
+      "paths": [
+        "scripts/core/race_start_spatial_066917.gd",
+        "scripts/core/race_performance.gd",
+        "scripts/race_engine.gd",
+        "scripts/core/race_replay_0660.gd",
+        "scripts/core/race_state_codec_0660.gd",
+        "tests/race_start_066917_test.gd"
+      ],
+      "fast_tests": [
+        {
+          "script": "race_start_066917_test.gd",
+          "marker": "RACE_START_066917_PASS"
+        },
+        {
+          "script": "race_start_066911_test.gd",
+          "marker": "RACE_START_066911_PASS"
+        },
+        {
+          "script": "overtaking_066912_test.gd",
+          "marker": "OVERTAKING_066912_PASS"
+        }
+      ],
+      "checks": []
     }
   ]
 }

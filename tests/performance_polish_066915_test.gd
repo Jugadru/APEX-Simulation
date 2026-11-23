@@ -125,8 +125,9 @@ func _run() -> void:
 		"real engine's manual V21 protected across repeated advice")
 	check(Knowledge.cache_stats().get("catalog_loads") == 1,
 		"two different circuits share exactly one catalog load")
-	check(Replay.SIMULATION_REVISION == "023_overtaking_intelligence_v1",
-		"no replay or sporting revision changes")
+	check(Replay.SIMULATION_REVISION in ["023_overtaking_intelligence_v1", "024_race_start_spatial_v1"]
+		and Replay.PRE_START20_SIMULATION_REVISION == "023_overtaking_intelligence_v1",
+		"9.15 performance-only logic preserves 023 after 9.17 revision")
 
 	var game = load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
