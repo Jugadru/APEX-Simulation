@@ -117,7 +117,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        script: [race_live_without_replay_09173_test, grid_placement_09173_test, live_3d_replay_ab_09173_test]
+        script: [race_live_without_replay_09173_test, grid_placement_09173_test, live_3d_replay_ab_09173_test, motion_retreat_probe_09173_test]
     steps:
       - uses: actions/checkout@v4
       - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
@@ -129,7 +129,7 @@ jobs:
           bash tools/apex_ci_import.sh live-grid/import.log
           timeout 240s godot --headless --single-threaded-scene --path . --script res://tests/${{ matrix.script }}.gd 2>&1 | tee live-grid/test.log
           ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' live-grid/test.log
-          grep -Eq 'LIVE_WITHOUT_REPLAY_09173_PASS|GRID_PLACEMENT_09173_PASS|LIVE_3D_REPLAY_AB_09173_PASS' live-grid/test.log
+          grep -Eq 'LIVE_WITHOUT_REPLAY_09173_PASS|GRID_PLACEMENT_09173_PASS|LIVE_3D_REPLAY_AB_09173_PASS|MOTION_RETREAT_PROBE_09173_PASS' live-grid/test.log
       - uses: actions/upload-artifact@v4
         if: always()
         with:

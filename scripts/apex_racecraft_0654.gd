@@ -148,7 +148,7 @@ static func pending_old_clearance(pose: Dictionary, car_id: int,
 				- (rival.position - pose.position).dot(pose.direction) + 0.1)
 	return step
 
-static func solve(cars: Array,previous: Dictionary,dt: float,sample: Callable) -> Dictionary:
+static func solve(cars: Array,previous: Dictionary,dt: float,sample: Callable, retreat_step_cap: float = INF) -> Dictionary:
 	var active := []
 	var active_ids := {}
 	for car in cars:
@@ -190,7 +190,8 @@ static func solve(cars: Array,previous: Dictionary,dt: float,sample: Callable) -
 					step = maxf(step,radius(pose,pose.direction)+radius(result[other],pose.direction)-(result[other].position-pose.position).dot(pose.direction)+.1)
 			if recovering:
 				step = maxf(step, pending_old_clearance(pose,id,previous,result,active_ids))
-			retreat += step
+			# Finite cap is a diagnostic option; default behavior remains unchanged.
+			retreat += minf(step,maxf(0.8,retreat_step_cap))
 			pose = sample.call(car,lane,retreat)
 			if not old.is_empty() and float(pose.get("progress",car.progress))<float(old.progress): break
 		if not old.is_empty() and (blocked(pose,old,result,history) or float(pose.get("progress",car.progress))<float(old.progress)):

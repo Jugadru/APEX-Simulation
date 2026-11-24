@@ -1,7 +1,7 @@
 extends SceneTree
 const Codec = preload("res://scripts/core/race_state_codec_0660.gd")
 const Motion = preload("res://scripts/apex_racecraft_0654.gd")
-const FRAMES := 360
+const FRAMES := 1875
 const DELTA := 1.0/30.0
 var failures := 0
 func _initialize() -> void: call_deferred("run")
