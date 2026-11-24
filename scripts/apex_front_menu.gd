@@ -124,6 +124,22 @@ func configuration(title: String) -> void:
     host._update_championship_menu()
     host._layout_ui()
 
+# Returning from P&D is not a request to create a new season or reset a GP.
+func return_to_preparation() -> void:
+    var was_preparing: bool = host.menu_root.get_node("MenuCard").visible
+    var scroll: int = host.menu_scroll.scroll_vertical
+    var title: String = "GP AVULSO / PREPARAÇÃO"
+    if was_preparing and is_instance_valid(configuration_title):
+        title = configuration_title.text
+    elif host.championship_mode:
+        title = "STANDARD / TEMPORADA SALVA"
+    elif Prep.find(host).drafting:
+        title = "STANDARD / PREPARAÇÃO DA TEMPORADA"
+    host._show_menu()
+    configuration(title)
+    if was_preparing:
+        host.menu_scroll.set_deferred("scroll_vertical", scroll)
+
 func control_mode(index: int) -> void:
     host.pre_race_team_mode_picker.select(index)
     host._select_pre_race_team_mode(index)

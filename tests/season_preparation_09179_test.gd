@@ -55,6 +55,10 @@ func run()->void:
 		await capture("draft_%dx%d"%[resolution.x,resolution.y])
 	host._open_staff();host._navigate_back()
 	check(preview.drafting and int(host.seed_picker.value)==99179 and host.team_control_mode=="Automático","draft retained through Staff")
+	var hub=host.garage_root.get_node("ManagementHub")
+	host._open_garage();hub.open_configuration()
+	check(preview.drafting and not host.championship_mode and not host.championship.has_season(),"P&D return retains unsaved draft")
+	check(int(host.seed_picker.value)==99179 and host.team_control_mode=="Automático" and host.weather_mode_picker.selected==3,"P&D return retains draft settings")
 	preview.create_button.pressed.emit()
 	await settle()
 	check(host.championship_new_dialog.visible and host.championship_new_dialog.dialog_text.contains(host.selected_team) and host.championship_new_dialog.dialog_text.contains("99179"),"confirmation reflects draft")
@@ -67,6 +71,17 @@ func run()->void:
 	check(host.championship.has_season() and host.championship_mode and not preview.drafting,"create actual season")
 	check(host.championship.state.seed==99179 and host.championship.state.team==host.selected_team and host.championship.state.calendar.size()==20,"actual season data")
 	check(host.team_picker.disabled and host.track_picker.disabled and not host.seed_picker.editable and host.start_button.visible and not preview.create_button.visible,"season locked, start visible")
+	var active_state:Dictionary=host.championship.state.duplicate(true)
+	var active_file:String=FileAccess.get_file_as_string(host.championship.save_path)
+	var active_seed:int=int(host.seed_picker.value)
+	var active_track:int=host.selected_track_index
+	var active_team:String=host.selected_team
+	host._open_garage();hub.open_configuration()
+	check(host.championship_mode and not preview.drafting and host.start_button.visible and not preview.create_button.visible,"P&D return retains active championship")
+	check(host.selected_team==active_team and int(host.seed_picker.value)==active_seed and host.selected_track_index==active_track,"P&D return retains active round bindings")
+	check(host.team_control_mode=="Automático" and host.weather_mode_picker.selected==3,"P&D return retains active GP conditions")
+	check(host.championship.state==active_state and FileAccess.get_file_as_string(host.championship.save_path)==active_file,"P&D return does not rewrite championship")
+	await settle()
 	await capture("season_ready")
 	var saved:Dictionary=host.championship.state.duplicate(true)
 	var saved_file:String=FileAccess.get_file_as_string(host.championship.save_path)
@@ -94,6 +109,13 @@ func run()->void:
 	check(not preview.drafting and not host.championship_mode and not host.track_picker.disabled,"sandbox freely configurable")
 	front.apply_preset(1)
 	check(host.season_tracks[host.selected_track_index].code=="ITA" and preview.circuit.text==str(host.season_tracks[host.selected_track_index].name),"preset summary")
+	var preset_seed:int=int(host.seed_picker.value)
+	var preset_track:int=host.selected_track_index
+	var preset_weather:int=host.weather_mode_picker.selected
+	var preset_title:String=front.configuration_title.text
+	host._open_garage();hub.open_configuration()
+	check(not host.championship_mode and not preview.drafting and host.start_button.visible,"P&D return retains standalone GP")
+	check(int(host.seed_picker.value)==preset_seed and host.selected_track_index==preset_track and host.weather_mode_picker.selected==preset_weather and front.configuration_title.text==preset_title,"P&D return retains preset and title")
 	await settle();await capture("sandbox")
 	front.show_home();front.resume_race()
 	check(host.race==race and Codec.sporting_hash(race,host.replay_session.policy)==hash_before,"resume preserves sporting hash")

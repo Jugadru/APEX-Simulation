@@ -239,8 +239,7 @@ func show_development() -> void:
     show_research_tab("development")
 
 func open_configuration() -> void:
-    host._show_menu()
-    host.menu_root.get_node("FrontDoor").open_standard()
+    host.menu_root.get_node("FrontDoor").return_to_preparation()
 
 func show_page(key: String) -> void:
     if not pages.has(key): return

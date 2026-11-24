@@ -11,3 +11,6 @@ Base: `dc6ad3469301bb5019e13998944332c3324c00eb` / PR #123. Uma funcionalidade p
 
 ## QA
 `season_preparation_09179_test.gd`: todas as 12 equipes / 24 pilotos, retratos opcionais, rascunho, criação, cancelamento e save em disco, campeonato concluído, Staff, presets, lançamento e retomada com hash esportivo, três resoluções e CTA fora da rolagem. FAST, Test Lab e regressões direcionadas, CI gráfica própria. Capturas com retratos privados somente no ZIP privado. GPU física, ultrawide, gamepad e GPs completos não fazem parte do ensaio desta revisão visual. Rollback: base acima; manter backup de saves. Sem merge antes da homologação.
+
+## REV2 — retorno de P&D
+CI Core 2 45496060790: `HUD04_FAIL: deliver project` e `delivered history`. Controle local 9.17.8 PASS; REV1 falhou com os mesmos sintomas. A central chamava `open_standard()`, que na nova preparação significa criar rascunho e desativa o campeonato em memória. `return_to_preparation()` agora conserva o contexto atual, sem solicitar uma nova temporada ou redefinir clima, seed e controle. Mantém os callbacks de criação explícita, as regras de P&D, o layout e os saves. A fixture original HUD04 permanece inalterada; novos checks cobrem retorno pela central em rascunho, temporada ativa e GP avulso, incluindo estado/bytes do save. Resultados vinculados ao SHA no PR #124. Sem merge até CI aprovada.
