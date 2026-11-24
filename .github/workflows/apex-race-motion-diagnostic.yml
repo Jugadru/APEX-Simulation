@@ -80,3 +80,34 @@ jobs:
           name: apex-motion-monaco-graphics
           path: qa/visual_stutter_06672/
           retention-days: 14
+  legacy-replay-control:
+    if: github.head_ref == 'fix/v0.6.6.9.17.3-race-motion'
+    name: Historical replay / baseline control
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        revision: [base, candidate]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.revision == 'base' && github.event.pull_request.base.sha || github.event.pull_request.head.sha }}
+      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+        with:
+          version: 4.7.2-stable
+      - run: |
+          set -euo pipefail
+          mkdir -p replay-control
+          git rev-parse HEAD | tee replay-control/commit.txt
+          timeout 240s godot --headless --single-threaded-scene --path . --import 2>&1 | tee replay-control/import.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' replay-control/import.log
+          timeout 240s godot --headless --single-threaded-scene --path . --script res://tests/driver_traffic_06693_test.gd 2>&1 | tee replay-control/replay.log
+          grep -Fq 'DRIVER_TRAFFIC_06693_PASS' replay-control/replay.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' replay-control/replay.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apex-motion-replay-${{ matrix.revision }}
+          path: replay-control/
+          retention-days: 14
