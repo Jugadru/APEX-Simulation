@@ -37,3 +37,26 @@ jobs:
           name: apex-driver-hud-native-layout
           path: qa/driver_hud_09175/
           retention-days: 14
+
+  source-package:
+    # Exact PR head, source only. Real photo pack stays private on the user's Drive.
+    if: github.head_ref == 'feat/v0.6.6.9.17.5-driver-hud'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Package exact reviewed source
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/apex-package
+          git archive --format=zip --output=/tmp/apex-package/apex-pr118-source.zip HEAD
+          git rev-parse HEAD > /tmp/apex-package/SOURCE_COMMIT.txt
+          cd /tmp/apex-package
+          sha256sum apex-pr118-source.zip > SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apex-pr118-source-only
+          path: /tmp/apex-package/
+          retention-days: 7
