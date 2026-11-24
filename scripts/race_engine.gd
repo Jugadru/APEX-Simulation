@@ -16,6 +16,8 @@ const COMPETITIVE_SIM_REVISION := "025_competitive_grid_start_v1"
 const MERGE_TRAFFIC_SIM_REVISION := "026_competitive_traffic_v1"
 const TRAFFIC_HOTFIX_SIM_REVISION := "027_race_traffic_hotfix_v1"
 const RACING_LINE_SIM_REVISION := "028_racing_line_v1"
+const FOLLOWING_SIM_REVISION := "029_racing_line_following_v1"
+var following_enabled: bool = true
 var racing_line_enabled: bool = true
 var racing_line_profile: Dictionary = {}
 var traffic_hotfix_enabled: bool = true
@@ -705,17 +707,19 @@ func _advance(dt: float) -> void:
 	var merge_rules: bool = merge_traffic_enabled and competitive_rules
 	var traffic_hotfix_rules: bool = traffic_hotfix_enabled
 	var racing_line_rules: bool = racing_line_enabled
+	var following_rules: bool = following_enabled and racing_line_enabled
 	if command_session != null:
 		var attached_session: Object = command_session.get_ref()
 		if attached_session != null:
 			launch_legacy = bool(attached_session.get("legacy_launch_physics"))
 			var revision: String = str(attached_session.get("recorded_simulation_revision"))
-			overtaking_rules = overtaking_rules and revision in [OVERTAKING_SIM_REVISION, START20_SIM_REVISION, COMPETITIVE_SIM_REVISION, MERGE_TRAFFIC_SIM_REVISION, TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION]
+			overtaking_rules = overtaking_rules and revision in [OVERTAKING_SIM_REVISION, START20_SIM_REVISION, COMPETITIVE_SIM_REVISION, MERGE_TRAFFIC_SIM_REVISION, TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION]
 			start20_rules = start20_rules and revision in [START20_SIM_REVISION, COMPETITIVE_SIM_REVISION]
-			competitive_rules = competitive_rules and revision in [COMPETITIVE_SIM_REVISION, MERGE_TRAFFIC_SIM_REVISION, TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION]
-			merge_rules = merge_rules and revision in [MERGE_TRAFFIC_SIM_REVISION, TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION]
-			traffic_hotfix_rules = traffic_hotfix_rules and revision in [TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION]
-			racing_line_rules = racing_line_rules and revision == RACING_LINE_SIM_REVISION
+			competitive_rules = competitive_rules and revision in [COMPETITIVE_SIM_REVISION, MERGE_TRAFFIC_SIM_REVISION, TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION]
+			merge_rules = merge_rules and revision in [MERGE_TRAFFIC_SIM_REVISION, TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION]
+			traffic_hotfix_rules = traffic_hotfix_rules and revision in [TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION]
+			racing_line_rules = racing_line_rules and revision in [RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION]
+			following_rules = following_rules and revision == FOLLOWING_SIM_REVISION
 	var launch_clearance: float = 1.0
 	var launch_limit: float = RaceStart066917.CORNER_PHASE_SECONDS if start20_rules else RaceStart066911.PHASE_SECONDS
 	if race_start_intelligence_enabled and clock < launch_limit:
@@ -755,6 +759,9 @@ func _advance(dt: float) -> void:
 		var metrics: Dictionary = RacePerformance.evaluate(old_car, context)
 		if racing_line_rules and clock >= RacingLine.START_SECONDS and old_progress >= 0.0 and not racing_line_profile.is_empty():
 			var line: Dictionary = RacingLine.sample(racing_line_profile, old_progress, float(current_weather.get("wetness_factor",0.0)), float(old_car.get("skill",80.0)))
+			if following_rules:
+				metrics["decision_pace"] = float(metrics.target)
+				metrics["line_load"] = float(line.load)
 			metrics.target = float(metrics.target)*float(line.pace_factor)
 			# A pit-bound car retains existing pit approach behavior.
 			var fraction: float = fposmod(old_progress,1.0)
@@ -763,7 +770,7 @@ func _advance(dt: float) -> void:
 		pace_metrics[int(old_car["id"])] = metrics
 	if Perf.enabled: Perf.end(&"race.pace_thermal_drs_kers",perf_pace)
 	var perf_space := Perf.begin() if Perf.enabled else 0
-	var space_plan := RaceSpace.plan(old_order,pace_metrics,dt,track,space_profile,current_weather,driver_traffic_enabled,driver_soul3_enabled,overtaking_rules,competitive_rules,clock,merge_rules,traffic_hotfix_rules)
+	var space_plan := RaceSpace.plan(old_order,pace_metrics,dt,track,space_profile,current_weather,driver_traffic_enabled,driver_soul3_enabled,overtaking_rules,competitive_rules,clock,merge_rules,traffic_hotfix_rules,following_rules)
 	if Perf.enabled: Perf.end(&"race.overtaking",perf_space)
 	var defenders: Dictionary = {}
 	for car in cars:

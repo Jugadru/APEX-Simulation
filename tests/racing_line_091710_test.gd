@@ -37,6 +37,7 @@ func fixture():
 func drive(data:Dictionary,track:Dictionary,wet:bool,modern:bool)->Dictionary:
 	var race=Race.new(data.teams,"Ferrari",42,{},track,{})
 	race.racing_line_enabled=modern
+	race.following_enabled=false
 	race.configure_weather("Chuva intensa" if wet else "Seco")
 	race.running=true
 	var previous:Dictionary={}
@@ -89,12 +90,18 @@ func run():
 			var old=drive(data,track,wet,false)
 			var now=drive(data,track,wet,true)
 			var again=drive(data,track,wet,true)
+			var expected_028: Dictionary = {
+				"MON": ["80bf14f3cee485eac3dafe1e95b1766486de0a03ce33cde34f38345beba8aa57","08a7df98471fc0cac6feaa46febc50438149c9fcc57fd6a644dce06e52ce7898"],
+				"GBR": ["3d9ed90459ee5932925e7c816331447e7af7dd284899a7ea1cae4da944fed4c3","7b02e9032d441c6c4c7e20ac09fcd5e8b7f85784437b3708fcfdd842bdeac5cc"],
+				"BEL": ["a5fc60511b1ee3edc5467a1f602f7504af51ee213ed4c196cc8b26e02e77be8b","93b196e980d190babd379807b33a9e0326cd1ae13a08d382b558a20a26b7c835"],
+				"ITA": ["38ba4791e4c08154d2e33006e4dd578f85218fda850e0233e26ecf94e34ca27d","a6cdec177c00b5574e9479d515ea449d829db64bcbf4ed55fbe21ad6780d25d0"]}
+			check(now.hash==expected_028[str(track.code)][1 if wet else 0],"independent REV1 028 hash "+str(track.code))
 			check(now.hash==again.hash,"deterministic "+str(track.code))
 			check(now.reversals==0 and now.field_stops==0,"no reverse or deadlock")
 			check(now.overlaps<=old.overlaps and now.stopped<=old.stopped+2,"traffic no regression")
 			check(now.hash!=old.hash,"new sporting path exercised")
 			print("LINE_CASE ",JSON.stringify({"track":track.code,"wet":wet,"old":old,"new":now}))
-	for revision in [Replay.PRE_RACING_LINE_SIMULATION_REVISION,Replay.SIMULATION_REVISION]:
+	for revision in [Replay.PRE_RACING_LINE_SIMULATION_REVISION,Replay.PRE_FOLLOWING_SIMULATION_REVISION]:
 		var rec=Replay.new();rec.attach(Race.new(data.teams,"Ferrari",42,{},data.tracks[0],{}))
 		rec.recorded_simulation_revision=revision
 		for i in range(350): check(rec.step_tick(),"record "+revision)

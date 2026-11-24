@@ -6,10 +6,12 @@ on:
     paths:
       - 'scripts/core/race_racing_line_091710.gd'
       - 'scripts/core/race_space_0655.gd'
+      - 'scripts/core/race_driver_dynamics_0661.gd'
       - 'scripts/core/race_state_codec_0660.gd'
       - 'scripts/core/race_replay_0660.gd'
       - 'scripts/race_engine.gd'
       - 'tests/racing_line_091710_test.gd'
+      - 'tests/racing_follow_091710_test.gd'
       - '.github/workflows/apex-racing-line.yml'
 permissions:
   contents: read
@@ -77,4 +79,42 @@ jobs:
           path: |
             import.log
             arc.log
+          retention-days: 14
+  following:
+    if: github.head_ref == 'feat/v0.6.6.9.17.10-racing-line'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - track: ITA
+            climate: Seco
+          - track: GBR
+            climate: Seco
+          - track: MON
+            climate: Seco
+          - track: ITA
+            climate: Chuva intensa
+    env:
+      APEX_FOLLOW_TRACK: ${{ matrix.track }}
+      APEX_FOLLOW_CLIMATE: ${{ matrix.climate }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+        with:
+          version: 4.7.2-stable
+      - run: bash tools/apex_ci_import.sh import.log
+      - run: |
+          set -euo pipefail
+          bash tools/apex_ci_isolated_test.sh racing_follow_091710_test.gd 2>&1 | tee following.log
+          grep -Fq FOLLOW_091710_PASS following.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' following.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apex-follow-${{ matrix.track }}-${{ matrix.climate }}
+          path: |
+            import.log
+            following.log
           retention-days: 14

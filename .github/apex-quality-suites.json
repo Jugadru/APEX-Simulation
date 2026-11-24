@@ -366,13 +366,16 @@
       "paths": [
         "scripts/core/race_racing_line_091710.gd",
         "scripts/core/race_space_0655.gd",
+        "scripts/core/race_driver_dynamics_0661.gd",
         "scripts/core/race_replay_0660.gd",
         "scripts/core/race_state_codec_0660.gd",
         "scripts/race_engine.gd",
-        "tests/racing_line_091710_test.gd"
+        "tests/racing_line_091710_test.gd",
+        "tests/racing_follow_091710_test.gd"
       ],
       "fast_tests": [
         {"script": "racing_line_091710_test.gd", "marker": "RACING_LINE_091710_PASS"},
+        {"script": "racing_follow_091710_test.gd", "marker": "FOLLOW_091710_PASS"},
         {"script": "sim_space_0655_test.gd", "marker": "SIM_SPACE_PASS"},
         {"script": "radio_0668101_booked_pit_advice_test.gd", "marker": "RADIO_0668101_BOOKED_PIT_PASS"}
       ],

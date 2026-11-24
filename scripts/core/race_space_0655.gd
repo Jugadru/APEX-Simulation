@@ -62,8 +62,9 @@ static func corridor_crosses(a0: float,a1: float,b0: float,b1: float) -> bool:
 
 static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,shape: Dictionary, weather: Dictionary = {}, traffic_enabled: bool = true, soul3_enabled: bool = false,
 		overtaking_enabled: bool = false, competitive_start_enabled: bool = false,
-		start_clock_s: float = 0.0, merge_traffic_enabled: bool = false, traffic_hotfix_enabled: bool = false) -> Dictionary:
+		start_clock_s: float = 0.0, merge_traffic_enabled: bool = false, traffic_hotfix_enabled: bool = false, following_enabled: bool = false) -> Dictionary:
 	var length: float=shape.length
+	following_enabled = following_enabled and start_clock_s>=24.0
 	var hotfix: bool = merge_traffic_enabled and traffic_hotfix_enabled
 	# 06686: RaceEngine normally supplies a sorted frozen sporting snapshot.
 	# Filtering out inactive cars preserves its order. Avoid sorting 24
@@ -100,7 +101,11 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 		var clear: bool = true
 		for other in order:
 			if other.id==id: continue
-			if absf(MergeTraffic.relative_gap(float(c.progress),float(other.progress),length))<LENGTH*3.0:
+			var signed_gap: float=MergeTraffic.relative_gap(float(c.progress),float(other.progress),length)
+			if absf(signed_gap)<LENGTH*3.0:
+				# A rear follower in the same corridor must not monopolize
+				# the leader's racing line. A side-by-side rival still vetoes it.
+				if following_enabled and signed_gap<0.0 and (absf(signed_gap)>=LENGTH+1.0 or absf(float(c.get("race_lane",0.0))-float(other.get("race_lane",0.0)))<WIDTH-0.01): continue
 				clear=false
 				break
 		if clear:
@@ -132,6 +137,8 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 		var a: Dictionary = intents[id]
 		var d: Dictionary = intents[rival]
 		var advantage: float = float(d.pace) - float(a.pace)
+		if following_enabled:
+			advantage = float(metrics[rival].get("decision_pace",d.pace))-float(metrics[id].get("decision_pace",a.pace))
 		a.target = rival
 		a.state = "closing"
 		var previous_target: int = int(c.get("combat_target_id", -1))
@@ -145,7 +152,7 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 				lane_limit(track,float(ahead.progress)+LENGTH*2.0/length,shape))
 		var driver: Dictionary = c.duplicate()
 		driver["attack_charge"] = float(a.charge)
-		var tactic: Dictionary = DriverDynamics.choose(driver,ahead,gap,advantage,limit,track,weather,soul3_enabled)
+		var tactic: Dictionary = DriverDynamics.choose(driver,ahead,gap,advantage,limit,track,weather,soul3_enabled,following_enabled)
 		if competitive_start_enabled:
 			tactic = CompetitiveStart.refine_tactic(driver,ahead,gap,advantage,limit,weather,tactic,start_clock_s)
 		if overtaking_enabled:
@@ -174,11 +181,11 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 		if int(d.defending) < 0:
 			# Once the cars approach overlap, the defender must HOLD its actual
 			# lane. No late squeeze or return to the racing line during a duel.
-			if gap <= LENGTH + 4.0:
+			if gap <= LENGTH + 4.0 and (not following_enabled or (gap < LENGTH+1.0 and absf(float(a.lane)-float(d.lane))>=WIDTH-0.01) or bool(tactic.commit)):
 				d.goal = float(d.lane)
 				d.defending = id
 				d.defense_line = float(d.lane)
-			elif bool(tactic.defense) and str(d.state) not in ["attacking", "duel", "preparing"]:
+			elif bool(tactic.defense) and (not following_enabled or bool(tactic.commit)) and str(d.state) not in ["attacking", "duel", "preparing"]:
 				d.goal = clampf(float(tactic.defend_goal),-limit,limit)
 				d.defending = id
 				d.defense_line = float(d.goal)
@@ -209,6 +216,40 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 		# Every duel has a small, symmetric time cost; no boost is granted.
 		a.pace += 0.22
 		d.pace += 0.08
+	# 029: close the loop after tactical commitment. A driver who cannot
+	# make a real attack yields longitudinally before seeking the leader's wake.
+	# The unchanged occupancy solver decides whether the lane is safe.
+	if following_enabled and start_clock_s>=24.0:
+		for c in order:
+			var id:int=int(c.id)
+			var a:Dictionary=intents[id]
+			if str(a.state) in ["preparing","attacking","duel"]: continue
+			var nearest:Dictionary={}
+			var gap:float=INF
+			for other in order:
+				if other.id==id: continue
+				var g:float=MergeTraffic.relative_gap(float(c.progress),float(other.progress),length)
+				if absf(g)<=0.000001:
+					if MergeTraffic.has_priority(c,other): continue
+					g=0.0
+				if g>=0.0 and g<gap:
+					gap=g
+					nearest=other
+			if nearest.is_empty() or gap>38.0: continue
+			var d:Dictionary=intents[int(nearest.id)]
+			var separation:float=absf(float(a.lane)-float(d.lane))
+			if separation>0.8 and gap<LENGTH+2.2:
+				# Modest lift from nominal forward pace; never halt or reverse.
+				# The faster driver can still commit when a safe pass opens.
+				a.pace=maxf(float(a.pace),minf(float(a.pace)*1.16,float(d.pace)*1.12))
+			if (gap>=LENGTH+1.0 or (gap>=LENGTH-0.00001 and separation<=0.8)) and int(a.defending)<0:
+				a.goal=float(d.goal)
+			# Wake gain only on straights, close and physically aligned.
+			if gap>=LENGTH and gap<=30.0 and separation<=0.8:
+				var load:float=float(metrics[id].get("line_load",1.0))
+				var wet:float=clampf(float(weather.get("wetness_factor",0.0)),0.0,1.0)
+				if load<0.22:
+					a.pace-=0.75*(1.0-gap/38.0)*(1.0-separation/0.8)*(1.0-load/0.22)*(1.0-0.85*wet)
 	# Hold lateral occupancy through overlap, including a recently passed car.
 	for c in order:
 		var id := int(c.id)
