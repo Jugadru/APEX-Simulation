@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="APEX Motorsport Manager v0.6.6.9.17.3 — Core 2"
-config/description="v0.6.6.9.17.3: Race Motion Refinement — recuperação visual gradual candidata, motor esportivo e replay 025 preservados (Godot 4.7.2)."
+config/description="v0.6.6.9.17.3: Race Motion Refinement — grid, ocupação 3D e gravação de replay suspensa por padrão; motor esportivo preservado (Godot 4.7.2)."
 run/main_scene="res://scenes/main.tscn"
 config/use_custom_user_dir=true
 config/custom_user_dir_name="APEX_0650_SOUL_STAFF"
