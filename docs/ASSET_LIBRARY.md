@@ -32,3 +32,9 @@ Os binários não devem ser incluídos neste repositório público enquanto a pr
 ## Estado
 
 Acervo preservado para desenvolvimento futuro; não é solicitação de integração imediata. As fotografias e os fundos não foram enviados a este GitHub público. Não foram feitos novos testes de Godot nesta operação de arquivamento.
+
+## Entrada rápida para agentes e novas conversas
+
+No Drive conectado, abrir `Meu Drive / APEX Asset Library / 00 — APEX Asset Library — Índice mestre e recuperação`. Esse índice contém os links exatos dos arquivos, versões de referência, dimensões e protocolo de recuperação. Pesquisar pelo título exato se necessário. Não copiar os links privados para o GitHub público. Se o Drive não estiver conectado, solicitar acesso ao responsável, sem recriar os assets.
+
+Ao adicionar ou substituir um recurso de referência, atualizar o índice mestre e este catálogo na mesma entrega. Distinguir backup histórico, asset de referência e asset efetivamente integrado.
