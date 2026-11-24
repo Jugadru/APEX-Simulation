@@ -216,7 +216,78 @@ static func try_official_motion(active: Array, previous: Dictionary, sample: Cal
 		prior=next
 	return nominal
 
-static func solve(cars: Array,previous: Dictionary,dt: float,sample: Callable, retreat_step_cap: float = INF, synchronize: bool = true) -> Dictionary:
+# Resolve only the cars involved in an actual simultaneous conflict.
+# Test every mixed candidate against the rest of the field. A repaired
+# pose never advances beyond the authoritative progress, nor reverses.
+static func pair_conflicts(id: int, pose: Dictionary, field: Dictionary, previous: Dictionary) -> Array:
+	var conflicts := []
+	for other in field:
+		if int(other)==id: continue
+		if overlaps(pose,field[other]) or (previous.has(id) and previous.has(other) and swept(previous[id],pose,previous[other],field[other])):
+			conflicts.append(other)
+	return conflicts
+
+static func try_local_motion(active: Array, previous: Dictionary, sample: Callable) -> Dictionary:
+	if previous.is_empty(): return {}
+	var field := {}
+	var by_id := {}
+	for car in active:
+		if not car.has("race_lane"): return {}
+		var id := int(car.id)
+		if not previous.has(id): return {}
+		var p: Dictionary = sample.call(car,float(car.race_lane),0.0)
+		if not p.has("route_length") or float(p.progress)<float(previous[id].progress): return {}
+		field[id]=p
+		by_id[id]=car
+	# Each accepted repair strictly reduces the number of conflicting pairs.
+	# Prefer staying on the old lane while moving forward to a full stop.
+	for iteration in range(12):
+		var conflicted := {}
+		for id in field:
+			var rivals := pair_conflicts(int(id),field[id],field,previous)
+			if not rivals.is_empty(): conflicted[id]=rivals.size()
+		if conflicted.is_empty():
+			for id in field:
+				var p: Dictionary=field[id]
+				var c: Dictionary=by_id[id]
+				var old: Dictionary=previous[id]
+				var still := Vector2(p.position).distance_squared_to(Vector2(old.position))<0.015*0.015
+				p["held"] = float(p.progress)<float(c.progress)-0.00000001 or absf(float(p.lane)-float(c.race_lane))>0.01
+				p["hold_frames"] = int(old.get("hold_frames",0))+1 if still and p.held else 0
+				p["resynced"]=false
+				p["visible"]=true
+				p["intent_lane"]=float(c.race_lane)
+				p["target_id"]=int(c.get("combat_target_id",-1))
+			return field if simultaneous_clear(previous,field) else {}
+		var best_id := -1
+		var best: Dictionary = {}
+		var best_gain := 0
+		var best_cost := INF
+		for id in conflicted:
+			var car: Dictionary=by_id[id]
+			var old: Dictionary=previous[id]
+			var target: Dictionary=field[id]
+			var available := maxf(0.0,(float(car.progress)-float(old.progress))*float(target.route_length))
+			# Local lateral delay or modest longitudinal retreat, never a
+			# teleport or a lane outside the track sampler's legal envelope.
+			for retreat_value in [0.0,0.8,1.6,2.4,4.0]:
+				var retreat := minf(float(retreat_value),available)
+				for lane_value in [float(old.lane),lerpf(float(old.lane),float(car.race_lane),0.5),float(car.race_lane)]:
+					var lane := float(lane_value)
+					var candidate: Dictionary=sample.call(car,lane,retreat)
+					if float(candidate.progress)<float(old.progress)-0.00000001: continue
+					var gain := int(conflicted[id])-pair_conflicts(int(id),candidate,field,previous).size()
+					var cost := retreat+absf(float(candidate.lane)-float(car.race_lane))*0.5
+					if gain>0 and (gain>best_gain or (gain==best_gain and cost<best_cost)):
+						best_id=int(id)
+						best=candidate
+						best_gain=gain
+						best_cost=cost
+		if best_id<0: return {}
+		field[best_id]=best
+	return {}
+
+static func solve(cars: Array,previous: Dictionary,dt: float,sample: Callable, retreat_step_cap: float = INF, synchronize: bool = true, local_repair: bool = true) -> Dictionary:
 	var active := []
 	var active_ids := {}
 	for car in cars:
@@ -231,6 +302,9 @@ static func solve(cars: Array,previous: Dictionary,dt: float,sample: Callable, r
 	if synchronize:
 		var synchronized := try_official_motion(active,previous,sample)
 		if not synchronized.is_empty(): return synchronized
+		if local_repair:
+			var repaired := try_local_motion(active,previous,sample)
+			if not repaired.is_empty(): return repaired
 	# A visual hold must not become a permanent ordering lock after the
 	# authoritative simulation passes a blocked rival. Rebase only the stuck
 	# car's presentation history; no race dictionary or physics is modified.
