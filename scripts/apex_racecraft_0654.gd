@@ -146,73 +146,58 @@ static func pending_old_clearance(pose: Dictionary, car_id: int,
 				- (rival.position - pose.position).dot(pose.direction) + 0.1)
 	return step
 
-# Try a synchronized, bounded catch-up before discarding any visual history.
-# All endpoints AND pairwise sweeps must be safe; otherwise use the existing
-# occupation solver unchanged. No sporting state or RNG is touched.
-static func gradual_recovery(active: Array, previous: Dictionary, lanes: Dictionary,
-		dt: float, sample: Callable) -> Dictionary:
-	if dt <= 0.0 or active.size() != previous.size():
+# Refine only a delayed car's already-resolved safe endpoint. The rest of
+# the grid retains the legacy solver's decisions; unrelated conflicts cannot
+# veto recovery. Check every neighbour's old and final pose before committing.
+static func gradual_candidate(car: Dictionary, previous: Dictionary,
+		resolved: Dictionary, sample: Callable) -> Dictionary:
+	var id := int(car.id)
+	if not previous.has(id) or not resolved.has(id):
 		return {}
-	var needs_recovery := false
-	for car in active:
-		var id := int(car.id)
-		if not previous.has(id):
-			return {}
-		if int(previous[id].get("hold_frames", 0)) >= MAX_CONSECUTIVE_VISUAL_HOLDS or bool(previous[id].get("gradual_pending", false)):
-			needs_recovery = true
-	if not needs_recovery:
+	var old: Dictionary = previous[id]
+	var target: Dictionary = resolved[id]
+	if not old.has("official_progress"):
 		return {}
-	var proposed := {}
-	for car in active:
-		var id := int(car.id)
-		var old: Dictionary = previous[id]
-		var recovering := int(old.get("hold_frames", 0)) >= MAX_CONSECUTIVE_VISUAL_HOLDS or bool(old.get("gradual_pending", false))
-		var official := float(car.progress)
-		var lane := float(lanes[id])
-		if not car.has("race_lane"):
-			lane = lerpf(float(old.get("lane", lane)), lane, 1.0-exp(-3.8*dt))
-		var pose: Dictionary = sample.call(car, lane, 0.0)
-		var retreat := 0.0
-		if recovering:
-			if not old.has("official_progress"):
-				return {}
-			var official_step := official - float(old.official_progress)
-			if official_step <= 0.0:
-				return {}
-			# Estimate the route scale from the existing sampler contract:
-			# retreat is in presentation units, progress is unwrapped laps.
-			var probe: Dictionary = sample.call(car, lane, 1.0)
-			var progress_per_unit := float(pose.progress) - float(probe.progress)
-			if progress_per_unit <= 0.000000001:
-				return {}
-			var bounded_progress := minf(official, float(old.progress) + 1.25 * official_step)
-			retreat = maxf(0.0, (float(pose.progress) - bounded_progress) / progress_per_unit)
-			pose = sample.call(car, lane, retreat)
-			var displacement := Vector2(pose.position).distance_to(Vector2(old.position))
-			var budget := 1.25 * official_step / progress_per_unit + absf(float(pose.lane)-float(old.lane)) + 0.1
-			if displacement < 0.015 or displacement > budget:
-				return {}
-		if float(pose.progress) < float(old.progress) - 0.000000001:
+	if int(old.get("hold_frames",0)) < MAX_CONSECUTIVE_VISUAL_HOLDS and not bool(old.get("gradual_pending",false)):
+		return {}
+	var official_step := float(car.progress) - float(old.official_progress)
+	if official_step <= 0.0:
+		return {}
+	var lane := float(target.lane)
+	var origin: Dictionary = sample.call(car,lane,0.0)
+	var probe: Dictionary = sample.call(car,lane,1.0)
+	var scale := float(origin.progress)-float(probe.progress)
+	if scale <= 0.000000001:
+		return {}
+	var bound := float(old.progress)+1.25*official_step
+	# If the legacy solver already respects the bound, keep its safe pose.
+	if float(target.progress) <= bound:
+		return {}
+	var retreat := maxf(0.0,(float(origin.progress)-bound)/scale)
+	var pose: Dictionary = sample.call(car,lane,retreat)
+	var displacement := Vector2(pose.position).distance_to(Vector2(old.position))
+	var budget := 1.25*official_step/scale+absf(float(pose.lane)-float(old.lane))+0.1
+	if displacement < 0.015 or displacement > budget or displacement >= Vector2(target.position).distance_to(Vector2(old.position)):
+		return {}
+	for other in resolved:
+		if int(other)==id:
+			continue
+		if overlaps(pose,resolved[other]):
 			return {}
-		for other in proposed:
-			if overlaps(old, previous[other]) or overlaps(pose, proposed[other]) \
-					or swept(old, pose, previous[other], proposed[other]):
-				return {}
-		pose["held"] = retreat > 0.0
-		pose["hold_frames"] = 0 if Vector2(pose.position).distance_to(Vector2(old.position)) >= 0.015 else int(old.get("hold_frames", 0)) + 1
-		if int(pose.hold_frames) > MAX_CONSECUTIVE_VISUAL_HOLDS:
+		if previous.has(other) and (overlaps(old,previous[other]) or swept(old,pose,previous[other],resolved[other])):
 			return {}
-		pose["resynced"] = false
-		pose["gradual_recovery"] = recovering
-		pose["gradual_pending"] = recovering and retreat > 0.0001
-		pose["visible"] = true
-		pose["intent_lane"] = float(lanes[id])
-		pose["target_id"] = int(car.get("combat_target_id", -1))
-		pose["official_progress"] = official
-		proposed[id] = pose
-	return proposed
+	pose["held"] = retreat > 0.0
+	pose["hold_frames"] = 0
+	pose["resynced"] = false
+	pose["gradual_recovery"] = true
+	pose["gradual_pending"] = retreat > 0.0001
+	pose["visible"] = true
+	pose["intent_lane"] = target.get("intent_lane",lane)
+	pose["target_id"] = int(car.get("combat_target_id",-1))
+	pose["official_progress"] = float(car.progress)
+	return pose
 
-static func solve(cars: Array,previous: Dictionary,dt: float,sample: Callable) -> Dictionary:
+static func solve(cars: Array,previous: Dictionary,dt: float,sample: Callable, refine: bool = true) -> Dictionary:
 	var active := []
 	var active_ids := {}
 	for car in cars:
@@ -233,9 +218,6 @@ static func solve(cars: Array,previous: Dictionary,dt: float,sample: Callable) -
 		if history.has(id) and int(history[id].get("hold_frames",0)) >= MAX_CONSECUTIVE_VISUAL_HOLDS:
 			history.erase(id)
 	var lanes := targets(active,previous)
-	var smooth := gradual_recovery(active,previous,lanes,dt,sample)
-	if not smooth.is_empty():
-		return smooth
 	# Preserve the preceding frame's order while a pass is spatially blocked.
 	active.sort_custom(func(a,b):
 		var ap := float(history.get(int(a.id),{}).get("progress",a.progress))
@@ -303,6 +285,12 @@ static func solve(cars: Array,previous: Dictionary,dt: float,sample: Callable) -
 			var final_pose: Dictionary = result[id]
 			final_pose["official_progress"] = float(car.progress)
 			final_pose["gradual_recovery"] = false
-			final_pose["gradual_pending"] = false
+			# Continue the budget on later frames if a prior gradual move left lag.
+			final_pose["gradual_pending"] = bool(previous.get(id,{}).get("gradual_pending",false)) and float(final_pose.progress) < float(car.progress)-0.0000001
 			result[id] = final_pose
+	if refine and dt > 0.0:
+		for car in active:
+			var candidate := gradual_candidate(car,previous,result,sample)
+			if not candidate.is_empty():
+				result[int(car.id)] = candidate
 	return result

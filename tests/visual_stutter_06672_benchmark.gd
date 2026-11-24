@@ -13,6 +13,11 @@ func run() -> void:
 			if str(host.season_tracks[i].code) == code: host.selected_track_index = i
 		host._start_race()
 		host.race.running = true
+		var baseline: Dictionary = {}
+		var baseline_max_step := 0.0
+		var baseline_resync := 0
+		var baseline_held := 0
+		var baseline_stationary := 0
 		var times: Array = []
 		var held: int = 0
 		var longest: int = 0
@@ -43,6 +48,17 @@ func run() -> void:
 			times.append(Time.get_ticks_usec() - start)
 			if JSON.stringify(cars) != before: failures += 1
 			var poses: Dictionary = host.world_view.occupation
+			# Exactly the same authoritative snapshots and geometry for both solvers.
+			var prior_baseline := baseline
+			baseline = R.solve(cars,prior_baseline,.5,host.world_view._sample_occupied_pose,false)
+			for id in baseline:
+				var legacy_pose: Dictionary = baseline[id]
+				if bool(legacy_pose.get("resynced",false)): baseline_resync += 1
+				if bool(legacy_pose.get("held",false)): baseline_held += 1
+				if prior_baseline.has(id):
+					var legacy_step := Vector2(legacy_pose.position).distance_to(Vector2(prior_baseline[id].position))
+					baseline_max_step = maxf(baseline_max_step,legacy_step)
+					if legacy_step < 0.015: baseline_stationary += 1
 			for id in poses:
 				var p: Dictionary = poses[id]
 				if bool(p.get("resynced",false)): resynced_samples += 1
@@ -83,6 +99,6 @@ func run() -> void:
 		motion_distances.sort()
 		var total: int = 0
 		for t in times: total += int(t)
-		results.append({"code":code,"ticks":times.size(),"mean_us":float(total)/float(times.size()),"p95_us":times[int(floor(float(times.size()-1)*.95))],"p99_us":times[int(floor(float(times.size()-1)*.99))],"max_us":times[-1],"held":held,"stationary_samples":stationary_samples,"max_stationary":max_stationary,"max_step_meters":max_frame_distance,"max_resync_step_meters":max_resync_distance,"p95_step_meters":motion_distances[int(floor(float(motion_distances.size()-1)*.95))] if not motion_distances.is_empty() else 0.0,"resynced":resynced_samples,"gradual_recovery":gradual_samples,"longest_held_consecutive":longest,"collisions":collisions,"collisions_detail":collisions_detail,"max_progress_lag":max_lag,"lag_count":lag_count,"long_holds":reported})
+		results.append({"code":code,"ticks":times.size(),"mean_us":float(total)/float(times.size()),"p95_us":times[int(floor(float(times.size()-1)*.95))],"p99_us":times[int(floor(float(times.size()-1)*.99))],"max_us":times[-1],"held":held,"stationary_samples":stationary_samples,"max_stationary":max_stationary,"max_step_meters":max_frame_distance,"max_resync_step_meters":max_resync_distance,"p95_step_meters":motion_distances[int(floor(float(motion_distances.size()-1)*.95))] if not motion_distances.is_empty() else 0.0,"resynced":resynced_samples,"gradual_recovery":gradual_samples,"baseline_max_step":baseline_max_step,"baseline_resynced":baseline_resync,"baseline_held":baseline_held,"baseline_stationary":baseline_stationary,"longest_held_consecutive":longest,"collisions":collisions,"collisions_detail":collisions_detail,"max_progress_lag":max_lag,"lag_count":lag_count,"long_holds":reported})
 	print("VISUAL_STUTTER_06672_BENCHMARK ",JSON.stringify({"results":results,"failures":failures}))
 	quit(0 if failures == 0 else 1)

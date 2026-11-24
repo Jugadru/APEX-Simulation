@@ -11,7 +11,7 @@ GitHub Actions 45309590616, benchmark visual de 125 amostras, 0,5 s:
 | SIN | 33 | 0 | 0 | 0 | 0 |
 
 ## Alteração
-Antes da recuperação que descarta o histórico após duas retenções, tentar um movimento conjunto com progresso limitado a 125% do avanço oficial corrente para carros atrasados. Validar todos os pares por sobreposição e sweep, preservar poses visíveis e entradas imutáveis. Se a proposta for insegura, manter o solver de emergência existente. Enquanto houver atraso, continuar a recuperação limitada nos quadros seguintes quando segura. O percentual é uma hipótese visual, não um ajuste esportivo. O fallback ainda pode produzir saltos.
+Após resolver a ocupação pelo algoritmo anterior, tentar reduzir o salto de cada carro atrasado individualmente, com limite de 125% do avanço oficial corrente. Validar o candidato contra todos os vizinhos e preservar a solução anterior se inseguro. O fator é uma hipótese visual, não esportiva. O fallback ainda pode produzir saltos.
 A instrumentação distingue recuperações graduais e ressincronizações. Nenhuma mudança no motor, RNG, revisão de replay ou classificação.
 
 ## Critérios para homologar
@@ -23,3 +23,6 @@ A instrumentação distingue recuperações graduais e ressincronizações. Nenh
 - Exportar apenas após homologação; não declarar candidata estável antes disso.
 
 Status inicial: implementação e fixtures propostas; execução, desempenho e inspeção gráfica pendentes. Rollback: reverter o commit desta PR ou descartar a branch; main não é alterada.
+
+## Segunda tentativa — após CI 45420829487
+A primeira implementação passou nas fixtures e no gate de segurança, mas o benchmark nativo apresentou zero recuperações graduais, salto máximo MON de 35,79 versus 27,98 no run anterior. Não homologada. Comparações de runs distintos não isolam seed/carga; nesta revisão o benchmark roda o solver legado e o candidato sobre os mesmos snapshots oficiais. A recuperação passa a ser local, aplicada após a resolução normal e aceita somente quando diminui o salto e não colide com nenhuma trajetória vizinha. O fator 125% permanece experimental. Não modificar critérios anteriores.

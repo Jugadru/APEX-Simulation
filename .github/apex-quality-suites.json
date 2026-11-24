@@ -184,6 +184,10 @@
         {
           "script": "visual_stutter_06672_benchmark.gd",
           "marker": "VISUAL_STUTTER_06672_BENCHMARK"
+        },
+        {
+          "script": "race_start_competitive_0669172_test.gd",
+          "marker": "COMPETITIVE_START_09172_PASS"
         }
       ],
       "checks": []

@@ -90,6 +90,17 @@ func _initialize() -> void:
 	poses[0].hold_frames = 2
 	poses[0].official_progress = car(0,10).progress
 	cars = [car(0,14),car(1,6.5)]
-	check(R.gradual_recovery(cars,poses,R.targets(cars,poses),.5,sample).is_empty(),"unsafe catch-up rejected")
+	var resolved := {0:sample(cars[0],0.0,0.0),1:sample(cars[1],0.0,0.0)}
+	check(R.gradual_candidate(cars[0],poses,resolved,sample).is_empty(),"unsafe catch-up rejected")
+	# A collision between unrelated endpoints cannot veto a local candidate.
+	cars = [car(0,0),car(1,30),car(2,100),car(3,110)]
+	poses = R.solve(cars,{},.5,sample)
+	poses[0].hold_frames = 2
+	poses[0].official_progress = car(0,10).progress
+	cars = [car(0,14),car(1,34),car(2,105),car(3,106)]
+	resolved = {}
+	for c in cars:
+		resolved[int(c.id)] = sample(c,0.0,0.0)
+	check(not R.gradual_candidate(cars[0],poses,resolved,sample).is_empty(),"unrelated pair cannot veto local recovery")
 	if failures==0: print("RACECRAFT_PASS attacker / defense / no overlap / continuous sweep / traffic / narrow road / pause / immutable / bounded recovery")
 	quit(0 if failures==0 else 1)
