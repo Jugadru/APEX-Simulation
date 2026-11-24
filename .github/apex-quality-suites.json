@@ -247,6 +247,23 @@
         }
       ],
       "checks": []
+    },
+    {
+      "id": "competitive_traffic_09174",
+      "paths": [
+        "scripts/core/race_merge_traffic_0669174.gd",
+        "scripts/core/race_space_0655.gd",
+        "scripts/race_engine.gd",
+        "scripts/core/race_replay_0660.gd",
+        "tests/competitive_traffic_09174_test.gd"
+      ],
+      "fast_tests": [
+        {
+          "script": "competitive_traffic_09174_test.gd",
+          "marker": "COMPETITIVE_TRAFFIC_09174_PASS"
+        }
+      ],
+      "checks": []
     }
   ]
 }
