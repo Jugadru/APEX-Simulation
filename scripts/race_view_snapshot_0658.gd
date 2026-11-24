@@ -73,10 +73,10 @@ func build(cars: Array, team: String, route: Object, delta: float, running: bool
 		# interpolate only the actual last two ticks, never the last two frames.
 		var completed: Dictionary = completed_targets.get(id,{})
 		var preceding: Dictionary = preceding_completed_targets.get(id,{})
-		var exact_pair := tick_phase >= 0.0 and not completed.is_empty() and not preceding.is_empty() \
+		var exact_pair: bool = tick_phase >= 0.0 and not completed.is_empty() and not preceding.is_empty() \
 			and float(completed.progress)==progress and completed.lane==source.get("race_lane") \
 			and completed.stage==str(source.get("pit_stage","none")) and completed.finished==bool(source.get("finished",false))
-		var pair_continuous := exact_pair and completed.stage==preceding.stage and completed.finished==preceding.finished \
+		var pair_continuous: bool = exact_pair and completed.stage==preceding.stage and completed.finished==preceding.finished \
 			and progress>=float(preceding.progress) and progress-float(preceding.progress)<0.05
 		if pair_continuous:
 			next_prior=preceding
