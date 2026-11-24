@@ -10,10 +10,10 @@ const WIDTH := 2.95
 const MAX_LANE := 2.95
 const MergeTraffic = preload("res://scripts/core/race_merge_traffic_0669174.gd")
 
-static func profile(track: Dictionary) -> Dictionary:
+static func route_points(track: Dictionary) -> Array[Vector2]:
 	var route: Array[Vector2] = []
 	for point in track.get("points",[]): route.append(Vector2(float(point[0])*660,float(point[1])*540))
-	if route.size()<4: return {"length":1000.0}
+	if route.size()<4: return []
 	if route[0].distance_to(route[-1])<.001: route.pop_back()
 	for iteration in range(3):
 		var next: Array[Vector2] = []
@@ -21,6 +21,11 @@ static func profile(track: Dictionary) -> Dictionary:
 			next.append(route[i].lerp(route[(i+1)%route.size()],.25))
 			next.append(route[i].lerp(route[(i+1)%route.size()],.75))
 		route=next
+	return route
+
+static func profile(track: Dictionary) -> Dictionary:
+	var route: Array[Vector2] = route_points(track)
+	if route.is_empty(): return {"length":1000.0}
 	var total := 0.0
 	var distances: Array[float] = []
 	var raw: Array[float] = []
@@ -87,6 +92,20 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 		var lane := float(c.get("race_lane",0))
 		var hold_grid_corridor: bool = competitive_start_enabled and CompetitiveStart.active(start_clock_s, float(c.progress))
 		intents[id]={"lane":lane,"goal":(lane if hold_grid_corridor else 0.0),"pace":float(metrics[id].target),"state":"clear","target":-1,"event":"","defender_id":-1,"charge":maxf(0,float(c.get("attack_charge",0))-dt*.12),"defending":-1,"defense_line":0.0,"defense_event":false,"side":"","margin":0.0,"hesitation":maxf(0,hesitation-dt),"driving_dt":maxf(0,dt-hesitation)}
+	# Voluntary line only in free air. Tactical attack/defense and the
+	# existing occupancy solver retain authority. No lateral teleport.
+	for c in order:
+		var id: int = int(c.id)
+		if not metrics[id].has("line_ratio"): continue
+		var clear: bool = true
+		for other in order:
+			if other.id==id: continue
+			if absf(MergeTraffic.relative_gap(float(c.progress),float(other.progress),length))<LENGTH*3.0:
+				clear=false
+				break
+		if clear:
+			var limit: float=minf(lane_limit(track,float(c.progress),shape),lane_limit(track,float(c.progress)+LENGTH*2.0/length,shape))
+			intents[id].goal=clampf(float(metrics[id].line_ratio),-1.0,1.0)*limit
 	# Look ahead once per car; no new RNG or changes to the road geometry.
 	var narrowing: Dictionary = {}
 	if merge_traffic_enabled:

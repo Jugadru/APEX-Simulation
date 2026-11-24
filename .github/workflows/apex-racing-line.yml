@@ -1,0 +1,80 @@
+name: APEX - Racing Line Intelligence validation
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'scripts/core/race_racing_line_091710.gd'
+      - 'scripts/core/race_space_0655.gd'
+      - 'scripts/core/race_state_codec_0660.gd'
+      - 'scripts/core/race_replay_0660.gd'
+      - 'scripts/race_engine.gd'
+      - 'tests/racing_line_091710_test.gd'
+      - '.github/workflows/apex-racing-line.yml'
+permissions:
+  contents: read
+jobs:
+  line:
+    if: github.head_ref == 'feat/v0.6.6.9.17.10-racing-line'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+        with:
+          version: 4.7.2-stable
+      - run: bash tools/apex_ci_import.sh import.log
+      - run: |
+          set -euo pipefail
+          bash tools/apex_ci_isolated_test.sh racing_line_091710_test.gd 2>&1 | tee line.log
+          grep -Fq RACING_LINE_091710_PASS line.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' line.log
+          bash tools/apex_ci_isolated_test.sh race_traffic_hotfix_09177_test.gd 2>&1 | tee traffic.log
+          grep -Fq TRAFFIC_09177_PASS traffic.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' traffic.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apex-racing-line
+          path: |
+            import.log
+            line.log
+            traffic.log
+          retention-days: 14
+  motion:
+    if: github.head_ref == 'feat/v0.6.6.9.17.10-racing-line'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - seed: 42
+            climate: Seco
+          - seed: 6558
+            climate: Seco
+          - seed: 6617
+            climate: Chuva intensa
+    env:
+      APEX_VISUAL_TRACK: MON
+      APEX_TRAFFIC_SEED: ${{ matrix.seed }}
+      APEX_ARC_CLIMATE: ${{ matrix.climate }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+        with:
+          version: 4.7.2-stable
+      - run: bash tools/apex_ci_import.sh import.log
+      - run: |
+          set -euo pipefail
+          bash tools/apex_ci_isolated_test.sh traffic_arc_09177_test.gd 2>&1 | tee arc.log
+          grep -Fq TRAFFIC_ARC_09177_PASS arc.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' arc.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apex-racing-line-arc-${{ matrix.seed }}
+          path: |
+            import.log
+            arc.log
+          retention-days: 14

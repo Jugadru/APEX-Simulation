@@ -8,12 +8,16 @@ const RacePerformance = preload("res://scripts/core/race_performance.gd")
 const RaceStart066911 = preload("res://scripts/core/race_start_intelligence_066911.gd")
 const RaceStart066917 = preload("res://scripts/core/race_start_spatial_066917.gd")
 const CompetitiveStart = preload("res://scripts/core/race_start_competitive_0669172.gd")
+const RacingLine = preload("res://scripts/core/race_racing_line_091710.gd")
 const RaceSpace = preload("res://scripts/core/race_space_0655.gd")
 const OVERTAKING_SIM_REVISION := "023_overtaking_intelligence_v1"
 const START20_SIM_REVISION := "024_race_start_spatial_v1"
 const COMPETITIVE_SIM_REVISION := "025_competitive_grid_start_v1"
 const MERGE_TRAFFIC_SIM_REVISION := "026_competitive_traffic_v1"
 const TRAFFIC_HOTFIX_SIM_REVISION := "027_race_traffic_hotfix_v1"
+const RACING_LINE_SIM_REVISION := "028_racing_line_v1"
+var racing_line_enabled: bool = true
+var racing_line_profile: Dictionary = {}
 var traffic_hotfix_enabled: bool = true
 var merge_traffic_enabled: bool = true
 var command_session: WeakRef
@@ -176,6 +180,7 @@ func _init(teams_data: Array, player_team: String, seed_value: int, levels: Dict
 	track_dynamics.setup(track, weather.snapshot())
 	weather.state.merge(track_dynamics.snapshot(weather.snapshot()), true)
 	space_profile = RaceSpace.profile(track)
+	racing_line_profile = RacingLine.build(track)
 	_start_grid()
 	# After the grid exists, initialize the observer without touching RNG or car physics.
 	telemetry = TelemetryScript.new()
@@ -699,16 +704,18 @@ func _advance(dt: float) -> void:
 	var competitive_rules: bool = competitive_start_enabled
 	var merge_rules: bool = merge_traffic_enabled and competitive_rules
 	var traffic_hotfix_rules: bool = traffic_hotfix_enabled
+	var racing_line_rules: bool = racing_line_enabled
 	if command_session != null:
 		var attached_session: Object = command_session.get_ref()
 		if attached_session != null:
 			launch_legacy = bool(attached_session.get("legacy_launch_physics"))
 			var revision: String = str(attached_session.get("recorded_simulation_revision"))
-			overtaking_rules = overtaking_rules and revision in [OVERTAKING_SIM_REVISION, START20_SIM_REVISION, COMPETITIVE_SIM_REVISION, MERGE_TRAFFIC_SIM_REVISION, TRAFFIC_HOTFIX_SIM_REVISION]
+			overtaking_rules = overtaking_rules and revision in [OVERTAKING_SIM_REVISION, START20_SIM_REVISION, COMPETITIVE_SIM_REVISION, MERGE_TRAFFIC_SIM_REVISION, TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION]
 			start20_rules = start20_rules and revision in [START20_SIM_REVISION, COMPETITIVE_SIM_REVISION]
-			competitive_rules = competitive_rules and revision in [COMPETITIVE_SIM_REVISION, MERGE_TRAFFIC_SIM_REVISION, TRAFFIC_HOTFIX_SIM_REVISION]
-			merge_rules = merge_rules and revision in [MERGE_TRAFFIC_SIM_REVISION, TRAFFIC_HOTFIX_SIM_REVISION]
-			traffic_hotfix_rules = traffic_hotfix_rules and revision == TRAFFIC_HOTFIX_SIM_REVISION
+			competitive_rules = competitive_rules and revision in [COMPETITIVE_SIM_REVISION, MERGE_TRAFFIC_SIM_REVISION, TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION]
+			merge_rules = merge_rules and revision in [MERGE_TRAFFIC_SIM_REVISION, TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION]
+			traffic_hotfix_rules = traffic_hotfix_rules and revision in [TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION]
+			racing_line_rules = racing_line_rules and revision == RACING_LINE_SIM_REVISION
 	var launch_clearance: float = 1.0
 	var launch_limit: float = RaceStart066917.CORNER_PHASE_SECONDS if start20_rules else RaceStart066911.PHASE_SECONDS
 	if race_start_intelligence_enabled and clock < launch_limit:
@@ -745,7 +752,15 @@ func _advance(dt: float) -> void:
 		context["kers_mode"] = str(live_car.get("kers_mode", "Equilibrado"))
 		context["drs_active"] = RaceDrs2012.update(live_car, old_progress, projected_progress,
 			float(context["gap"]), track, current_weather)
-		pace_metrics[int(old_car["id"])] = RacePerformance.evaluate(old_car, context)
+		var metrics: Dictionary = RacePerformance.evaluate(old_car, context)
+		if racing_line_rules and clock >= RacingLine.START_SECONDS and old_progress >= 0.0 and not racing_line_profile.is_empty():
+			var line: Dictionary = RacingLine.sample(racing_line_profile, old_progress, float(current_weather.get("wetness_factor",0.0)), float(old_car.get("skill",80.0)))
+			metrics.target = float(metrics.target)*float(line.pace_factor)
+			# A pit-bound car retains existing pit approach behavior.
+			var fraction: float = fposmod(old_progress,1.0)
+			if fraction>0.04 and fraction<0.93:
+				metrics["line_ratio"] = float(line.lane_ratio)
+		pace_metrics[int(old_car["id"])] = metrics
 	if Perf.enabled: Perf.end(&"race.pace_thermal_drs_kers",perf_pace)
 	var perf_space := Perf.begin() if Perf.enabled else 0
 	var space_plan := RaceSpace.plan(old_order,pace_metrics,dt,track,space_profile,current_weather,driver_traffic_enabled,driver_soul3_enabled,overtaking_rules,competitive_rules,clock,merge_rules,traffic_hotfix_rules)

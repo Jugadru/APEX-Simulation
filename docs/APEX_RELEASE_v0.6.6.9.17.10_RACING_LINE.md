@@ -1,0 +1,11 @@
+# v0.6.6.9.17.10 — Racing Line Intelligence 1.0 (candidata)
+
+Base: `b4670f925f28a093abccf52d44094f51d0e94025` / PR #124. Uma funcionalidade principal. Implementação esportiva, não apenas visual.
+
+- Reutiliza a geometria esquemática do RaceSpace; 256 amostras uniformes em arco, curvatura assinada com suavização, picos separados e zonas normalizadas de frenagem, ápice e saída. A primeira detecção multiplicava ápices na fixture quadrada; a suavização corrigiu esse caso. Não são coordenadas FIA, pontos de frenagem medidos nem uma otimização física de tempo mínimo.
+- A carga de curva eleva o tempo equivalente local antes do ápice e o reduz na saída. Média seca da modulação espacial = 1; a chuva acrescenta carga moderada e reduz a amplitude lateral. A habilidade existente influencia a amplitude, não concede posição ou velocidade instantânea. A calibração de ritmo e os modelos de pneu já existentes continuam como base.
+- A trajetória externa/interna/externa é uma preferência limitada pela largura atual e adiante. Só é sugerida após 24 s, em progresso positivo, fora da faixa 0,93–0,04 da linha de chegada e sem rival a menos de três comprimentos esquemáticos. Ataque, defesa, retardatários, gargalos e solver de corredores conservam autoridade. Não há novo RNG, impulso ou alteração da geometria 3D. A modulação de ritmo também é local na proximidade da linha de chegada; não se altera a lógica de boxes.
+- Revisão esportiva 028. Perfil derivado e flag de sessão fora do checkpoint; reconstrução após restore. Replays 027 e anteriores mantêm suas regras. Hashes novos podem mudar legitimamente. Mantém schema de saves, HUD, menus, retratos e Pit Wall.
+- A/B de oito cenários (MON/GBR/BEL/ITA, seco/chuva, 24 carros, 600 ticks), repetição 028, 20 perfis, fixture externa/interna/externa e veto de tráfego, replay 027 com hash independente do build anterior, replay 028 e seek. Preserva o comparativo histórico 026/027 com a regra 028 explicitamente desligada. FAST + Test Lab, regressões de movimento e BOX V21. Evidência local e CI vinculadas ao SHA no PR; não homologar velocidade real, GPs completos ou GPU física sem ensaio.
+
+Rollback: base acima. Sem merge ou release antes da homologação.
