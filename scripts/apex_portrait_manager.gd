@@ -1,14 +1,22 @@
 extends Node
-## Neutral identity policy: never load cached photos or request new images.
-## Keep the public interface for the existing menus and HUD.
+## Local-only portrait adapter restored from PR #26. No HTTP, user:// writes,
+## race state access or automatic redistribution. Cache shared with card UI.
+const PortraitLocal = preload("res://scripts/apex_portrait_local_2012.gd")
 signal status_changed(message: String)
 signal portraits_finished()
-var status := "Identidade visual neutra • retratos desativados"
+var status := "Retratos 2012: pack local opcional; reinicie após instalar."
 var download_state := "idle"
-func has_photo(_driver_name: String) -> bool:
-    return false
-func get_photo(_driver_name: String) -> Texture2D:
-    return null
+
+func has_photo(driver_name: String) -> bool:
+	return get_photo(driver_name) != null
+
+func get_photo(driver_name: String) -> Texture2D:
+	return PortraitLocal.get_texture(driver_name, "hud")
+
+func get_profile_photo(driver_name: String) -> Texture2D:
+	return PortraitLocal.get_texture(driver_name, "profile")
+
 func download_for_team(_driver_names: Array[String]) -> void:
-    status_changed.emit(status)
-    portraits_finished.emit()
+	# Preserve existing callers without re-enabling network downloads.
+	status_changed.emit(status)
+	portraits_finished.emit()

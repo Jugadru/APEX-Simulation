@@ -1,0 +1,62 @@
+name: APEX - Driver HUD identity validation
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'scripts/apex_race_hud_0622.gd'
+      - 'scripts/presentation/apex_hud_driver_identity_09175.gd'
+      - 'tests/driver_hud_identity_09175_test.gd'
+      - '.github/workflows/apex-driver-hud.yml'
+permissions:
+  contents: read
+jobs:
+  native-layout:
+    if: github.head_ref == 'feat/v0.6.6.9.17.5-driver-hud'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      LIBGL_ALWAYS_SOFTWARE: '1'
+      GALLIUM_DRIVER: llvmpipe
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+        with:
+          version: 4.7.2-stable
+      - run: sudo apt-get update && sudo apt-get install -y xvfb libgl1 libgl1-mesa-dri
+      - run: |
+          set -euo pipefail
+          mkdir -p qa/driver_hud_09175
+          bash tools/apex_ci_import.sh qa/driver_hud_09175/import.log
+          timeout 300s xvfb-run -a -s '-screen 0 1920x1080x24' godot --path . --rendering-method gl_compatibility --rendering-driver opengl3 --script res://tests/driver_hud_identity_09175_test.gd 2>&1 | tee qa/driver_hud_09175/native.log
+          grep -Fq DRIVER_HUD_IDENTITY_09175_PASS qa/driver_hud_09175/native.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' qa/driver_hud_09175/native.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apex-driver-hud-native-layout
+          path: qa/driver_hud_09175/
+          retention-days: 14
+
+  source-package:
+    # Exact PR head, source only. Real photo pack stays private on the user's Drive.
+    if: github.head_ref == 'feat/v0.6.6.9.17.5-driver-hud'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Package exact reviewed source
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/apex-package
+          git archive --format=zip --output=/tmp/apex-package/apex-pr118-source.zip HEAD
+          git rev-parse HEAD > /tmp/apex-package/SOURCE_COMMIT.txt
+          cd /tmp/apex-package
+          sha256sum apex-pr118-source.zip > SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apex-pr118-source-only
+          path: /tmp/apex-package/
+          retention-days: 7

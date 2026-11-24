@@ -8,6 +8,7 @@ extends Control
 
 const MiniMap = preload("res://scripts/apex_mini_map.gd")
 const HudSkin = preload("res://scripts/apex_race_hud_skin_ui01.gd")
+const DriverIdentity = preload("res://scripts/presentation/apex_hud_driver_identity_09175.gd")
 const ReBroadcast = preload("res://scripts/apex_hud_rebroadcast_0668.gd")
 const HudStandingMetric = preload("res://scripts/presentation/apex_hud_standings_metric.gd")
 const HudRankingPanel = preload("res://scripts/presentation/apex_hud_ranking_panel.gd")
@@ -79,6 +80,9 @@ var modal_driver_rows: Array = []
 var radio_driver_ids: Array[int] = []
 var radio_driver_picker: OptionButton
 var radio_response_label: Label
+var radio_identity_badge: Control
+var driver_profile_panel_2012: PanelContainer
+var driver_profile_photo_2012: TextureRect
 var radio_history: RichTextLabel
 var radio_category: int = 0
 var radio_category_buttons: Array[Button] = []
@@ -313,6 +317,7 @@ func _create_ui() -> void:
 	large_area.hide()
 
 func begin_race() -> void:
+	_close_profile_2012()
 	# No subjective radio memory survives into the next Grand Prix.
 	radio_driver_memory.clear()
 	engineer_reports.clear()
@@ -364,7 +369,7 @@ func begin_race() -> void:
 
 func _create_driver_card(car: Dictionary, slot: int) -> void:
 	# Three live information columns, with the existing command handlers intact.
-	# No proprietary art, invented fuel quantity or modern ERS is introduced.
+	# Optional user-installed photos only; original sporting controls remain.
 	var base := _panel(player_strip)
 	base.add_theme_stylebox_override("panel", HudSkin.panel(SURFACE, 3, BORDER, 0))
 	var shell := _column(base, 0)
@@ -372,14 +377,17 @@ func _create_driver_card(car: Dictionary, slot: int) -> void:
 	header.add_theme_stylebox_override("panel", HudSkin.panel(HudSkin.HEADER, 0, HudSkin.HEADER, 6))
 	var title_line := _line(header, 9)
 	var pos := _text(title_line, "P%d" % int(car.get("position", 0)), 18, HudSkin.HEADER_INK)
-	var team_stripe := ColorRect.new()
-	team_stripe.custom_minimum_size = Vector2(4, 23)
-	team_stripe.color = Color.from_string(str(car.get("color", "#FF8A21")), ACCENT)
-	title_line.add_child(team_stripe)
+	# In-place identity graphic: replace only the four-pixel colour rail.
+	# The original header, name, controls and three metric columns remain.
+	var driver_identity := DriverIdentity.new()
+	driver_identity.name = "DriverIdentity"
+	driver_identity.configure(car, slot)
+	title_line.add_child(driver_identity)
 	var identity := _text(title_line, "P%d" % (slot + 1), 13, HudSkin.HEADER_INK)
 	identity.tooltip_text = "Piloto %d da equipe" % (slot + 1)
 	var name := _text(title_line, str(car.get("name", "Piloto")), 17, HudSkin.HEADER_INK)
 	name.clip_text = true
+	name.tooltip_text = str(car.get("name", "Piloto"))
 	name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var drs := _text(title_line, "DRS —", 12, HudSkin.HEADER_INK)
 	var follow := _btn(title_line, "CÂMERA", _follow.bind(int(car["id"])), 74)
@@ -458,7 +466,7 @@ func _create_driver_card(car: Dictionary, slot: int) -> void:
 	var detail_body := _column(content, 6)
 	expanded.hide()
 	race_card_panels.append({"base":base, "expanded":expanded, "content":detail_body, "heading":heading_label,
-		"compound_badge":compound_badge, "neighbours":neighbours, "identity":identity, "id":int(car["id"]), "slot":slot, "pos":pos, "name":name, "status":status, "secondary":second_line,
+		"compound_badge":compound_badge, "neighbours":neighbours, "identity":identity, "driver_identity":driver_identity, "id":int(car["id"]), "slot":slot, "pos":pos, "name":name, "status":status, "secondary":second_line,
 		"wear_bar":tyre_bar, "tabs":tab_buttons, "quick":quick, "context":-1,
 		"tyre_temp":tyre_temp, "pace_value":pace_value, "lap_value":lap_value, "pace_hint":pace_hint,
 		"energy_value":energy_value, "energy_mode":energy_mode, "energy_bar":energy_bar, "drs":drs,
@@ -745,6 +753,12 @@ func refresh_hud() -> void:
 		if i >= order.size():
 			continue
 		var car: Dictionary = order[i]
+		var mini: TextureRect = row["portrait"]
+		var driver_name: String = str(car.get("name", ""))
+		if str(mini.get_meta("portrait_name", "")) != driver_name:
+			mini.set_meta("portrait_name", driver_name)
+			mini.texture = host.portrait_manager.get_photo(driver_name)
+			mini.visible = mini.texture != null
 		ranking_field_writes += ReBroadcast.update_row(row, car, i, str(host.selected_team),
 			_standing_value(order, i), _compound(str(car.get("tire", "Médio"))),
 			int(host.manual_driver), rank_idle_style, rank_selected_style,
@@ -759,7 +773,9 @@ func refresh_hud() -> void:
 		if car.is_empty():
 			continue
 		card["name"].text = str(car.get("name", "Piloto"))
-		card["identity"].text = "%d · %s" % [i + 1, HudRaceContext.code(car)]
+		ReBroadcast.set_text_if_changed(card["identity"], "%d · %s" % [i + 1, HudRaceContext.code(car)])
+		# Cached identity rebinds only if the displayed driver actually changes.
+		card["driver_identity"].configure(car, i)
 		card["neighbours"].text = HudRaceContext.neighbours(order, int(car["id"]), bool(race.finished))
 		card["neighbours"].tooltip_text = "Vizinhos na classificação, não proximidade física na pista. " + card["neighbours"].text
 		card["pos"].text = "P%02d" % int(car.get("position", 0))
@@ -994,11 +1010,13 @@ func _menu() -> void:
 	host._end_to_menu()
 
 func _close_window() -> void:
+	_close_profile_2012()
 	active_window = ""
 	background_dimmer.hide()
 	large_area.hide()
 
 func _open_window(which: String) -> void:
+	_close_profile_2012()
 	if active_window == which:
 		_close_window()
 		return
@@ -1181,6 +1199,11 @@ func _build_radio_window() -> void:
 	radio_only_button = _btn(driver_line, "SÓ ESTE: NÃO", _toggle_radio_driver_filter, 119)
 	radio_only_button.tooltip_text = "Filtrar as mensagens de Equipe e Pilotos pelo piloto selecionado"
 	_refresh_radio_filter_button()
+	var identity_row := _line(overlay_content, 8)
+	radio_identity_badge = DriverIdentity.new()
+	identity_row.add_child(radio_identity_badge)
+	_btn(identity_row, "VER PERFIL", _show_profile_2012, 122).tooltip_text = "Retrato local do piloto selecionado; não envia ordens."
+	_refresh_radio_identity_2012()
 	var questions := _line(overlay_content, 5)
 	for topic in ["pneus", "ritmo", "trafego", "box"]:
 		var button := _btn(questions, str(EngineerInteractive.QUESTIONS[topic]), _ask_engineer.bind(topic))
@@ -1244,10 +1267,81 @@ func _set_radio_category(index: int) -> void:
 	_refresh_interactive_history()
 
 func _radio_driver_changed(_index: int) -> void:
+	_close_profile_2012()
+	_refresh_radio_identity_2012()
 	if radio_response_label != null and is_instance_valid(radio_response_label):
 		radio_response_label.text = "Selecione uma pergunta para consultar o piloto ou o engenheiro."
 	_update_soul_status()
 	_refresh_interactive_history()
+
+func _radio_portrait_car_2012() -> Dictionary:
+	if host == null or host.race == null or not is_instance_valid(radio_driver_picker):
+		return {}
+	var index: int = radio_driver_picker.selected
+	if index < 0 or index >= radio_driver_ids.size():
+		return {}
+	return host._car_by_id(radio_driver_ids[index])
+
+func _refresh_radio_identity_2012() -> void:
+	if not is_instance_valid(radio_identity_badge):
+		return
+	var car: Dictionary = _radio_portrait_car_2012()
+	if car.is_empty():
+		radio_identity_badge.hide()
+		return
+	radio_identity_badge.configure(car, maxi(0, radio_driver_picker.selected))
+	radio_identity_badge.custom_minimum_size = Vector2(52, 54)
+	radio_identity_badge.show()
+
+func _show_profile_2012() -> void:
+	var car: Dictionary = _radio_portrait_car_2012()
+	if car.is_empty():
+		return
+	_close_profile_2012()
+	var driver_name: String = str(car.get("name", "Piloto"))
+	var image: Texture2D = host.portrait_manager.get_profile_photo(driver_name)
+	var p: PanelContainer = _panel(large_area, HudSkin.SURFACE_SOLID)
+	p.name = "DriverProfile2012"
+	p.z_index = 100
+	p.mouse_filter = Control.MOUSE_FILTER_STOP
+	p.set_anchors_preset(Control.PRESET_CENTER)
+	p.offset_left = -210
+	p.offset_right = 210
+	p.offset_top = -285
+	p.offset_bottom = 285
+	var body := _column(p, 8)
+	var title_line := _line(body, 8)
+	var heading := _text(title_line, driver_name + "  •  2012", 17, ACCENT)
+	heading.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_btn(title_line, "×", _close_profile_2012, 32)
+	if image != null:
+		var photo := TextureRect.new()
+		photo.name = "ProfileImage"
+		photo.texture = image
+		photo.custom_minimum_size = Vector2(310, 420)
+		photo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		photo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		photo.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		photo.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		body.add_child(photo)
+		driver_profile_photo_2012 = photo
+		_text(body, "Fotografia do pack local. Direitos de distribuição em revisão.", 11, MUTED).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	else:
+		var fallback := DriverIdentity.new()
+		fallback.configure(car, maxi(0, radio_driver_picker.selected))
+		fallback.portrait = null
+		fallback.custom_minimum_size = Vector2(34, 25)
+		body.add_child(fallback)
+		_text(body, "Retrato PROFILE não instalado.", 12, MUTED)
+	_btn(body, "FECHAR PERFIL", _close_profile_2012, 160)
+	driver_profile_panel_2012 = p
+
+func _close_profile_2012() -> void:
+	if is_instance_valid(driver_profile_panel_2012):
+		driver_profile_panel_2012.hide()
+		driver_profile_panel_2012.queue_free()
+	driver_profile_panel_2012 = null
+	driver_profile_photo_2012 = null
 
 func _toggle_radio_driver_filter() -> void:
 	radio_only_selected = not radio_only_selected

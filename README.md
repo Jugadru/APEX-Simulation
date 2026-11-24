@@ -1,4 +1,6 @@
-# APEX Motorsport Manager — Core 2 v0.6.6.9.17.4
+# APEX Motorsport Manager — Core 2 v0.6.6.9.17.5 (candidata)
+
+**Candidata desta branch:** Driver HUD Restoration. A HUD de corrida existente é preservada: identidade gráfica neutra e local no cabeçalho de cada cartão, sem restaurar HUD antiga, sem retratos externos e sem alteração esportiva. [Escopo](docs/APEX_RELEASE_v0.6.6.9.17.5_DRIVER_HUD.md). A versão distribuída permanece 9.17.4 até homologação.
 
 **Versão integrada: v0.6.6.9.17.4 — Competitive Start & Traffic Intelligence.** [PR #117](https://github.com/Jugadru/APEX-Simulation/pull/117) integrado em 24/11/2026; merge `603998a` com árvore idêntica ao SHA homologado `7ed25d3`. FAST, regressões visuais e matriz esportiva: **26/26 jobs PASS**. [Notas técnicas](docs/APEX_RELEASE_v0.6.6.9.17.4_COMPETITIVE_TRAFFIC.md).
 
