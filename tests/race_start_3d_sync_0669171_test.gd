@@ -71,6 +71,11 @@ func _run() -> void:
 					else:
 						stationary_runs[id] = 0
 					max_stationary = maxi(max_stationary, int(stationary_runs[id]))
+					if int(stationary_runs[id]) == 3:
+						printerr("APEX_3D_SYNC_STALL ", JSON.stringify({
+							"track":code,"tick":tick,"id":id,"pose":str(pose),
+							"old":str(before.get(id, {})),
+							"progress":str(cars.filter(func(c): return int(c.id)==id)[0].get("progress", 0.0))}))
 				else:
 					stationary_runs[id] = 0
 				previous_positions[id] = pose.position
