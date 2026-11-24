@@ -7,6 +7,11 @@ const Precision = preload("res://scripts/apex_precision_mesh_0653.gd")
 
 const WHEEL_RADIUS: float = 0.37
 const CAR_HALF_LENGTH: float = 2.65
+# Presentation contract: scaled mesh plus a conservative clearance margin.
+# Validated against mesh AABB corners, including steering/DRS/body animation.
+const PRESENTATION_SCALE := 0.78
+const OCCUPATION_HALF_LENGTH := 2.40
+const OCCUPATION_HALF_WIDTH := 1.25
 
 var team_color: Color = Color.WHITE
 var accent_color: Color = Color("#dae2ea")

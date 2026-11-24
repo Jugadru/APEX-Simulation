@@ -39,6 +39,8 @@ var cursor: int = 0
 var sequence: int = 0
 var applying: bool = false
 var playback: bool = false
+# Live-only mode: keep tick/commands/autonomy, omit archive work.
+var recording_enabled: bool = true
 # Session-only switch; never enters a checkpoint or sporting hash.
 # Legacy archives continue under the exact pre-launch race pace contract.
 var legacy_launch_physics: bool = false
@@ -73,7 +75,8 @@ var error: String = ""
 var racecraft_audit_enabled: bool = true
 var racecraft_audit = RacecraftAudit.new()
 
-func attach(engine, modes: Dictionary = {}, staff: Dictionary = {}) -> void:
+func attach(engine, modes: Dictionary = {}, staff: Dictionary = {}, record_archive: bool = true) -> void:
+	recording_enabled = record_archive
 	legacy_launch_physics = false
 	legacy_traffic_physics = false
 	legacy_soul_physics = false
@@ -100,7 +103,8 @@ func attach(engine, modes: Dictionary = {}, staff: Dictionary = {}) -> void:
 	race.command_session = weakref(self)
 	policy = {"modes": modes.duplicate(true), "fingerprints": {}, "staff": staff.duplicate(true),
 		"strategy_staff":engine.strategy_staff_profile.duplicate(true)}
-	checkpoints = [checkpoint()]
+	checkpoints = [checkpoint()] if recording_enabled else []
+	hashes.clear()
 	hot_seek_checkpoints.clear()
 	racecraft_audit.reset(race, 0)
 
@@ -166,7 +170,7 @@ func valid_command(method: String, args: Array) -> bool:
 func enqueue(method: String, args: Array, at_tick: int = -1, origin: String = "Manual") -> bool:
 	if playback or race.finished or not valid_command(method,args): return false
 	var target: int = tick + 1 if at_tick < 0 else at_tick
-	if target <= tick or target > MAX_TICKS: return false
+	if target <= tick or ((recording_enabled or playback) and target > MAX_TICKS): return false
 	# Maintenance 0667.1: two UI clicks may enqueue before the next physics tick.
 	# Reject a second *pending* manual reservation for the same team/lap, or an
 	# overwrite for the same driver, before either order reaches RaceEngine.
@@ -235,7 +239,7 @@ func autonomy() -> void:
 			race._event("strategy",id,"STAFF | %s: ritmo %s, KERS %s (%s)." % [car.name,car.pace,car.kers_mode,decision.get("reason","decisao automatica")],46)
 
 func step_tick() -> bool:
-	if tick >= MAX_TICKS:
+	if (recording_enabled or playback) and tick >= MAX_TICKS:
 		error = "Limite de gravação atingido (400000 ticks). Exporte o replay."
 		race.running = false
 		return false
@@ -262,6 +266,13 @@ func step_tick() -> bool:
 	race._engineer_advice_cache = ui_cache
 	applying = false
 	tick += 1
+	if not recording_enabled and not playback:
+		# Consume only executed commands. Future reservations remain queued.
+		if cursor > 0:
+			commands = commands.slice(cursor)
+			cursor = 0
+		if racecraft_audit_enabled: racecraft_audit.observe(race, tick)
+		return true
 	# 06692: diagnostic only; measured inside the actual tick pipeline.
 	var perf_hash_started: int = Perf.begin() if Perf.enabled else 0
 	var value := Codec.sporting_hash(race,policy)
@@ -407,6 +418,7 @@ func seek(target: int) -> bool:
 	return true
 
 func export_data() -> Dictionary:
+	if not recording_enabled and not playback: return {}
 	# Restore the original v0662 public schema for old save/replay consumers.
 	var legacy: Array = _export_checkpoints()
 	if legacy.is_empty():
@@ -418,6 +430,8 @@ func export_data() -> Dictionary:
 # no public replay archive or full telemetry snapshot is materialized.
 # File imports continue through load_data() and its full validation.
 func load_live_session(recorded) -> bool:
+	if recorded != null and not recorded.recording_enabled and not recorded.playback:
+		return fail("Gravação de replay temporariamente desativada.")
 	if recorded == null or recorded.race == null:
 		return fail("Sessão de replay inexistente.")
 	# The HUD can be asked to watch an already-open local replay too.

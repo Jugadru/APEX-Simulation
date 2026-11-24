@@ -2,7 +2,7 @@
 from pathlib import Path
 root = Path(__file__).resolve().parents[1]
 main = (root / 'scripts/main.gd').read_text()
-hud = (root / 'scripts/apex_race_hud_0620.gd').read_text()
+hud = (root / 'tests/legacy/apex_race_hud_0620.gd').read_text()
 stints = (root / 'scripts/apex_strategy_planner_0620.gd').read_text()
 project = (root / 'project.godot').read_text()
 
@@ -24,6 +24,6 @@ assert 'pit_history' in stints and 'pit_scheduled_lap' in stints
 assert 'Futuro: sem parada definida' in stints
 assert 'A área futura' not in hud
 for name in ['apex_race_hud_0620.gd', 'apex_strategy_planner_0620.gd']:
-    data = (root / 'scripts' / name).read_text()
+    data = (root / ('tests/legacy' if name == 'apex_race_hud_0620.gd' else 'scripts') / name).read_text()
     assert not any(line.startswith(' ') and line.strip() for line in data.splitlines()), name + ': space indentation'
     print('PASS: 0.6.2 HUD hooks, compact grid, tabs, commands and real planned stint markers')

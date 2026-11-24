@@ -46,6 +46,7 @@ func _run() -> void:
 		for n in range(SPEED_OPTIONS.size()):
 			var speed_index: int = SPEED_OPTIONS[n]
 			var speed_value: int = SPEED_VALUES[n]
+			host.replay_recording_enabled = true
 			host._start_race()
 			host.set_process(false)
 			host._change_speed(speed_index)

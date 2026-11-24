@@ -1,6 +1,6 @@
 extends SceneTree
 const Race = preload("res://scripts/race_engine.gd")
-const Motion = preload("res://scripts/apex_battle_motion_0652.gd")
+const Motion = preload("res://tests/legacy/apex_battle_motion_0652.gd")
 func _initialize() -> void: call_deferred("run")
 func run() -> void:
 	var data: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/season_2012.json"))

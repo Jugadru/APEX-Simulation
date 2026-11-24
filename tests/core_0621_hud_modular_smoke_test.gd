@@ -7,7 +7,7 @@ func _initialize() -> void:
 
 func _run() -> void:
 	for path in [
-		"res://scripts/apex_race_hud_0620.gd",
+		"res://tests/legacy/apex_race_hud_0620.gd",
 		"res://scripts/apex_strategy_planner_0620.gd",
 		"res://scripts/apex_session_settings.gd",
 		"res://scripts/apex_championship_flow.gd",

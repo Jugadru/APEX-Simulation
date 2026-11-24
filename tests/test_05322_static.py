@@ -26,7 +26,7 @@ engine_files=[
 previous=root.parent/'APEX_GODOT_0.5.3.2.1'/'scripts'
 if previous.is_dir():
     for file in engine_files:
-        assert hashlib.sha256((root/'scripts'/file).read_bytes()).digest()==hashlib.sha256((previous/file).read_bytes()).digest(),file
+        assert hashlib.sha256((root/('tests/legacy' if file == 'apex_track_conditions.gd' else 'scripts')/file).read_bytes()).digest()==hashlib.sha256((previous/file).read_bytes()).digest(),file
 
 def rectangles(width,height,mode,folded=(False,False)):
     compact=(mode==2) or (mode==0 and (width<1500 or height<850))

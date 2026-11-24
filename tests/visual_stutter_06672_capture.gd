@@ -16,13 +16,15 @@ func run()->void:
 	root.add_child(hud)
 	for i in range(10):await process_frame
 	hud.set_process(false)
+	var code := OS.get_environment("APEX_MOTION_CAPTURE_TRACK") if OS.has_environment("APEX_MOTION_CAPTURE_TRACK") else "GBR"
 	for i in range(hud.season_tracks.size()):
-		if hud.season_tracks[i].code=="GBR":hud.selected_track_index=i
-	hud.seed_picker.value=661
+		if hud.season_tracks[i].code==code:hud.selected_track_index=i
+	hud.seed_picker.value=int(OS.get_environment("APEX_MOTION_SEED")) if OS.has_environment("APEX_MOTION_SEED") else 661
 	hud._start_race()
 	hud.race.running=true
 	hud.sim_speed=1
-	for i in range(220):hud._process(1.0/60.0)
+	var frames := 1800 if code=="MON" else 220
+	for i in range(frames):hud._process(1.0/60.0)
 	hud.race.running=false
 	hud._process(1.0/60.0)
 	await capture("race_1600x900",Vector2i(1600,900))

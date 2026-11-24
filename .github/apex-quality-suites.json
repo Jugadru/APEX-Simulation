@@ -170,9 +170,39 @@
         "scripts/apex_racecraft_0654.gd",
         "scripts/track_3d.gd",
         "tests/race_start_3d_sync_0669171_test.gd",
-        "tests/visual_stutter_06672_benchmark.gd"
+        "tests/visual_stutter_06672_benchmark.gd",
+        "scripts/car_model_3d.gd",
+        "tests/car_model_smoke_test.gd",
+        "tests/race_live_without_replay_09173_test.gd",
+        "tests/grid_placement_09173_test.gd",
+        "tests/live_3d_replay_ab_09173_test.gd",
+        "tests/motion_fixture_09173.gd",
+        "tools/apex_ci_isolated_test.sh",
+        "scripts/race_view_snapshot_0658.gd",
+        "tests/tick_presentation_09173_test.gd",
+        "tests/fixed_timeline_09173_test.gd"
       ],
       "fast_tests": [
+        {
+          "script": "tick_presentation_09173_test.gd",
+          "marker": "TICK_PRESENTATION_09173_PASS"
+        },
+        {
+          "script": "race_live_without_replay_09173_test.gd",
+          "marker": "LIVE_WITHOUT_REPLAY_09173_PASS"
+        },
+        {
+          "script": "grid_placement_09173_test.gd",
+          "marker": "GRID_PLACEMENT_09173_PASS"
+        },
+        {
+          "script": "car_model_smoke_test.gd",
+          "marker": "APEX CAR MODEL TEST OK"
+        },
+        {
+          "script": "race_start_competitive_0669172_test.gd",
+          "marker": "COMPETITIVE_START_09172_PASS"
+        },
         {
           "script": "race_start_3d_sync_0669171_test.gd",
           "marker": "RACE_START_3D_SYNC_09171_PASS"

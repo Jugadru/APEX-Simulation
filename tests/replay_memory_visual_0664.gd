@@ -16,6 +16,7 @@ func run() -> void:
 	for i in range(hud.season_tracks.size()):
 		if hud.season_tracks[i].code=="GBR": hud.selected_track_index=i
 	hud.seed_picker.value=661
+	hud.replay_recording_enabled = true
 	hud._start_race()
 	hud.race.running=true
 	hud.sim_speed=1

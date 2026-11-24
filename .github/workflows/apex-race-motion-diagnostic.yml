@@ -1,0 +1,173 @@
+name: APEX - Race Motion diagnostics
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, synchronize]
+    paths:
+      - 'scripts/apex_racecraft_0654.gd'
+      - 'scripts/track_3d.gd'
+      - 'scripts/race_view_snapshot_0658.gd'
+      - 'scripts/main.gd'
+      - 'tests/**'
+      - 'tools/apex_ci_*.sh'
+      - 'tests/visual_stutter_06672*'
+      - '.github/workflows/apex-race-motion-diagnostic.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: apex-motion-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  preflight:
+    if: github.head_ref == 'fix/v0.6.6.9.17.3-race-motion'
+    name: Compile and verify motion prerequisites
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+        with:
+          version: 4.7.2-stable
+      - run: |
+          set -euo pipefail
+          mkdir -p motion-preflight
+          bash tools/apex_ci_import.sh motion-preflight/import.log
+          bash tools/apex_ci_isolated_test.sh tick_presentation_09173_test.gd 2>&1 | tee motion-preflight/ticks.log
+          grep -Fq 'TICK_PRESENTATION_09173_PASS' motion-preflight/ticks.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' motion-preflight/ticks.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apex-motion-preflight
+          path: motion-preflight/
+          retention-days: 14
+  paired:
+    needs: preflight
+    if: github.head_ref == 'fix/v0.6.6.9.17.3-race-motion'
+    name: Paired visual benchmark / ${{ matrix.profile }} / seed ${{ matrix.seed }} / ${{ matrix.step }}s
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: [42, 6617, 6558]
+        profile: [stock, developed]
+        step: [0.5, 0.2]
+    env:
+      APEX_MOTION_SEED: ${{ matrix.seed }}
+      APEX_MOTION_PROFILE: ${{ matrix.profile }}
+      APEX_MOTION_STEP: ${{ matrix.step }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+        with:
+          version: 4.7.2-stable
+      - run: |
+          set -euo pipefail
+          mkdir -p motion-results
+          bash tools/apex_ci_import.sh motion-results/import.log
+          bash tools/apex_ci_isolated_test.sh car_model_smoke_test.gd 2>&1 | tee motion-results/mesh.log
+          grep -Fq 'APEX CAR MODEL TEST OK' motion-results/mesh.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' motion-results/mesh.log
+          bash tools/apex_ci_isolated_test.sh visual_stutter_06672_benchmark.gd 2>&1 | tee motion-results/benchmark.log
+          grep -Fq 'VISUAL_STUTTER_06672_BENCHMARK' motion-results/benchmark.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' motion-results/benchmark.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apex-motion-${{ matrix.profile }}-${{ matrix.seed }}-${{ matrix.step }}
+          path: motion-results/
+          retention-days: 14
+  capture:
+    needs: preflight
+    if: github.head_ref == 'fix/v0.6.6.9.17.3-race-motion'
+    name: Monaco native graphics capture
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      LIBGL_ALWAYS_SOFTWARE: '1'
+      GALLIUM_DRIVER: llvmpipe
+      APEX_MOTION_CAPTURE_TRACK: MON
+      APEX_MOTION_SEED: 42
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+        with:
+          version: 4.7.2-stable
+      - run: sudo apt-get update && sudo apt-get install -y xvfb libgl1 libgl1-mesa-dri
+      - run: |
+          set -euo pipefail
+          mkdir -p qa/visual_stutter_06672
+          bash tools/apex_ci_import.sh qa/visual_stutter_06672/import.log
+          timeout 300s xvfb-run -a -s '-screen 0 1920x1080x24' godot --path . --rendering-method gl_compatibility --rendering-driver opengl3 --script res://tests/visual_stutter_06672_capture.gd 2>&1 | tee qa/visual_stutter_06672/capture.log
+          grep -Fq 'VISUAL_STUTTER_06672_VISUAL_PASS' qa/visual_stutter_06672/capture.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' qa/visual_stutter_06672/capture.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apex-motion-monaco-graphics
+          path: qa/visual_stutter_06672/
+          retention-days: 14
+  legacy-replay-control:
+    needs: preflight
+    if: github.head_ref == 'fix/v0.6.6.9.17.3-race-motion'
+    name: Historical replay / corrected candidate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        revision: [candidate]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.revision == 'base' && github.event.pull_request.base.sha || github.event.pull_request.head.sha }}
+      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+        with:
+          version: 4.7.2-stable
+      - run: |
+          set -euo pipefail
+          mkdir -p replay-control
+          git rev-parse HEAD | tee replay-control/commit.txt
+          bash tools/apex_ci_import.sh replay-control/import.log
+          bash tools/apex_ci_isolated_test.sh driver_traffic_06693_test.gd 2>&1 | tee replay-control/replay.log
+          grep -Fq 'DRIVER_TRAFFIC_06693_PASS' replay-control/replay.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' replay-control/replay.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apex-motion-replay-${{ matrix.revision }}
+          path: replay-control/
+          retention-days: 14
+  live-grid-control:
+    needs: preflight
+    if: github.head_ref == 'fix/v0.6.6.9.17.3-race-motion'
+    name: Live recording isolation and numbered grid
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        script: [race_live_without_replay_09173_test, grid_placement_09173_test, live_3d_replay_ab_09173_test, motion_retreat_probe_09173_test, tick_presentation_09173_test, fixed_timeline_09173_test]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+        with:
+          version: 4.7.2-stable
+      - run: |
+          set -euo pipefail
+          mkdir -p live-grid
+          bash tools/apex_ci_import.sh live-grid/import.log
+          bash tools/apex_ci_isolated_test.sh ${{ matrix.script }}.gd 2>&1 | tee live-grid/test.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' live-grid/test.log
+          grep -Eq 'LIVE_WITHOUT_REPLAY_09173_PASS|GRID_PLACEMENT_09173_PASS|LIVE_3D_REPLAY_AB_09173_PASS|MOTION_RETREAT_PROBE_09173_PASS|TICK_PRESENTATION_09173_PASS|FIXED_TIMELINE_09173_PASS' live-grid/test.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apex-motion-${{ matrix.script }}
+          path: live-grid/
+          retention-days: 14

@@ -51,7 +51,7 @@ func run() -> void:
 	const Race = preload("res://scripts/race_engine.gd")
 	const Replay = preload("res://scripts/core/race_replay_0660.gd")
 	var season: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/season_2012.json"))
-	var engine = Race.new(season.teams, "Ferrari", 66093, {}, season.tracks[0], {})
+	var engine = Race.new(season.teams, "Ferrari", 66093, {}, season.tracks[0], {}, false)
 	const Codec = preload("res://scripts/core/race_state_codec_0660.gd")
 	const Soul2 = preload("res://scripts/core/race_driver_soul_0647.gd")
 	# Build a genuine pre-9.4 style checkpoint: Soul 2.0 and old tactical rules.
@@ -59,9 +59,19 @@ func run() -> void:
 		item["driver_soul"] = Soul2.initial(item)
 	var recorded = Replay.new()
 	recorded.attach(engine)
+	# Revision 015 predates ALL these systems, not just traffic/Soul/start.
+	# A fixture labeled 015 must record with the same flags seek() restores.
 	engine.driver_traffic_enabled = false
 	engine.driver_soul3_enabled = false
+	engine.pit_coordination2_enabled = false
+	engine.pit_queue_prevention_enabled = false
+	engine.wet_strategy_intelligence_enabled = false
+	engine.strategy_staff_intelligence_enabled = false
 	engine.race_start_intelligence_enabled = false
+	engine.overtaking_intelligence_enabled = false
+	engine.race_start20_enabled = false
+	engine.competitive_start_enabled = false
+	recorded.recorded_simulation_revision = Replay.BASELINE_SIMULATION_REVISION
 	recorded.legacy_start_intelligence = true
 	recorded.checkpoints = [recorded.checkpoint()]
 	verify(not Codec.capture(engine).engine.has("driver_traffic_enabled"), "Traffic session toggle stays out of legacy checkpoint schema")

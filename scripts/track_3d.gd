@@ -6,6 +6,8 @@ const Perf = preload("res://scripts/debug/apex_perf_trace_0657.gd")
 
 const BattleMotion = preload("res://scripts/apex_racecraft_0654.gd")
 var occupation: Dictionary = {}
+var previous_nominal: Dictionary = {}
+var grid_slots: Dictionary = {}
 var pose_anchors: Dictionary = {}
 var visual_lanes: Dictionary = {}
 
@@ -117,6 +119,8 @@ func set_track_data(track: PackedVector2Array, title: String, teams: Array = [],
 	projection_hints.clear()
 	visual_lanes.clear()
 	occupation.clear()
+	previous_nominal.clear()
+	grid_slots.clear()
 	live_cars.clear()
 	marker_cache.clear()
 	pit_visual_phase.clear()
@@ -168,7 +172,8 @@ func set_race_cars(cars: Array, selected_id: int, motion_delta: float = -1.0) ->
 	var delta: float = maxf(0.0, get_process_delta_time() if motion_delta < 0.0 else motion_delta)
 	pose_anchors.clear()
 	var perf_occupation := Perf.begin() if Perf.enabled else 0
-	occupation = BattleMotion.solve(cars,occupation,delta,_sample_occupied_pose)
+	occupation = BattleMotion.solve_interval(cars,occupation,delta,_sample_occupied_pose,previous_nominal)
+	previous_nominal = BattleMotion.nominal_history(cars)
 	if Perf.enabled:
 		Perf.end(&"visual.occupancy",perf_occupation)
 		for pose in occupation.values():
@@ -288,6 +293,66 @@ func set_race_cars(cars: Array, selected_id: int, motion_delta: float = -1.0) ->
 			pit_visual_phase.erase(existing)
 			projection_hints.erase(existing)
 
+# Mark the actual sporting grid, not a second independently spaced grid.
+# Position and heading use precisely the same sampler as live occupation.
+func build_start_grid(cars: Array, map: Object) -> void:
+	grid_slots.clear()
+	pose_anchors.clear()
+	var prior := course_root.get_node_or_null("StartingGrid")
+	if prior != null:
+		course_root.remove_child(prior)
+		prior.queue_free()
+	var marks := Node3D.new()
+	marks.name = "StartingGrid"
+	course_root.add_child(marks)
+	var paint := _material("#f2f0e8")
+	for source in cars:
+		var car: Dictionary = source.duplicate()
+		car.route_point = map.point_on_track(float(car.progress))
+		car.route_direction = map.direction_on_track(float(car.progress))
+		var pose := _sample_occupied_pose(car,float(car.get("race_lane",0.0)),0.0)
+		var slot := int(car.grid)
+		grid_slots[slot] = pose.duplicate()
+		if slot == 1:
+			# The sporting timing origin remains progress=0 (car centre).
+			# Paint the visible start stripe just beyond the pole stop box;
+			# it is a presentation marker, not an engine timing trigger.
+			var stripe := course_root.get_node_or_null("StartFinishLine") as MeshInstance3D
+			if stripe != null:
+				var start_pose := _sample_occupied_pose(car,0.0,-3.5)
+				stripe.position = Vector3(start_pose.position.x,0.103,start_pose.position.y)
+				stripe.rotation.y = atan2(-float(start_pose.direction.x),-float(start_pose.direction.y))
+				var stripe_mesh := stripe.mesh as BoxMesh
+				stripe_mesh.size.x = float(start_pose.road_half_width)*1.8
+		var mark := Node3D.new()
+		mark.name = "P%02d" % slot
+		marks.add_child(mark)
+		mark.position = Vector3(pose.position.x,0.112,pose.position.y)
+		mark.rotation.y = atan2(-float(pose.direction.x),-float(pose.direction.y))
+		var half_width := CarModelScript.OCCUPATION_HALF_WIDTH+0.08
+		var half_length := CarModelScript.OCCUPATION_HALF_LENGTH+0.08
+		# U-shaped starting box, with a transverse front stop line.
+		_box(mark,Vector3(half_width*2,0.012,0.10),Vector3(0,0,-half_length),paint)
+		for side in [-1.0,1.0]:
+			_box(mark,Vector3(0.10,0.012,half_length*2),Vector3(side*half_width,0,0),paint)
+		var number := Label3D.new()
+		number.text = "P%d" % slot
+		number.font_size = 32
+		number.pixel_size = 0.018
+		number.outline_size = 4
+		number.rotation.x = -PI/2.0
+		number.position = Vector3(0,0.015,half_length+0.35)
+		mark.add_child(number)
+	pose_anchors.clear()
+
+func _sample_occupied_pose_legacy(car: Dictionary, requested_lane: float, retreat: float) -> Dictionary:
+	var pose := _sample_occupied_pose(car,requested_lane,retreat)
+	pose.erase("half_length")
+	pose.erase("half_width")
+	pose.erase("route_length")
+	pose.erase("road_half_width")
+	return pose
+
 func _sample_occupied_pose(car: Dictionary, requested_lane: float, retreat: float) -> Dictionary:
 	var perf_started := Perf.begin() if Perf.enabled else 0
 	var id := int(car.id)
@@ -313,6 +378,10 @@ func _sample_occupied_pose(car: Dictionary, requested_lane: float, retreat: floa
 	var lane := clampf(requested_lane,-maxf(0,width-1.45),maxf(0,width-1.45))
 	var position := center+side*lane
 	var perf_result_32 = {"position":Vector2(position.x,position.z),"direction":Vector2(direction.x,direction.z),"lane":lane,"progress":float(car.progress)-retreat/maxf(total,1)}
+	perf_result_32["road_half_width"] = width
+	perf_result_32["route_length"] = total
+	perf_result_32["half_length"] = CarModelScript.OCCUPATION_HALF_LENGTH
+	perf_result_32["half_width"] = CarModelScript.OCCUPATION_HALF_WIDTH
 	if Perf.enabled: Perf.end(&"route.3d_occupied_pose",perf_started)
 	return perf_result_32
 
@@ -671,6 +740,7 @@ func _build_road() -> void:
 	var start: Vector3 = road_centers[0]
 	var forward: Vector3 = (road_centers[1] - road_centers[0]).normalized()
 	var finish_line := MeshInstance3D.new()
+	finish_line.name = "StartFinishLine"
 	var finish_mesh := BoxMesh.new()
 	finish_mesh.size = Vector3(ROAD_HALF * 1.9, 0.018, 0.46)
 	finish_line.mesh = finish_mesh
@@ -805,7 +875,7 @@ func _box(parent: Node3D, dims: Vector3, offset: Vector3, material: StandardMate
 
 func _create_car(color_hex: String, team: String, number: int) -> Node3D:
 	var model: Node3D = CarModelScript.new(color_hex, team, number)
-	model.scale = Vector3.ONE * 0.78
+	model.scale = Vector3.ONE * CarModelScript.PRESENTATION_SCALE
 	car_root.add_child(model)
 	models_created += 1
 	return model

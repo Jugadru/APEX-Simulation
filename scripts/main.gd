@@ -166,6 +166,8 @@ var top_panel: PanelContainer
 var camera_mode := "Diretor TV"
 var replay_session
 var replay_ui
+# Temporary suspension: explicit opt-in only for replay QA/development.
+var replay_recording_enabled := false
 var sim_speed := 1.0 # 066721: start in real-time; 5x is an explicit choice
 # Diagnostic only: rolling actual simulated seconds / wall-clock seconds.
 var effective_speed_x: float = 0.0
@@ -262,7 +264,7 @@ func _ready() -> void:
 		preview.hide()
 	# Use the packaged project identity as the only source for the version label.
 	# Presentation metadata only; never changes sporting state or replay.
-	get_window().title = "%s / Core 2 • Replay F9" % str(ProjectSettings.get_setting("application/config/name", "APEX Motorsport Manager"))
+	get_window().title = "%s / Core 2" % str(ProjectSettings.get_setting("application/config/name", "APEX Motorsport Manager"))
 	_load_season_data()
 	_load_hud_prefs()
 	garage = GarageScript.new()
@@ -745,9 +747,20 @@ func _car_by_id(car_id: int) -> Dictionary:
 func _end_to_menu() -> void:
 	RaceSessionController._end_to_menu(self)
 
+# Capture the last two completed sporting ticks, not just the last render.
+# The inventory observer keeps its original order and execution frequency.
+func _observe_live_tick(engine) -> void:
+	garage.inventory_observe(engine)
+	presentation.capture_completed_tick(engine.cars)
+
 func _process(delta: float) -> void:
 	if race == null or not game_root.visible:
 		return
+	if presentation_race != race:
+		presentation_race = race
+		presentation.reset()
+		presented_3d_revision = -1
+		presentation.capture_completed_tick(race.cars)
 	var perf_frame := Perf.begin() if Perf.enabled else 0
 	if Perf.enabled:
 		Perf.add_sample(&"frame.input_delta",int(delta*1000000))
@@ -756,14 +769,14 @@ func _process(delta: float) -> void:
 		var tick_before: int = replay_session.tick if replay_session != null and replay_session.race == race else 0
 		if replay_session == null or replay_session.race != race:
 			replay_session = preload("res://scripts/core/race_replay_0660.gd").new()
-			replay_session.attach(race, engineer_driver_modes, garage.effective_staff_levels(selected_team))
+			replay_session.attach(race, engineer_driver_modes, garage.effective_staff_levels(selected_team), replay_recording_enabled)
 		# In 10x+ Auto 2D, cap work on the UI thread to avoid the positive
 		# feedback loop: slow frame -> more owed ticks -> even slower frame.
 		# Every executed tick is still simulated and recorded in exact order.
 		if sim_speed >= 10.0:
-			replay_session.advance(delta, sim_speed, garage.inventory_observe, 12000, 6)
+			replay_session.advance(delta, sim_speed, _observe_live_tick, 12000, 6)
 		else:
-			replay_session.advance(delta, sim_speed, garage.inventory_observe)
+			replay_session.advance(delta, sim_speed, _observe_live_tick)
 		# 066724: inform the player about the *measured* acceleration,
 		# not the speed multiplier selected in the menu.
 		effective_speed_elapsed += maxf(0.0, delta)
@@ -783,10 +796,6 @@ func _process(delta: float) -> void:
 	RaceViewController.update_tracking(self, delta)
 	RaceViewController.update_free_navigation(self, delta)
 	var perf_visual := Perf.begin() if Perf.enabled else 0
-	if presentation_race != race:
-		presentation_race = race
-		presentation.reset()
-		presented_3d_revision = -1
 	# Render between two *real* simulation ticks. The sporting engine still uses
 	# 0.20s fixed steps; a stable fractional tick keeps cars moving at 1x and 5x.
 	# This is presentation-only and never feeds positions into RaceEngine/replay.
@@ -903,6 +912,8 @@ func _export_pit_csv() -> void:
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F9:
+		if not replay_recording_enabled:
+			return
 		if replay_ui == null:
 			replay_ui = preload("res://scripts/race_replay_panel_0660.gd").new()
 			add_child(replay_ui)
