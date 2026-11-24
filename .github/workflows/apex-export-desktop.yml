@@ -5,7 +5,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'docs/APEX_DISTRIBUTION_09173.md'
+      - 'docs/APEX_DISTRIBUTION_09174.md'
     tags:
       - 'v*'
   # Optional playtest export. Triggered ONLY by deliberately applying
@@ -29,7 +29,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           # Explicit one-time release request builds the exact approved merge.
-          ref: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'e8ab8586fe3f7ec6cf93e1f87d53e9eac17c36f3' || github.sha }}
+          ref: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && '603998ae31666d8f72cc4225a1396c0b49a2d739' || github.sha }}
 
       - name: Instalar Godot e export templates oficiais
         uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c # v3.0.1
@@ -212,8 +212,8 @@ jobs:
           retention-days: 14
           if-no-files-found: warn
 
-  publish-09173:
-    name: Publicar download permanente 9.17.3
+  publish-09174:
+    name: Publicar download permanente 9.17.4
     needs: export-pc
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
@@ -221,8 +221,8 @@ jobs:
       contents: write
     env:
       GH_TOKEN: ${{ github.token }}
-      RELEASE_TAG: v0.6.6.9.17.3
-      RELEASE_SOURCE: e8ab8586fe3f7ec6cf93e1f87d53e9eac17c36f3
+      RELEASE_TAG: v0.6.6.9.17.4
+      RELEASE_SOURCE: 603998ae31666d8f72cc4225a1396c0b49a2d739
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -240,15 +240,17 @@ jobs:
         run: |
           set -euo pipefail
           cat > /tmp/apex-release.md <<'EOF'
-          # APEX Motorsport Manager v0.6.6.9.17.3 — Race Motion Refinement
+          # APEX Motorsport Manager v0.6.6.9.17.4 — Competitive Start & Traffic Intelligence
 
-          Código integrado e homologado: e8ab8586fe3f7ec6cf93e1f87d53e9eac17c36f3 (árvore idêntica ao SHA aee1cea aprovado no PR #116).
-          FAST + APEX Test Lab e diagnóstico de movimento: 22/22 jobs PASS, 48 combinações de movimento, 120 posições de grid, 424 verificações de largada, 12.512 verificações de sincronização 3D.
+          Código integrado e homologado: 603998ae31666d8f72cc4225a1396c0b49a2d739 (árvore idêntica ao SHA 7ed25d3 aprovado no PR #117).
+          FAST + Test Lab, regressões visuais e matriz esportiva: 26/26 jobs PASS.
+          24 cenários esportivos, 72 execuções A/B e repetição, 510 verificações esportivas.
 
-          - Grid numerado e faixa visual à frente da pole; timing esportivo preservado.
-          - Envelope de colisão calibrado; interpolação entre ticks e subpassos visuais para intervalos longos.
-          - Gravação do replay suspensa por padrão, determinismo preservado; testes A/B com hashes e poses iguais.
-          - Recursos históricos e saves de testes isolados; motor de 2012 preservado.
+          - Convergência preventiva antes de curvas estreitas.
+          - Amostras estacionárias esportivas 7 → 0, 25 ultrapassagens em ambas versões, zero reversões ou congelamentos do pelotão nos cenários testados.
+          - Revisão 026; replay desligado por padrão, contratos históricos preservados.
+          - Grid, regras de 2012 e arquitetura visual da 9.17.3 preservados.
+          - Frequência de disputas lado a lado praticamente inalterada; racing line e vácuo são etapas futuras.
 
           Linux e Windows x86_64: extraia o ZIP do seu sistema, mantenha o executável junto ao PCK. No Linux, se necessário, chmod +x APEX_Motorsport_Manager.x86_64.
           Exportações, identificação dos PCKs, integridade ZIP/SHA-256 e inicialização Linux headless aprovadas neste workflow.
@@ -256,5 +258,5 @@ jobs:
           EOF
           gh release create "$RELEASE_TAG" dist/*.zip dist/manifest.json dist/SHA256SUMS.txt dist/SOURCE_COMMIT.txt \
             --repo "$GITHUB_REPOSITORY" --target "$RELEASE_SOURCE" --prerelease \
-            --title "APEX v0.6.6.9.17.3 — Race Motion Refinement (Linux e Windows)" \
+            --title "APEX v0.6.6.9.17.4 — Competitive Start & Traffic Intelligence (Linux e Windows)" \
             --notes-file /tmp/apex-release.md
