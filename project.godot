@@ -10,8 +10,8 @@ config_version=5
 
 [application]
 
-config/name="APEX Motorsport Manager v0.6.6.9.17 — Core 2"
-config/description="v0.6.6.9.17: Largada 2.0 (Godot 4.7.2) — compressao causal no primeiro setor, congestionamento e chuva, Replay 024 com legados preservados, BOX V21 protegido; codigo candidato em teste FAST, ultima build jogavel 9.16 e release oficial 9.9."
+config/name="APEX Motorsport Manager v0.6.6.9.17.1 — Core 2"
+config/description="v0.6.6.9.17.1: Sincronizacao 3D da Largada — recuperacao visual respeita poses historicas pendentes no mesmo quadro; RaceEngine, BOX V21, save e Replay 024 sem alteracoes; Godot 4.7.2."
 run/main_scene="res://scenes/main.tscn"
 config/use_custom_user_dir=true
 config/custom_user_dir_name="APEX_0650_SOUL_STAFF"
