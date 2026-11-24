@@ -4,7 +4,11 @@
 
 A atualização corrige o grid P1–P24, a faixa visual de largada, o envelope de ocupação dos carros, a interpolação por ticks reais e os intervalos visuais longos. A gravação de replay fica suspensa por padrão, sem remover o controle esportivo ou alterar o determinismo. A auditoria separa recursos históricos e dados dos testes.
 
-**Download 9.17.3:** exportação Linux e Windows em preparação a partir do merge homologado. A [rotina de exportação](https://github.com/Jugadru/APEX-Simulation/actions/workflows/apex-export-desktop.yml) verifica PCKs, ZIPs, hashes e inicialização Linux antes de publicar. Até a publicação, use os downloads verificados abaixo. O [código-fonte integrado](https://github.com/Jugadru/APEX-Simulation/archive/e8ab8586fe3f7ec6cf93e1f87d53e9eac17c36f3.zip) já está disponível (não é executável).
+## 📥 Download atual — v0.6.6.9.17.3 (pré-release jogável)
+
+**[Consultar downloads no GitHub Releases](https://github.com/Jugadru/APEX-Simulation/releases)** — procure `v0.6.6.9.17.3`, com ZIPs portáteis Linux e Windows x86_64. A publicação ocorre somente após a exportação aprovada do código `e8ab858`. [Acompanhar exportação e publicação](https://github.com/Jugadru/APEX-Simulation/actions/runs/45444879909). Enquanto a versão ainda não estiver listada, os pacotes anteriores abaixo permanecem disponíveis.
+
+**[Baixar código-fonte integrado (Godot 4.7.2)](https://github.com/Jugadru/APEX-Simulation/archive/e8ab8586fe3f7ec6cf93e1f87d53e9eac17c36f3.zip)** — código, não executável.
 
 
 ### ✅ Política oficial permanente: FAST + APEX Test Lab
@@ -22,9 +26,9 @@ A atualização corrige o grid P1–P24, a faixa visual de largada, o envelope d
 
 **Compilação jogável anterior para TESTES: v0.6.6.9.16 — Linux e Windows x86_64.** Gerada em 23/11/2026 com Godot 4.7.2, identidade 9.16 confirmada nos dois PCKs e inicialização Linux headless aprovada. **[⬇ Baixar APEX 9.16 para testar](https://github.com/Jugadru/APEX-Simulation/actions/runs/45268711293/artifacts/14863723230)** (artefato externo com os ZIPs de Linux e Windows; pode exigir login GitHub; expira em **07/12/2026**).
 
-**Última release oficial permanente: v0.6.6.9.9 — Race Quality Release.** Publicada em 22/11/2026 para Windows e Linux x86_64. Os ZIPs e a tag dessa release continuam disponíveis, sem alterações.
+**Release estável anterior: v0.6.6.9.9 — Race Quality Release.** Publicada em 22/11/2026 para Windows e Linux x86_64. Os ZIPs e a tag dessa release continuam disponíveis, sem alterações.
 
-> **Importante:** a `main` contém a 9.17.3 homologada; a build anterior 9.16 é um artefato temporário. A distribuição 9.17.3 só será indicada como disponível depois da exportação validada. Para desenvolver, abra `project.godot` da `main`.
+> **Importante:** a `main` contém a 9.17.3 homologada; a build anterior 9.16 é um artefato temporário. Consulte a seção Download atual e o workflow para confirmar o estado da distribuição 9.17.3. Para desenvolver, abra `project.godot` da `main`.
 
 ### Evolução do código após a release 9.9
 
@@ -38,7 +42,6 @@ A atualização corrige o grid P1–P24, a faixa visual de largada, o envelope d
 | **9.15** | **Performance & Race Polish** — cache dos perfis estáticos de pista na HUD, preservando clima, pneus e BOX manuais |
 | **9.16** | **Race Gaps & Overtaking 2.0 (1ª etapa)** — métrica `DIST. PISTA` com proximidade física no HUD: F=frente, T=trás, unidades esquemáticas (não tempo cronometrado); carro retardatário também conta, sem mudar a física/replay. [Detalhes](docs/APEX_RELEASE_v0.6.6.9.16_RACE_GAPS_OVERTAKING.md) |
 | **9.17** | **Largada 2.0** — cautela causal na saída e primeira curva, com trânsito, chuva, largura e replay 024 versionado. [Detalhes](docs/APEX_RELEASE_v0.6.6.9.17_LARGADA_2.md) |
-
 | **9.17.1** | Sincronização da apresentação 3D na largada. |
 | **9.17.2** | Largada competitiva e regras esportivas revisadas. |
 | **9.17.3** | **Race Motion Refinement** — grid numerado, ocupação calibrada, interpolação e subpassos visuais, replay opt-in e isolamento dos testes. [Detalhes](docs/APEX_RELEASE_v0.6.6.9.17.3_RACE_MOTION_REFINEMENT.md) |
