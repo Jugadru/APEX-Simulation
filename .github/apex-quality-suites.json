@@ -163,6 +163,30 @@
         }
       ],
       "checks": []
+    },
+    {
+      "id": "race_start_3d_sync_09171",
+      "paths": [
+        "scripts/apex_racecraft_0654.gd",
+        "scripts/track_3d.gd",
+        "tests/race_start_3d_sync_0669171_test.gd",
+        "tests/visual_stutter_06672_benchmark.gd"
+      ],
+      "fast_tests": [
+        {
+          "script": "race_start_3d_sync_0669171_test.gd",
+          "marker": "RACE_START_3D_SYNC_09171_PASS"
+        },
+        {
+          "script": "racecraft_0654_test.gd",
+          "marker": "RACECRAFT_PASS"
+        },
+        {
+          "script": "visual_stutter_06672_benchmark.gd",
+          "marker": "VISUAL_STUTTER_06672_BENCHMARK"
+        }
+      ],
+      "checks": []
     }
   ]
 }
