@@ -175,7 +175,9 @@
         "tests/car_model_smoke_test.gd",
         "tests/race_live_without_replay_09173_test.gd",
         "tests/grid_placement_09173_test.gd",
-        "tests/live_3d_replay_ab_09173_test.gd"
+        "tests/live_3d_replay_ab_09173_test.gd",
+        "tests/motion_fixture_09173.gd",
+        "tools/apex_ci_isolated_test.sh"
       ],
       "fast_tests": [
         {

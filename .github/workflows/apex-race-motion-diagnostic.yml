@@ -20,15 +20,19 @@ concurrency:
 jobs:
   paired:
     if: github.head_ref == 'fix/v0.6.6.9.17.3-race-motion'
-    name: Paired visual benchmark / seed ${{ matrix.seed }}
+    name: Paired visual benchmark / ${{ matrix.profile }} / seed ${{ matrix.seed }} / ${{ matrix.step }}s
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
         seed: [42, 6617, 6558]
+        profile: [stock, developed]
+        step: [0.5, 0.2]
     env:
       APEX_MOTION_SEED: ${{ matrix.seed }}
+      APEX_MOTION_PROFILE: ${{ matrix.profile }}
+      APEX_MOTION_STEP: ${{ matrix.step }}
     steps:
       - uses: actions/checkout@v4
       - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
@@ -38,16 +42,16 @@ jobs:
           set -euo pipefail
           mkdir -p motion-results
           bash tools/apex_ci_import.sh motion-results/import.log
-          timeout 240s godot --headless --single-threaded-scene --path . --script res://tests/car_model_smoke_test.gd 2>&1 | tee motion-results/mesh.log
+          bash tools/apex_ci_isolated_test.sh car_model_smoke_test.gd 2>&1 | tee motion-results/mesh.log
           grep -Fq 'APEX CAR MODEL TEST OK' motion-results/mesh.log
           ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' motion-results/mesh.log
-          timeout 240s godot --headless --single-threaded-scene --path . --script res://tests/visual_stutter_06672_benchmark.gd 2>&1 | tee motion-results/benchmark.log
+          bash tools/apex_ci_isolated_test.sh visual_stutter_06672_benchmark.gd 2>&1 | tee motion-results/benchmark.log
           grep -Fq 'VISUAL_STUTTER_06672_BENCHMARK' motion-results/benchmark.log
           ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' motion-results/benchmark.log
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: apex-motion-seed-${{ matrix.seed }}
+          name: apex-motion-${{ matrix.profile }}-${{ matrix.seed }}-${{ matrix.step }}
           path: motion-results/
           retention-days: 14
   capture:
@@ -100,7 +104,7 @@ jobs:
           mkdir -p replay-control
           git rev-parse HEAD | tee replay-control/commit.txt
           bash tools/apex_ci_import.sh replay-control/import.log
-          timeout 240s godot --headless --single-threaded-scene --path . --script res://tests/driver_traffic_06693_test.gd 2>&1 | tee replay-control/replay.log
+          bash tools/apex_ci_isolated_test.sh driver_traffic_06693_test.gd 2>&1 | tee replay-control/replay.log
           grep -Fq 'DRIVER_TRAFFIC_06693_PASS' replay-control/replay.log
           ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' replay-control/replay.log
       - uses: actions/upload-artifact@v4
@@ -127,7 +131,7 @@ jobs:
           set -euo pipefail
           mkdir -p live-grid
           bash tools/apex_ci_import.sh live-grid/import.log
-          timeout 240s godot --headless --single-threaded-scene --path . --script res://tests/${{ matrix.script }}.gd 2>&1 | tee live-grid/test.log
+          bash tools/apex_ci_isolated_test.sh ${{ matrix.script }}.gd 2>&1 | tee live-grid/test.log
           ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' live-grid/test.log
           grep -Eq 'LIVE_WITHOUT_REPLAY_09173_PASS|GRID_PLACEMENT_09173_PASS|LIVE_3D_REPLAY_AB_09173_PASS|MOTION_RETREAT_PROBE_09173_PASS' live-grid/test.log
       - uses: actions/upload-artifact@v4

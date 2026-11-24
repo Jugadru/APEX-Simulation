@@ -153,7 +153,7 @@ jobs:
             marker="${entry#*|}"
             log="ci-results/${script%.gd}.log"
             echo "::group::${script}"
-            timeout 240s godot --headless --single-threaded-scene --path . --script "res://tests/${script}" 2>&1 | tee "${log}"
+            bash tools/apex_ci_isolated_test.sh "${script}" 2>&1 | tee "${log}"
             if ! grep -Fq "${marker}" "${log}"; then
               echo "::error::Missing success marker ${marker} from ${script}"
               exit 1
@@ -164,6 +164,12 @@ jobs:
             fi
             echo "::endgroup::"
           done
+          # Explicitly retain the formerly accidental upgraded-team stress case.
+          if grep -Fq "visual_stutter_06672_benchmark.gd|" ci-results/test-plan.txt; then
+            APEX_MOTION_PROFILE=developed APEX_MOTION_SEED=42 bash tools/apex_ci_isolated_test.sh visual_stutter_06672_benchmark.gd 2>&1 | tee ci-results/motion-developed.log
+            grep -Fq "VISUAL_STUTTER_06672_BENCHMARK" ci-results/motion-developed.log
+            ! grep -Eiq "(^ERROR:|SCRIPT ERROR:|Parse Error:)" ci-results/motion-developed.log
+          fi
 
       - name: Publish Test Lab CPU and memory profile
         shell: bash

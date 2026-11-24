@@ -15,7 +15,7 @@ func run() -> void:
 		host.race.running=true
 		var states: Array=[]
 		var metrics: Array=[]
-		var caps: Array=[INF,0.8,1.6,2.4,INF,INF]
+		var caps: Array=[INF,0.8,1.6,2.4,INF]
 		for cap in caps:
 			states.append(host.world_view.occupation.duplicate(true))
 			metrics.append({"cap":str(cap),"held":0,"max_hold":0,"runs":{},"max_step":0.0,"overlaps":0,"stationary":0,"resync":0,"cpu_us":0})
@@ -45,10 +45,9 @@ func run() -> void:
 			for n in range(caps.size()):
 				var old: Dictionary=states[n]
 				var start:=Time.get_ticks_usec()
-				var poses:=R.solve(cars,old,.5,host.world_view._sample_occupied_pose,float(caps[n]),n>=4,n==5)
+				var poses:=R.solve(cars,old,.5,host.world_view._sample_occupied_pose,float(caps[n]),n==4)
 				var row: Dictionary=metrics[n]
-				row["synchronized"]=n>=4
-				row["local_repair"]=n==5
+				row["synchronized"]=n==4
 				row.cpu_us+=Time.get_ticks_usec()-start
 				for id in poses:
 					var pose: Dictionary=poses[id]

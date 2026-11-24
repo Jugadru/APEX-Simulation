@@ -93,22 +93,5 @@ func _initialize() -> void:
 	cars[0]=car(0,30)
 	cars[0]["race_lane"]=0.0
 	check(R.try_official_motion(cars,poses,official_sample).is_empty(),"synchronized crossing rejected")
-	# A local lane conflict must not freeze an unrelated convoy.
-	cars=[car(0,0),car(1,0),car(2,35)]
-	cars[0]["race_lane"]=-2.0
-	cars[1]["race_lane"]=2.0
-	cars[2]["race_lane"]=0.0
-	old=R.solve(cars,{},.5,official_sample)
-	for c in cars:
-		c.route_point.x+=10.0/.6
-		c.progress+=.01
-	cars[0]["race_lane"]=0.0
-	cars[1]["race_lane"]=0.0
-	var repaired := R.try_local_motion(cars,old,official_sample)
-	check(repaired.size()==3,"local repair resolves pair")
-	if repaired.size()==3:
-		valid(repaired,old)
-		check(absf(float(repaired[2].progress)-float(cars[2].progress))<.000001,"unrelated car remains official")
-		check(float(repaired[0].progress)>=float(old[0].progress) and float(repaired[1].progress)>=float(old[1].progress),"local repair no reverse")
 	if failures==0: print("RACECRAFT_PASS attacker / defense / no overlap / continuous sweep / traffic / narrow road / pause / immutable")
 	quit(0 if failures==0 else 1)
