@@ -1,5 +1,6 @@
 extends Control
 ## Entry menu: live features and the recovered roadmap are labelled separately.
+const Layout = preload("res://scripts/presentation/apex_main_menu_layout_09178.gd")
 const MenuSkin = preload("res://scripts/apex_hud_theme.gd")
 const INK := Color("#090b0e")
 const PANEL := Color("#15191f")
@@ -22,76 +23,21 @@ var mode_grid: GridContainer
 var continue_button: Button
 var resume_race_button: Button
 var configuration_title: Label
+var body: BoxContainer
+var operations_row: BoxContainer
+var home_scroll: ScrollContainer
+var session_title: Label
+var session_info: Label
+var race_info: Label
 
 func setup(scene_host) -> void:
     host = scene_host
     name = "FrontDoor"
     set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
     host.menu_root.add_child(self)
-    var bg := ColorRect.new()
-    bg.color = INK
-    bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
-    bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-    add_child(bg)
-    var margin := MarginContainer.new()
-    margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-    for side in ["left", "right", "top", "bottom"]:
-        margin.add_theme_constant_override("margin_" + side, 36)
-    add_child(margin)
-    var scroll := ScrollContainer.new()
-    scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-    margin.add_child(scroll)
-    var content := VBoxContainer.new()
-    content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-    content.add_theme_constant_override("separation", 20)
-    scroll.add_child(content)
-    var header := HBoxContainer.new()
-    content.add_child(header)
-    var brand := label(header, "APEX  /  MOTORSPORT MANAGER", 42, ORANGE)
-    brand.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-    brand.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-    brand.custom_minimum_size.y = 90
-    label(content, "SEU TIME. SUAS DECISÕES. SUA HISTÓRIA.", 14, MUTED).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-    var line := HSeparator.new()
-    content.add_child(line)
-    landing = VBoxContainer.new()
-    landing.add_theme_constant_override("separation", 16)
-    content.add_child(landing)
-    var top := HBoxContainer.new()
-    landing.add_child(top)
-    var title := label(top, "CENTRAL DE COMANDO", 28, WHITE)
-    title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-    title.autowrap_mode = TextServer.AUTOWRAP_OFF
-    label(top, "TEMPORADA 2012   /   20 CIRCUITOS", 13, ORANGE).autowrap_mode = TextServer.AUTOWRAP_OFF
-    mode_grid = GridContainer.new()
-    mode_grid.columns = 2
-    mode_grid.add_theme_constant_override("h_separation", 16)
-    mode_grid.add_theme_constant_override("v_separation", 16)
-    landing.add_child(mode_grid)
-    mode_card("01", "STANDARD", "CHEFE DE EQUIPE", "Conduza a temporada, desenvolva o carro e comande seus dois pilotos.", "JOGAR", open_standard)
-    mode_card("02", "SIMULATION", "PROPRIETÁRIO • PLANEJADO", "A visão de proprietário e contratação do chefe de equipe faz parte da expansão planejada.", "VER MODO", show_simulation)
-    mode_card("03", "SANDBOX", "GP PERSONALIZADO DISPONÍVEL", "Escolha equipe, circuito, clima e semente. Criação e compra de equipes ainda estão planejadas.", "CONFIGURAR GP", open_sandbox)
-    mode_card("04", "CENÁRIOS", "TREINOS DISPONÍVEIS", "Experimente condições de corrida preparadas. Desafios históricos com objetivos estão planejados.", "ESCOLHER CENÁRIO", show_scenarios)
-    var quick := HBoxContainer.new()
-    quick.add_theme_constant_override("separation", 12)
-    landing.add_child(quick)
-    continue_button = button(quick, "CONTINUAR TEMPORADA", continue_season)
-    resume_race_button = button(quick, "VOLTAR À CORRIDA", resume_race)
-    button(quick, "CENTRAL / P&D", host._open_garage)
-    button(quick, "EQUIPE / SOUL STAFF", host._open_staff)
-    detail = VBoxContainer.new()
-    detail.add_theme_constant_override("separation", 20)
-    content.add_child(detail)
-    button(detail, "VOLTAR AO MENU", show_home)
-    detail_title = label(detail, "", 30, WHITE)
-    detail_text = label(detail, "", 17, MUTED)
-    detail_actions = VBoxContainer.new()
-    detail_actions.add_theme_constant_override("separation", 14)
-    detail.add_child(detail_actions)
-    # The menu version must reflect the exported .pck project identity.
-    var build_title: String = str(ProjectSettings.get_setting("application/config/name", "APEX Motorsport Manager"))
-    label(content, "%s    /    MOTOR DE CORRIDA COMPARTILHADO" % build_title.get_slice(" — ", 0).to_upper(), 11, MUTED)
+    Layout.build(self)
     resized.connect(_responsive)
+    visibility_changed.connect(refresh_status)
     call_deferred("_responsive")
     show_home()
 
@@ -107,11 +53,14 @@ func label(parent: Node, value: String, font_size: int, color: Color) -> Label:
 func button(parent: Node, value: String, action: Callable) -> Button:
     var node := Button.new()
     node.text = value
-    node.custom_minimum_size.y = 44
+    node.custom_minimum_size.y = 52
+    node.add_theme_font_size_override("font_size", 17)
     node.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     node.add_theme_stylebox_override("normal", MenuSkin.panel(Color("#222831"), 5, EDGE, 12))
     node.add_theme_stylebox_override("hover", MenuSkin.panel(Color("#34302a"), 5, ORANGE, 12))
     node.add_theme_stylebox_override("pressed", MenuSkin.panel(Color("#6c3c1c"), 5, ORANGE, 12))
+    node.add_theme_stylebox_override("disabled", MenuSkin.panel(Color("#14171c"), 5, EDGE, 12))
+    node.add_theme_color_override("font_disabled_color", Color("#8b929e"))
     node.add_theme_stylebox_override("focus", MenuSkin.panel(Color(0,0,0,0), 5, ORANGE, 2))
     node.pressed.connect(action)
     parent.add_child(node)
@@ -125,25 +74,45 @@ func mode_card(number: String, title: String, status: String, description: Strin
     var column := VBoxContainer.new()
     column.add_theme_constant_override("separation", 8)
     panel.add_child(column)
-    label(column, number + "   /   " + status, 11, ORANGE)
-    label(column, title, 24, WHITE)
-    var body := label(column, description, 14, MUTED)
-    body.custom_minimum_size.y = 44
+    label(column, number + "   /   " + status, 14, ORANGE)
+    label(column, title, 30, WHITE)
+    var body := label(column, description, 18, MUTED)
+    body.custom_minimum_size.y = 50
     body.size_flags_vertical = Control.SIZE_EXPAND_FILL
-    button(column, cta, action)
+    var cta_button := button(column, cta, action)
+    if title == "STANDARD": Layout.primary(cta_button)
 
 func _responsive() -> void:
-    mode_grid.columns = 1 if size.x < 850 else 2
+    body.vertical = size.x < 1050
+    operations_row.vertical = size.x < 620
+    mode_grid.columns = 1 if size.x < 620 else 2
 
 func show_home() -> void:
     host.menu_root.get_node("MenuCard").hide()
     show()
     landing.show()
     detail.hide()
-    continue_button.disabled = not host.championship.has_season()
-    resume_race_button.disabled = not host.navigation.can_resume(host)
-    if host.championship.has_season():
-        continue_button.text = "VER TEMPORADA CONCLUÍDA" if host.championship.is_complete() else "CONTINUAR TEMPORADA"
+    home_scroll.scroll_vertical = 0
+    refresh_status()
+
+func refresh_status() -> void:
+    if not is_instance_valid(continue_button) or not is_visible_in_tree(): return
+    var saved: bool = host.championship.has_season()
+    continue_button.disabled = not saved
+    continue_button.text = "VER TEMPORADA CONCLUÍDA" if saved and host.championship.is_complete() else "CONTINUAR TEMPORADA"
+    if saved:
+        var state: Dictionary = host.championship.state
+        session_title.text = str(state.get("team", "TEMPORADA 2012"))
+        var calendar: Array = state.get("calendar", [])
+        var done: int = int(state.get("round_index", 0))
+        var next: Dictionary = host.championship.next_round()
+        session_info.text = "%d/%d etapas concluídas%s" % [done, calendar.size(), " • Próxima: " + str(next.get("name", "")) if not next.is_empty() else " • Temporada concluída"]
+    else:
+        session_title.text = "TEMPORADA 2012"
+        session_info.text = "Nenhuma temporada salva. Prepare sua equipe para iniciar o campeonato."
+    var resumable: bool = host.navigation.can_resume(host)
+    resume_race_button.disabled = not resumable
+    race_info.text = str(host.race.track.get("name", "GP atual")) + (" • concluído" if host.race.finished else " • sessão em memória") if resumable else "Nenhuma corrida disponível para retomar."
 
 func configuration(title: String) -> void:
     if configuration_title != null:
@@ -181,6 +150,7 @@ func resume_race() -> void:
 func show_detail(title: String, description: String) -> void:
     landing.hide()
     detail.show()
+    home_scroll.scroll_vertical = 0
     detail_title.text = title
     detail_text.text = description
     for child in detail_actions.get_children():
