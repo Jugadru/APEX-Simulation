@@ -8,6 +8,7 @@ const CompetitiveStart = preload("res://scripts/core/race_start_competitive_0669
 const LENGTH := 6.4
 const WIDTH := 2.95
 const MAX_LANE := 2.95
+const MergeTraffic = preload("res://scripts/core/race_merge_traffic_0669174.gd")
 
 static func profile(track: Dictionary) -> Dictionary:
 	var route: Array[Vector2] = []
@@ -56,7 +57,7 @@ static func corridor_crosses(a0: float,a1: float,b0: float,b1: float) -> bool:
 
 static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,shape: Dictionary, weather: Dictionary = {}, traffic_enabled: bool = true, soul3_enabled: bool = false,
 		overtaking_enabled: bool = false, competitive_start_enabled: bool = false,
-		start_clock_s: float = 0.0) -> Dictionary:
+		start_clock_s: float = 0.0, merge_traffic_enabled: bool = false) -> Dictionary:
 	var length: float=shape.length
 	# 06686: RaceEngine normally supplies a sorted frozen sporting snapshot.
 	# Filtering out inactive cars preserves its order. Avoid sorting 24
@@ -85,6 +86,15 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 		var lane := float(c.get("race_lane",0))
 		var hold_grid_corridor: bool = competitive_start_enabled and CompetitiveStart.active(start_clock_s, float(c.progress))
 		intents[id]={"lane":lane,"goal":(lane if hold_grid_corridor else 0.0),"pace":float(metrics[id].target),"state":"clear","target":-1,"event":"","defender_id":-1,"charge":maxf(0,float(c.get("attack_charge",0))-dt*.12),"defending":-1,"defense_line":0.0,"defense_event":false,"side":"","margin":0.0,"hesitation":maxf(0,hesitation-dt),"driving_dt":maxf(0,dt-hesitation)}
+	# Look ahead once per car; no new RNG or changes to the road geometry.
+	var narrowing: Dictionary = {}
+	if merge_traffic_enabled:
+		for c in order:
+			var p: float = float(c.progress)
+			var min_lane: float = MAX_LANE
+			for offset in [0.0,LENGTH,2.0*LENGTH,3.0*LENGTH,4.0*LENGTH]:
+				min_lane=minf(min_lane,lane_limit(track,p+float(offset)/length,shape))
+			narrowing[int(c.id)]=MergeTraffic.single_file(min_lane)
 	# Decide from the same frozen start-of-tick positions. Only the corridor
 	# solver below changes sporting progress; tactics may not teleport a car.
 	for c in order:
@@ -121,6 +131,10 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 		if overtaking_enabled:
 			tactic = Overtaking.refine(c, ahead, order, gap, advantage, limit,
 				length, weather, tactic)
+		if merge_traffic_enabled and bool(narrowing.get(id,false)):
+			# Existing overlap retains its corridor; do not begin a new
+			# attack/defense when two full corridors cannot continue ahead.
+			tactic=MergeTraffic.refine(tactic,gap,float(a.lane),float(d.lane),LENGTH,WIDTH)
 		# Blue flags are decisions about a physical backmarker, not a sporting
 		# position override. A safe early yield uses the existing corridor solver.
 		var traffic: Dictionary = DriverTraffic.evaluate(c, ahead, gap, limit, weather, float(tactic.attack_goal)) if traffic_enabled else {"lapping": false, "yield_early": false}
@@ -203,10 +217,14 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 					if absf(float(a.lane))>limit and (
 						our_progress < ahead_progress or (
 						our_progress == ahead_progress and int(c.id) > int(other.id))):
-						a.driving_dt=0.0
+						a.driving_dt=float(a.driving_dt)*0.55 if merge_traffic_enabled else 0.0
 						a.state="recovering"
 		a.next_lane=wanted
 		a.next=float(c.progress)+float(a.driving_dt)/maxf(1,float(a.pace))
+	# Before entering a single corridor, the trailing side yields gradually.
+	# Only the trailing car's existing proposed displacement is reduced.
+	if merge_traffic_enabled:
+		MergeTraffic.queue(order,intents,narrowing,length,LENGTH,WIDTH)
 	# Resolve all same-corridor followers against already-resolved leaders,
 	# including a leader held by a third car. No resolution impulse exists.
 	var result := {}

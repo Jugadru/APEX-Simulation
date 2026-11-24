@@ -12,6 +12,8 @@ const RaceSpace = preload("res://scripts/core/race_space_0655.gd")
 const OVERTAKING_SIM_REVISION := "023_overtaking_intelligence_v1"
 const START20_SIM_REVISION := "024_race_start_spatial_v1"
 const COMPETITIVE_SIM_REVISION := "025_competitive_grid_start_v1"
+const MERGE_TRAFFIC_SIM_REVISION := "026_competitive_traffic_v1"
+var merge_traffic_enabled: bool = true
 var command_session: WeakRef
 var space_profile: Dictionary = {}
 # Session-only replay compatibility: older sporting traces use pre-9.3 traffic logic.
@@ -693,14 +695,16 @@ func _advance(dt: float) -> void:
 	var overtaking_rules: bool = overtaking_intelligence_enabled
 	var start20_rules: bool = race_start20_enabled
 	var competitive_rules: bool = competitive_start_enabled
+	var merge_rules: bool = merge_traffic_enabled and competitive_rules
 	if command_session != null:
 		var attached_session: Object = command_session.get_ref()
 		if attached_session != null:
 			launch_legacy = bool(attached_session.get("legacy_launch_physics"))
 			var revision: String = str(attached_session.get("recorded_simulation_revision"))
-			overtaking_rules = overtaking_rules and revision in [OVERTAKING_SIM_REVISION, START20_SIM_REVISION, COMPETITIVE_SIM_REVISION]
+			overtaking_rules = overtaking_rules and revision in [OVERTAKING_SIM_REVISION, START20_SIM_REVISION, COMPETITIVE_SIM_REVISION, MERGE_TRAFFIC_SIM_REVISION]
 			start20_rules = start20_rules and revision in [START20_SIM_REVISION, COMPETITIVE_SIM_REVISION]
-			competitive_rules = competitive_rules and revision == COMPETITIVE_SIM_REVISION
+			competitive_rules = competitive_rules and revision in [COMPETITIVE_SIM_REVISION, MERGE_TRAFFIC_SIM_REVISION]
+			merge_rules = merge_rules and revision == MERGE_TRAFFIC_SIM_REVISION
 	var launch_clearance: float = 1.0
 	var launch_limit: float = RaceStart066917.CORNER_PHASE_SECONDS if start20_rules else RaceStart066911.PHASE_SECONDS
 	if race_start_intelligence_enabled and clock < launch_limit:
@@ -740,7 +744,7 @@ func _advance(dt: float) -> void:
 		pace_metrics[int(old_car["id"])] = RacePerformance.evaluate(old_car, context)
 	if Perf.enabled: Perf.end(&"race.pace_thermal_drs_kers",perf_pace)
 	var perf_space := Perf.begin() if Perf.enabled else 0
-	var space_plan := RaceSpace.plan(old_order,pace_metrics,dt,track,space_profile,current_weather,driver_traffic_enabled,driver_soul3_enabled,overtaking_rules,competitive_rules,clock)
+	var space_plan := RaceSpace.plan(old_order,pace_metrics,dt,track,space_profile,current_weather,driver_traffic_enabled,driver_soul3_enabled,overtaking_rules,competitive_rules,clock,merge_rules)
 	if Perf.enabled: Perf.end(&"race.overtaking",perf_space)
 	var defenders: Dictionary = {}
 	for car in cars:
