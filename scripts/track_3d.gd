@@ -310,6 +310,17 @@ func build_start_grid(cars: Array, map: Object) -> void:
 		var pose := _sample_occupied_pose(car,float(car.get("race_lane",0.0)),0.0)
 		var slot := int(car.grid)
 		grid_slots[slot] = pose.duplicate()
+		if slot == 1:
+			# The sporting timing origin remains progress=0 (car centre).
+			# Paint the visible start stripe just beyond the pole stop box;
+			# it is a presentation marker, not an engine timing trigger.
+			var stripe := course_root.get_node_or_null("StartFinishLine") as MeshInstance3D
+			if stripe != null:
+				var start_pose := _sample_occupied_pose(car,0.0,-3.5)
+				stripe.position = Vector3(start_pose.position.x,0.103,start_pose.position.y)
+				stripe.rotation.y = atan2(-float(start_pose.direction.x),-float(start_pose.direction.y))
+				var stripe_mesh := stripe.mesh as BoxMesh
+				stripe_mesh.size.x = float(start_pose.road_half_width)*1.8
 		var mark := Node3D.new()
 		mark.name = "P%02d" % slot
 		marks.add_child(mark)
@@ -336,6 +347,7 @@ func _sample_occupied_pose_legacy(car: Dictionary, requested_lane: float, retrea
 	pose.erase("half_length")
 	pose.erase("half_width")
 	pose.erase("route_length")
+	pose.erase("road_half_width")
 	return pose
 
 func _sample_occupied_pose(car: Dictionary, requested_lane: float, retreat: float) -> Dictionary:
@@ -363,6 +375,7 @@ func _sample_occupied_pose(car: Dictionary, requested_lane: float, retreat: floa
 	var lane := clampf(requested_lane,-maxf(0,width-1.45),maxf(0,width-1.45))
 	var position := center+side*lane
 	var perf_result_32 = {"position":Vector2(position.x,position.z),"direction":Vector2(direction.x,direction.z),"lane":lane,"progress":float(car.progress)-retreat/maxf(total,1)}
+	perf_result_32["road_half_width"] = width
 	perf_result_32["route_length"] = total
 	perf_result_32["half_length"] = CarModelScript.OCCUPATION_HALF_LENGTH
 	perf_result_32["half_width"] = CarModelScript.OCCUPATION_HALF_WIDTH
@@ -724,6 +737,7 @@ func _build_road() -> void:
 	var start: Vector3 = road_centers[0]
 	var forward: Vector3 = (road_centers[1] - road_centers[0]).normalized()
 	var finish_line := MeshInstance3D.new()
+	finish_line.name = "StartFinishLine"
 	var finish_mesh := BoxMesh.new()
 	finish_mesh.size = Vector3(ROAD_HALF * 1.9, 0.018, 0.46)
 	finish_line.mesh = finish_mesh

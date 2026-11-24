@@ -48,9 +48,24 @@ func run() -> void:
 				misaligned.append({"slot":slot,"id":id,"error":error,"model_error":model_error,"official_lane":car.race_lane,"visual_lane":pose.lane})
 			for other in poses:
 				if id < int(other) and R.overlaps(pose,poses[other]): overlaps += 1
+		# Check the painted stripe itself, including pole nose and both front corners.
+		var stripe: MeshInstance3D = h.world_view.course_root.get_node_or_null("StartFinishLine")
+		var clearance := -1.0
+		if stripe != null and slots.has(1):
+			var pole: Dictionary = slots[1]
+			var forward := Vector2(-stripe.basis.z.x,-stripe.basis.z.z).normalized()
+			var center := Vector2(stripe.position.x,stripe.position.z)
+			var direction := Vector2(pole.direction)
+			var side := R.normal(direction)
+			var min_gap := INF
+			for lateral in [-1.0,1.0]:
+				var nose := Vector2(pole.position)+direction*float(pole.half_length)+side*float(pole.half_width)*lateral
+				min_gap=minf(min_gap,(center-nose).dot(forward)-(stripe.mesh as BoxMesh).size.z*0.5)
+			clearance=min_gap
+		if clearance<0.10: failures+=1
 		if slots.size()!=24 or poses.size()!=24 or not misaligned.is_empty() or overlaps>0 or max_mark_error>0.05:
 			failures += 1
-		reports.append({"track":code,"slots":slots.size(),"poses":poses.size(),"max_slot_error":max_error,"max_model_error":max_model_error,"max_mark_error":max_mark_error,"max_lane_error":max_lane_error,"max_progress_error":max_progress_error,"overlaps":overlaps,"misaligned":misaligned,"pole_progress":h.race.get_sorted()[0].progress})
+		reports.append({"track":code,"slots":slots.size(),"poses":poses.size(),"max_slot_error":max_error,"max_model_error":max_model_error,"max_mark_error":max_mark_error,"max_lane_error":max_lane_error,"max_progress_error":max_progress_error,"overlaps":overlaps,"misaligned":misaligned,"pole_nose_clearance":clearance,"pole_progress":h.race.get_sorted()[0].progress})
 	print("GRID_PLACEMENT_09173_REPORT ",JSON.stringify({"cases":reports,"failures":failures}))
 	if failures==0: print("GRID_PLACEMENT_09173_PASS")
 	quit(0 if failures==0 else 1)
