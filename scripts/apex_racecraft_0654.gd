@@ -158,7 +158,7 @@ static func gradual_recovery(active: Array, previous: Dictionary, lanes: Diction
 		var id := int(car.id)
 		if not previous.has(id):
 			return {}
-		if int(previous[id].get("hold_frames", 0)) >= MAX_CONSECUTIVE_VISUAL_HOLDS:
+		if int(previous[id].get("hold_frames", 0)) >= MAX_CONSECUTIVE_VISUAL_HOLDS or bool(previous[id].get("gradual_pending", false)):
 			needs_recovery = true
 	if not needs_recovery:
 		return {}
@@ -166,7 +166,7 @@ static func gradual_recovery(active: Array, previous: Dictionary, lanes: Diction
 	for car in active:
 		var id := int(car.id)
 		var old: Dictionary = previous[id]
-		var recovering := int(old.get("hold_frames", 0)) >= MAX_CONSECUTIVE_VISUAL_HOLDS
+		var recovering := int(old.get("hold_frames", 0)) >= MAX_CONSECUTIVE_VISUAL_HOLDS or bool(old.get("gradual_pending", false))
 		var official := float(car.progress)
 		var lane := float(lanes[id])
 		if not car.has("race_lane"):
@@ -204,6 +204,7 @@ static func gradual_recovery(active: Array, previous: Dictionary, lanes: Diction
 			return {}
 		pose["resynced"] = false
 		pose["gradual_recovery"] = recovering
+		pose["gradual_pending"] = recovering and retreat > 0.0001
 		pose["visible"] = true
 		pose["intent_lane"] = float(lanes[id])
 		pose["target_id"] = int(car.get("combat_target_id", -1))
@@ -295,12 +296,13 @@ static func solve(cars: Array,previous: Dictionary,dt: float,sample: Callable) -
 		pose["progress"] = float(pose.get("progress",car.progress))
 		result[id] = pose
 	# Keep the last authoritative progress even when the visual pose is held.
-	# Copy rollback poses before annotating; previous is read-only.
+	# All result poses are fresh samples or copies from the rollback path.
 	for car in active:
 		var id := int(car.id)
 		if result.has(id):
-			var final_pose: Dictionary = result[id].duplicate()
+			var final_pose: Dictionary = result[id]
 			final_pose["official_progress"] = float(car.progress)
 			final_pose["gradual_recovery"] = false
+			final_pose["gradual_pending"] = false
 			result[id] = final_pose
 	return result

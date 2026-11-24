@@ -11,7 +11,7 @@ GitHub Actions 45309590616, benchmark visual de 125 amostras, 0,5 s:
 | SIN | 33 | 0 | 0 | 0 | 0 |
 
 ## Alteração
-Antes da recuperação que descarta o histórico após duas retenções, tentar um movimento conjunto com progresso limitado a 125% do avanço oficial corrente para carros atrasados. Validar todos os pares por sobreposição e sweep, preservar poses visíveis e entradas imutáveis. Se a proposta for insegura, manter o solver de emergência existente. O percentual é uma hipótese visual, não um ajuste esportivo. O fallback ainda pode produzir saltos.
+Antes da recuperação que descarta o histórico após duas retenções, tentar um movimento conjunto com progresso limitado a 125% do avanço oficial corrente para carros atrasados. Validar todos os pares por sobreposição e sweep, preservar poses visíveis e entradas imutáveis. Se a proposta for insegura, manter o solver de emergência existente. Enquanto houver atraso, continuar a recuperação limitada nos quadros seguintes quando segura. O percentual é uma hipótese visual, não um ajuste esportivo. O fallback ainda pode produzir saltos.
 A instrumentação distingue recuperações graduais e ressincronizações. Nenhuma mudança no motor, RNG, revisão de replay ou classificação.
 
 ## Critérios para homologar

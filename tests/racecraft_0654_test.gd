@@ -77,6 +77,13 @@ func _initialize() -> void:
 	check(float(poses[0].progress)<float(cars[0].progress),"visual lag not silently discarded")
 	check(JSON.stringify(cars)==input and JSON.stringify(old)==old_snapshot,"recovery inputs immutable")
 	valid(poses,old)
+	# Continue recovering on subsequent frames rather than snap after one tick.
+	old = poses
+	cars = [car(0,18),car(1,38)]
+	poses = R.solve(cars,old,.5,sample)
+	check(bool(poses[0].get("gradual_recovery",false)),"bounded recovery continues while lag remains")
+	check(absf(float(poses[0].position.x)-10.0)<.01,"second catch-up also limited")
+	valid(poses,old)
 	# Reject a synchronized candidate whose bounded move would hit a rival.
 	cars = [car(0,0),car(1,6)]
 	poses = R.solve(cars,{},.5,sample)
