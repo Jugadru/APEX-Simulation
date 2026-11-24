@@ -177,9 +177,16 @@
         "tests/grid_placement_09173_test.gd",
         "tests/live_3d_replay_ab_09173_test.gd",
         "tests/motion_fixture_09173.gd",
-        "tools/apex_ci_isolated_test.sh"
+        "tools/apex_ci_isolated_test.sh",
+        "scripts/race_view_snapshot_0658.gd",
+        "tests/tick_presentation_09173_test.gd",
+        "tests/fixed_timeline_09173_test.gd"
       ],
       "fast_tests": [
+        {
+          "script": "tick_presentation_09173_test.gd",
+          "marker": "TICK_PRESENTATION_09173_PASS"
+        },
         {
           "script": "race_live_without_replay_09173_test.gd",
           "marker": "LIVE_WITHOUT_REPLAY_09173_PASS"

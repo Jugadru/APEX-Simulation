@@ -2,6 +2,7 @@ extends SceneTree
 const Codec = preload("res://scripts/core/race_state_codec_0660.gd")
 const Motion = preload("res://scripts/apex_racecraft_0654.gd")
 const FRAMES := 1875
+const Fixture = preload("res://tests/motion_fixture_09173.gd")
 const DELTA := 1.0/30.0
 var failures := 0
 func _initialize() -> void: call_deferred("run")
@@ -11,7 +12,7 @@ func percentile(values: Array, fraction: float) -> float:
 func run_case(host, code: String, record: bool) -> Dictionary:
 	for i in range(host.season_tracks.size()):
 		if str(host.season_tracks[i].code)==code: host.selected_track_index=i
-	host.seed_picker.value=42
+	Fixture.configure(host,"stock",42)
 	host.replay_recording_enabled=record
 	host._start_race()
 	host.set_process(false)

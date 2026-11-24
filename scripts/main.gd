@@ -747,9 +747,20 @@ func _car_by_id(car_id: int) -> Dictionary:
 func _end_to_menu() -> void:
 	RaceSessionController._end_to_menu(self)
 
+# Capture the last two completed sporting ticks, not just the last render.
+# The inventory observer keeps its original order and execution frequency.
+func _observe_live_tick(engine) -> void:
+	garage.inventory_observe(engine)
+	presentation.capture_completed_tick(engine.cars)
+
 func _process(delta: float) -> void:
 	if race == null or not game_root.visible:
 		return
+	if presentation_race != race:
+		presentation_race = race
+		presentation.reset()
+		presented_3d_revision = -1
+		presentation.capture_completed_tick(race.cars)
 	var perf_frame := Perf.begin() if Perf.enabled else 0
 	if Perf.enabled:
 		Perf.add_sample(&"frame.input_delta",int(delta*1000000))
@@ -763,9 +774,9 @@ func _process(delta: float) -> void:
 		# feedback loop: slow frame -> more owed ticks -> even slower frame.
 		# Every executed tick is still simulated and recorded in exact order.
 		if sim_speed >= 10.0:
-			replay_session.advance(delta, sim_speed, garage.inventory_observe, 12000, 6)
+			replay_session.advance(delta, sim_speed, _observe_live_tick, 12000, 6)
 		else:
-			replay_session.advance(delta, sim_speed, garage.inventory_observe)
+			replay_session.advance(delta, sim_speed, _observe_live_tick)
 		# 066724: inform the player about the *measured* acceleration,
 		# not the speed multiplier selected in the menu.
 		effective_speed_elapsed += maxf(0.0, delta)
@@ -785,10 +796,6 @@ func _process(delta: float) -> void:
 	RaceViewController.update_tracking(self, delta)
 	RaceViewController.update_free_navigation(self, delta)
 	var perf_visual := Perf.begin() if Perf.enabled else 0
-	if presentation_race != race:
-		presentation_race = race
-		presentation.reset()
-		presented_3d_revision = -1
 	# Render between two *real* simulation ticks. The sporting engine still uses
 	# 0.20s fixed steps; a stable fractional tick keeps cars moving at 1x and 5x.
 	# This is presentation-only and never feeds positions into RaceEngine/replay.

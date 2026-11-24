@@ -10,6 +10,9 @@ var frames: Array = []
 var by_id: Dictionary = {}
 var targets: Dictionary = {}
 var previous_targets: Dictionary = {} # 066721: previous completed sporting tick, for smooth render
+# Only scalar pose targets: bounded memory (two ticks), no replay archive.
+var completed_targets: Dictionary = {}
+var preceding_completed_targets: Dictionary = {}
 var revision: int = 0
 var sampled_route_revision: int = -1
 
@@ -19,7 +22,17 @@ func reset() -> void:
 	by_id.clear()
 	targets.clear()
 	previous_targets.clear()
+	completed_targets.clear()
+	preceding_completed_targets.clear()
 	revision += 1
+
+func capture_completed_tick(cars: Array) -> void:
+	var next: Dictionary = {}
+	for car in cars:
+		next[int(car.id)] = {"progress":float(car.progress),"lane":car.get("race_lane"),
+			"stage":str(car.get("pit_stage","none")),"finished":bool(car.get("finished",false))}
+	preceding_completed_targets = completed_targets
+	completed_targets = next
 
 func build(cars: Array, team: String, route: Object, delta: float, running: bool, tick_phase: float = -1.0) -> Array:
 	var route_revision: int = route.geometry_revision() if route.has_method("geometry_revision") else -1
@@ -56,8 +69,27 @@ func build(cars: Array, team: String, route: Object, delta: float, running: bool
 			# Replays can seek backwards, finish or teleport into pit lane.
 			# Never interpolate across these discontinuities.
 			next_prior = {"progress": progress, "lane": source.get("race_lane")}
+		# When the live scheduler executed multiple ticks before this render,
+		# interpolate only the actual last two ticks, never the last two frames.
+		var completed: Dictionary = completed_targets.get(id,{})
+		var preceding: Dictionary = preceding_completed_targets.get(id,{})
+		var exact_pair := tick_phase >= 0.0 and not completed.is_empty() and not preceding.is_empty() \
+			and float(completed.progress)==progress and completed.lane==source.get("race_lane") \
+			and completed.stage==str(source.get("pit_stage","none")) and completed.finished==bool(source.get("finished",false))
+		var pair_continuous := exact_pair and completed.stage==preceding.stage and completed.finished==preceding.finished \
+			and progress>=float(preceding.progress) and progress-float(preceding.progress)<0.05
+		if pair_continuous:
+			next_prior=preceding
+		elif exact_pair:
+			# Discontinuity at the most recent tick (pit/finish): snap only there.
+			next_prior=completed
 		next_previous[id] = next_prior
-		if continuous and running and float(source.get("pit_left", 0)) <= 0.001:
+		if pair_continuous and running and float(source.get("pit_left",0))<=0.001:
+			var alpha := clampf(tick_phase,0.0,1.0)
+			view.progress=lerpf(float(preceding.progress),progress,alpha)
+			if source.has("race_lane") and preceding.lane!=null:
+				view.race_lane=lerpf(float(preceding.lane),float(source.race_lane),alpha)
+		elif continuous and running and float(source.get("pit_left", 0)) <= 0.001:
 			if tick_phase >= 0.0 and not next_prior.is_empty():
 				var alpha: float = clampf(tick_phase, 0.0, 1.0)
 				view.progress = lerpf(float(next_prior.progress), progress, alpha)
