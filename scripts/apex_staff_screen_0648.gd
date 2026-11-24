@@ -47,7 +47,7 @@ static func _build_staff(host) -> void:
     outer.add_child(top)
     var title: Label = host._label(top, "EQUIPE & STAFF  /  GESTÃO HUMANA", 24, ORANGE)
     title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-    host._button(top, "← CENTRAL", host._open_garage, 130)
+    host._button(top, "← VOLTAR", host._navigate_back, 130)
     host._button(top, "MENU", host._show_menu, 90)
     var note: Label = host._label(outer,
         "Contratos, desenvolvimento humano e cultura da equipe.", 11, MUTED)
@@ -78,6 +78,7 @@ static func _build_staff(host) -> void:
     var separator := HSeparator.new()
     outer.add_child(separator)
     var scroller := ScrollContainer.new()
+    scroller.name = "StaffScroll"
     scroller.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
     scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
     outer.add_child(scroller)

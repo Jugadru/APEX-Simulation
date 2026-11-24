@@ -16,6 +16,27 @@ var staff_select: OptionButton
 var priority_select: OptionButton
 var part_ids: Array = []
 var staff_ids: Array = []
+var _form_team := ""
+var _drafts: Dictionary = {}
+
+func _remember_draft() -> void:
+	if not is_instance_valid(car_select) or not content.is_ancestor_of(car_select): return
+	var part: int = part_select.selected
+	var staff: int = staff_select.selected
+	_drafts[_form_team] = {"car":car_select.selected,"part":part_ids[part] if part >= 0 and part < part_ids.size() else "",
+		"service":service_select.selected,"staff":staff_ids[staff] if staff >= 0 and staff < staff_ids.size() else "",
+		"priority":priority_select.selected}
+
+func _restore_draft() -> void:
+	var draft: Dictionary = _drafts.get(_form_team, {})
+	if draft.is_empty(): return
+	car_select.select(clampi(int(draft.car),0,car_select.item_count-1))
+	service_select.select(clampi(int(draft.service),0,service_select.item_count-1))
+	priority_select.select(clampi(int(draft.priority),0,priority_select.item_count-1))
+	var part: int = part_ids.find(draft.part)
+	var staff: int = staff_ids.find(draft.staff)
+	if part >= 0: part_select.select(part)
+	if staff >= 0: staff_select.select(staff)
 func setup(parent: Node, manager) -> void:
 	hub = manager
 	body = UI.column(parent,10)
@@ -49,6 +70,8 @@ func option(parent: Node, items: Array) -> OptionButton:
 	parent.add_child(select)
 	return select
 func refresh() -> void:
+	_remember_draft()
+	_form_team = str(hub.host.selected_team)
 	for child in content.get_children():
 		content.remove_child(child)
 		child.queue_free()
@@ -91,6 +114,7 @@ func refresh() -> void:
 		staff_select = option(second,labels)
 		priority_select = option(second,["Prioridade baixa","Prioridade normal","Prioridade alta"])
 		priority_select.selected = 1
+		_restore_draft()
 		UI.button(second,"Reservar serviço",create_task,true).disabled = staff_ids.is_empty()
 		UI.label(form,"Inspeção 2h / R$1.200 • Preventiva 6h / R$5.000 • Reparação 12h / R$12.000 • Troca 4h / R$2.500 • Preparação 8h / R$6.000 • Verificação 3h / R$1.800. Tempo ajustado pela competência.",13,UI.MUTED)
 		for t in w.tasks:

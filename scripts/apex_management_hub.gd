@@ -30,6 +30,7 @@ var team_text: RichTextLabel
 var reports_text: RichTextLabel
 var workshop
 var dashboards
+var content_scroll: ScrollContainer
 var current_page := "research"
 var current_tab := "active"
 
@@ -60,6 +61,7 @@ func setup(scene_host) -> void:
     var scroll := ScrollContainer.new()
     scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
     padding.add_child(scroll)
+    content_scroll = scroll
     var content := UI.column(scroll,14)
     page_title = UI.label(content,"P&D — Pesquisa e Desenvolvimento",32)
     page_subtitle = UI.label(content,"Desenvolva seu carro e prepare a equipe para a próxima etapa.",18,UI.MUTED)
@@ -115,6 +117,7 @@ func _sidebar(parent: Node) -> void:
         item.expand_icon = true
         item.toggle_mode = true
         nav_buttons[key] = item
+    UI.button(column,"Voltar",host._navigate_back)
     var back := UI.button(column,"Menu principal",host._show_menu)
     back.icon = preload("res://assets/ui_icons/back.svg")
     UI.label(column,"GESTÃO • ESTRATÉGIA\nPERFORMANCE",12,UI.ORANGE)
@@ -229,10 +232,10 @@ func _other_pages(parent: Node) -> void:
     for mode in [["Automática",0],["Completa",1],["Compacta",2],["Cinema",3]]:
         UI.button(pages["settings"],mode[0],host._change_hud_layout.bind(mode[1]))
     UI.label(pages["settings"],"A seleção é salva nas preferências existentes da HUD e será aplicada na corrida.",17,UI.MUTED)
+    UI.button(pages["settings"],"Performance Profiler 1.0 (F8)",host._open_performance_profiler)
 
 func show_development() -> void:
     show_page("research")
-    UI.button(pages["settings"],"Performance Profiler 1.0 (F8)",host._open_performance_profiler)
     show_research_tab("development")
 
 func open_configuration() -> void:

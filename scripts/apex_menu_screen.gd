@@ -178,7 +178,7 @@ static func _build_menu(host) -> void:
 	host.menu_actions = VBoxContainer.new()
 	host.menu_actions.add_theme_constant_override("separation", 0)
 	menu_column.add_child(host.menu_actions)
-	host.start_button = host._button(host.menu_actions, "▶  INICIAR CORRIDA  /  ENTRAR NO GRID", host._start_race)
+	host.start_button = host._button(host.menu_actions, "▶  INICIAR CORRIDA  /  ENTRAR NO GRID", host._request_start_race)
 	host.start_button.name = "StartRaceButton"
 	host.start_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	host.start_button.custom_minimum_size = Vector2(0, 52)

@@ -449,24 +449,19 @@ func _update_weather_briefing() -> void:
 func _build_garage() -> void:
 	GarageScreen._build_garage(self)
 
+var navigation = preload("res://scripts/presentation/apex_navigation_09176.gd").new()
+
 func _open_garage() -> void:
-	if replay_ui != null and replay_session != null and replay_session.playback: replay_ui.leave()
-	garage.inventory_observe(race, true)
-	menu_root.hide()
-	garage_root.show()
-	staff_root.hide()
-	game_root.hide()
-	_update_garage()
+	navigation.open(self, "garage")
 
 func _open_staff() -> void:
-	if replay_ui != null and replay_session != null and replay_session.playback: replay_ui.leave()
-	menu_root.hide()
-	garage_root.hide()
-	game_root.hide()
-	staff_root.show()
-	staff_notice.text = "Selecione um profissional ou uma ação de equipe."
-	_refresh_staff()
-	_layout_ui()
+	navigation.open(self, "staff")
+
+func _navigate_back() -> void:
+	navigation.back(self)
+
+func _resume_live_race() -> void:
+	navigation.resume_race(self)
 
 func _refresh_staff() -> void:
 	StaffScreen._refresh_staff(self)
@@ -566,6 +561,8 @@ func _quick_tv() -> void:
 		director.override_focus(manual_driver, race.clock)
 
 func _show_menu() -> void:
+	navigation.remember_race_context(self)
+	navigation.clear_history()
 	if replay_ui != null and replay_session != null and replay_session.playback:
 		replay_ui.leave()
 	garage.inventory_observe(race, true)
@@ -631,8 +628,17 @@ func _set_engineer_driver_mode(car_id: int, mode: String) -> void:
 func _open_pre_race_strategy() -> void:
 	PreRaceStrategy06495.show(self)
 
+func _request_start_race() -> void:
+	# Only the visible preparation screen may emit a new-session request.
+	if start_button.is_visible_in_tree() and not game_root.visible:
+		_start_race()
+
 func _start_race() -> void:
+	var previous = race
 	RaceSessionController._start_race(self)
+	if race != previous and game_root.visible:
+		navigation.clear_history()
+		navigation.forget_race_context()
 
 func _rebuild_player_cards() -> void:
 	RaceUiLegacyCards._rebuild_player_cards(self)

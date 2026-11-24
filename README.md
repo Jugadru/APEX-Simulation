@@ -1,8 +1,8 @@
-# APEX Motorsport Manager — Core 2 v0.6.6.9.17.5 (candidata)
+# APEX Motorsport Manager — Core 2 v0.6.6.9.17.6 (candidata)
 
-**Candidata desta branch:** Driver HUD Restoration. A HUD de corrida existente é preservada: identidade gráfica neutra e local no cabeçalho de cada cartão, sem restaurar HUD antiga, sem retratos externos e sem alteração esportiva. [Escopo](docs/APEX_RELEASE_v0.6.6.9.17.5_DRIVER_HUD.md). A versão distribuída permanece 9.17.4 até homologação.
+**Candidata desta branch:** Navigation Hotfix. Retorno à tela de origem, contexto de corrida, rolagem e seleções da oficina preservados; sem alteração esportiva, HUD ou retratos. [Escopo e testes](docs/APEX_RELEASE_v0.6.6.9.17.6_NAVIGATION.md).
 
-**Versão integrada: v0.6.6.9.17.4 — Competitive Start & Traffic Intelligence.** [PR #117](https://github.com/Jugadru/APEX-Simulation/pull/117) integrado em 24/11/2026; merge `603998a` com árvore idêntica ao SHA homologado `7ed25d3`. FAST, regressões visuais e matriz esportiva: **26/26 jobs PASS**. [Notas técnicas](docs/APEX_RELEASE_v0.6.6.9.17.4_COMPETITIVE_TRAFFIC.md).
+**Versão integrada: v0.6.6.9.17.5 — Driver Portrait Restoration.** [PR #118](https://github.com/Jugadru/APEX-Simulation/pull/118), merge `d431bab`. Retratos privados opcionais; não redistribuir fotografias sem licença. A 9.17.6 permanece candidata até homologação.
 
 A convergência preventiva antes de estreitamentos eliminou as 7 amostras estacionárias esportivas observadas nos 24 cenários testados, sem diminuir as 25 ultrapassagens reais. O grid, a interpolação da 9.17.3, as regras de 2012 e a gravação de replay desligada por padrão permanecem. A frequência de carros lado a lado ainda requer melhorias futuras.
 
