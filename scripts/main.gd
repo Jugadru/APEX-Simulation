@@ -424,6 +424,7 @@ func _on_team_selected(index: int) -> void:
 		return
 	if index >= 0 and index < teams.size():
 		selected_team = str(teams[index]["name"])
+		MenuScreen.refresh_preparation(self)
 
 func _on_track_selected(index: int) -> void:
 	if championship_mode:
@@ -431,6 +432,7 @@ func _on_track_selected(index: int) -> void:
 	selected_track_index = clampi(index, 0, maxi(0, season_tracks.size() - 1))
 	_update_tyre_briefing()
 	_update_weather_briefing()
+	MenuScreen.refresh_preparation(self)
 
 func _update_tyre_briefing() -> void:
 	if tyre_briefing_label == null or season_tracks.is_empty():
@@ -595,6 +597,7 @@ func _single_race_mode() -> void:
 
 func _update_championship_menu() -> void:
 	ChampionshipFlow._update_championship_menu(self)
+	MenuScreen.refresh_preparation(self)
 
 func _show_championship_table() -> void:
 	ChampionshipFlow._show_championship_table(self)
@@ -607,6 +610,7 @@ func _commit_championship_result() -> void:
 
 func _select_pre_race_team_mode(index: int) -> void:
 	RaceCommands._select_pre_race_team_mode(self, index)
+	MenuScreen.refresh_preparation(self)
 
 func _select_live_team_mode(index: int) -> void:
 	RaceCommands._select_live_team_mode(self, index)

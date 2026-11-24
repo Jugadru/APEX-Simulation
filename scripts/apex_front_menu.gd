@@ -1,5 +1,6 @@
 extends Control
 ## Entry menu: live features and the recovered roadmap are labelled separately.
+const Prep = preload("res://scripts/presentation/apex_season_preparation_09179.gd")
 const Layout = preload("res://scripts/presentation/apex_main_menu_layout_09178.gd")
 const MenuSkin = preload("res://scripts/apex_hud_theme.gd")
 const INK := Color("#090b0e")
@@ -123,11 +124,28 @@ func configuration(title: String) -> void:
     host._update_championship_menu()
     host._layout_ui()
 
+# Returning from P&D is not a request to create a new season or reset a GP.
+func return_to_preparation() -> void:
+    var was_preparing: bool = host.menu_root.get_node("MenuCard").visible
+    var scroll: int = host.menu_scroll.scroll_vertical
+    var title: String = "GP AVULSO / PREPARAÇÃO"
+    if was_preparing and is_instance_valid(configuration_title):
+        title = configuration_title.text
+    elif host.championship_mode:
+        title = "STANDARD / TEMPORADA SALVA"
+    elif Prep.find(host).drafting:
+        title = "STANDARD / PREPARAÇÃO DA TEMPORADA"
+    host._show_menu()
+    configuration(title)
+    if was_preparing:
+        host.menu_scroll.set_deferred("scroll_vertical", scroll)
+
 func control_mode(index: int) -> void:
     host.pre_race_team_mode_picker.select(index)
     host._select_pre_race_team_mode(index)
 
 func open_standard() -> void:
+    Prep.find(host).prepare_new()
     control_mode(0)
     configuration("STANDARD / PREPARAÇÃO DA TEMPORADA")
 
@@ -138,7 +156,7 @@ func continue_season() -> void:
         host._show_championship_table()
 
 func open_sandbox() -> void:
-    host._single_race_mode()
+    Prep.find(host).prepare_gp()
     host.weather_mode_picker.select(0)
     host.pit_test_picker.select(0)
     control_mode(0)
@@ -176,7 +194,7 @@ func apply_preset(index: int) -> void:
     if index < 0 or index >= PRESETS.size():
         return
     var preset: Dictionary = PRESETS[index]
-    host._single_race_mode()
+    Prep.find(host).prepare_gp()
     for track_index in range(host.season_tracks.size()):
         if str(host.season_tracks[track_index].get("code", "")) == str(preset["code"]):
             host.track_picker.select(track_index)

@@ -343,6 +343,23 @@
         {"script": "navigation_09176_test.gd", "marker": "NAVIGATION_09176_PASS"}
       ],
       "checks": []
+    },
+    {
+      "id": "season_preparation_09179",
+      "paths": [
+        "scripts/apex_menu_screen.gd",
+        "scripts/apex_front_menu.gd",
+        "scripts/presentation/apex_season_preparation_09179.gd",
+        "scripts/apex_race_ui_layout.gd",
+        "tests/season_preparation_09179_test.gd"
+      ],
+      "fast_tests": [
+        {"script": "season_preparation_09179_test.gd", "marker": "SEASON_PREPARATION_09179_PASS"},
+        {"script": "front_menu_test.gd", "marker": "FRONT_MENU_PASS"},
+        {"script": "navigation_09176_test.gd", "marker": "NAVIGATION_09176_PASS"},
+        {"script": "core_0600_championship_smoke_test.gd", "marker": "PASS 0600"}
+      ],
+      "checks": []
     }
   ]
 }

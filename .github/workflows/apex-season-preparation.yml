@@ -1,0 +1,45 @@
+name: APEX - Season Preparation Rework validation
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'scripts/apex_front_menu.gd'
+      - 'scripts/apex_menu_screen.gd'
+      - 'scripts/presentation/apex_season_preparation_09179.gd'
+      - 'scripts/apex_race_ui_layout.gd'
+      - 'tests/season_preparation_09179_test.gd'
+      - '.github/workflows/apex-season-preparation.yml'
+permissions:
+  contents: read
+jobs:
+  native-preparation:
+    if: github.head_ref == 'feat/v0.6.6.9.17.9-season-preparation'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      LIBGL_ALWAYS_SOFTWARE: '1'
+      GALLIUM_DRIVER: llvmpipe
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+        with:
+          version: 4.7.2-stable
+      - run: sudo apt-get update && sudo apt-get install -y xvfb libgl1 libgl1-mesa-dri
+      - run: |
+          set -euo pipefail
+          mkdir -p qa/season_preparation_09179
+          bash tools/apex_ci_import.sh qa/season_preparation_09179/import.log
+          sandbox="$(mktemp -d)"
+          trap 'rm -rf -- "$sandbox"' EXIT
+          export HOME="$sandbox/home" XDG_DATA_HOME="$sandbox/data" XDG_CONFIG_HOME="$sandbox/config" XDG_CACHE_HOME="$sandbox/cache" XDG_STATE_HOME="$sandbox/state"
+          mkdir -p "$HOME" "$XDG_DATA_HOME" "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME" "$XDG_STATE_HOME"
+          timeout 300s xvfb-run -a -s '-screen 0 1920x1080x24' godot --path . --rendering-method gl_compatibility --rendering-driver opengl3 --audio-driver Dummy --script res://tests/season_preparation_09179_test.gd 2>&1 | tee qa/season_preparation_09179/native.log
+          grep -Fq SEASON_PREPARATION_09179_PASS qa/season_preparation_09179/native.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' qa/season_preparation_09179/native.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apex-season-preparation-native
+          path: qa/season_preparation_09179/
+          retention-days: 14
