@@ -10,8 +10,8 @@ static func _layout_ui(host) -> void:
 	if host.menu_root != null:
 		var menu_card: Control = host.menu_root.get_node("MenuCard")
 		# Responsive menu: enough width for the controls, while fitting small laptops.
-		var menu_width: float = minf(1220.0, maxf(300.0, sz.x - 32.0))
-		var menu_height: float = minf(760.0, maxf(280.0, sz.y - 28.0))
+		var menu_width: float = minf(1720.0, maxf(300.0, sz.x - 32.0))
+		var menu_height: float = minf(960.0, maxf(280.0, sz.y - 28.0))
 		menu_card.position = Vector2((sz.x - menu_width) * 0.5, maxf(12.0, (sz.y - menu_height) * 0.5))
 		menu_card.size = Vector2(menu_width, menu_height)
 		# On narrow screens, reclaim the decorative sidebar for the form.

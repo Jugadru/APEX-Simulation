@@ -10,8 +10,8 @@ config_version=5
 
 [application]
 
-config/name="APEX Motorsport Manager v0.6.6.9.17.8 — Core 2"
-config/description="v0.6.6.9.17.8: Main Menu Rework — central de comando e identidade visual (Godot 4.7.2)."
+config/name="APEX Motorsport Manager v0.6.6.9.17.9 — Core 2"
+config/description="v0.6.6.9.17.9: Season Preparation Rework — equipe, dupla e condições iniciais (Godot 4.7.2)."
 run/main_scene="res://scenes/main.tscn"
 config/use_custom_user_dir=true
 config/custom_user_dir_name="APEX_0650_SOUL_STAFF"
