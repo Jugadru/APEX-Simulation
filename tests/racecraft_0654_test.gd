@@ -61,46 +61,16 @@ func _initialize() -> void:
 	var input := JSON.stringify(cars)
 	R.solve(cars,{},.016,sample)
 	check(JSON.stringify(cars)==input,"race data immutable")
-	# A delayed visual pose uses bounded adaptive recovery, rather than
-	# teleporting to its official target.
-	cars = [car(0,0),car(1,30)]
-	poses = R.solve(cars,{},.5,sample)
-	poses[0].hold_frames = 2
-	poses[0].official_progress = car(0,10).progress
-	old = poses
-	cars = [car(0,14),car(1,34)]
-	input = JSON.stringify(cars)
-	var old_snapshot := JSON.stringify(old)
-	poses = R.solve(cars,old,.5,sample)
-	check(bool(poses[0].get("gradual_recovery",false)),"bounded recovery used")
-	check(absf(float(poses[0].position.x)-6.5)<.01,"adaptive catch-up limited to 6.5 units")
-	check(float(poses[0].progress)<float(cars[0].progress),"visual lag not silently discarded")
-	check(JSON.stringify(cars)==input and JSON.stringify(old)==old_snapshot,"recovery inputs immutable")
-	valid(poses,old)
-	# Continue recovering on subsequent frames rather than snap after one tick.
-	old = poses
-	cars = [car(0,18),car(1,38)]
-	poses = R.solve(cars,old,.5,sample)
-	check(bool(poses[0].get("gradual_recovery",false)),"bounded recovery continues while lag remains")
-	check(absf(float(poses[0].position.x)-12.375)<.01,"second catch-up accounts for reduced lag")
-	valid(poses,old)
-	# Reject a synchronized candidate whose bounded move would hit a rival.
-	cars = [car(0,0),car(1,6)]
-	poses = R.solve(cars,{},.5,sample)
-	poses[0].hold_frames = 2
-	poses[0].official_progress = car(0,10).progress
-	cars = [car(0,14),car(1,6.5)]
-	var resolved := {0:sample(cars[0],0.0,0.0),1:sample(cars[1],0.0,0.0)}
-	check(R.gradual_candidate(cars[0],poses,resolved,sample).is_empty(),"unsafe catch-up rejected")
-	# A collision between unrelated endpoints cannot veto a local candidate.
-	cars = [car(0,0),car(1,30),car(2,100),car(3,110)]
-	poses = R.solve(cars,{},.5,sample)
-	poses[0].hold_frames = 2
-	poses[0].official_progress = car(0,10).progress
-	cars = [car(0,14),car(1,34),car(2,105),car(3,106)]
-	resolved = {}
-	for c in cars:
-		resolved[int(c.id)] = sample(c,0.0,0.0)
-	check(not R.gradual_candidate(cars[0],poses,resolved,sample).is_empty(),"unrelated pair cannot veto local recovery")
-	if failures==0: print("RACECRAFT_PASS attacker / defense / no overlap / continuous sweep / traffic / narrow road / pause / immutable / bounded recovery")
+	# The default envelope remains intact for legacy poses. A measured visual
+	# footprint is explicit per pose, not a global reduction in collision safety.
+	var a := sample(car(0,0),0.0,0.0)
+	var b := sample(car(1,5),0.0,0.0)
+	check(R.overlaps(a,b),"legacy envelope unchanged")
+	for p in [a,b]:
+		p["half_length"] = 2.40
+		p["half_width"] = 1.25
+	check(not R.overlaps(a,b),"padded scaled meshes have clearance at five units")
+	b.position = Vector2(4.7,0)
+	check(R.overlaps(a,b),"scaled mesh contact still rejected")
+	if failures==0: print("RACECRAFT_PASS attacker / defense / no overlap / continuous sweep / traffic / narrow road / pause / immutable")
 	quit(0 if failures==0 else 1)

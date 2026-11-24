@@ -15,12 +15,13 @@ func run() -> void:
 			if str(host.season_tracks[i].code) == code: host.selected_track_index = i
 		host._start_race()
 		host.race.running = true
-		var baseline: Dictionary = host.world_view.occupation.duplicate(true)
-		var prior_policy: Dictionary = baseline.duplicate(true)
-		var prior_policy_max_step := 0.0
-		var prior_policy_held := 0
-		var anchor_divergences := 0
-		var max_anchor_displacement := 0.0
+		# Reconstruct the same official grid using the original visual envelope.
+		var grid: Array = host.race.cars.duplicate(true)
+		for car in grid:
+			car.route_point = host.map_view.point_on_track(car.progress)
+			car.route_direction = host.map_view.direction_on_track(car.progress)
+		host.world_view.pose_anchors.clear()
+		var baseline: Dictionary = R.solve(grid,{},0.0,host.world_view._sample_occupied_pose_legacy)
 		var worst_jump: Dictionary = {}
 		var baseline_max_step := 0.0
 		var baseline_max_resync_step := 0.0
@@ -28,6 +29,7 @@ func run() -> void:
 		var baseline_held := 0
 		var baseline_stationary := 0
 		var baseline_longest := 0
+		var baseline_collisions := 0
 		var baseline_runs: Dictionary = {}
 		var times: Array = []
 		var held: int = 0
@@ -43,7 +45,6 @@ func run() -> void:
 		var max_stationary := 0
 		var stationary_samples := 0
 		var resynced_samples := 0
-		var gradual_samples := 0
 		var max_frame_distance := 0.0
 		var max_resync_distance := 0.0
 		var motion_distances: Array = []
@@ -61,22 +62,11 @@ func run() -> void:
 			var poses: Dictionary = host.world_view.occupation
 			# Exactly the same authoritative snapshots and geometry for both solvers.
 			var prior_baseline := baseline
-			baseline = R.solve(cars,prior_baseline,.5,host.world_view._sample_occupied_pose_legacy,false)
-			var old_policy := prior_policy
-			prior_policy = R.solve(cars,old_policy,.5,host.world_view._sample_occupied_pose_legacy,true,1)
-			for id in prior_policy:
-				if bool(prior_policy[id].get("held",false)): prior_policy_held += 1
-				if tick > 0 and old_policy.has(id):
-					prior_policy_max_step = maxf(prior_policy_max_step,Vector2(prior_policy[id].position).distance_to(Vector2(old_policy[id].position)))
-			for car in cars:
-				if not R.eligible(car): continue
-				var nominal: Dictionary = host.world_view._sample_occupied_pose(car,float(car.get("race_lane",0.0)),0.0)
-				var legacy_nominal: Dictionary = host.world_view._sample_occupied_pose_legacy(car,float(car.get("race_lane",0.0)),0.0)
-				var anchor_difference := Vector2(nominal.position).distance_to(Vector2(legacy_nominal.position))
-				if anchor_difference > 0.01: anchor_divergences += 1
-				max_anchor_displacement = maxf(max_anchor_displacement,anchor_difference)
+			baseline = R.solve(cars,prior_baseline,.5,host.world_view._sample_occupied_pose_legacy)
 			for id in baseline:
 				var legacy_pose: Dictionary = baseline[id]
+				for other in baseline:
+					if int(id) < int(other) and R.overlaps(legacy_pose,baseline[other]): baseline_collisions += 1
 				if bool(legacy_pose.get("resynced",false)): baseline_resync += 1
 				if bool(legacy_pose.get("held",false)):
 					baseline_held += 1
@@ -92,7 +82,6 @@ func run() -> void:
 			for id in poses:
 				var p: Dictionary = poses[id]
 				if bool(p.get("resynced",false)): resynced_samples += 1
-				if bool(p.get("gradual_recovery",false)): gradual_samples += 1
 				if previous_positions.has(id):
 					var displacement: float = Vector2(p.position).distance_to(previous_positions[id])
 					if displacement > max_frame_distance:
@@ -131,17 +120,15 @@ func run() -> void:
 		motion_distances.sort()
 		var total: int = 0
 		for t in times: total += int(t)
-		results.append({"code":code,"seed":int(host.seed_picker.value),"ticks":times.size(),"mean_us":float(total)/float(times.size()),"p95_us":times[int(floor(float(times.size()-1)*.95))],"p99_us":times[int(floor(float(times.size()-1)*.99))],"max_us":times[-1],"held":held,"stationary_samples":stationary_samples,"max_stationary":max_stationary,"max_step_meters":max_frame_distance,"max_resync_step_meters":max_resync_distance,"p95_step_meters":motion_distances[int(floor(float(motion_distances.size()-1)*.95))] if not motion_distances.is_empty() else 0.0,"resynced":resynced_samples,"gradual_recovery":gradual_samples,"baseline_max_step":baseline_max_step,"prior_policy_max_step":prior_policy_max_step,"prior_policy_held":prior_policy_held,"anchor_divergences":anchor_divergences,"max_anchor_displacement":max_anchor_displacement,"worst_jump":worst_jump,"baseline_max_resync_step":baseline_max_resync_step,"baseline_resynced":baseline_resync,"baseline_held":baseline_held,"baseline_stationary":baseline_stationary,"baseline_longest_held":baseline_longest,"longest_held_consecutive":longest,"collisions":collisions,"collisions_detail":collisions_detail,"max_progress_lag":max_lag,"lag_count":lag_count,"long_holds":reported})
+		results.append({"code":code,"seed":int(host.seed_picker.value),"ticks":times.size(),"mean_us":float(total)/float(times.size()),"p95_us":times[int(floor(float(times.size()-1)*.95))],"p99_us":times[int(floor(float(times.size()-1)*.99))],"max_us":times[-1],"held":held,"stationary_samples":stationary_samples,"max_stationary":max_stationary,"max_step_meters":max_frame_distance,"max_resync_step_meters":max_resync_distance,"p95_step_meters":motion_distances[int(floor(float(motion_distances.size()-1)*.95))] if not motion_distances.is_empty() else 0.0,"resynced":resynced_samples,"baseline_max_step":baseline_max_step,"worst_jump":worst_jump,"baseline_max_resync_step":baseline_max_resync_step,"baseline_resynced":baseline_resync,"baseline_held":baseline_held,"baseline_stationary":baseline_stationary,"baseline_longest_held":baseline_longest,"baseline_collisions":baseline_collisions,"longest_held_consecutive":longest,"collisions":collisions,"collisions_detail":collisions_detail,"max_progress_lag":max_lag,"lag_count":lag_count,"long_holds":reported})
 	# Paired quality gate: no new collisions or old stationary violations;
-	# actual recovery must occur in Monaco and the worst jump must not grow.
+	# Actual improvement must occur in Monaco and the worst jump must not grow.
 	# Other venues must not regress in worst jump (small float tolerance).
 	var quality_failures: Array[String] = []
 	for row in results:
 		if float(row.max_step_meters) > float(row.baseline_max_step) + 0.01:
 			quality_failures.append(str(row.code)+": worst visual jump increased")
 		if str(row.code) == "MON":
-			if selected_seed == 42 and int(row.gradual_recovery) == 0:
-				quality_failures.append("MON: gradual recovery never used in native race")
 			if selected_seed == 42 and int(row.resynced) >= int(row.baseline_resynced) and float(row.max_step_meters) >= float(row.baseline_max_step)-0.01:
 				quality_failures.append("MON: no reduction in emergency resyncs or worst jump")
 			if int(row.stationary_samples) > int(row.baseline_stationary):

@@ -63,7 +63,9 @@ static func eligible(car: Dictionary) -> bool:
 	return float(car.get("pit_left",0))<=.001 and not bool(car.get("finished",false)) and car.has("route_point") and car.has("route_direction")
 
 static func radius(pose: Dictionary, axis: Vector2) -> float:
-	return absf(pose.direction.dot(axis))*HALF_LENGTH + absf(normal(pose.direction).dot(axis))*HALF_WIDTH
+	# Old fixtures and legacy A/B retain the original conservative envelope.
+	# Live meshes provide their measured padded bounds in presentation units.
+	return absf(pose.direction.dot(axis))*float(pose.get("half_length",HALF_LENGTH)) + absf(normal(pose.direction).dot(axis))*float(pose.get("half_width",HALF_WIDTH))
 
 static func overlaps(a: Dictionary,b: Dictionary) -> bool:
 	var delta: Vector2 = a.position-b.position
@@ -146,65 +148,7 @@ static func pending_old_clearance(pose: Dictionary, car_id: int,
 				- (rival.position - pose.position).dot(pose.direction) + 0.1)
 	return step
 
-# Refine only a delayed car's already-resolved safe endpoint. The rest of
-# the grid retains the legacy solver's decisions; unrelated conflicts cannot
-# veto recovery. Check every neighbour's old and final pose before committing.
-static func gradual_candidate(car: Dictionary, previous: Dictionary,
-		resolved: Dictionary, sample: Callable, policy: int = 2) -> Dictionary:
-	var id := int(car.id)
-	if not previous.has(id) or not resolved.has(id):
-		return {}
-	var old: Dictionary = previous[id]
-	var target: Dictionary = resolved[id]
-	if not old.has("official_progress"):
-		return {}
-	var official_step := float(car.progress) - float(old.official_progress)
-	if official_step <= 0.0:
-		return {}
-	var lag := maxf(0.0,float(old.official_progress)-float(old.progress))
-	var stalled := int(old.get("hold_frames",0)) >= MAX_CONSECUTIVE_VISUAL_HOLDS or bool(old.get("gradual_pending",false))
-	# The largest jump can occur on an ordinary retreat release, not only a
-	# flagged emergency rebase. Do not ignore a car with accumulated lag.
-	if not stalled and (policy != 2 or lag < official_step):
-		return {}
-	# Recover a quarter of the outstanding lag per update, with bounded
-	# extra speed. This avoids prolonged 125%-only recovery in a convoy.
-	var rate := 1.25 if policy == 1 else clampf(1.0 + 0.25*lag/official_step,1.25,2.5)
-	var lane := float(target.lane)
-	var origin: Dictionary = sample.call(car,lane,0.0)
-	var probe: Dictionary = sample.call(car,lane,1.0)
-	var scale := float(origin.progress)-float(probe.progress)
-	if scale <= 0.000000001:
-		return {}
-	var bound := float(old.progress)+rate*official_step
-	# If the legacy solver already respects the bound, keep its safe pose.
-	if float(target.progress) <= bound:
-		return {}
-	var retreat := maxf(0.0,(float(origin.progress)-bound)/scale)
-	var pose: Dictionary = sample.call(car,lane,retreat)
-	var displacement := Vector2(pose.position).distance_to(Vector2(old.position))
-	var budget := rate*official_step/scale+absf(float(pose.lane)-float(old.lane))+0.1
-	if displacement < 0.015 or displacement > budget or displacement >= Vector2(target.position).distance_to(Vector2(old.position)):
-		return {}
-	for other in resolved:
-		if int(other)==id:
-			continue
-		if overlaps(pose,resolved[other]):
-			return {}
-		if previous.has(other) and (overlaps(old,previous[other]) or swept(old,pose,previous[other],resolved[other])):
-			return {}
-	pose["held"] = retreat > 0.0
-	pose["hold_frames"] = 0
-	pose["resynced"] = false
-	pose["gradual_recovery"] = true
-	pose["gradual_pending"] = retreat > 0.0001
-	pose["visible"] = true
-	pose["intent_lane"] = target.get("intent_lane",lane)
-	pose["target_id"] = int(car.get("combat_target_id",-1))
-	pose["official_progress"] = float(car.progress)
-	return pose
-
-static func solve(cars: Array,previous: Dictionary,dt: float,sample: Callable, refine: bool = true, policy: int = 2) -> Dictionary:
+static func solve(cars: Array,previous: Dictionary,dt: float,sample: Callable) -> Dictionary:
 	var active := []
 	var active_ids := {}
 	for car in cars:
@@ -284,20 +228,4 @@ static func solve(cars: Array,previous: Dictionary,dt: float,sample: Callable, r
 		pose["target_id"] = int(car.get("combat_target_id",-1))
 		pose["progress"] = float(pose.get("progress",car.progress))
 		result[id] = pose
-	# Keep the last authoritative progress even when the visual pose is held.
-	# All result poses are fresh samples or copies from the rollback path.
-	for car in active:
-		var id := int(car.id)
-		if result.has(id):
-			var final_pose: Dictionary = result[id]
-			final_pose["official_progress"] = float(car.progress)
-			final_pose["gradual_recovery"] = false
-			# Continue the budget on later frames if a prior gradual move left lag.
-			final_pose["gradual_pending"] = bool(previous.get(id,{}).get("gradual_pending",false)) and float(final_pose.progress) < float(car.progress)-0.0000001
-			result[id] = final_pose
-	if refine and dt > 0.0:
-		for car in active:
-			var candidate := gradual_candidate(car,previous,result,sample,policy)
-			if not candidate.is_empty():
-				result[int(car.id)] = candidate
 	return result

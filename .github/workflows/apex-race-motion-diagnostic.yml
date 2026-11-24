@@ -39,6 +39,9 @@ jobs:
           mkdir -p motion-results
           timeout 240s godot --headless --single-threaded-scene --path . --import 2>&1 | tee motion-results/import.log
           ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' motion-results/import.log
+          timeout 240s godot --headless --single-threaded-scene --path . --script res://tests/car_model_smoke_test.gd 2>&1 | tee motion-results/mesh.log
+          grep -Fq 'APEX CAR MODEL TEST OK' motion-results/mesh.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' motion-results/mesh.log
           timeout 240s godot --headless --single-threaded-scene --path . --script res://tests/visual_stutter_06672_benchmark.gd 2>&1 | tee motion-results/benchmark.log
           grep -Fq 'VISUAL_STUTTER_06672_BENCHMARK' motion-results/benchmark.log
           ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' motion-results/benchmark.log

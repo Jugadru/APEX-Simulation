@@ -170,9 +170,15 @@
         "scripts/apex_racecraft_0654.gd",
         "scripts/track_3d.gd",
         "tests/race_start_3d_sync_0669171_test.gd",
-        "tests/visual_stutter_06672_benchmark.gd"
+        "tests/visual_stutter_06672_benchmark.gd",
+        "scripts/car_model_3d.gd",
+        "tests/car_model_smoke_test.gd"
       ],
       "fast_tests": [
+        {
+          "script": "car_model_smoke_test.gd",
+          "marker": "APEX CAR MODEL TEST OK"
+        },
         {
           "script": "race_start_competitive_0669172_test.gd",
           "marker": "COMPETITIVE_START_09172_PASS"
