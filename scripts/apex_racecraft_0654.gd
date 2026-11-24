@@ -120,10 +120,39 @@ static func blocked(pose: Dictionary, old: Dictionary, accepted: Dictionary, pre
 		if not old.is_empty() and previous.has(other) and swept(old,pose,previous[other],rival): return true
 	return false
 
+# A rebased car cannot treat an unprocessed rival's LAST accepted visual pose
+# as free track: that rival may still have to hold/rollback into it later in
+# this same solver pass. This was the 9.17 Monaco tick-34 resync overlap.
+# The guard is presentation-only and runs ONLY for a car after two visual holds.
+static func pending_old_overlap(pose: Dictionary, car_id: int,
+		previous: Dictionary, accepted: Dictionary, active_ids: Dictionary) -> bool:
+	for other_id in previous:
+		if int(other_id) == car_id or accepted.has(other_id) or not active_ids.has(other_id):
+			continue
+		if overlaps(pose, previous[other_id]):
+			return true
+	return false
+
+static func pending_old_clearance(pose: Dictionary, car_id: int,
+		previous: Dictionary, accepted: Dictionary, active_ids: Dictionary) -> float:
+	var step := 0.8
+	for other_id in previous:
+		if int(other_id) == car_id or accepted.has(other_id) or not active_ids.has(other_id):
+			continue
+		var rival: Dictionary = previous[other_id]
+		if overlaps(pose, rival):
+			step = maxf(step, radius(pose, pose.direction)
+				+ radius(rival, pose.direction)
+				- (rival.position - pose.position).dot(pose.direction) + 0.1)
+	return step
+
 static func solve(cars: Array,previous: Dictionary,dt: float,sample: Callable) -> Dictionary:
 	var active := []
+	var active_ids := {}
 	for car in cars:
-		if eligible(car): active.append(car)
+		if eligible(car):
+			active.append(car)
+			active_ids[int(car.id)] = true
 	if dt<=0 and not previous.is_empty():
 		var frozen := {}
 		for car in active:
@@ -147,15 +176,18 @@ static func solve(cars: Array,previous: Dictionary,dt: float,sample: Callable) -
 	for car in active:
 		var id := int(car.id)
 		var old: Dictionary = history.get(id,{})
+		var recovering: bool = old.is_empty() and previous.has(id)
 		var from := float(old.get("lane",lanes[id]))
 		var lane := float(lanes[id]) if car.has("race_lane") else (lerpf(from,float(lanes[id]),1.0-exp(-3.8*maxf(0,dt))) if not old.is_empty() else float(lanes[id]))
 		var pose: Dictionary = sample.call(car,lane,0.0)
 		var retreat := 0.0
-		while blocked(pose,old,result,history) and retreat<240:
+		while (blocked(pose,old,result,history) or (recovering and pending_old_overlap(pose,id,previous,result,active_ids))) and retreat<240:
 			var step := .8
 			for other in result:
 				if overlaps(pose,result[other]):
 					step = maxf(step,radius(pose,pose.direction)+radius(result[other],pose.direction)-(result[other].position-pose.position).dot(pose.direction)+.1)
+			if recovering:
+				step = maxf(step, pending_old_clearance(pose,id,previous,result,active_ids))
 			retreat += step
 			pose = sample.call(car,lane,retreat)
 			if not old.is_empty() and float(pose.get("progress",car.progress))<float(old.progress): break
