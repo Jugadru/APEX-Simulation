@@ -103,9 +103,10 @@ func _run() -> void:
 	check(float(nominal.cars[0].progress) >= float(legacy.cars[0].progress),
 		"new grid preserves poleman's starting line")
 	check(absf(float(narrow.cars[0].race_lane)) < 0.001
-		and absf(float(monza_grid.cars[0].race_lane)) < 0.001
 		and absf(float(spa_grid.cars[0].race_lane)) < 0.001,
-		"Monaco/Monza/Spa first-corner pinches keep safe old grid spacing")
+		"Monaco/Spa narrow opening uses safe old grid spacing")
+	check(absf(float(monza_grid.cars[0].race_lane)) > 2.90,
+		"Monza keeps staggered grid until safe chicane convergence")
 
 	var first = Race.new(season["teams"],"Ferrari",6617,{},gbr,{})
 	var recording = Replay.new()
@@ -166,8 +167,8 @@ func _run() -> void:
 				"attempts_old":before.attempts,"attempts_new":after.attempts}
 			reports.append(report)
 			print("COMPETITIVE_START_09172_CASE ", JSON.stringify(report))
-	check(scenarios_where_start_is_different > 0,
-		"new version changes REAL sporting classification in at least one full-field scenario")
+	check(scenarios_where_start_is_different >= 2,
+		"at least two full-field racing scenarios change classification, not just a single circuit")
 	check(scenarios_with_new_position > 0,
 		"at least one race has genuine changes against its grid")
 	check(scenarios_with_pass > 0,
