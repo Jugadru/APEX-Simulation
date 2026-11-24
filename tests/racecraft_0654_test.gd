@@ -61,5 +61,28 @@ func _initialize() -> void:
 	var input := JSON.stringify(cars)
 	R.solve(cars,{},.016,sample)
 	check(JSON.stringify(cars)==input,"race data immutable")
-	if failures==0: print("RACECRAFT_PASS attacker / defense / no overlap / continuous sweep / traffic / narrow road / pause / immutable")
+	# A delayed visual pose recovers at most 125% of the current official
+	# progress increment, rather than teleporting to its official target.
+	cars = [car(0,0),car(1,30)]
+	poses = R.solve(cars,{},.5,sample)
+	poses[0].hold_frames = 2
+	poses[0].official_progress = car(0,10).progress
+	old = poses
+	cars = [car(0,14),car(1,34)]
+	input = JSON.stringify(cars)
+	var old_snapshot := JSON.stringify(old)
+	poses = R.solve(cars,old,.5,sample)
+	check(bool(poses[0].get("gradual_recovery",false)),"bounded recovery used")
+	check(absf(float(poses[0].position.x)-5.0)<.01,"catch-up limited to five units")
+	check(float(poses[0].progress)<float(cars[0].progress),"visual lag not silently discarded")
+	check(JSON.stringify(cars)==input and JSON.stringify(old)==old_snapshot,"recovery inputs immutable")
+	valid(poses,old)
+	# Reject a synchronized candidate whose bounded move would hit a rival.
+	cars = [car(0,0),car(1,6)]
+	poses = R.solve(cars,{},.5,sample)
+	poses[0].hold_frames = 2
+	poses[0].official_progress = car(0,10).progress
+	cars = [car(0,14),car(1,6.5)]
+	check(R.gradual_recovery(cars,poses,R.targets(cars,poses),.5,sample).is_empty(),"unsafe catch-up rejected")
+	if failures==0: print("RACECRAFT_PASS attacker / defense / no overlap / continuous sweep / traffic / narrow road / pause / immutable / bounded recovery")
 	quit(0 if failures==0 else 1)

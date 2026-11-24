@@ -146,6 +146,71 @@ static func pending_old_clearance(pose: Dictionary, car_id: int,
 				- (rival.position - pose.position).dot(pose.direction) + 0.1)
 	return step
 
+# Try a synchronized, bounded catch-up before discarding any visual history.
+# All endpoints AND pairwise sweeps must be safe; otherwise use the existing
+# occupation solver unchanged. No sporting state or RNG is touched.
+static func gradual_recovery(active: Array, previous: Dictionary, lanes: Dictionary,
+		dt: float, sample: Callable) -> Dictionary:
+	if dt <= 0.0 or active.size() != previous.size():
+		return {}
+	var needs_recovery := false
+	for car in active:
+		var id := int(car.id)
+		if not previous.has(id):
+			return {}
+		if int(previous[id].get("hold_frames", 0)) >= MAX_CONSECUTIVE_VISUAL_HOLDS:
+			needs_recovery = true
+	if not needs_recovery:
+		return {}
+	var proposed := {}
+	for car in active:
+		var id := int(car.id)
+		var old: Dictionary = previous[id]
+		var recovering := int(old.get("hold_frames", 0)) >= MAX_CONSECUTIVE_VISUAL_HOLDS
+		var official := float(car.progress)
+		var lane := float(lanes[id])
+		if not car.has("race_lane"):
+			lane = lerpf(float(old.get("lane", lane)), lane, 1.0-exp(-3.8*dt))
+		var pose: Dictionary = sample.call(car, lane, 0.0)
+		var retreat := 0.0
+		if recovering:
+			if not old.has("official_progress"):
+				return {}
+			var official_step := official - float(old.official_progress)
+			if official_step <= 0.0:
+				return {}
+			# Estimate the route scale from the existing sampler contract:
+			# retreat is in presentation units, progress is unwrapped laps.
+			var probe: Dictionary = sample.call(car, lane, 1.0)
+			var progress_per_unit := float(pose.progress) - float(probe.progress)
+			if progress_per_unit <= 0.000000001:
+				return {}
+			var bounded_progress := minf(official, float(old.progress) + 1.25 * official_step)
+			retreat = maxf(0.0, (float(pose.progress) - bounded_progress) / progress_per_unit)
+			pose = sample.call(car, lane, retreat)
+			var displacement := Vector2(pose.position).distance_to(Vector2(old.position))
+			var budget := 1.25 * official_step / progress_per_unit + absf(float(pose.lane)-float(old.lane)) + 0.1
+			if displacement < 0.015 or displacement > budget:
+				return {}
+		if float(pose.progress) < float(old.progress) - 0.000000001:
+			return {}
+		for other in proposed:
+			if overlaps(old, previous[other]) or overlaps(pose, proposed[other]) \
+					or swept(old, pose, previous[other], proposed[other]):
+				return {}
+		pose["held"] = retreat > 0.0
+		pose["hold_frames"] = 0 if Vector2(pose.position).distance_to(Vector2(old.position)) >= 0.015 else int(old.get("hold_frames", 0)) + 1
+		if int(pose.hold_frames) > MAX_CONSECUTIVE_VISUAL_HOLDS:
+			return {}
+		pose["resynced"] = false
+		pose["gradual_recovery"] = recovering
+		pose["visible"] = true
+		pose["intent_lane"] = float(lanes[id])
+		pose["target_id"] = int(car.get("combat_target_id", -1))
+		pose["official_progress"] = official
+		proposed[id] = pose
+	return proposed
+
 static func solve(cars: Array,previous: Dictionary,dt: float,sample: Callable) -> Dictionary:
 	var active := []
 	var active_ids := {}
@@ -167,6 +232,9 @@ static func solve(cars: Array,previous: Dictionary,dt: float,sample: Callable) -
 		if history.has(id) and int(history[id].get("hold_frames",0)) >= MAX_CONSECUTIVE_VISUAL_HOLDS:
 			history.erase(id)
 	var lanes := targets(active,previous)
+	var smooth := gradual_recovery(active,previous,lanes,dt,sample)
+	if not smooth.is_empty():
+		return smooth
 	# Preserve the preceding frame's order while a pass is spatially blocked.
 	active.sort_custom(func(a,b):
 		var ap := float(history.get(int(a.id),{}).get("progress",a.progress))
@@ -226,4 +294,13 @@ static func solve(cars: Array,previous: Dictionary,dt: float,sample: Callable) -
 		pose["target_id"] = int(car.get("combat_target_id",-1))
 		pose["progress"] = float(pose.get("progress",car.progress))
 		result[id] = pose
+	# Keep the last authoritative progress even when the visual pose is held.
+	# Copy rollback poses before annotating; previous is read-only.
+	for car in active:
+		var id := int(car.id)
+		if result.has(id):
+			var final_pose: Dictionary = result[id].duplicate()
+			final_pose["official_progress"] = float(car.progress)
+			final_pose["gradual_recovery"] = false
+			result[id] = final_pose
 	return result

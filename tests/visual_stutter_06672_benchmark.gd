@@ -27,6 +27,7 @@ func run() -> void:
 		var max_stationary := 0
 		var stationary_samples := 0
 		var resynced_samples := 0
+		var gradual_samples := 0
 		var max_frame_distance := 0.0
 		var max_resync_distance := 0.0
 		var motion_distances: Array = []
@@ -45,6 +46,7 @@ func run() -> void:
 			for id in poses:
 				var p: Dictionary = poses[id]
 				if bool(p.get("resynced",false)): resynced_samples += 1
+				if bool(p.get("gradual_recovery",false)): gradual_samples += 1
 				if previous_positions.has(id):
 					var displacement: float = Vector2(p.position).distance_to(previous_positions[id])
 					max_frame_distance = maxf(max_frame_distance,displacement)
@@ -81,6 +83,6 @@ func run() -> void:
 		motion_distances.sort()
 		var total: int = 0
 		for t in times: total += int(t)
-		results.append({"code":code,"ticks":times.size(),"mean_us":float(total)/float(times.size()),"p95_us":times[int(floor(float(times.size()-1)*.95))],"p99_us":times[int(floor(float(times.size()-1)*.99))],"max_us":times[-1],"held":held,"stationary_samples":stationary_samples,"max_stationary":max_stationary,"max_step_meters":max_frame_distance,"max_resync_step_meters":max_resync_distance,"p95_step_meters":motion_distances[int(floor(float(motion_distances.size()-1)*.95))] if not motion_distances.is_empty() else 0.0,"resynced":resynced_samples,"longest_held_consecutive":longest,"collisions":collisions,"collisions_detail":collisions_detail,"max_progress_lag":max_lag,"lag_count":lag_count,"long_holds":reported})
+		results.append({"code":code,"ticks":times.size(),"mean_us":float(total)/float(times.size()),"p95_us":times[int(floor(float(times.size()-1)*.95))],"p99_us":times[int(floor(float(times.size()-1)*.99))],"max_us":times[-1],"held":held,"stationary_samples":stationary_samples,"max_stationary":max_stationary,"max_step_meters":max_frame_distance,"max_resync_step_meters":max_resync_distance,"p95_step_meters":motion_distances[int(floor(float(motion_distances.size()-1)*.95))] if not motion_distances.is_empty() else 0.0,"resynced":resynced_samples,"gradual_recovery":gradual_samples,"longest_held_consecutive":longest,"collisions":collisions,"collisions_detail":collisions_detail,"max_progress_lag":max_lag,"lag_count":lag_count,"long_holds":reported})
 	print("VISUAL_STUTTER_06672_BENCHMARK ",JSON.stringify({"results":results,"failures":failures}))
 	quit(0 if failures == 0 else 1)
