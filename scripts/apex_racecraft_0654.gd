@@ -166,11 +166,15 @@ static func try_official_motion(active: Array, previous: Dictionary, sample: Cal
 	var nominal := {}
 	var maximum_arc := 0.0
 	var maximum_lane := 0.0
+	var sweep_cap := 32
 	for car in active:
 		if not car.has("race_lane"): return {}
 		var id := int(car.id)
 		var pose: Dictionary = sample.call(car,float(car.race_lane),0.0)
 		if not pose.has("route_length"): return {}
+		# Only a route with explicit presentation metadata may request
+		# additional samples; never enlarge the per-sample displacement.
+		sweep_cap = maxi(sweep_cap, clampi(int(pose.get("arc_sweep_max_steps",32)),32,64))
 		if previous.has(id):
 			var old: Dictionary = previous[id]
 			if float(pose.progress)+0.00000001 < float(old.progress): return {}
@@ -188,7 +192,7 @@ static func try_official_motion(active: Array, previous: Dictionary, sample: Cal
 	# the actual arc, using the exact same road sampler as the model.
 	if previous.size()!=nominal.size() or not simultaneous_clear({},nominal): return {}
 	var count := maxi(2,int(ceil(maxf(maximum_arc,maximum_lane)/1.0)))
-	if count>32: return {}
+	if count>sweep_cap: return {}
 	# Never claim a route sweep unless its first sample reproduces the
 	# actual preceding accepted pose, including lane and heading.
 	for car in active:

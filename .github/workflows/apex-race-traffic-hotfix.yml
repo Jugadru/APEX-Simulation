@@ -14,6 +14,7 @@ on:
       - 'tests/traffic_visual_ab_09177_test.gd'
       - 'tests/traffic_space_ab_09177_test.gd'
       - 'tests/traffic_arc_09177_test.gd'
+      - 'tests/traffic_road_width_09177_test.gd'
       - 'tests/race_traffic_full_gp_09177_test.gd'
       - 'tests/legacy/*baseline_09177.gd'
       - '.github/workflows/apex-race-traffic-hotfix.yml'
@@ -64,6 +65,9 @@ jobs:
           bash tools/apex_ci_isolated_test.sh fixed_timeline_09173_test.gd 2>&1 | tee motion.log
           grep -Fq FIXED_TIMELINE_09173_PASS motion.log
           ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' motion.log
+          bash tools/apex_ci_isolated_test.sh traffic_road_width_09177_test.gd 2>&1 | tee road-width.log
+          grep -Fq TRAFFIC_ROAD_WIDTH_09177_PASS road-width.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' road-width.log
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -71,6 +75,7 @@ jobs:
           path: |
             import.log
             motion.log
+            road-width.log
           retention-days: 14
   visual-ab:
     if: github.head_ref == 'fix/v0.6.6.9.17.7-race-traffic'
@@ -134,12 +139,23 @@ jobs:
         include:
           - seed: 42
             climate: Seco
+            track: MON
+            pipeline: fixed
           - seed: 6558
             climate: Seco
+            track: MON
+            pipeline: fixed
           - seed: 6617
             climate: Chuva intensa
+            track: MON
+            pipeline: fixed
+          - seed: 6558
+            climate: Seco
+            track: BEL
+            pipeline: host
     env:
-      APEX_VISUAL_TRACK: MON
+      APEX_VISUAL_TRACK: ${{ matrix.track }}
+      APEX_ARC_PIPELINE: ${{ matrix.pipeline }}
       APEX_TRAFFIC_SEED: ${{ matrix.seed }}
       APEX_ARC_CLIMATE: ${{ matrix.climate }}
     steps:
@@ -156,7 +172,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: apex-arc-${{ matrix.seed }}
+          name: apex-arc-${{ matrix.track }}-${{ matrix.seed }}-${{ matrix.pipeline }}
           path: |
             import.log
             arc.log

@@ -318,10 +318,14 @@
         "scripts/core/race_replay_0660.gd",
         "scripts/core/race_state_codec_0660.gd",
         "scripts/race_engine.gd",
-        "tests/race_traffic_hotfix_09177_test.gd"
+        "tests/race_traffic_hotfix_09177_test.gd",
+        "tests/traffic_road_width_09177_test.gd",
+        "scripts/track_3d.gd",
+        "scripts/apex_racecraft_0654.gd"
       ],
       "fast_tests": [
         {"script": "race_traffic_hotfix_09177_test.gd", "marker": "TRAFFIC_09177_PASS"},
+        {"script": "traffic_road_width_09177_test.gd", "marker": "TRAFFIC_ROAD_WIDTH_09177_PASS"},
         {"script": "sim_space_0655_test.gd", "marker": "SIM_SPACE_PASS"}
       ],
       "checks": []

@@ -40,23 +40,35 @@ func run() -> void:
 		quit(1)
 		return
 	host.race.running=true
+	var host_pipeline: bool = OS.get_environment("APEX_ARC_PIPELINE") == "host"
+	var frames: int = 240 if host_pipeline else 360
 	var previous: Dictionary={}
 	var chord_alerts:=0;var arc_alerts:=0;var endpoints:=0;var bad_anchors:=0;var checks:=0;var coverage:=0;var discontinuities:=0
 	var reversals:=0
 	var elapsed_sim:=0.0
 	var max_lag:=0.0;var max_hold:=0;var stationary:=0
-	for frame in range(360):
+	for frame in range(frames):
 		host.sim_speed=1.0 if frame<120 else (16.0 if frame<240 else 32.0)
-		elapsed_sim+=host.sim_speed/30.0
-		while host.replay_session.tick<int(floor(elapsed_sim/0.2+0.0000001)):
-			if not host.replay_session.step_tick():
-				printerr("TRAFFIC_ARC_TICK_FAIL")
+		var draw: Array=[]
+		if host_pipeline:
+			host._process(1.0/30.0)
+			if host.render_mode != 1 or not host.presented_3d_active:
+				printerr("TRAFFIC_ARC_HOST_3D_INACTIVE")
 				quit(1)
 				return
-			host._observe_live_tick(host.race)
-		var phase: float=clampf((elapsed_sim-float(host.replay_session.tick)*0.2)/0.2,0.0,1.0)
-		var draw: Array=host.presentation.build(host.race.cars,host.selected_team,host.map_view,1.0/30.0,true,phase)
-		host.world_view.set_race_cars(draw,host.focused_id,1.0/30.0)
+			for id in host.world_view.previous_nominal:
+				draw.append({"id":id,"progress":host.world_view.previous_nominal[id].progress})
+		else:
+			elapsed_sim+=host.sim_speed/30.0
+			while host.replay_session.tick<int(floor(elapsed_sim/0.2+0.0000001)):
+				if not host.replay_session.step_tick():
+					printerr("TRAFFIC_ARC_TICK_FAIL")
+					quit(1)
+					return
+				host._observe_live_tick(host.race)
+			var phase: float=clampf((elapsed_sim-float(host.replay_session.tick)*0.2)/0.2,0.0,1.0)
+			draw=host.presentation.build(host.race.cars,host.selected_team,host.map_view,1.0/30.0,true,phase)
+			host.world_view.set_race_cars(draw,host.focused_id,1.0/30.0)
 		var poses: Dictionary=host.world_view.occupation
 		var world=host.world_view
 		var ids: Array=[]
@@ -115,9 +127,9 @@ func run() -> void:
 		previous=poses
 	var min_width: float=INF
 	for width in host.world_view.road_widths: min_width=minf(min_width,float(width))
-	var result: Dictionary={"min_road_half_width":min_width,"climate":climate,"world_scale":host.world_view.visual_world_scale,"track":track_code,"seed":seed_value,"frames":360,"coverage":coverage,"pair_substeps":checks,"chord_alerts":chord_alerts,"arc_alerts":arc_alerts,"endpoint_overlaps":endpoints,"bad_anchors":bad_anchors,"discontinuities":discontinuities,"reverse_arc":reversals,"max_lag":max_lag,"stationary":stationary,"max_hold":max_hold,"hash":Codec.sporting_hash(host.race,host.replay_session.policy)}
+	var result: Dictionary={"min_road_half_width":min_width,"climate":climate,"world_scale":host.world_view.visual_world_scale,"track":track_code,"seed":seed_value,"frames":frames,"pipeline":"host" if host_pipeline else "fixed","ticks":host.replay_session.tick,"coverage":coverage,"pair_substeps":checks,"chord_alerts":chord_alerts,"arc_alerts":arc_alerts,"endpoint_overlaps":endpoints,"bad_anchors":bad_anchors,"discontinuities":discontinuities,"reverse_arc":reversals,"max_lag":max_lag,"stationary":stationary,"max_hold":max_hold,"hash":Codec.sporting_hash(host.race,host.replay_session.policy)}
 	print("TRAFFIC_ARC_09177_REPORT ",JSON.stringify(result))
-	if arc_alerts==0 and endpoints==0 and bad_anchors==0 and reversals==0 and checks>0 and discontinuities==0 and coverage==24*359 and max_hold<=2 and max_lag<32.0:
+	if (track_code!="MON" or min_width>=host.world_view.MONACO_MIN_ASPHALT_HALF_WIDTH-0.000001) and arc_alerts==0 and endpoints==0 and bad_anchors==0 and reversals==0 and checks>0 and discontinuities==0 and coverage==24*(frames-1) and host.replay_session.tick>100 and max_hold<=2 and max_lag<32.0:
 		print("TRAFFIC_ARC_09177_PASS")
 		quit(0)
 	else: quit(1)
