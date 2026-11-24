@@ -1,6 +1,10 @@
-# APEX Motorsport Manager — Core 2 (código v0.6.6.9.17, candidato)
+# APEX Motorsport Manager — Core 2 v0.6.6.9.17.3
 
-**Código candidato nesta branch: v0.6.6.9.17 — Largada 2.0.** Avalia trânsito do grid e cautela na aproximação da primeira curva com base no corredor ocupado, estreitamento do traçado e chuva. A `main` de referência ainda está na 9.16 e o último **binário jogável verificado continua sendo o 9.16**. O código 9.17 deve passar pelo FAST + APEX Test Lab antes do merge. [Escopo e testes](docs/APEX_RELEASE_v0.6.6.9.17_LARGADA_2.md).
+**Versão integrada: v0.6.6.9.17.3 — Race Motion Refinement.** [PR #116](https://github.com/Jugadru/APEX-Simulation/pull/116) integrada em 24/11/2026; merge `e8ab858` com árvore idêntica ao SHA homologado `aee1cea`. FAST + APEX Test Lab e diagnóstico de movimento: **22/22 jobs PASS**. [Notas técnicas](docs/APEX_RELEASE_v0.6.6.9.17.3_RACE_MOTION_REFINEMENT.md).
+
+A atualização corrige o grid P1–P24, a faixa visual de largada, o envelope de ocupação dos carros, a interpolação por ticks reais e os intervalos visuais longos. A gravação de replay fica suspensa por padrão, sem remover o controle esportivo ou alterar o determinismo. A auditoria separa recursos históricos e dados dos testes.
+
+**Download 9.17.3:** exportação Linux e Windows em preparação a partir do merge homologado. A [rotina de exportação](https://github.com/Jugadru/APEX-Simulation/actions/workflows/apex-export-desktop.yml) verifica PCKs, ZIPs, hashes e inicialização Linux antes de publicar. Até a publicação, use os downloads verificados abaixo. O [código-fonte integrado](https://github.com/Jugadru/APEX-Simulation/archive/e8ab8586fe3f7ec6cf93e1f87d53e9eac17c36f3.zip) já está disponível (não é executável).
 
 
 ### ✅ Política oficial permanente: FAST + APEX Test Lab
@@ -16,11 +20,11 @@
 **Para colaboradores e assistentes de código:** consultar também [AGENTS.md](AGENTS.md) e o [guia do FAST permanente](docs/APEX_CI_INTELIGENTE_TRES_NIVEIS.md). **Não restaurar a política antiga de FULL obrigatório sem nova decisão explícita do projeto.**
 
 
-**Última compilação jogável para TESTES: v0.6.6.9.16 — Linux e Windows x86_64.** Gerada em 23/11/2026 com Godot 4.7.2, identidade 9.16 confirmada nos dois PCKs e inicialização Linux headless aprovada. **[⬇ Baixar APEX 9.16 para testar](https://github.com/Jugadru/APEX-Simulation/actions/runs/45268711293/artifacts/14863723230)** (artefato externo com os ZIPs de Linux e Windows; pode exigir login GitHub; expira em **07/12/2026**).
+**Compilação jogável anterior para TESTES: v0.6.6.9.16 — Linux e Windows x86_64.** Gerada em 23/11/2026 com Godot 4.7.2, identidade 9.16 confirmada nos dois PCKs e inicialização Linux headless aprovada. **[⬇ Baixar APEX 9.16 para testar](https://github.com/Jugadru/APEX-Simulation/actions/runs/45268711293/artifacts/14863723230)** (artefato externo com os ZIPs de Linux e Windows; pode exigir login GitHub; expira em **07/12/2026**).
 
 **Última release oficial permanente: v0.6.6.9.9 — Race Quality Release.** Publicada em 22/11/2026 para Windows e Linux x86_64. Os ZIPs e a tag dessa release continuam disponíveis, sem alterações.
 
-> **Importante:** a `main` contém código até a **9.16** e a build jogável **9.16** já está disponível para teste como artefato temporário do GitHub Actions. Isso **não é uma GitHub Release permanente**. Para baixar sem prazo de expiração, a release oficial mais recente ainda é a 9.9. Para desenvolver, abra `project.godot` da `main`.
+> **Importante:** a `main` contém a 9.17.3 homologada; a build anterior 9.16 é um artefato temporário. A distribuição 9.17.3 só será indicada como disponível depois da exportação validada. Para desenvolver, abra `project.godot` da `main`.
 
 ### Evolução do código após a release 9.9
 
@@ -33,13 +37,17 @@
 | 9.14 | Setup & Track Knowledge — 20 perfis de pista de 2012, recomendações qualitativas e consulta `SETUP/PISTA` no HUD |
 | **9.15** | **Performance & Race Polish** — cache dos perfis estáticos de pista na HUD, preservando clima, pneus e BOX manuais |
 | **9.16** | **Race Gaps & Overtaking 2.0 (1ª etapa)** — métrica `DIST. PISTA` com proximidade física no HUD: F=frente, T=trás, unidades esquemáticas (não tempo cronometrado); carro retardatário também conta, sem mudar a física/replay. [Detalhes](docs/APEX_RELEASE_v0.6.6.9.16_RACE_GAPS_OVERTAKING.md) |
-| **9.17 — CANDIDATA** | **Largada 2.0** — cautela causal na saída e primeira curva, com trânsito, chuva, largura e replay 024 versionado. [Detalhes](docs/APEX_RELEASE_v0.6.6.9.17_LARGADA_2.md) |
+| **9.17** | **Largada 2.0** — cautela causal na saída e primeira curva, com trânsito, chuva, largura e replay 024 versionado. [Detalhes](docs/APEX_RELEASE_v0.6.6.9.17_LARGADA_2.md) |
 
-Na 9.14, o setup é **consultivo**: não aplica ajustes de asa/suspensão nem muda ordens de box. A 9.16 utiliza a revisão esportiva `023_overtaking_intelligence_v1`; a candidata 9.17 passa para `024_race_start_spatial_v1` e mantém os replays históricos sob suas revisões originais.
+| **9.17.1** | Sincronização da apresentação 3D na largada. |
+| **9.17.2** | Largada competitiva e regras esportivas revisadas. |
+| **9.17.3** | **Race Motion Refinement** — grid numerado, ocupação calibrada, interpolação e subpassos visuais, replay opt-in e isolamento dos testes. [Detalhes](docs/APEX_RELEASE_v0.6.6.9.17.3_RACE_MOTION_REFINEMENT.md) |
+
+Na 9.14, o setup é **consultivo**: não aplica ajustes de asa/suspensão nem muda ordens de box. A 9.16 utiliza a revisão esportiva `023_overtaking_intelligence_v1`; a 9.17 introduz `024_race_start_spatial_v1`, e a 9.17.2/9.17.3 preserva a revisão de largada competitiva 025. A gravação ao vivo fica desligada por padrão na 9.17.3; o controlador de ticks e o teste histórico de replay permanecem.
 
 **Desenvolvimento atual:** somente **FAST + APEX Test Lab + regressões direcionadas** automaticamente. Matriz 20/180, endurance, comparações, exportações e Quality Gate histórico são executados manualmente quando solicitados. Consulte o [guia FAST](docs/APEX_CI_INTELIGENTE_TRES_NIVEIS.md).
 
-## 📥 Baixar o jogo — v0.6.6.9.16 (prévia para teste)
+## 📦 Build anterior — v0.6.6.9.16 (prévia para teste)
 
 ### [⬇ Baixar APEX 9.16 — Linux e Windows x86_64](https://github.com/Jugadru/APEX-Simulation/actions/runs/45268711293/artifacts/14863723230)
 
@@ -87,7 +95,7 @@ A exportação Windows foi validada, mas **não** executada em um PC Windows nat
 
 A PR [#90 — HUD](https://github.com/Jugadru/APEX-Simulation/pull/90) foi integrada antes da release, e as PRs [#87 — QA](https://github.com/Jugadru/APEX-Simulation/pull/87) e [#88 — Publicação](https://github.com/Jugadru/APEX-Simulation/pull/88) também foram integradas. A tag `v0.6.6.9.9` e seus ZIPs permanecem imutáveis; atualizações de documentação e descrição no ramo `main` feitas depois da publicação não alteram os pacotes já lançados.
 
-**Funcionalidade candidata nesta branch:** v9.17 — Largada 2.0. Ainda requer CI FAST + APEX Test Lab; não há ZIP 9.17 validado nesta etapa. O último pacote jogável comprovado permanece o 9.16.
+**Versão atual da main:** v9.17.3 homologada e integrada; consulte a seção inicial para o estado dos novos downloads.
 
 ---
 
@@ -204,7 +212,7 @@ Código **integrado à `main` na [PR #79](https://github.com/Jugadru/APEX-Simula
 
 ## 🗺️ Situação do desenvolvimento após a 9.9
 
-As versões **9.10 (Strategy Staff), 9.11 (Race Start), 9.12 (Overtaking), 9.13 (Race Engineer), 9.14 (Setup & Track Knowledge) e 9.15 (Performance & Race Polish)** já foram integradas à `main`. Isso não significa que foram publicadas novas GitHub Releases para Windows/Linux. Para baixar o jogo pronto, a última release continua sendo **9.9**.
+As versões 9.10 a 9.17.3 já foram integradas à `main`. Consulte a seção inicial para a distribuição atual; releases e artefatos históricos continuam disponíveis conforme seus respectivos prazos.
 
 Próximas mudanças: uma funcionalidade principal, FAST + APEX Test Lab e testes específicos. Homologação extensa apenas quando solicitada. Pendências conhecidas: [32× sustentado — #74](https://github.com/Jugadru/APEX-Simulation/issues/74) e [ressincronização visual — #77](https://github.com/Jugadru/APEX-Simulation/issues/77).
 
@@ -250,7 +258,7 @@ Esse link abre o **artefato de build corrigido da versão v0.6.6.9.1**: dentro d
 
 Esse segundo link aponta para o **commit definitivo da `main` que integrou a correção da versão**, preservando o mesmo código executável do pacote validado; o artefato binário foi construído no commit candidato descrito acima. Use-o para **editar o jogo no Godot**; não substitui os executáveis de Windows/Linux.
 
-### [⬇ Última Release pública permanente — v0.6.6.8.10](https://github.com/Jugadru/APEX-Simulation/releases/tag/v0.6.6.8.10-core2-current)
+### [⬇ Release histórica — v0.6.6.8.10](https://github.com/Jugadru/APEX-Simulation/releases/tag/v0.6.6.8.10-core2-current)
 
 A Release pública acima é da **v0.6.6.8.10**, **não** contém a otimização 3D da v0.6.6.9.1. Serve como alternativa estável de download quando o artefato temporário expirar, até que a versão 9.1 seja publicada oficialmente.
 
