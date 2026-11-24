@@ -23,6 +23,12 @@ const CircuitDetailScript = preload("res://scripts/apex_circuit_detail_0629.gd")
 # v0.5.1.27 drew very broad quads using a *different* tangent for every
 # little segment: the corners tore open into long, thin triangles.
 const WORLD_SCALE: float = 0.60
+# Monaco's compressed visual centerline produces hairpins narrower than
+# the actual car footprint. Only the 3D display scale changes; the 2D map,
+# sporting arc, circuit length, classification and model dimensions stay.
+const MONACO_VISUAL_WORLD_SCALE: float = 0.90
+const MONACO_MIN_ASPHALT_HALF_WIDTH: float = CarModelScript.OCCUPATION_HALF_WIDTH + 0.20
+var visual_world_scale: float = WORLD_SCALE
 const ROAD_HALF: float = 4.40
 const SHOULDER_MULTIPLIER: float = 1.18
 const RUNOFF_MULTIPLIER: float = 1.38
@@ -32,6 +38,7 @@ const CURB_BLOCK_METERS: float = 1.3
 var road_centers: Array[Vector3] = []
 var road_normals: Array[Vector3] = []
 var road_widths: Array[float] = []
+var road_outer_widths: Array[float] = []
 var road_distances: Array[float] = []
 
 var world_environment_3d: WorldEnvironment
@@ -130,6 +137,7 @@ func set_track_data(track: PackedVector2Array, title: String, teams: Array = [],
 			old_car.queue_free()
 	route = track.duplicate()
 	course_name = title
+	visual_world_scale = MONACO_VISUAL_WORLD_SCALE if title == "Circuit de Monaco" else WORLD_SCALE
 	var palette: Dictionary = CircuitSceneryScript.palette_for(title)
 	if world_environment_3d != null and world_environment_3d.environment != null:
 		world_environment_3d.environment.background_color = Color(str(palette["sky"]))
@@ -172,11 +180,23 @@ func set_race_cars(cars: Array, selected_id: int, motion_delta: float = -1.0) ->
 	var delta: float = maxf(0.0, get_process_delta_time() if motion_delta < 0.0 else motion_delta)
 	pose_anchors.clear()
 	var perf_occupation := Perf.begin() if Perf.enabled else 0
+	var prior_occupation: Dictionary = occupation if Perf.enabled else {}
+	var prior_nominal: Dictionary = previous_nominal if Perf.enabled else {}
 	occupation = BattleMotion.solve_interval(cars,occupation,delta,_sample_occupied_pose,previous_nominal)
 	previous_nominal = BattleMotion.nominal_history(cars)
 	if Perf.enabled:
 		Perf.end(&"visual.occupancy",perf_occupation)
-		for pose in occupation.values():
+		for id in occupation:
+			var pose: Dictionary = occupation[id]
+			if delta>0.0 and prior_occupation.has(id) and prior_nominal.has(id) and previous_nominal.has(id):
+				var before: Dictionary = prior_nominal[id]
+				var after: Dictionary = previous_nominal[id]
+				if before.stage==after.stage:
+					var arc_step: float = (float(after.progress)-float(before.progress))*float(pose.get("route_length",0.0))
+					if arc_step>=0.015 and Vector2(pose.position).distance_squared_to(Vector2(prior_occupation[id].position))<0.015*0.015:
+						Perf.count(&"visual.traffic_nominal_advancing_stalled")
+					elif arc_step>=0.0 and arc_step<0.015:
+						Perf.count(&"visual.traffic_nominal_low_advance")
 			if int(pose.get("hold_frames",0)) > 0:
 				Perf.count(&"visual.occupancy_stalled_car_frames")
 			if bool(pose.get("resynced",false)):
@@ -380,6 +400,9 @@ func _sample_occupied_pose(car: Dictionary, requested_lane: float, retreat: floa
 	var perf_result_32 = {"position":Vector2(position.x,position.z),"direction":Vector2(direction.x,direction.z),"lane":lane,"progress":float(car.progress)-retreat/maxf(total,1)}
 	perf_result_32["road_half_width"] = width
 	perf_result_32["route_length"] = total
+	perf_result_32["arc_distance"] = distance
+	if not road_outer_widths.is_empty():
+		perf_result_32["arc_sweep_max_steps"] = 64
 	perf_result_32["half_length"] = CarModelScript.OCCUPATION_HALF_LENGTH
 	perf_result_32["half_width"] = CarModelScript.OCCUPATION_HALF_WIDTH
 	if Perf.enabled: Perf.end(&"route.3d_occupied_pose",perf_started)
@@ -529,7 +552,7 @@ func _apply_camera() -> void:
 	camera_3d.look_at(camera_look_target, Vector3.UP)
 
 func _to_world(p: Vector2) -> Vector3:
-	return Vector3((p.x - 550.0) * WORLD_SCALE, 0.0, (p.y - 450.0) * WORLD_SCALE)
+	return Vector3((p.x - 550.0) * visual_world_scale, 0.0, (p.y - 450.0) * visual_world_scale)
 
 func _point_on_route(progress: float) -> Vector2:
 	var perf_started := Perf.begin() if Perf.enabled else 0
@@ -754,6 +777,7 @@ func _build_road_sections() -> void:
 	road_centers.clear()
 	road_normals.clear()
 	road_widths.clear()
+	road_outer_widths.clear()
 	road_distances.clear()
 	# route ends with a duplicate of the first point: ignore the extra one
 	# here and connect the last useful section to section zero.
@@ -818,8 +842,23 @@ func _build_road_sections() -> void:
 			road_widths[i] *= 0.83
 			road_widths[(i + 1) % count] *= 0.83
 
+	# Keep the lane sampler and asphalt on the same minimum width. At a
+	# compressed hairpin the outside layers need not grow by the same ratio.
+	# Use the pre-floor widths for runoff, and blend a small edge margin.
+	if course_name == "Circuit de Monaco" and is_equal_approx(visual_world_scale, MONACO_VISUAL_WORLD_SCALE):
+		road_outer_widths.assign(road_widths)
+		for i in range(count):
+			road_widths[i] = maxf(road_widths[i], MONACO_MIN_ASPHALT_HALF_WIDTH)
+
 func _edge_at(i: int, factor: float, addition: float, height: float) -> Vector3:
-	return road_centers[i] + road_normals[i] * (road_widths[i] * factor + addition) + Vector3.UP * height
+	var offset: float = road_widths[i] * factor
+	if not road_outer_widths.is_empty() and absf(factor) > 1.0:
+		# Barriers follow the safe runoff edge in Monaco instead of
+		# extending into a folded inner corner at the 1.50 rail factor.
+		var outer_factor: float = minf(absf(factor), RUNOFF_MULTIPLIER)
+		var magnitude: float = maxf(road_widths[i] + (outer_factor-1.0)*0.20, road_outer_widths[i]*outer_factor)
+		offset = signf(factor)*magnitude
+	return road_centers[i] + road_normals[i] * (offset + addition) + Vector3.UP * height
 
 func _add_band(left_factor: float, left_extension: float,
 		right_factor: float, right_extension: float, height: float,

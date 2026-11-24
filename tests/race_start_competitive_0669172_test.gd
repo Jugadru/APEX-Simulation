@@ -113,14 +113,14 @@ func _run() -> void:
 	var recording = Replay.new()
 	recording.attach(first)
 	check(recording.recorded_simulation_revision == Replay.SIMULATION_REVISION
-		and Replay.SIMULATION_REVISION == "026_competitive_traffic_v1",
-		"new race uses revision 026")
+		and Replay.SIMULATION_REVISION == "027_race_traffic_hotfix_v1",
+		"new race uses revision 027")
 	for i in range(120):
-		check(recording.step_tick(),"026 can simulate deterministic tick")
+		check(recording.step_tick(),"027 can simulate deterministic tick")
 	var imported = Replay.new()
 	check(imported.load_data(recording.export_data()) and imported.seek(recording.end_tick)
 		and imported.first_divergence < 0,
-		"026 archived replay verifies every sporting hash")
+		"027 archived replay verifies every sporting hash")
 	var former = Replay.new()
 	former.attach(Race.new(season["teams"],"Ferrari",6617,{},gbr,{},false))
 	former.recorded_simulation_revision = Replay.PRE_COMPETITIVE_START_SIMULATION_REVISION

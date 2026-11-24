@@ -1,0 +1,43 @@
+# v0.6.6.9.17.7 — Race Traffic Hotfix (candidata)
+
+Base: `9373a0981570cd85d533d0173e2f48dd617d04b0` / PR #121. Sem merge antes de homologação.
+
+## Diagnóstico reproduzido
+- A proteção lateral comparava progresso acumulado, não distância física circular. Na fixture de dois carros separados por exatamente uma volta, a faixa externa mudava de 2,95 para 2,59 apesar da ocupação lateral.
+- A convergência podia multiplicar a redução lateral de avanço (0,55) pela redução de fila (0,45). Na fixture de três carros lado a lado, o terceiro avançava 0,000495 para um avanço nominal 0,002; agora avança 0,0009. Não é ganho de velocidade nominal.
+- A correção usa distância de arco circular e prioridade estável quando as posições físicas coincidem, com um único redutor de avanço na fila. A restrição de segurança longitudinal permanece.
+
+## Escopo e compatibilidade
+Revisão esportiva `027_race_traffic_hotfix_v1`; 026 e anteriores preservam suas regras. Flag de sessão excluída do checkpoint. Sem alterar esquema de saves, pneus, clima, Pit Wall, HUD, retratos, navegação ou solver visual. Resultados de novas corridas podem mudar legitimamente.
+
+## QA obrigatório
+Importar em Godot 4.7.2, FAST + APEX Test Lab, `race_traffic_hotfix_09177_test.gd` (fixtures, 3 seeds x 4 pistas x 2 climas, determinismo, regressão de retenção/sobreposição e replay 026/027), testes de movimento visual, BOX V21. Comparar CPU, não confundir amostras de 120s com GP completo. Capturas locais privadas; não publicar fotos sem licença.
+
+Estado: candidata; consultar resultados no PR. Não declarar ausência universal de paradas: frenagem, boxes e bloqueios reais são legítimos, e a ocorrência relatada em jogo 3D ainda requer reprodução. Rollback: `9373a0981570cd85d533d0173e2f48dd617d04b0`.
+
+## Revisão 2 — investigação do movimento visual e custo de tráfego
+Base de comparação: primeira candidata `d14fb206035b3d44296d9e7bc70215faae8e6248`. Nenhuma alteração de revisão esportiva, RNG, pneus, clima, Pit Wall, saves, HUD ou retratos.
+
+- A/B usa as mesmas 312 observações de ticks fixos do motor por cenário e o mesmo sampler, a 30 Hz, 6 Hz e intervalo de 0,5 s. Mônaco: duas seeds (42/6558), equipe stock/desenvolvida; GBR/ITA/BEL: stock 42. O guard reprova aumento de imobilizações, duração, pior salto (tolerância 0,01 unidade), reversões e sobreposições; Mônaco exige melhora real. Hash do estado e da timeline não podem mudar.
+- Duas tentativas de recuperação pós-solver reduziram imobilizações, mas aumentaram o maior salto a 30 Hz; foram rejeitadas. A terceira preservou o caminho curto, recuperou quadros mais longos sem mudar o pior salto. Na quarta, o recuo mínimo original de 0,8 unidade podia ultrapassar o pequeno avanço disponível: tenta recuos fracionários de 25/50/75% apenas quando bloqueado, sem retroceder nem dispensar testes de ocupação/sweep. A recuperação pós-solver fica restrita a intervalos >=0,10 s; aceita apenas poses intermediárias seguras entre o progresso anterior e o nominal. Os fallbacks permanecem.
+- Otimização de RaceSpace: descarta vizinhos de faixa insuficientemente separada antes da distância circular, encerra a busca de nova invasão quando a faixa não muda. A/B usa 100 snapshots de quatro pistas, quatro repetições, 026/027 e ordem alternada. Exige igualdade completa dos resultados, mede tempo do solver (não FPS). As cópias históricas em tests/legacy são oráculos do SHA anterior, não código de runtime.
+- Profiler F8, quando habilitado, registra `visual.traffic_nominal_advancing_stalled` e `visual.traffic_nominal_low_advance`, distinguindo retenção de apresentação de avanço nominal baixo (inclui interpolação de tick e pausa; não é prova de parada esportiva). Sem alteração de layout.
+- O teste histórico `view_0658_motion` acusou cruzamento pelo chord entre quadros também na candidata anterior. Não desativado, não declarado PASS; investigar varredura em 16x separadamente. A matriz A/B de endpoints não prova ausência de todos cruzamentos, corridas completas ou comportamento em GPU física.
+
+CI dedicada mantém os jobs originais e acrescenta 4 jobs A/B de movimento e 1 A/B esportivo. Os resultados são vinculados ao SHA exato no PR #122. Não fazer merge até homologação.
+
+## Revisão 3 — escala visual de Mônaco e GP completo
+A revisão 2 teve CI dedicada e Core 2 PASS. A investigação adicional de alta velocidade não considera automaticamente todo alerta de chord um falso positivo. Em ensaio fixo de 360 quadros (120 cada a 1x, 16x e 32x; 24 carros), a geometria de Mônaco em escala 0,60 apresentou 75 alertas em arcos amostrados, 122 retenções e atraso máximo de 90,54 unidades (seed 6558 seco). As tentativas de subdividir pelo deslocamento foram rejeitadas: uma abordagem sem interseções amostradas produziu 920 retenções e atraso superior ao comprimento da pista. Não foi incorporada.
+
+A candidata ajusta apenas a escala da representação 3D de Mônaco de 0,60 para 0,84 (+40% de escala linear). Não altera o mapa 2D, o comprimento esportivo, a trajetória em progresso normalizado, os carros, os envelopes de colisão, o motor ou os resultados. A mudança também afeta as dimensões visuais do cenário, exigindo revisão gráfica. O sampler registra o arco real para diagnóstico. O teste novo examina todos os pares de carros, em subintervalos de até 0,5 unidade, verifica reconstrução de endpoints, regressão de arco, continuidade, cobertura e limita atraso/retenção. O teste histórico de chord permanece intacto; o novo teste não é prova contínua matemática, não mede FPS e não resolve toda a geometria de asfalto (largura mínima ainda inferior à meia largura do envelope).
+
+QA local: Mônaco seeds 42/6558 seco e 6617 chuva intensa: 3/3 PASS, zero alertas de arco, zero sobreposição de endpoints, zero reversão e atraso/retenção zero nos 360 quadros de cada cenário. Na comparação pareada 6558, hash esportivo idêntico. Grid 120/120 em 5 pistas e geometria 6000 consultas PASS. Corridas esportivas completas secas seed 99176 (revisão 027, motor não modificado nesta revisão): GBR 52 voltas/27213 ticks; ITA 53/23982; MON 78/34692. A versão continua 9.17.7. Workflows adicionais para altas velocidades e GPs completos; aprovação da candidata depende dos gates e da inspeção visual. Rollback: f7476a69614b34cd8a8b9aeafb40c1d6d4e9dc6f.
+
+O comparativo REV2 na geometria ampliada retornou zero imobilizações para ambas as variantes; o gate de melhora estrita deixou de ter seu controle negativo. Preservado o comparativo do solver com escala histórica 0,60 em ambas as variantes (somente sampler de QA); nenhum limiar alterado. A regressão nova da escala candidata usa a geometria real do jogo. Benchmark histórico 06672 e sincronização 09171 PASS na nova escala.
+
+## Revisão 4 — largura mínima e diagnóstico do pipeline real
+REV3: CI dedicada 45488024111 e Core 2 45488023889 PASS. Aumentar a escala de Mônaco para 1,55 isoladamente não foi aprovado: trouxe cruzamentos de arco, saltos e atraso em todas as três seeds, apesar de corrigir a meia largura. Uma segunda tentativa em 0,95 com piso de largura também apresentou regressão em alta velocidade. As duas foram descartadas.
+
+A candidata usa 0,90, piso de meia largura do asfalto igual ao envelope do modelo + 0,20 (1,45), e mantém as larguras pré-piso para calcular as bandas externas. Runoff, zebras e ombros não precisam crescer proporcionalmente no hairpin; as barreiras em Mônaco seguem a borda segura de runoff. O centro do mapa 2D, comprimento esportivo e modelos não mudam. Apenas o sampler deste perfil informa orçamento máximo de 64 subpassos (antes 32); cada subpasso conserva o tamanho máximo de 1 unidade e as verificações de ocupação. Demais pistas e fixtures antigas continuam com 32. Nenhuma alteração de regra esportiva.
+
+Novo teste nativo `traffic_road_width_09177_test.gd`: todas as 768 seções, 8 bandas/limites, 200 poses, reset para Spa. Exige largura mínima, winding positivo, margem transversal do envelope e cap restrito à pista. Não é uma prova de contenção contínua da carroceria em todas as orientações. A CI dedicada e FAST passam a incluir essa fixture sem retirar testes. `traffic_arc_09177_test.gd` também exercita o pipeline real `_process` durante 240 quadros em Spa (1x e 16x), preservando a matriz fixa de 360 quadros (1x/16x/32x) em Mônaco. Exige 3D ativo, cobertura de todos os carros, avanço efetivo de ticks e ausência de cruzamentos amostrados em todos os pares. A contagem chord continua registrada; o teste histórico retilíneo não foi modificado ou declarado PASS. A comparação local do pipeline Spa reproduziu alertas chord sem alertas nos arcos. A CI do novo SHA é obrigatória para merge. GPU física e transmissão integral de um GP seguem fora da evidência disponível; não confundir melhoria com garantia universal.

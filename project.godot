@@ -10,8 +10,8 @@ config_version=5
 
 [application]
 
-config/name="APEX Motorsport Manager v0.6.6.9.17.6 — Core 2"
-config/description="v0.6.6.9.17.6: Navigation Hotfix — histórico de telas e preservação de contexto (Godot 4.7.2)."
+config/name="APEX Motorsport Manager v0.6.6.9.17.7 — Core 2"
+config/description="v0.6.6.9.17.7: Race Traffic Hotfix — segurança de corredores e convergência (Godot 4.7.2)."
 run/main_scene="res://scenes/main.tscn"
 config/use_custom_user_dir=true
 config/custom_user_dir_name="APEX_0650_SOUL_STAFF"
