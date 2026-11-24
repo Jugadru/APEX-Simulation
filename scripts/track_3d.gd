@@ -7,6 +7,9 @@ const Perf = preload("res://scripts/debug/apex_perf_trace_0657.gd")
 const BattleMotion = preload("res://scripts/apex_racecraft_0654.gd")
 var occupation: Dictionary = {}
 var pose_anchors: Dictionary = {}
+var legacy_pose_anchors: Dictionary = {}
+var legacy_projection_hints: Dictionary = {}
+var anchor_diagnostics: Dictionary = {}
 var visual_lanes: Dictionary = {}
 
 const CarModelScript = preload("res://scripts/car_model_3d.gd")
@@ -114,6 +117,9 @@ func set_track_data(track: PackedVector2Array, title: String, teams: Array = [],
 	# The road geometry and 2D route are the approved v0.5.2.1 versions.
 	last_positions.clear()
 	pose_anchors.clear()
+	legacy_pose_anchors.clear()
+	legacy_projection_hints.clear()
+	anchor_diagnostics.clear()
 	projection_hints.clear()
 	visual_lanes.clear()
 	occupation.clear()
@@ -167,6 +173,8 @@ func set_race_cars(cars: Array, selected_id: int, motion_delta: float = -1.0) ->
 	var servicing_cars: Array = []
 	var delta: float = maxf(0.0, get_process_delta_time() if motion_delta < 0.0 else motion_delta)
 	pose_anchors.clear()
+	legacy_pose_anchors.clear()
+	anchor_diagnostics.clear()
 	var perf_occupation := Perf.begin() if Perf.enabled else 0
 	occupation = BattleMotion.solve(cars,occupation,delta,_sample_occupied_pose)
 	if Perf.enabled:
@@ -287,18 +295,42 @@ func set_race_cars(cars: Array, selected_id: int, motion_delta: float = -1.0) ->
 			visual_lanes.erase(existing)
 			pit_visual_phase.erase(existing)
 			projection_hints.erase(existing)
+			legacy_projection_hints.erase(existing)
 
 func _sample_occupied_pose(car: Dictionary, requested_lane: float, retreat: float) -> Dictionary:
+	return _sample_pose(car,requested_lane,retreat,false)
+
+# Independent caches are required for paired experiments: a legacy projection
+# must not inherit an arc anchor or change the live view's projection hint.
+func _sample_occupied_pose_legacy(car: Dictionary, requested_lane: float, retreat: float) -> Dictionary:
+	return _sample_pose(car,requested_lane,retreat,true)
+
+func _sample_pose(car: Dictionary, requested_lane: float, retreat: float, legacy: bool) -> Dictionary:
 	var perf_started := Perf.begin() if Perf.enabled else 0
 	var id := int(car.id)
-	if not pose_anchors.has(id):
+	var anchors := legacy_pose_anchors if legacy else pose_anchors
+	var hints := legacy_projection_hints if legacy else projection_hints
+	if not anchors.has(id):
 		var origin := _to_world(car.route_point)
-		var anchor := projection_index.project(origin,int(projection_hints.get(id,-1)))
-		pose_anchors[id] = anchor
-		projection_hints[id] = anchor.nearest
+		var anchor: Dictionary = {}
+		if not legacy and not road_distances.is_empty():
+			# The official map sampler uses arc length on this same polyline.
+			# At a crossing, use its topological segment rather than the
+			# nearest point on an unrelated piece of the route. External
+			# fixtures with index-based points retain the projection fallback.
+			var distance := fposmod(float(car.progress),1.0)*projection_index.total_length
+			var segment := clampi(road_distances.bsearch(distance,true)-1,0,road_centers.size()-1)
+			var along_arc := distance-road_distances[segment]
+			var expected := road_centers[segment].lerp(road_centers[(segment+1)%road_centers.size()],clampf(along_arc/maxf(0.000001,projection_index.lengths[segment]),0.0,1.0))
+			if expected.distance_squared_to(origin) <= 0.0001:
+				anchor = {"nearest":segment,"along":along_arc}
+		if anchor.is_empty():
+			anchor = projection_index.project(origin,int(hints.get(id,-1)))
+		anchors[id] = anchor
+		hints[id] = anchor.nearest
 
-	var nearest: int = pose_anchors[id].nearest
-	var along: float = pose_anchors[id].along
+	var nearest: int = anchors[id].nearest
+	var along: float = anchors[id].along
 	var total := projection_index.total_length
 	var distance := fposmod(road_distances[nearest]+along-retreat,total)
 	var index := road_distances.bsearch(distance,true)-1

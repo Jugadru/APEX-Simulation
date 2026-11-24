@@ -61,8 +61,8 @@ func _initialize() -> void:
 	var input := JSON.stringify(cars)
 	R.solve(cars,{},.016,sample)
 	check(JSON.stringify(cars)==input,"race data immutable")
-	# A delayed visual pose recovers at most 125% of the current official
-	# progress increment, rather than teleporting to its official target.
+	# A delayed visual pose uses bounded adaptive recovery, rather than
+	# teleporting to its official target.
 	cars = [car(0,0),car(1,30)]
 	poses = R.solve(cars,{},.5,sample)
 	poses[0].hold_frames = 2
@@ -73,7 +73,7 @@ func _initialize() -> void:
 	var old_snapshot := JSON.stringify(old)
 	poses = R.solve(cars,old,.5,sample)
 	check(bool(poses[0].get("gradual_recovery",false)),"bounded recovery used")
-	check(absf(float(poses[0].position.x)-5.0)<.01,"catch-up limited to five units")
+	check(absf(float(poses[0].position.x)-6.5)<.01,"adaptive catch-up limited to 6.5 units")
 	check(float(poses[0].progress)<float(cars[0].progress),"visual lag not silently discarded")
 	check(JSON.stringify(cars)==input and JSON.stringify(old)==old_snapshot,"recovery inputs immutable")
 	valid(poses,old)
@@ -82,7 +82,7 @@ func _initialize() -> void:
 	cars = [car(0,18),car(1,38)]
 	poses = R.solve(cars,old,.5,sample)
 	check(bool(poses[0].get("gradual_recovery",false)),"bounded recovery continues while lag remains")
-	check(absf(float(poses[0].position.x)-10.0)<.01,"second catch-up also limited")
+	check(absf(float(poses[0].position.x)-12.375)<.01,"second catch-up accounts for reduced lag")
 	valid(poses,old)
 	# Reject a synchronized candidate whose bounded move would hit a rival.
 	cars = [car(0,0),car(1,6)]

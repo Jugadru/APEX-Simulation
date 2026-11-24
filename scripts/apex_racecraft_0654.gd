@@ -150,7 +150,7 @@ static func pending_old_clearance(pose: Dictionary, car_id: int,
 # the grid retains the legacy solver's decisions; unrelated conflicts cannot
 # veto recovery. Check every neighbour's old and final pose before committing.
 static func gradual_candidate(car: Dictionary, previous: Dictionary,
-		resolved: Dictionary, sample: Callable) -> Dictionary:
+		resolved: Dictionary, sample: Callable, policy: int = 2) -> Dictionary:
 	var id := int(car.id)
 	if not previous.has(id) or not resolved.has(id):
 		return {}
@@ -158,25 +158,32 @@ static func gradual_candidate(car: Dictionary, previous: Dictionary,
 	var target: Dictionary = resolved[id]
 	if not old.has("official_progress"):
 		return {}
-	if int(old.get("hold_frames",0)) < MAX_CONSECUTIVE_VISUAL_HOLDS and not bool(old.get("gradual_pending",false)):
-		return {}
 	var official_step := float(car.progress) - float(old.official_progress)
 	if official_step <= 0.0:
 		return {}
+	var lag := maxf(0.0,float(old.official_progress)-float(old.progress))
+	var stalled := int(old.get("hold_frames",0)) >= MAX_CONSECUTIVE_VISUAL_HOLDS or bool(old.get("gradual_pending",false))
+	# The largest jump can occur on an ordinary retreat release, not only a
+	# flagged emergency rebase. Do not ignore a car with accumulated lag.
+	if not stalled and (policy != 2 or lag < official_step):
+		return {}
+	# Recover a quarter of the outstanding lag per update, with bounded
+	# extra speed. This avoids prolonged 125%-only recovery in a convoy.
+	var rate := 1.25 if policy == 1 else clampf(1.0 + 0.25*lag/official_step,1.25,2.5)
 	var lane := float(target.lane)
 	var origin: Dictionary = sample.call(car,lane,0.0)
 	var probe: Dictionary = sample.call(car,lane,1.0)
 	var scale := float(origin.progress)-float(probe.progress)
 	if scale <= 0.000000001:
 		return {}
-	var bound := float(old.progress)+1.25*official_step
+	var bound := float(old.progress)+rate*official_step
 	# If the legacy solver already respects the bound, keep its safe pose.
 	if float(target.progress) <= bound:
 		return {}
 	var retreat := maxf(0.0,(float(origin.progress)-bound)/scale)
 	var pose: Dictionary = sample.call(car,lane,retreat)
 	var displacement := Vector2(pose.position).distance_to(Vector2(old.position))
-	var budget := 1.25*official_step/scale+absf(float(pose.lane)-float(old.lane))+0.1
+	var budget := rate*official_step/scale+absf(float(pose.lane)-float(old.lane))+0.1
 	if displacement < 0.015 or displacement > budget or displacement >= Vector2(target.position).distance_to(Vector2(old.position)):
 		return {}
 	for other in resolved:
@@ -197,7 +204,7 @@ static func gradual_candidate(car: Dictionary, previous: Dictionary,
 	pose["official_progress"] = float(car.progress)
 	return pose
 
-static func solve(cars: Array,previous: Dictionary,dt: float,sample: Callable, refine: bool = true) -> Dictionary:
+static func solve(cars: Array,previous: Dictionary,dt: float,sample: Callable, refine: bool = true, policy: int = 2) -> Dictionary:
 	var active := []
 	var active_ids := {}
 	for car in cars:
@@ -290,7 +297,7 @@ static func solve(cars: Array,previous: Dictionary,dt: float,sample: Callable, r
 			result[id] = final_pose
 	if refine and dt > 0.0:
 		for car in active:
-			var candidate := gradual_candidate(car,previous,result,sample)
+			var candidate := gradual_candidate(car,previous,result,sample,policy)
 			if not candidate.is_empty():
 				result[int(car.id)] = candidate
 	return result

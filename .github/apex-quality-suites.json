@@ -174,6 +174,10 @@
       ],
       "fast_tests": [
         {
+          "script": "race_start_competitive_0669172_test.gd",
+          "marker": "COMPETITIVE_START_09172_PASS"
+        },
+        {
           "script": "race_start_3d_sync_0669171_test.gd",
           "marker": "RACE_START_3D_SYNC_09171_PASS"
         },
@@ -184,10 +188,6 @@
         {
           "script": "visual_stutter_06672_benchmark.gd",
           "marker": "VISUAL_STUTTER_06672_BENCHMARK"
-        },
-        {
-          "script": "race_start_competitive_0669172_test.gd",
-          "marker": "COMPETITIVE_START_09172_PASS"
         }
       ],
       "checks": []
