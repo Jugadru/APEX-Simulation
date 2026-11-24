@@ -15,7 +15,7 @@ func run():
    if host.season_tracks[i].code=="ITA":host.selected_track_index=i
   Fixture.configure(host,"stock",42)
   host._start_race()
-  host.replay_session.recorded_simulation_revision=Replay.SIMULATION_REVISION if modern else Replay.PRE_INDEPENDENT_SIMULATION_REVISION
+  host.replay_session.recorded_simulation_revision=Replay.PRE_AERO_WAKE_SIMULATION_REVISION if modern else Replay.PRE_INDEPENDENT_SIMULATION_REVISION
   host.race.running=true;host.sim_speed=16.0
   # Fast-forward actual sporting ticks, then exercise the native chase pipeline.
   for i in range(600):

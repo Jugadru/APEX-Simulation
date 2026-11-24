@@ -1,0 +1,51 @@
+name: APEX - Slipstream and Dirty Air validation
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'scripts/core/race_aero_wake_091711.gd'
+      - 'scripts/core/race_space_0655.gd'
+      - 'scripts/core/race_replay_0660.gd'
+      - 'scripts/core/race_state_codec_0660.gd'
+      - 'scripts/race_engine.gd'
+      - 'tests/aero_wake_091711_test.gd'
+      - '.github/workflows/apex-aero-wake.yml'
+permissions:
+  contents: read
+jobs:
+  aero:
+    if: github.head_ref == 'feat/v0.6.6.9.17.11-aero-wake'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {track: ITA, climate: Seco}
+          - {track: GBR, climate: Seco}
+          - {track: MON, climate: Seco}
+          - {track: ITA, climate: Chuva intensa}
+    env:
+      APEX_AERO_TRACK: ${{ matrix.track }}
+      APEX_AERO_CLIMATE: ${{ matrix.climate }}
+      APEX_AERO_TICKS: '1800'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+        with:
+          version: 4.7.2-stable
+      - run: bash tools/apex_ci_import.sh import.log
+      - run: |
+          set -euo pipefail
+          bash tools/apex_ci_isolated_test.sh aero_wake_091711_test.gd 2>&1 | tee aero.log
+          grep -Fq AERO_WAKE_091711_PASS aero.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' aero.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apex-aero-${{ matrix.track }}-${{ matrix.climate }}
+          path: |
+            import.log
+            aero.log
+          retention-days: 14

@@ -8,6 +8,7 @@ const CompetitiveStart = preload("res://scripts/core/race_start_competitive_0669
 const LENGTH := 6.4
 const WIDTH := 2.95
 const MAX_LANE := 2.95
+const AeroWake = preload("res://scripts/core/race_aero_wake_091711.gd")
 const Independent = preload("res://scripts/core/race_independent_racecraft_091710.gd")
 const MergeTraffic = preload("res://scripts/core/race_merge_traffic_0669174.gd")
 
@@ -63,11 +64,12 @@ static func corridor_crosses(a0: float,a1: float,b0: float,b1: float) -> bool:
 
 static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,shape: Dictionary, weather: Dictionary = {}, traffic_enabled: bool = true, soul3_enabled: bool = false,
 		overtaking_enabled: bool = false, competitive_start_enabled: bool = false,
-		start_clock_s: float = 0.0, merge_traffic_enabled: bool = false, traffic_hotfix_enabled: bool = false, following_enabled: bool = false, completion_enabled: bool = false, independent_enabled: bool = false) -> Dictionary:
+		start_clock_s: float = 0.0, merge_traffic_enabled: bool = false, traffic_hotfix_enabled: bool = false, following_enabled: bool = false, completion_enabled: bool = false, independent_enabled: bool = false, aero_wake_enabled: bool = false) -> Dictionary:
 	var length: float=shape.length
 	following_enabled = following_enabled and start_clock_s>=24.0
 	completion_enabled = completion_enabled and following_enabled
 	independent_enabled = independent_enabled and completion_enabled
+	aero_wake_enabled = aero_wake_enabled and independent_enabled
 	var hotfix: bool = merge_traffic_enabled and traffic_hotfix_enabled
 	# 06686: RaceEngine normally supplies a sorted frozen sporting snapshot.
 	# Filtering out inactive cars preserves its order. Avoid sorting 24
@@ -296,7 +298,13 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 			var memory: Dictionary = Independent.decide(c,a,leader,gap,own,limit,load,float(m.get("ahead_load",1.0)),wet,dt)
 			a.goal=memory.aim
 			a["independent_memory"]=memory
-			if not leader.is_empty() and str(a.state) not in Independent.ATTACK:
+			if aero_wake_enabled:
+				# Replace 031 longitudinal aero, do not stack it. Direction and tactical
+				# judgement stay independent. Effects apply to attackers too.
+				var effect: Dictionary = AeroWake.choose(c,order,length,float(track.get("lap_km",0.0)),load,float(m.get("ahead_load",load)),wet)
+				a.pace=AeroWake.apply(float(a.pace),effect)
+				a["aero_wake_032"]=effect
+			elif not leader.is_empty() and str(a.state) not in Independent.ATTACK:
 				a.pace=Independent.longitudinal(float(a.pace),gap,absf(float(a.lane)-float(leader.get("race_lane",0.0))),load,wet)
 	# Hold lateral occupancy through overlap, including a recently passed car.
 	for c in order:
@@ -380,6 +388,8 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 				memory["attack_side"]=str(a.side)
 			memory.velocity=(float(a.next_lane)-float(a.lane))/maxf(dt,0.00001)
 			states["racecraft_memory"]=memory
+		if aero_wake_enabled and a.has("aero_wake_032"):
+			states["aero_wake_032"]=a.aero_wake_032
 		result[id]={"progress":next,"states":states,"event":reaction,"defender_id":int(a.defender_id)}
 	# Physical traffic also includes lapped cars; distance wraps at the line.
 	for iteration in range(order.size()):

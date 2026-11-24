@@ -125,7 +125,7 @@ func _run() -> void:
 		"real engine's manual V21 protected across repeated advice")
 	check(Knowledge.cache_stats().get("catalog_loads") == 1,
 		"two different circuits share exactly one catalog load")
-	check(Replay.SIMULATION_REVISION in ["023_overtaking_intelligence_v1", "024_race_start_spatial_v1", "025_competitive_grid_start_v1", "026_competitive_traffic_v1", "027_race_traffic_hotfix_v1", "028_racing_line_v1", "029_racing_line_following_v1", "030_racing_line_completion_v1", "031_independent_racecraft_v1"]
+	check(Replay.SIMULATION_REVISION in ["023_overtaking_intelligence_v1", "024_race_start_spatial_v1", "025_competitive_grid_start_v1", "026_competitive_traffic_v1", "027_race_traffic_hotfix_v1", "028_racing_line_v1", "029_racing_line_following_v1", "030_racing_line_completion_v1", "031_independent_racecraft_v1", "032_aero_wake_v1"]
 		and Replay.PRE_START20_SIMULATION_REVISION == "023_overtaking_intelligence_v1",
 		"9.15 performance-only logic preserves 023 after 9.17 revision")
 

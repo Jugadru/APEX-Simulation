@@ -19,6 +19,8 @@ const RACING_LINE_SIM_REVISION := "028_racing_line_v1"
 const FOLLOWING_SIM_REVISION := "029_racing_line_following_v1"
 const PASS_COMPLETION_SIM_REVISION := "030_racing_line_completion_v1"
 const INDEPENDENT_SIM_REVISION := "031_independent_racecraft_v1"
+const AERO_WAKE_SIM_REVISION := "032_aero_wake_v1"
+var aero_wake_enabled: bool = true
 var independent_racecraft_enabled: bool = true
 const PassCompletion = preload("res://scripts/core/race_pass_completion_091710.gd")
 var pass_completion_enabled: bool = true
@@ -715,20 +717,22 @@ func _advance(dt: float) -> void:
 	var following_rules: bool = following_enabled and racing_line_enabled
 	var completion_rules: bool = pass_completion_enabled and following_rules
 	var independent_rules: bool = independent_racecraft_enabled and completion_rules
+	var aero_wake_rules: bool = aero_wake_enabled and independent_rules
 	if command_session != null:
 		var attached_session: Object = command_session.get_ref()
 		if attached_session != null:
 			launch_legacy = bool(attached_session.get("legacy_launch_physics"))
 			var revision: String = str(attached_session.get("recorded_simulation_revision"))
-			overtaking_rules = overtaking_rules and revision in [OVERTAKING_SIM_REVISION, START20_SIM_REVISION, COMPETITIVE_SIM_REVISION, MERGE_TRAFFIC_SIM_REVISION, TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION, PASS_COMPLETION_SIM_REVISION, INDEPENDENT_SIM_REVISION]
+			overtaking_rules = overtaking_rules and revision in [OVERTAKING_SIM_REVISION, START20_SIM_REVISION, COMPETITIVE_SIM_REVISION, MERGE_TRAFFIC_SIM_REVISION, TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION, PASS_COMPLETION_SIM_REVISION, INDEPENDENT_SIM_REVISION, AERO_WAKE_SIM_REVISION]
 			start20_rules = start20_rules and revision in [START20_SIM_REVISION, COMPETITIVE_SIM_REVISION]
-			competitive_rules = competitive_rules and revision in [COMPETITIVE_SIM_REVISION, MERGE_TRAFFIC_SIM_REVISION, TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION, PASS_COMPLETION_SIM_REVISION, INDEPENDENT_SIM_REVISION]
-			merge_rules = merge_rules and revision in [MERGE_TRAFFIC_SIM_REVISION, TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION, PASS_COMPLETION_SIM_REVISION, INDEPENDENT_SIM_REVISION]
-			traffic_hotfix_rules = traffic_hotfix_rules and revision in [TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION, PASS_COMPLETION_SIM_REVISION, INDEPENDENT_SIM_REVISION]
-			racing_line_rules = racing_line_rules and revision in [RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION, PASS_COMPLETION_SIM_REVISION, INDEPENDENT_SIM_REVISION]
-			following_rules = following_rules and revision in [FOLLOWING_SIM_REVISION, PASS_COMPLETION_SIM_REVISION, INDEPENDENT_SIM_REVISION]
-			completion_rules = completion_rules and revision in [PASS_COMPLETION_SIM_REVISION, INDEPENDENT_SIM_REVISION]
-			independent_rules = independent_rules and revision == INDEPENDENT_SIM_REVISION
+			competitive_rules = competitive_rules and revision in [COMPETITIVE_SIM_REVISION, MERGE_TRAFFIC_SIM_REVISION, TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION, PASS_COMPLETION_SIM_REVISION, INDEPENDENT_SIM_REVISION, AERO_WAKE_SIM_REVISION]
+			merge_rules = merge_rules and revision in [MERGE_TRAFFIC_SIM_REVISION, TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION, PASS_COMPLETION_SIM_REVISION, INDEPENDENT_SIM_REVISION, AERO_WAKE_SIM_REVISION]
+			traffic_hotfix_rules = traffic_hotfix_rules and revision in [TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION, PASS_COMPLETION_SIM_REVISION, INDEPENDENT_SIM_REVISION, AERO_WAKE_SIM_REVISION]
+			racing_line_rules = racing_line_rules and revision in [RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION, PASS_COMPLETION_SIM_REVISION, INDEPENDENT_SIM_REVISION, AERO_WAKE_SIM_REVISION]
+			following_rules = following_rules and revision in [FOLLOWING_SIM_REVISION, PASS_COMPLETION_SIM_REVISION, INDEPENDENT_SIM_REVISION, AERO_WAKE_SIM_REVISION]
+			completion_rules = completion_rules and revision in [PASS_COMPLETION_SIM_REVISION, INDEPENDENT_SIM_REVISION, AERO_WAKE_SIM_REVISION]
+			independent_rules = independent_rules and revision in [INDEPENDENT_SIM_REVISION, AERO_WAKE_SIM_REVISION]
+			aero_wake_rules = aero_wake_rules and revision == AERO_WAKE_SIM_REVISION
 	var launch_clearance: float = 1.0
 	var launch_limit: float = RaceStart066917.CORNER_PHASE_SECONDS if start20_rules else RaceStart066911.PHASE_SECONDS
 	if race_start_intelligence_enabled and clock < launch_limit:
@@ -788,13 +792,14 @@ func _advance(dt: float) -> void:
 		pace_metrics[int(old_car["id"])] = metrics
 	if Perf.enabled: Perf.end(&"race.pace_thermal_drs_kers",perf_pace)
 	var perf_space := Perf.begin() if Perf.enabled else 0
-	var space_plan := RaceSpace.plan(old_order,pace_metrics,dt,track,space_profile,current_weather,driver_traffic_enabled,driver_soul3_enabled,overtaking_rules,competitive_rules,clock,merge_rules,traffic_hotfix_rules,following_rules,completion_rules,independent_rules)
+	var space_plan := RaceSpace.plan(old_order,pace_metrics,dt,track,space_profile,current_weather,driver_traffic_enabled,driver_soul3_enabled,overtaking_rules,competitive_rules,clock,merge_rules,traffic_hotfix_rules,following_rules,completion_rules,independent_rules,aero_wake_rules)
 	if Perf.enabled: Perf.end(&"race.overtaking",perf_space)
 	var defenders: Dictionary = {}
 	for car in cars:
 		if bool(car["finished"]):
 			continue
 		if float(car["pit_left"]) > 0.0:
+			if aero_wake_rules: car.erase("aero_wake_032")
 			_advance_pit(car, dt)
 			continue
 		var metrics: Dictionary = pace_metrics.get(int(car["id"]), {})

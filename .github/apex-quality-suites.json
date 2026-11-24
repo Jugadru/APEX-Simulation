@@ -396,6 +396,21 @@
         {"script": "racing_independent_091710_test.gd", "marker": "INDEPENDENT_091710_PASS"}
       ],
       "checks": []
+    },
+    {
+      "id": "aero_wake_091711",
+      "paths": [
+        "scripts/core/race_aero_wake_091711.gd",
+        "scripts/core/race_space_0655.gd",
+        "scripts/core/race_replay_0660.gd",
+        "scripts/core/race_state_codec_0660.gd",
+        "scripts/race_engine.gd",
+        "tests/aero_wake_091711_test.gd"
+      ],
+      "fast_tests": [
+        {"script": "aero_wake_091711_test.gd", "marker": "AERO_WAKE_091711_PASS"}
+      ],
+      "checks": []
     }
   ]
 }
