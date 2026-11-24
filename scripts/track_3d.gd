@@ -6,6 +6,7 @@ const Perf = preload("res://scripts/debug/apex_perf_trace_0657.gd")
 
 const BattleMotion = preload("res://scripts/apex_racecraft_0654.gd")
 var occupation: Dictionary = {}
+var previous_nominal: Dictionary = {}
 var grid_slots: Dictionary = {}
 var pose_anchors: Dictionary = {}
 var visual_lanes: Dictionary = {}
@@ -118,6 +119,7 @@ func set_track_data(track: PackedVector2Array, title: String, teams: Array = [],
 	projection_hints.clear()
 	visual_lanes.clear()
 	occupation.clear()
+	previous_nominal.clear()
 	grid_slots.clear()
 	live_cars.clear()
 	marker_cache.clear()
@@ -170,7 +172,8 @@ func set_race_cars(cars: Array, selected_id: int, motion_delta: float = -1.0) ->
 	var delta: float = maxf(0.0, get_process_delta_time() if motion_delta < 0.0 else motion_delta)
 	pose_anchors.clear()
 	var perf_occupation := Perf.begin() if Perf.enabled else 0
-	occupation = BattleMotion.solve(cars,occupation,delta,_sample_occupied_pose)
+	occupation = BattleMotion.solve_interval(cars,occupation,delta,_sample_occupied_pose,previous_nominal)
+	previous_nominal = BattleMotion.nominal_history(cars)
 	if Perf.enabled:
 		Perf.end(&"visual.occupancy",perf_occupation)
 		for pose in occupation.values():

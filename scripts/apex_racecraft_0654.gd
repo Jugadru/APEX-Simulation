@@ -216,6 +216,79 @@ static func try_official_motion(active: Array, previous: Dictionary, sample: Cal
 		prior=next
 	return nominal
 
+# Coarse presentation frames can span several sporting ticks. Reconstruct
+# intermediate arc/lane samples between the two observed authoritative
+# endpoints, not between displaced visual poses. These are visual estimates,
+# never extra sporting ticks. Keep work bounded and avoid pit/seek transitions.
+static func nominal_history(cars: Array) -> Dictionary:
+	var result: Dictionary = {}
+	for car in cars:
+		if eligible(car) and car.has("race_lane"):
+			result[int(car.id)] = {"progress":float(car.progress),"lane":float(car.race_lane),"stage":str(car.get("pit_stage","none"))}
+	return result
+
+static func solve_interval(cars: Array, previous: Dictionary, dt: float, sample: Callable, last_nominal: Dictionary) -> Dictionary:
+	if dt<=0.20 or previous.is_empty() or last_nominal.is_empty():
+		return solve(cars,previous,dt,sample)
+	var current := nominal_history(cars)
+	if current.size()!=last_nominal.size() or previous.size()!=current.size() or current.is_empty():
+		return solve(cars,previous,dt,sample)
+	var endpoints: Dictionary = {}
+	var lengths: Dictionary = {}
+	for car in cars:
+		if not eligible(car): continue
+		var id: int = int(car.id)
+		if not current.has(id) or not last_nominal.has(id) or not previous.has(id):
+			return solve(cars,previous,dt,sample)
+		var earlier: Dictionary = last_nominal[id]
+		var later: Dictionary = current[id]
+		var travel: float = float(later.progress)-float(earlier.progress)
+		if earlier.stage!=later.stage or travel<0.0 or travel>0.05:
+			return solve(cars,previous,dt,sample)
+		var pose: Dictionary = sample.call(car,float(later.lane),0.0)
+		if not pose.has("route_length"):
+			return solve(cars,previous,dt,sample)
+		endpoints[id]=car
+		lengths[id]=float(pose.route_length)
+	var count: int = clampi(int(ceil(dt/0.10)),2,12)
+	var state: Dictionary = previous
+	var resyncs: Dictionary = {}
+	var internal_holds: Dictionary = {}
+	# Use current endpoint's road projection and retreat along its arc.
+	# All intermediate samples use the same world-space sampler/footprint.
+	var sub_sample: Callable = func(car: Dictionary,lane: float,retreat: float) -> Dictionary:
+		var id: int = int(car.id)
+		var original: Dictionary = endpoints[id]
+		var offset: float = (float(original.progress)-float(car.progress))*float(lengths[id])
+		return sample.call(original,lane,maxf(0.0,offset+retreat))
+	for n in range(1,count+1):
+		var alpha: float = float(n)/float(count)
+		var subcars: Array = []
+		for car in cars:
+			if not eligible(car):
+				subcars.append(car)
+				continue
+			var id: int = int(car.id)
+			var earlier: Dictionary = last_nominal[id]
+			var later: Dictionary = current[id]
+			var sub: Dictionary = car.duplicate(false)
+			sub["progress"]=lerpf(float(earlier.progress),float(later.progress),alpha)
+			sub["race_lane"]=lerpf(float(earlier.lane),float(later.lane),alpha)
+			subcars.append(sub)
+		var next: Dictionary = solve(subcars,state,dt/float(count),sub_sample)
+		# Never accept an intermediate overlapping endpoint or missing car.
+		if next.size()!=current.size() or not simultaneous_clear({},next):
+			return solve(cars,previous,dt,sample)
+		for id in next:
+			if bool(next[id].get("resynced",false)): resyncs[id]=true
+			if bool(next[id].get("held",false)): internal_holds[id]=int(internal_holds.get(id,0))+1
+		state=next
+	for id in state:
+		state[id]["resynced"]=resyncs.has(id)
+		state[id]["internal_holds"]=int(internal_holds.get(id,0))
+		state[id]["visual_substeps"]=count
+	return state
+
 static func solve(cars: Array,previous: Dictionary,dt: float,sample: Callable, retreat_step_cap: float = INF, synchronize: bool = true) -> Dictionary:
 	var active := []
 	var active_ids := {}

@@ -19,6 +19,7 @@ func run_case(host, timeline: Array, interval: float, synchronize: bool) -> Dict
 	var last_tick := 0
 	var poses: Dictionary={}
 	var prior_nominal: Dictionary={}
+	var last_input: Dictionary={}
 	var metrics := {"interval":interval,"synchronized":synchronize,"frames":0,"held":0,"stationary":0,"max_step":0.0,"max_extra_step":0.0,"overlaps":0,"max_lag":0.0,"reversals":0,"worst":{},"cpu_us":0}
 	var sampler: Callable=host.world_view._sample_occupied_pose if synchronize else host.world_view._sample_occupied_pose_legacy
 	snap.capture_completed_tick(timeline[0])
@@ -33,7 +34,11 @@ func run_case(host, timeline: Array, interval: float, synchronize: bool) -> Dict
 		host.world_view.pose_anchors.clear()
 		var old:=poses
 		var start:=Time.get_ticks_usec()
-		poses=Motion.solve(draw,old,interval,sampler,INF,synchronize)
+		if synchronize:
+			poses=Motion.solve_interval(draw,old,interval,sampler,last_input)
+		else:
+			poses=Motion.solve(draw,old,interval,sampler,INF,false)
+		last_input=Motion.nominal_history(draw)
 		metrics.cpu_us+=Time.get_ticks_usec()-start
 		metrics.frames+=1
 		var nominal: Dictionary={}
