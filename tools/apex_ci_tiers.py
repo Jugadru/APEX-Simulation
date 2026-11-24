@@ -45,6 +45,9 @@ EXACT = {
     "scripts/core/race_state_codec_0660.gd": frozenset(("save", "staff", "prediction", "start", "start20", "overtake")),
     "scripts/core/race_performance.gd": frozenset(("start", "start20", "wet", "driver")),
     "scripts/core/race_start_spatial_066917.gd": frozenset(("start", "start20", "overtake")),
+    # Presentation-only visual racecraft has explicit solver/fixture suites in the manifest.
+    # Do not route an unrelated legacy 9.2 replay fixture through the fallback for unknown modules.
+    "scripts/apex_racecraft_0654.gd": frozenset(("start20", "overtake")),
     "scripts/apex_race_session_controller.gd": frozenset(("ai", "staff", "wet")),
     "scripts/apex_race_hud_0622.gd": frozenset(("hud", "staff", "engineer", "setup", "gaps")),
     "scripts/presentation/apex_hud_race_gaps_066916.gd": frozenset(("hud", "gaps")),
