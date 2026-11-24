@@ -39,3 +39,38 @@ static func queue(order: Array, intents: Dictionary, narrowing: Dictionary, leng
 		var clearance: float=clampf(best_gap/(body*2.0),0.45,1.0)
 		own.next=float(c.progress)+advance*clearance
 		own.state="recovering" if best_gap<body+1.0 else "closing"
+
+
+## 027: signed arc distance, positive when the rival is physically ahead.
+static func relative_gap(progress: float, rival_progress: float, length: float) -> float:
+	return (fposmod(rival_progress-progress+0.5,1.0)-0.5)*length
+
+static func has_priority(car: Dictionary, rival: Dictionary) -> bool:
+	# Only used at physically equal arc positions. Higher classified progress
+	# wins the merge turn; identical progress uses a stable ID tie-break.
+	if absf(float(car.progress)-float(rival.progress)) > 0.000000001:
+		return float(car.progress)>float(rival.progress)
+	return int(car.id)<int(rival.id)
+
+static func queue_027(order: Array, intents: Dictionary, narrowing: Dictionary, length: float, body: float, width: float) -> void:
+	for car in order:
+		var id: int=int(car.id)
+		if not bool(narrowing.get(id,false)): continue
+		var own: Dictionary=intents[id]
+		var nearest: float=INF
+		for rival in order:
+			if int(rival.id)==id: continue
+			var gap: float=relative_gap(float(car.progress),float(rival.progress),length)
+			if absf(gap)<=0.000001:
+				if has_priority(car,rival): continue
+				gap=0.0
+			if gap<0.0 or gap>=body*2.0 or gap>=nearest: continue
+			var other: Dictionary=intents[int(rival.id)]
+			if absf(float(own.lane)-float(other.lane))<width-0.01: continue
+			nearest=gap
+		if nearest==INF: continue
+		# Exactly one lift per tick, independent of the number of neighbors.
+		# Physical same-corridor clearance remains enforced by RaceSpace.
+		var advance: float=maxf(0.0,float(own.next)-float(car.progress))
+		own.next=float(car.progress)+advance*clampf(nearest/(body*2.0),0.45,1.0)
+		own.state="recovering" if nearest<body+1.0 else "closing"

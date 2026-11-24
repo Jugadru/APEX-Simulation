@@ -57,8 +57,9 @@ static func corridor_crosses(a0: float,a1: float,b0: float,b1: float) -> bool:
 
 static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,shape: Dictionary, weather: Dictionary = {}, traffic_enabled: bool = true, soul3_enabled: bool = false,
 		overtaking_enabled: bool = false, competitive_start_enabled: bool = false,
-		start_clock_s: float = 0.0, merge_traffic_enabled: bool = false) -> Dictionary:
+		start_clock_s: float = 0.0, merge_traffic_enabled: bool = false, traffic_hotfix_enabled: bool = false) -> Dictionary:
 	var length: float=shape.length
+	var hotfix: bool = merge_traffic_enabled and traffic_hotfix_enabled
 	# 06686: RaceEngine normally supplies a sorted frozen sporting snapshot.
 	# Filtering out inactive cars preserves its order. Avoid sorting 24
 	# dictionaries a SECOND time if progress / ID tie ordering is valid.
@@ -195,7 +196,7 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 		var a: Dictionary=intents[id]
 		for other in order:
 			if other.id==id: continue
-			var gap := absf(float(c.progress)-float(other.progress))*length
+			var gap := absf(MergeTraffic.relative_gap(float(c.progress),float(other.progress),length)) if hotfix else absf(float(c.progress)-float(other.progress))*length
 			if gap<LENGTH+1 and absf(float(a.lane)-float(other.get("race_lane",0)))>=WIDTH-.01:
 				a.goal=a.lane
 				break
@@ -204,7 +205,7 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 		# Do not enter a third car's occupied corridor.
 		for other in order:
 			if other.id==id:continue
-			var gap := absf(float(c.progress)-float(other.progress))*length
+			var gap := absf(MergeTraffic.relative_gap(float(c.progress),float(other.progress),length)) if hotfix else absf(float(c.progress)-float(other.progress))*length
 			if gap<LENGTH+2 and corridor_crosses(float(a.lane),wanted,float(other.get("race_lane",0)),float(other.get("race_lane",0))):
 				if absf(float(a.lane)-float(other.get("race_lane",0)))>=WIDTH:
 					wanted=float(a.lane)
@@ -214,7 +215,13 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 					# This is an experimental diagnostic for the Monaco seed case.
 					var ahead_progress: float = float(other.progress)
 					var our_progress: float = float(c.progress)
-					if absf(float(a.lane))>limit and (
+					if hotfix:
+						# A stopped lateral move is not a reason for a second brake.
+						# queue_027 applies the single longitudinal yield later.
+						var relative: float = MergeTraffic.relative_gap(our_progress,ahead_progress,length)
+						if absf(float(a.lane))>limit and (relative>0.000001 or (absf(relative)<=0.000001 and not MergeTraffic.has_priority(c,other))):
+							a.state="recovering"
+					elif absf(float(a.lane))>limit and (
 						our_progress < ahead_progress or (
 						our_progress == ahead_progress and int(c.id) > int(other.id))):
 						a.driving_dt=float(a.driving_dt)*0.55 if merge_traffic_enabled else 0.0
@@ -224,7 +231,10 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 	# Before entering a single corridor, the trailing side yields gradually.
 	# Only the trailing car's existing proposed displacement is reduced.
 	if merge_traffic_enabled:
-		MergeTraffic.queue(order,intents,narrowing,length,LENGTH,WIDTH)
+		if hotfix:
+			MergeTraffic.queue_027(order,intents,narrowing,length,LENGTH,WIDTH)
+		else:
+			MergeTraffic.queue(order,intents,narrowing,length,LENGTH,WIDTH)
 	# Resolve all same-corridor followers against already-resolved leaders,
 	# including a leader held by a third car. No resolution impulse exists.
 	var result := {}
