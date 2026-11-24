@@ -1,0 +1,79 @@
+name: APEX - Race Motion diagnostics
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, synchronize]
+    paths:
+      - 'scripts/apex_racecraft_0654.gd'
+      - 'scripts/track_3d.gd'
+      - 'tests/visual_stutter_06672*'
+      - '.github/workflows/apex-race-motion-diagnostic.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: apex-motion-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  paired:
+    if: github.head_ref == 'fix/v0.6.6.9.17.3-race-motion'
+    name: Paired visual benchmark / seed ${{ matrix.seed }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: [42, 6617, 6558]
+    env:
+      APEX_MOTION_SEED: ${{ matrix.seed }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+        with:
+          version: 4.7.2-stable
+      - run: |
+          set -euo pipefail
+          mkdir -p motion-results
+          timeout 240s godot --headless --single-threaded-scene --path . --import 2>&1 | tee motion-results/import.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' motion-results/import.log
+          timeout 240s godot --headless --single-threaded-scene --path . --script res://tests/visual_stutter_06672_benchmark.gd 2>&1 | tee motion-results/benchmark.log
+          grep -Fq 'VISUAL_STUTTER_06672_BENCHMARK' motion-results/benchmark.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' motion-results/benchmark.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apex-motion-seed-${{ matrix.seed }}
+          path: motion-results/
+          retention-days: 14
+  capture:
+    if: github.head_ref == 'fix/v0.6.6.9.17.3-race-motion'
+    name: Monaco native graphics capture
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      LIBGL_ALWAYS_SOFTWARE: '1'
+      GALLIUM_DRIVER: llvmpipe
+      APEX_MOTION_CAPTURE_TRACK: MON
+      APEX_MOTION_SEED: 42
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+        with:
+          version: 4.7.2-stable
+      - run: sudo apt-get update && sudo apt-get install -y xvfb libgl1 libgl1-mesa-dri
+      - run: |
+          set -euo pipefail
+          mkdir -p qa/visual_stutter_06672
+          timeout 240s godot --headless --single-threaded-scene --path . --import
+          timeout 300s xvfb-run -a -s '-screen 0 1920x1080x24' godot --path . --rendering-method gl_compatibility --rendering-driver opengl3 --script res://tests/visual_stutter_06672_capture.gd 2>&1 | tee qa/visual_stutter_06672/capture.log
+          grep -Fq 'VISUAL_STUTTER_06672_VISUAL_PASS' qa/visual_stutter_06672/capture.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' qa/visual_stutter_06672/capture.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apex-motion-monaco-graphics
+          path: qa/visual_stutter_06672/
+          retention-days: 14

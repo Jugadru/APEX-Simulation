@@ -9,7 +9,6 @@ var occupation: Dictionary = {}
 var pose_anchors: Dictionary = {}
 var legacy_pose_anchors: Dictionary = {}
 var legacy_projection_hints: Dictionary = {}
-var anchor_diagnostics: Dictionary = {}
 var visual_lanes: Dictionary = {}
 
 const CarModelScript = preload("res://scripts/car_model_3d.gd")
@@ -119,7 +118,6 @@ func set_track_data(track: PackedVector2Array, title: String, teams: Array = [],
 	pose_anchors.clear()
 	legacy_pose_anchors.clear()
 	legacy_projection_hints.clear()
-	anchor_diagnostics.clear()
 	projection_hints.clear()
 	visual_lanes.clear()
 	occupation.clear()
@@ -174,7 +172,6 @@ func set_race_cars(cars: Array, selected_id: int, motion_delta: float = -1.0) ->
 	var delta: float = maxf(0.0, get_process_delta_time() if motion_delta < 0.0 else motion_delta)
 	pose_anchors.clear()
 	legacy_pose_anchors.clear()
-	anchor_diagnostics.clear()
 	var perf_occupation := Perf.begin() if Perf.enabled else 0
 	occupation = BattleMotion.solve(cars,occupation,delta,_sample_occupied_pose)
 	if Perf.enabled:
