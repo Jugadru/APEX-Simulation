@@ -1,5 +1,6 @@
 extends SceneTree
 const R = preload("res://scripts/apex_racecraft_0654.gd")
+const Codec = preload("res://scripts/core/race_state_codec_0660.gd")
 var failures: int = 0
 func _initialize() -> void: call_deferred("run")
 func run() -> void:
@@ -15,6 +16,9 @@ func run() -> void:
 			if str(host.season_tracks[i].code) == code: host.selected_track_index = i
 		host._start_race()
 		host.race.running = true
+		# Record the actual fixture state: FAST shares user saves with earlier tests.
+		var fixture: Dictionary = {"track":code,"requested_seed":selected_seed,"picker_seed":int(host.seed_picker.value),"championship":host.championship_mode,"team":host.selected_team,"weather":host.race.weather_snapshot(),"levels":host.garage.get_team(host.selected_team)["levels"].duplicate(true),"staff":host.garage.effective_staff_levels(host.selected_team),"crew":host.garage.effective_crew_levels(host.selected_team),"initial_hash":Codec.sporting_hash(host.race,{})}
+		print("RACE_MOTION_FIXTURE ",JSON.stringify(fixture))
 		# Reconstruct the same official grid using the original visual envelope.
 		var grid: Array = host.race.cars.duplicate(true)
 		for car in grid:

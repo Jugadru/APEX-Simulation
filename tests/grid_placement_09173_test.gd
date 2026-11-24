@@ -59,7 +59,7 @@ func run() -> void:
 			var side := R.normal(direction)
 			var min_gap := INF
 			for lateral in [-1.0,1.0]:
-				var nose := Vector2(pole.position)+direction*float(pole.half_length)+side*float(pole.half_width)*lateral
+				var nose: Vector2 = Vector2(pole.position)+direction*float(pole.half_length)+side*float(pole.half_width)*float(lateral)
 				min_gap=minf(min_gap,(center-nose).dot(forward)-(stripe.mesh as BoxMesh).size.z*0.5)
 			clearance=min_gap
 		if clearance<0.10: failures+=1
