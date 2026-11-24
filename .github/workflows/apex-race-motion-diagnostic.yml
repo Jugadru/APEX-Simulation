@@ -7,6 +7,10 @@ on:
     paths:
       - 'scripts/apex_racecraft_0654.gd'
       - 'scripts/track_3d.gd'
+      - 'scripts/race_view_snapshot_0658.gd'
+      - 'scripts/main.gd'
+      - 'tests/**'
+      - 'tools/apex_ci_*.sh'
       - 'tests/visual_stutter_06672*'
       - '.github/workflows/apex-race-motion-diagnostic.yml'
 
@@ -18,7 +22,31 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  preflight:
+    if: github.head_ref == 'fix/v0.6.6.9.17.3-race-motion'
+    name: Compile and verify motion prerequisites
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+        with:
+          version: 4.7.2-stable
+      - run: |
+          set -euo pipefail
+          mkdir -p motion-preflight
+          bash tools/apex_ci_import.sh motion-preflight/import.log
+          bash tools/apex_ci_isolated_test.sh tick_presentation_09173_test.gd 2>&1 | tee motion-preflight/ticks.log
+          grep -Fq 'TICK_PRESENTATION_09173_PASS' motion-preflight/ticks.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' motion-preflight/ticks.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apex-motion-preflight
+          path: motion-preflight/
+          retention-days: 14
   paired:
+    needs: preflight
     if: github.head_ref == 'fix/v0.6.6.9.17.3-race-motion'
     name: Paired visual benchmark / ${{ matrix.profile }} / seed ${{ matrix.seed }} / ${{ matrix.step }}s
     runs-on: ubuntu-latest
@@ -55,6 +83,7 @@ jobs:
           path: motion-results/
           retention-days: 14
   capture:
+    needs: preflight
     if: github.head_ref == 'fix/v0.6.6.9.17.3-race-motion'
     name: Monaco native graphics capture
     runs-on: ubuntu-latest
@@ -84,6 +113,7 @@ jobs:
           path: qa/visual_stutter_06672/
           retention-days: 14
   legacy-replay-control:
+    needs: preflight
     if: github.head_ref == 'fix/v0.6.6.9.17.3-race-motion'
     name: Historical replay / corrected candidate
     runs-on: ubuntu-latest
@@ -114,6 +144,7 @@ jobs:
           path: replay-control/
           retention-days: 14
   live-grid-control:
+    needs: preflight
     if: github.head_ref == 'fix/v0.6.6.9.17.3-race-motion'
     name: Live recording isolation and numbered grid
     runs-on: ubuntu-latest
