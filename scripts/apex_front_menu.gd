@@ -141,7 +141,7 @@ func show_home() -> void:
     landing.show()
     detail.hide()
     continue_button.disabled = not host.championship.has_season()
-    resume_race_button.disabled = host.race == null
+    resume_race_button.disabled = not host.navigation.can_resume(host)
     if host.championship.has_season():
         continue_button.text = "VER TEMPORADA CONCLUÍDA" if host.championship.is_complete() else "CONTINUAR TEMPORADA"
 
@@ -176,12 +176,7 @@ func open_sandbox() -> void:
     configuration("SANDBOX / GP PERSONALIZADO")
 
 func resume_race() -> void:
-    if host.race == null:
-        return
-    host.menu_root.hide()
-    host.game_root.show()
-    # Preserve paused state. The existing race control resumes simulation explicitly.
-    host._layout_ui()
+    host._resume_live_race()
 
 func show_detail(title: String, description: String) -> void:
     landing.hide()

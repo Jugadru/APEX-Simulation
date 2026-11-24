@@ -287,6 +287,28 @@
         }
       ],
       "checks": []
+    },
+    {
+      "id": "navigation_hotfix_09176",
+      "paths": [
+        "scripts/main.gd",
+        "scripts/apex_front_menu.gd",
+        "scripts/apex_menu_screen.gd",
+        "scripts/apex_management_hub.gd",
+        "scripts/apex_staff_screen_0648.gd",
+        "scripts/apex_workshop_0656.gd",
+        "scripts/presentation/apex_navigation_09176.gd",
+        "tests/navigation_09176_test.gd"
+      ],
+      "fast_tests": [
+        {"script": "navigation_09176_test.gd", "marker": "NAVIGATION_09176_PASS"},
+        {"script": "front_menu_test.gd", "marker": "FRONT_MENU_PASS"},
+        {"script": "management_hud04_test.gd", "marker": "HUD04_PASS"},
+        {"script": "workshop_0656_integration.gd", "marker": "WORKSHOP_INTEGRATION_PASS"},
+        {"script": "core_0600_championship_smoke_test.gd", "marker": "PASS 0600"},
+        {"script": "driver_hud_identity_09175_test.gd", "marker": "DRIVER_HUD_IDENTITY_09175_PASS"}
+      ],
+      "checks": []
     }
   ]
 }
