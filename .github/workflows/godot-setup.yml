@@ -39,6 +39,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Audit runtime resource inventory
+        run: python3 tools/apex_source_inventory.py --check --output ci-results/source-inventory.json
+
       - name: Verify fast-tier test routing
         run: python3 -m unittest discover -s tools/tests -p 'test_apex_ci_tiers.py' -v
 
@@ -180,6 +183,7 @@ jobs:
             godot-import.log
             ci-results/*.log
             ci-results/fast-plan.tsv
+            ci-results/source-inventory.json
             ci-results/test-plan.txt
             ci-results/lab-perf/
           if-no-files-found: warn
