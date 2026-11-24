@@ -1,0 +1,43 @@
+name: APEX - Main Menu Rework validation
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'scripts/apex_front_menu.gd'
+      - 'scripts/presentation/apex_main_menu_layout_09178.gd'
+      - 'tests/main_menu_09178_test.gd'
+      - '.github/workflows/apex-main-menu.yml'
+permissions:
+  contents: read
+jobs:
+  native-menu:
+    if: github.head_ref == 'feat/v0.6.6.9.17.8-main-menu'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      LIBGL_ALWAYS_SOFTWARE: '1'
+      GALLIUM_DRIVER: llvmpipe
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+        with:
+          version: 4.7.2-stable
+      - run: sudo apt-get update && sudo apt-get install -y xvfb libgl1 libgl1-mesa-dri
+      - run: |
+          set -euo pipefail
+          mkdir -p qa/main_menu_09178
+          bash tools/apex_ci_import.sh qa/main_menu_09178/import.log
+          sandbox="$(mktemp -d)"
+          trap 'rm -rf -- "$sandbox"' EXIT
+          export HOME="$sandbox/home" XDG_DATA_HOME="$sandbox/data" XDG_CONFIG_HOME="$sandbox/config" XDG_CACHE_HOME="$sandbox/cache" XDG_STATE_HOME="$sandbox/state"
+          mkdir -p "$HOME" "$XDG_DATA_HOME" "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME" "$XDG_STATE_HOME"
+          timeout 300s xvfb-run -a -s '-screen 0 1920x1080x24' godot --path . --rendering-method gl_compatibility --rendering-driver opengl3 --audio-driver Dummy --script res://tests/main_menu_09178_test.gd 2>&1 | tee qa/main_menu_09178/native.log
+          grep -Fq MAIN_MENU_09178_PASS qa/main_menu_09178/native.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' qa/main_menu_09178/native.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apex-main-menu-native
+          path: qa/main_menu_09178/
+          retention-days: 14

@@ -1,8 +1,8 @@
-# APEX Motorsport Manager — Core 2 v0.6.6.9.17.7 (candidata)
+# APEX Motorsport Manager — Core 2 v0.6.6.9.17.8 (candidata)
 
-**Candidata desta branch:** Race Traffic Hotfix. Corrige proteção lateral entre carros em voltas distintas e frenagem duplicada em gargalos; revisão esportiva 027. [Escopo e testes](docs/APEX_RELEASE_v0.6.6.9.17.7_RACE_TRAFFIC.md).
+**Candidata desta branch:** Main Menu Rework. Central de comando reorganizada, situação real da temporada e GP em memória, modos e gestão separados. [Escopo e testes](docs/APEX_RELEASE_v0.6.6.9.17.8_MAIN_MENU.md).
 
-**Versão integrada: v0.6.6.9.17.6 — Navigation Hotfix.** [PR #121](https://github.com/Jugadru/APEX-Simulation/pull/121), merge `9373a09`. Retratos privados opcionais; não redistribuir fotografias sem licença. A 9.17.7 permanece candidata até homologação.
+**Versão integrada: v0.6.6.9.17.7 — Race Traffic Hotfix REV4.** [PR #122](https://github.com/Jugadru/APEX-Simulation/pull/122), merge `f2dd809d`. Retratos privados opcionais; não redistribuir fotografias sem licença. A 9.17.8 permanece candidata até homologação.
 
 A convergência preventiva antes de estreitamentos eliminou as 7 amostras estacionárias esportivas observadas nos 24 cenários testados, sem diminuir as 25 ultrapassagens reais. O grid, a interpolação da 9.17.3, as regras de 2012 e a gravação de replay desligada por padrão permanecem. A frequência de carros lado a lado ainda requer melhorias futuras.
 

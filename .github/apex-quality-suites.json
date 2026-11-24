@@ -329,6 +329,20 @@
         {"script": "sim_space_0655_test.gd", "marker": "SIM_SPACE_PASS"}
       ],
       "checks": []
+    },
+    {
+      "id": "main_menu_rework_09178",
+      "paths": [
+        "scripts/apex_front_menu.gd",
+        "scripts/presentation/apex_main_menu_layout_09178.gd",
+        "tests/main_menu_09178_test.gd"
+      ],
+      "fast_tests": [
+        {"script": "main_menu_09178_test.gd", "marker": "MAIN_MENU_09178_PASS"},
+        {"script": "front_menu_test.gd", "marker": "FRONT_MENU_PASS"},
+        {"script": "navigation_09176_test.gd", "marker": "NAVIGATION_09176_PASS"}
+      ],
+      "checks": []
     }
   ]
 }
