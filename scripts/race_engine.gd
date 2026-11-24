@@ -7,9 +7,11 @@ const Rules = preload("res://scripts/core/race_rules.gd")
 const RacePerformance = preload("res://scripts/core/race_performance.gd")
 const RaceStart066911 = preload("res://scripts/core/race_start_intelligence_066911.gd")
 const RaceStart066917 = preload("res://scripts/core/race_start_spatial_066917.gd")
+const CompetitiveStart = preload("res://scripts/core/race_start_competitive_0669172.gd")
 const RaceSpace = preload("res://scripts/core/race_space_0655.gd")
 const OVERTAKING_SIM_REVISION := "023_overtaking_intelligence_v1"
 const START20_SIM_REVISION := "024_race_start_spatial_v1"
+const COMPETITIVE_SIM_REVISION := "025_competitive_grid_start_v1"
 var command_session: WeakRef
 var space_profile: Dictionary = {}
 # Session-only replay compatibility: older sporting traces use pre-9.3 traffic logic.
@@ -29,6 +31,8 @@ var strategy_staff_intelligence_enabled: bool = true
 var race_start_intelligence_enabled: bool = true
 # Session-only replay gate: 023 and earlier retain their original first-turn pace.
 var race_start20_enabled: bool = true
+# Session-only sporting switch; excluded from saves but replay revision-gated.
+var competitive_start_enabled: bool = true
 # v9.12 is session-only; old replay revisions retain original tactical calls.
 var overtaking_intelligence_enabled: bool = true
 const Combat = preload("res://scripts/core/race_combat.gd")
@@ -150,9 +154,10 @@ var prediction_staff: Dictionary = {}
 # Captured from the team before the GP and carried in replay policy (no live Garage dependency).
 var strategy_staff_profile: Dictionary = {}
 
-func _init(teams_data: Array, player_team: String, seed_value: int, levels: Dictionary, track_payload: Dictionary = {}, trained_crew: Dictionary = {}) -> void:
+func _init(teams_data: Array, player_team: String, seed_value: int, levels: Dictionary, track_payload: Dictionary = {}, trained_crew: Dictionary = {}, competitive_grid: bool = true) -> void:
 	teams = teams_data
 	team_name = player_team
+	competitive_start_enabled = competitive_grid
 	team_upgrades = levels.duplicate(true)
 	for part in crew_levels.keys():
 		crew_levels[part] = clampi(int(trained_crew.get(part, 0)), 0, 3)
@@ -202,8 +207,21 @@ func _start_grid() -> void:
 			})
 			idx += 1
 	entries.sort_custom(func(a, b): return float(a["qualifying"]) < float(b["qualifying"]))
+	# Grid columns require a full-width opening AND enough safe space at
+	# the first pinch. Monaco closes almost to a single lane; Spa pinches
+	# immediately. Monza retains sufficient separate corridors before the
+	# chicane, which the authoritative solver then narrows safely in motion.
+	var first_sector_min_lane: float = RaceSpace.MAX_LANE
+	var opening_min_lane: float = RaceSpace.MAX_LANE
+	for segment in range(17):
+		var clear_lane: float = RaceSpace.lane_limit(track, float(segment) * 0.01, space_profile)
+		first_sector_min_lane = minf(first_sector_min_lane, clear_lane)
+		if segment <= 4:
+			opening_min_lane = minf(opening_min_lane, clear_lane)
+	var grid_lane_limit: float = opening_min_lane if first_sector_min_lane >= 2.05 else 0.0
 	for i in range(entries.size()):
 		var driver: Dictionary = entries[i]
+		var grid_pose: Dictionary = CompetitiveStart.slot(i, float(space_profile.length), grid_lane_limit) if competitive_start_enabled else {"progress": -maxf(0.0018, 6.6 / float(space_profile.length)) * float(i), "lane": 0.0}
 		var compound := "Médio" if rng.randf() < 0.78 else ("Macio" if rng.randf() < 0.52 else "Duro")
 		# Preserve the existing RNG stream while picking legal Core 2 tyres.
 		var nominated: Array = available_pit_compounds()
@@ -211,7 +229,7 @@ func _start_grid() -> void:
 		cars.append({
 			"id": driver["id"], "name": driver["name"], "team": driver["team"],
 			"color": driver["color"], "skill": driver["skill"], "car_rating": driver["car_rating"],
-			"grid": i + 1, "race_lane":0.0, "progress": -maxf(0.0018,6.6/float(space_profile.length)) * i, "laps_done": 0,
+			"grid": i + 1, "race_lane":float(grid_pose.lane), "progress": float(grid_pose.progress), "laps_done": 0,
 			"pace": "Normal", "tire": compound, "wear": 0.0, "stint_laps": 0,
 			"race_setup_15": WeatherSetup15.neutral(),
 			"tyre_heat": 0.0, "attack_charge": 0.0, "track_wear_factor": tyre_severity() * (1.0 + float((int(driver["id"]) % 7) - 3) * 0.022),
@@ -674,13 +692,15 @@ func _advance(dt: float) -> void:
 	var launch_legacy: bool = false
 	var overtaking_rules: bool = overtaking_intelligence_enabled
 	var start20_rules: bool = race_start20_enabled
+	var competitive_rules: bool = competitive_start_enabled
 	if command_session != null:
 		var attached_session: Object = command_session.get_ref()
 		if attached_session != null:
 			launch_legacy = bool(attached_session.get("legacy_launch_physics"))
 			var revision: String = str(attached_session.get("recorded_simulation_revision"))
-			overtaking_rules = overtaking_rules and revision in [OVERTAKING_SIM_REVISION, START20_SIM_REVISION]
-			start20_rules = start20_rules and revision == START20_SIM_REVISION
+			overtaking_rules = overtaking_rules and revision in [OVERTAKING_SIM_REVISION, START20_SIM_REVISION, COMPETITIVE_SIM_REVISION]
+			start20_rules = start20_rules and revision in [START20_SIM_REVISION, COMPETITIVE_SIM_REVISION]
+			competitive_rules = competitive_rules and revision == COMPETITIVE_SIM_REVISION
 	var launch_clearance: float = 1.0
 	var launch_limit: float = RaceStart066917.CORNER_PHASE_SECONDS if start20_rules else RaceStart066911.PHASE_SECONDS
 	if race_start_intelligence_enabled and clock < launch_limit:
@@ -720,7 +740,7 @@ func _advance(dt: float) -> void:
 		pace_metrics[int(old_car["id"])] = RacePerformance.evaluate(old_car, context)
 	if Perf.enabled: Perf.end(&"race.pace_thermal_drs_kers",perf_pace)
 	var perf_space := Perf.begin() if Perf.enabled else 0
-	var space_plan := RaceSpace.plan(old_order,pace_metrics,dt,track,space_profile,current_weather,driver_traffic_enabled,driver_soul3_enabled,overtaking_rules)
+	var space_plan := RaceSpace.plan(old_order,pace_metrics,dt,track,space_profile,current_weather,driver_traffic_enabled,driver_soul3_enabled,overtaking_rules,competitive_rules,clock)
 	if Perf.enabled: Perf.end(&"race.overtaking",perf_space)
 	var defenders: Dictionary = {}
 	for car in cars:

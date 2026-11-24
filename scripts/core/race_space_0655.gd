@@ -4,6 +4,7 @@ const Combat = preload("res://scripts/core/race_combat.gd")
 const DriverDynamics = preload("res://scripts/core/race_driver_dynamics_0661.gd")
 const DriverTraffic = preload("res://scripts/core/race_driver_traffic_06693.gd")
 const Overtaking = preload("res://scripts/core/race_overtaking_intelligence_066912.gd")
+const CompetitiveStart = preload("res://scripts/core/race_start_competitive_0669172.gd")
 const LENGTH := 6.4
 const WIDTH := 2.95
 const MAX_LANE := 2.95
@@ -54,7 +55,8 @@ static func corridor_crosses(a0: float,a1: float,b0: float,b1: float) -> bool:
 	return minf(a0,a1)<maxf(b0,b1)+WIDTH and maxf(a0,a1)>minf(b0,b1)-WIDTH
 
 static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,shape: Dictionary, weather: Dictionary = {}, traffic_enabled: bool = true, soul3_enabled: bool = false,
-		overtaking_enabled: bool = false) -> Dictionary:
+		overtaking_enabled: bool = false, competitive_start_enabled: bool = false,
+		start_clock_s: float = 0.0) -> Dictionary:
 	var length: float=shape.length
 	# 06686: RaceEngine normally supplies a sorted frozen sporting snapshot.
 	# Filtering out inactive cars preserves its order. Avoid sorting 24
@@ -81,7 +83,8 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 		by_id[id]=c
 		var hesitation := maxf(0,float(c.get("combat_hesitation_s",0)))
 		var lane := float(c.get("race_lane",0))
-		intents[id]={"lane":lane,"goal":0.0,"pace":float(metrics[id].target),"state":"clear","target":-1,"event":"","defender_id":-1,"charge":maxf(0,float(c.get("attack_charge",0))-dt*.12),"defending":-1,"defense_line":0.0,"defense_event":false,"side":"","margin":0.0,"hesitation":maxf(0,hesitation-dt),"driving_dt":maxf(0,dt-hesitation)}
+		var hold_grid_corridor: bool = competitive_start_enabled and CompetitiveStart.active(start_clock_s, float(c.progress))
+		intents[id]={"lane":lane,"goal":(lane if hold_grid_corridor else 0.0),"pace":float(metrics[id].target),"state":"clear","target":-1,"event":"","defender_id":-1,"charge":maxf(0,float(c.get("attack_charge",0))-dt*.12),"defending":-1,"defense_line":0.0,"defense_event":false,"side":"","margin":0.0,"hesitation":maxf(0,hesitation-dt),"driving_dt":maxf(0,dt-hesitation)}
 	# Decide from the same frozen start-of-tick positions. Only the corridor
 	# solver below changes sporting progress; tactics may not teleport a car.
 	for c in order:
@@ -93,7 +96,7 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 			if physical_gap > 0.000001 and physical_gap < gap:
 				gap = physical_gap
 				ahead = other
-		if ahead.is_empty() or gap > 38.0 or float(c.progress) < 0.0: continue
+		if ahead.is_empty() or gap > 38.0 or (float(c.progress) < 0.0 and not competitive_start_enabled): continue
 		var id: int = int(c.id)
 		var rival: int = int(ahead.id)
 		var a: Dictionary = intents[id]
@@ -113,6 +116,8 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 		var driver: Dictionary = c.duplicate()
 		driver["attack_charge"] = float(a.charge)
 		var tactic: Dictionary = DriverDynamics.choose(driver,ahead,gap,advantage,limit,track,weather,soul3_enabled)
+		if competitive_start_enabled:
+			tactic = CompetitiveStart.refine_tactic(driver,ahead,gap,advantage,limit,weather,tactic,start_clock_s)
 		if overtaking_enabled:
 			tactic = Overtaking.refine(c, ahead, order, gap, advantage, limit,
 				length, weather, tactic)

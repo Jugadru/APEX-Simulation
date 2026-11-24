@@ -5,7 +5,8 @@ const Engineer = preload("res://scripts/core/race_engineer_0639.gd")
 const Perf = preload("res://scripts/debug/apex_perf_trace_0657.gd")
 const STEP := 0.20
 # A replay is tied to the exact sporting rules, not only its Godot runtime.
-const SIMULATION_REVISION := "024_race_start_spatial_v1"
+const SIMULATION_REVISION := "025_competitive_grid_start_v1"
+const PRE_COMPETITIVE_START_SIMULATION_REVISION := "024_race_start_spatial_v1"
 const PRE_START20_SIMULATION_REVISION := "023_overtaking_intelligence_v1"
 const PRE_OVERTAKING_SIMULATION_REVISION := "022_race_start_intelligence_v1"
 const PRE_START_SIMULATION_REVISION := "021_strategy_staff_intelligence_v1"
@@ -57,6 +58,8 @@ var legacy_start_intelligence: bool = false
 var legacy_overtaking_intelligence: bool = false
 # 023 and earlier must replay without the v9.17 first-corner congestion model.
 var legacy_start20: bool = false
+# 024 and all older recordings preserve their original grid and corridor rules.
+var legacy_competitive_start: bool = false
 var recorded_simulation_revision: String = SIMULATION_REVISION
 var policy: Dictionary = {"modes": {}, "fingerprints": {}, "staff": {}}
 var checkpoints: Array = []
@@ -81,6 +84,7 @@ func attach(engine, modes: Dictionary = {}, staff: Dictionary = {}) -> void:
 	legacy_start_intelligence = false
 	legacy_overtaking_intelligence = false
 	legacy_start20 = false
+	legacy_competitive_start = false
 	recorded_simulation_revision = SIMULATION_REVISION
 	engine.driver_traffic_enabled = true
 	engine.driver_soul3_enabled = true
@@ -91,6 +95,7 @@ func attach(engine, modes: Dictionary = {}, staff: Dictionary = {}) -> void:
 	engine.race_start_intelligence_enabled = true
 	engine.overtaking_intelligence_enabled = true
 	engine.race_start20_enabled = true
+	engine.competitive_start_enabled = true
 	race = engine
 	race.command_session = weakref(self)
 	policy = {"modes": modes.duplicate(true), "fingerprints": {}, "staff": staff.duplicate(true),
@@ -378,6 +383,7 @@ func seek(target: int) -> bool:
 		race.race_start_intelligence_enabled = not legacy_start_intelligence
 		race.overtaking_intelligence_enabled = not legacy_overtaking_intelligence
 		race.race_start20_enabled = not legacy_start20
+		race.competitive_start_enabled = not legacy_competitive_start
 		race.command_session = weakref(self)
 		tick = int(chosen.tick)
 		cursor = int(chosen.cursor)
@@ -446,6 +452,7 @@ func load_live_session(recorded) -> bool:
 	legacy_start_intelligence = bool(recorded.legacy_start_intelligence)
 	legacy_overtaking_intelligence = bool(recorded.legacy_overtaking_intelligence)
 	legacy_start20 = bool(recorded.legacy_start20)
+	legacy_competitive_start = bool(recorded.legacy_competitive_start)
 	recorded_simulation_revision = str(recorded.recorded_simulation_revision)
 	playback = true
 	if not seek(0):
@@ -463,7 +470,7 @@ func load_data(data: Dictionary) -> bool:
 	# v0.6.6.0 recordings have different physics and must not be replayed under
 	# v0.6.6.1 rules: silently accepting them would mislabel desync as corruption.
 	var archive_revision: String = str(data.get("simulation_revision", ""))
-	if archive_revision not in [SIMULATION_REVISION, PRE_START20_SIMULATION_REVISION, PRE_OVERTAKING_SIMULATION_REVISION, PRE_START_SIMULATION_REVISION, PRE_STAFF_SIMULATION_REVISION, PRE_WET_SIMULATION_REVISION, PIT_COORDINATION_SIMULATION_REVISION, SOUL_SIMULATION_REVISION, TRAFFIC_SIMULATION_REVISION, BASELINE_SIMULATION_REVISION, PREVIOUS_SIMULATION_REVISION, LEGACY_SIMULATION_REVISION]:
+	if archive_revision not in [SIMULATION_REVISION, PRE_COMPETITIVE_START_SIMULATION_REVISION, PRE_START20_SIMULATION_REVISION, PRE_OVERTAKING_SIMULATION_REVISION, PRE_START_SIMULATION_REVISION, PRE_STAFF_SIMULATION_REVISION, PRE_WET_SIMULATION_REVISION, PIT_COORDINATION_SIMULATION_REVISION, SOUL_SIMULATION_REVISION, TRAFFIC_SIMULATION_REVISION, BASELINE_SIMULATION_REVISION, PREVIOUS_SIMULATION_REVISION, LEGACY_SIMULATION_REVISION]:
 		error = "Replay de outra revisão da simulação. Use a versão que o gravou."
 		return false
 	if data.get("format") != "APEX_REPLAY_0660" or data.get("runtime") != Engine.get_version_info().string or data.get("step") != STEP:
@@ -507,15 +514,16 @@ func load_data(data: Dictionary) -> bool:
 		checkpoints.append(_packed_checkpoint(data.checkpoints[i].duplicate(true)))
 	end_tick=data.end_tick
 	legacy_launch_physics = archive_revision == LEGACY_SIMULATION_REVISION
-	legacy_traffic_physics = archive_revision not in [SIMULATION_REVISION, PRE_START20_SIMULATION_REVISION, PRE_OVERTAKING_SIMULATION_REVISION, PRE_START_SIMULATION_REVISION, PRE_STAFF_SIMULATION_REVISION, PRE_WET_SIMULATION_REVISION, PIT_COORDINATION_SIMULATION_REVISION, SOUL_SIMULATION_REVISION, TRAFFIC_SIMULATION_REVISION]
-	legacy_soul_physics = archive_revision not in [SIMULATION_REVISION, PRE_START20_SIMULATION_REVISION, PRE_OVERTAKING_SIMULATION_REVISION, PRE_START_SIMULATION_REVISION, PRE_STAFF_SIMULATION_REVISION, PRE_WET_SIMULATION_REVISION, PIT_COORDINATION_SIMULATION_REVISION, SOUL_SIMULATION_REVISION]
-	legacy_pit_coordination = archive_revision not in [SIMULATION_REVISION, PRE_START20_SIMULATION_REVISION, PRE_OVERTAKING_SIMULATION_REVISION, PRE_START_SIMULATION_REVISION, PRE_STAFF_SIMULATION_REVISION, PRE_WET_SIMULATION_REVISION, PIT_COORDINATION_SIMULATION_REVISION]
-	legacy_pit_queue_prevention = archive_revision not in [SIMULATION_REVISION, PRE_START20_SIMULATION_REVISION, PRE_OVERTAKING_SIMULATION_REVISION, PRE_START_SIMULATION_REVISION, PRE_STAFF_SIMULATION_REVISION, PRE_WET_SIMULATION_REVISION]
-	legacy_wet_strategy = archive_revision not in [SIMULATION_REVISION, PRE_START20_SIMULATION_REVISION, PRE_OVERTAKING_SIMULATION_REVISION, PRE_START_SIMULATION_REVISION, PRE_STAFF_SIMULATION_REVISION]
-	legacy_staff_strategy = archive_revision not in [SIMULATION_REVISION, PRE_START20_SIMULATION_REVISION, PRE_OVERTAKING_SIMULATION_REVISION, PRE_START_SIMULATION_REVISION]
-	legacy_start_intelligence = archive_revision not in [SIMULATION_REVISION, PRE_START20_SIMULATION_REVISION, PRE_OVERTAKING_SIMULATION_REVISION]
-	legacy_overtaking_intelligence = archive_revision not in [SIMULATION_REVISION, PRE_START20_SIMULATION_REVISION]
-	legacy_start20 = archive_revision != SIMULATION_REVISION
+	legacy_traffic_physics = archive_revision not in [SIMULATION_REVISION, PRE_COMPETITIVE_START_SIMULATION_REVISION, PRE_START20_SIMULATION_REVISION, PRE_OVERTAKING_SIMULATION_REVISION, PRE_START_SIMULATION_REVISION, PRE_STAFF_SIMULATION_REVISION, PRE_WET_SIMULATION_REVISION, PIT_COORDINATION_SIMULATION_REVISION, SOUL_SIMULATION_REVISION, TRAFFIC_SIMULATION_REVISION]
+	legacy_soul_physics = archive_revision not in [SIMULATION_REVISION, PRE_COMPETITIVE_START_SIMULATION_REVISION, PRE_START20_SIMULATION_REVISION, PRE_OVERTAKING_SIMULATION_REVISION, PRE_START_SIMULATION_REVISION, PRE_STAFF_SIMULATION_REVISION, PRE_WET_SIMULATION_REVISION, PIT_COORDINATION_SIMULATION_REVISION, SOUL_SIMULATION_REVISION]
+	legacy_pit_coordination = archive_revision not in [SIMULATION_REVISION, PRE_COMPETITIVE_START_SIMULATION_REVISION, PRE_START20_SIMULATION_REVISION, PRE_OVERTAKING_SIMULATION_REVISION, PRE_START_SIMULATION_REVISION, PRE_STAFF_SIMULATION_REVISION, PRE_WET_SIMULATION_REVISION, PIT_COORDINATION_SIMULATION_REVISION]
+	legacy_pit_queue_prevention = archive_revision not in [SIMULATION_REVISION, PRE_COMPETITIVE_START_SIMULATION_REVISION, PRE_START20_SIMULATION_REVISION, PRE_OVERTAKING_SIMULATION_REVISION, PRE_START_SIMULATION_REVISION, PRE_STAFF_SIMULATION_REVISION, PRE_WET_SIMULATION_REVISION]
+	legacy_wet_strategy = archive_revision not in [SIMULATION_REVISION, PRE_COMPETITIVE_START_SIMULATION_REVISION, PRE_START20_SIMULATION_REVISION, PRE_OVERTAKING_SIMULATION_REVISION, PRE_START_SIMULATION_REVISION, PRE_STAFF_SIMULATION_REVISION]
+	legacy_staff_strategy = archive_revision not in [SIMULATION_REVISION, PRE_COMPETITIVE_START_SIMULATION_REVISION, PRE_START20_SIMULATION_REVISION, PRE_OVERTAKING_SIMULATION_REVISION, PRE_START_SIMULATION_REVISION]
+	legacy_start_intelligence = archive_revision not in [SIMULATION_REVISION, PRE_COMPETITIVE_START_SIMULATION_REVISION, PRE_START20_SIMULATION_REVISION, PRE_OVERTAKING_SIMULATION_REVISION]
+	legacy_overtaking_intelligence = archive_revision not in [SIMULATION_REVISION, PRE_COMPETITIVE_START_SIMULATION_REVISION, PRE_START20_SIMULATION_REVISION]
+	legacy_start20 = archive_revision not in [SIMULATION_REVISION, PRE_COMPETITIVE_START_SIMULATION_REVISION]
+	legacy_competitive_start = archive_revision != SIMULATION_REVISION
 	recorded_simulation_revision = archive_revision
 	playback=true
 	return seek(0)

@@ -28,7 +28,13 @@ func _run() -> void:
 	var minor: String = ""
 	if app_name.begins_with(prefix) and app_name.ends_with(suffix):
 		minor = app_name.trim_prefix(prefix).trim_suffix(suffix)
-	var valid_name: bool = minor.is_valid_int() and int(minor) >= 8
+	# Keep the 9.8 minimum while accepting patch identities like 9.17.2.
+	var version_parts: PackedStringArray = minor.split(".")
+	var valid_name: bool = version_parts.size() >= 1 and version_parts.size() <= 2
+	for part in version_parts:
+		valid_name = valid_name and part.is_valid_int()
+	if valid_name:
+		valid_name = int(version_parts[0]) >= 8
 	check(valid_name, "supported Core 2 v9.8+ naming convention")
 	var identity_version: String = "v0.6.6.9." + minor if valid_name else ""
 	check(valid_name and app_description.begins_with(identity_version + ":"),

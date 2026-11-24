@@ -30,21 +30,23 @@ CASES = {
     "staff": ("strategy_staff_066910_test.gd", "STRATEGY_STAFF_066910_PASS"),
     "start": ("race_start_066911_test.gd", "RACE_START_066911_PASS"),
     "start20": ("race_start_066917_test.gd", "RACE_START_066917_PASS"),
+    "startcompetitive": ("race_start_competitive_0669172_test.gd", "COMPETITIVE_START_09172_PASS"),
     "overtake": ("overtaking_066912_test.gd", "OVERTAKING_066912_PASS"),
     "engineer": ("engineer_intelligence_066913_test.gd", "ENGINEER_066913_PASS"),
     "setup": ("setup_track_066914_test.gd", "SETUP_TRACK_066914_PASS"),
     "performance": ("performance_polish_066915_test.gd", "PERFORMANCE_POLISH_066915_PASS"),
     "wet": ("wet_strategy_06698_test.gd", "WET_STRATEGY_06698_PASS"),
 }
-CORE = frozenset(("ai", "pit", "wet", "orders", "staff", "start", "start20", "overtake", "engineer", "setup"))
+CORE = frozenset(("ai", "pit", "wet", "orders", "staff", "start", "start20", "startcompetitive", "overtake", "engineer", "setup"))
 EXACT = {
     "scripts/race_engine.gd": CORE,
     "scripts/core/race_replay_0660.gd": frozenset(("wet", "staff", "prediction", "save", "start", "start20", "overtake")),
-    "scripts/core/race_space_0655.gd": frozenset(("overtake", "driver", "start")),
     "scripts/core/race_driver_traffic_06693.gd": frozenset(("traffic", "driver")),
     "scripts/core/race_state_codec_0660.gd": frozenset(("save", "staff", "prediction", "start", "start20", "overtake")),
     "scripts/core/race_performance.gd": frozenset(("start", "start20", "wet", "driver")),
     "scripts/core/race_start_spatial_066917.gd": frozenset(("start", "start20", "overtake")),
+    "scripts/core/race_start_competitive_0669172.gd": frozenset(("start", "start20", "startcompetitive", "overtake")),
+    "scripts/core/race_space_0655.gd": frozenset(("overtake", "driver", "start", "startcompetitive")),
     # Presentation-only visual racecraft has explicit solver/fixture suites in the manifest.
     # Do not route an unrelated legacy 9.2 replay fixture through the fallback for unknown modules.
     "scripts/apex_racecraft_0654.gd": frozenset(("start20", "overtake")),
