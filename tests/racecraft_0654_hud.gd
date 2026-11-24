@@ -1,5 +1,5 @@
 extends SceneTree
-const Motion = preload("res://scripts/apex_battle_motion_0652.gd")
+const Motion = preload("res://tests/legacy/apex_battle_motion_0652.gd")
 func _initialize() -> void: call_deferred("run")
 func run() -> void:
 	root.size = Vector2i(1600,900)

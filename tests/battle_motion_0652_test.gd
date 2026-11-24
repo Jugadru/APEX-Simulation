@@ -1,5 +1,5 @@
 extends SceneTree
-const Motion = preload("res://scripts/apex_battle_motion_0652.gd")
+const Motion = preload("res://tests/legacy/apex_battle_motion_0652.gd")
 var failures := 0
 func check(ok: bool, message: String) -> void:
 	if not ok:
