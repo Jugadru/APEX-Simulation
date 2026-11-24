@@ -1,0 +1,78 @@
+name: APEX - Independent Racecraft validation
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'scripts/core/race_independent_racecraft_091710.gd'
+      - 'scripts/core/race_space_0655.gd'
+      - 'scripts/race_engine.gd'
+      - 'tests/racing_independent_091710_test.gd'
+      - 'tests/racing_independent_p15_091710_test.gd'
+      - '.github/workflows/apex-independent-racecraft.yml'
+permissions:
+  contents: read
+jobs:
+  independent:
+    if: github.head_ref == 'feat/v0.6.6.9.17.10-racing-line'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {track: ITA, climate: Seco}
+          - {track: GBR, climate: Seco}
+          - {track: MON, climate: Seco}
+          - {track: ITA, climate: Chuva intensa}
+    env:
+      APEX_INDEPENDENT_TRACK: ${{ matrix.track }}
+      APEX_INDEPENDENT_CLIMATE: ${{ matrix.climate }}
+      APEX_INDEPENDENT_TICKS: '1800'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+        with:
+          version: 4.7.2-stable
+      - run: bash tools/apex_ci_import.sh import.log
+      - run: |
+          set -euo pipefail
+          bash tools/apex_ci_isolated_test.sh racing_independent_091710_test.gd 2>&1 | tee independent.log
+          grep -Fq INDEPENDENT_091710_PASS independent.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' independent.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apex-independent-${{ matrix.track }}-${{ matrix.climate }}
+          path: |
+            import.log
+            independent.log
+          retention-days: 14
+  p15-native:
+    if: github.head_ref == 'feat/v0.6.6.9.17.10-racing-line'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+        with:
+          version: 4.7.2-stable
+      - run: sudo apt-get update && sudo apt-get install -y xvfb libgl1 libgl1-mesa-dri
+      - run: bash tools/apex_ci_import.sh import.log
+      - run: |
+          set -euo pipefail
+          sandbox="$(mktemp -d)"
+          trap 'rm -rf -- "$sandbox"' EXIT
+          export HOME="$sandbox/home" XDG_DATA_HOME="$sandbox/data" XDG_CONFIG_HOME="$sandbox/config" XDG_CACHE_HOME="$sandbox/cache" LIBGL_ALWAYS_SOFTWARE=1 GALLIUM_DRIVER=llvmpipe
+          mkdir -p "$HOME" "$XDG_DATA_HOME" "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME"
+          timeout 300s xvfb-run -a -s '-screen 0 1920x1080x24' godot --path . --rendering-method gl_compatibility --rendering-driver opengl3 --audio-driver Dummy --script res://tests/racing_independent_p15_091710_test.gd 2>&1 | tee p15.log
+          grep -Fq P15_CAPTURE_PASS p15.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' p15.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apex-independent-p15-logs
+          path: |
+            import.log
+            p15.log
+          retention-days: 14

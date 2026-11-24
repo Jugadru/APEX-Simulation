@@ -8,12 +8,13 @@ const CompetitiveStart = preload("res://scripts/core/race_start_competitive_0669
 const LENGTH := 6.4
 const WIDTH := 2.95
 const MAX_LANE := 2.95
+const Independent = preload("res://scripts/core/race_independent_racecraft_091710.gd")
 const MergeTraffic = preload("res://scripts/core/race_merge_traffic_0669174.gd")
 
-static func profile(track: Dictionary) -> Dictionary:
+static func route_points(track: Dictionary) -> Array[Vector2]:
 	var route: Array[Vector2] = []
 	for point in track.get("points",[]): route.append(Vector2(float(point[0])*660,float(point[1])*540))
-	if route.size()<4: return {"length":1000.0}
+	if route.size()<4: return []
 	if route[0].distance_to(route[-1])<.001: route.pop_back()
 	for iteration in range(3):
 		var next: Array[Vector2] = []
@@ -21,6 +22,11 @@ static func profile(track: Dictionary) -> Dictionary:
 			next.append(route[i].lerp(route[(i+1)%route.size()],.25))
 			next.append(route[i].lerp(route[(i+1)%route.size()],.75))
 		route=next
+	return route
+
+static func profile(track: Dictionary) -> Dictionary:
+	var route: Array[Vector2] = route_points(track)
+	if route.is_empty(): return {"length":1000.0}
 	var total := 0.0
 	var distances: Array[float] = []
 	var raw: Array[float] = []
@@ -57,8 +63,11 @@ static func corridor_crosses(a0: float,a1: float,b0: float,b1: float) -> bool:
 
 static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,shape: Dictionary, weather: Dictionary = {}, traffic_enabled: bool = true, soul3_enabled: bool = false,
 		overtaking_enabled: bool = false, competitive_start_enabled: bool = false,
-		start_clock_s: float = 0.0, merge_traffic_enabled: bool = false, traffic_hotfix_enabled: bool = false) -> Dictionary:
+		start_clock_s: float = 0.0, merge_traffic_enabled: bool = false, traffic_hotfix_enabled: bool = false, following_enabled: bool = false, completion_enabled: bool = false, independent_enabled: bool = false) -> Dictionary:
 	var length: float=shape.length
+	following_enabled = following_enabled and start_clock_s>=24.0
+	completion_enabled = completion_enabled and following_enabled
+	independent_enabled = independent_enabled and completion_enabled
 	var hotfix: bool = merge_traffic_enabled and traffic_hotfix_enabled
 	# 06686: RaceEngine normally supplies a sorted frozen sporting snapshot.
 	# Filtering out inactive cars preserves its order. Avoid sorting 24
@@ -87,6 +96,24 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 		var lane := float(c.get("race_lane",0))
 		var hold_grid_corridor: bool = competitive_start_enabled and CompetitiveStart.active(start_clock_s, float(c.progress))
 		intents[id]={"lane":lane,"goal":(lane if hold_grid_corridor else 0.0),"pace":float(metrics[id].target),"state":"clear","target":-1,"event":"","defender_id":-1,"charge":maxf(0,float(c.get("attack_charge",0))-dt*.12),"defending":-1,"defense_line":0.0,"defense_event":false,"side":"","margin":0.0,"hesitation":maxf(0,hesitation-dt),"driving_dt":maxf(0,dt-hesitation)}
+	# Voluntary line only in free air. Tactical attack/defense and the
+	# existing occupancy solver retain authority. No lateral teleport.
+	for c in order:
+		var id: int = int(c.id)
+		if not metrics[id].has("line_ratio"): continue
+		var clear: bool = true
+		for other in order:
+			if other.id==id: continue
+			var signed_gap: float=MergeTraffic.relative_gap(float(c.progress),float(other.progress),length)
+			if absf(signed_gap)<LENGTH*3.0:
+				# A rear follower in the same corridor must not monopolize
+				# the leader's racing line. A side-by-side rival still vetoes it.
+				if following_enabled and signed_gap<0.0 and (absf(signed_gap)>=LENGTH+1.0 or absf(float(c.get("race_lane",0.0))-float(other.get("race_lane",0.0)))<WIDTH-0.01): continue
+				clear=false
+				break
+		if clear:
+			var limit: float=minf(lane_limit(track,float(c.progress),shape),lane_limit(track,float(c.progress)+LENGTH*2.0/length,shape))
+			intents[id].goal=clampf(float(metrics[id].line_ratio),-1.0,1.0)*limit
 	# Look ahead once per car; no new RNG or changes to the road geometry.
 	var narrowing: Dictionary = {}
 	if merge_traffic_enabled:
@@ -113,6 +140,8 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 		var a: Dictionary = intents[id]
 		var d: Dictionary = intents[rival]
 		var advantage: float = float(d.pace) - float(a.pace)
+		if following_enabled:
+			advantage = float(metrics[rival].get("decision_pace",d.pace))-float(metrics[id].get("decision_pace",a.pace))
 		a.target = rival
 		a.state = "closing"
 		var previous_target: int = int(c.get("combat_target_id", -1))
@@ -126,7 +155,7 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 				lane_limit(track,float(ahead.progress)+LENGTH*2.0/length,shape))
 		var driver: Dictionary = c.duplicate()
 		driver["attack_charge"] = float(a.charge)
-		var tactic: Dictionary = DriverDynamics.choose(driver,ahead,gap,advantage,limit,track,weather,soul3_enabled)
+		var tactic: Dictionary = DriverDynamics.choose(driver,ahead,gap,advantage,limit,track,weather,soul3_enabled,following_enabled)
 		if competitive_start_enabled:
 			tactic = CompetitiveStart.refine_tactic(driver,ahead,gap,advantage,limit,weather,tactic,start_clock_s)
 		if overtaking_enabled:
@@ -152,14 +181,37 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 				and str(ahead.get("team", "")) == str(c.get("team", "")):
 			tactic["defense"] = false
 		var cooling: bool = float(c.get("combat_cooldown", 0.0)) > 0.0
+		if completion_enabled and str(c.get("combat_state","")) in ["preparing","attacking","duel"] and previous_target==rival and advantage>0.0 and absf(float(a.lane)-float(d.lane))>=WIDTH-0.01 and float(tactic.margin_m)>=-0.004 and not bool(tactic.get("blocked",false)) and not bool(narrowing.get(id,false)):
+			# Continue a physically established attack while it retains real pace advantage.
+			# No new attack outside the passing zone; no override of occupied lanes.
+			if Combat.in_passing_zone(float(c.progress),track): tactic.commit=true
+		if independent_enabled:
+			var memory: Dictionary = c.get("racecraft_memory",{})
+			# Keep the chosen attacking side until the manoeuvre ends. A blocked
+			# corridor cancels the attack instead of immediately switching sides.
+			if bool(tactic.commit) and int(memory.get("attack_target",-1))==rival and str(memory.get("attack_side","")) not in ["",str(tactic.side)]:
+				tactic.commit=false
+			if str(memory.get("mode",""))=="ABORT" and float(memory.get("timer",0.0))>0.0:
+				tactic.commit=false
+			if bool(tactic.commit):
+				# Short constant-nominal-pace forecast of third-car occupancy.
+				# A veto only; the existing sweep remains the final authority.
+				for third in order:
+					if third.id==id or third.id==rival: continue
+					var g: float=MergeTraffic.relative_gap(float(c.progress),float(third.progress),length)
+					if absf(g)>40.0: continue
+					var predicted: float=g+0.8*length*(1.0/maxf(1.0,float(metrics[int(third.id)].target))-1.0/maxf(1.0,float(metrics[id].target)))
+					if (g*predicted<=0.0 or minf(absf(g),absf(predicted))<LENGTH+2.0) and absf(float(tactic.attack_goal)-float(third.get("race_lane",0.0)))<WIDTH-0.01:
+						tactic.commit=false
+						break
 		if int(d.defending) < 0:
 			# Once the cars approach overlap, the defender must HOLD its actual
 			# lane. No late squeeze or return to the racing line during a duel.
-			if gap <= LENGTH + 4.0:
+			if gap <= LENGTH + 4.0 and (not following_enabled or (gap < LENGTH+1.0 and absf(float(a.lane)-float(d.lane))>=WIDTH-0.01) or bool(tactic.commit)):
 				d.goal = float(d.lane)
 				d.defending = id
 				d.defense_line = float(d.lane)
-			elif bool(tactic.defense) and str(d.state) not in ["attacking", "duel", "preparing"]:
+			elif bool(tactic.defense) and (not following_enabled or bool(tactic.commit)) and str(d.state) not in ["attacking", "duel", "preparing"]:
 				d.goal = clampf(float(tactic.defend_goal),-limit,limit)
 				d.defending = id
 				d.defense_line = float(d.goal)
@@ -190,6 +242,62 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 		# Every duel has a small, symmetric time cost; no boost is granted.
 		a.pace += 0.22
 		d.pace += 0.08
+	# 029: close the loop after tactical commitment. A driver who cannot
+	# make a real attack yields longitudinally before seeking the leader's wake.
+	# The unchanged occupancy solver decides whether the lane is safe.
+	if following_enabled and start_clock_s>=24.0:
+		for c in order:
+			var id:int=int(c.id)
+			var a:Dictionary=intents[id]
+			if str(a.state) in ["preparing","attacking","duel"]: continue
+			var nearest:Dictionary={}
+			var gap:float=INF
+			for other in order:
+				if other.id==id: continue
+				var g:float=MergeTraffic.relative_gap(float(c.progress),float(other.progress),length)
+				if absf(g)<=0.000001:
+					if MergeTraffic.has_priority(c,other): continue
+					g=0.0
+				if g>=0.0 and g<gap:
+					gap=g
+					nearest=other
+			if nearest.is_empty() or gap>38.0: continue
+			var d:Dictionary=intents[int(nearest.id)]
+			var separation:float=absf(float(a.lane)-float(d.lane))
+			if separation>0.8 and gap<LENGTH+2.2:
+				# Modest lift from nominal forward pace; never halt or reverse.
+				# The faster driver can still commit when a safe pass opens.
+				a.pace=maxf(float(a.pace),minf(float(a.pace)*1.16,float(d.pace)*1.12))
+			if not independent_enabled and (gap>=LENGTH+1.0 or (gap>=LENGTH-0.00001 and separation<=0.8)) and int(a.defending)<0:
+				a.goal=float(d.goal)
+			# Wake gain only on straights, close and physically aligned.
+			if not independent_enabled and gap>=LENGTH and gap<=30.0 and separation<=0.8:
+				var load:float=float(metrics[id].get("line_load",1.0))
+				var wet:float=clampf(float(weather.get("wetness_factor",0.0)),0.0,1.0)
+				if load<0.22:
+					a.pace-=0.75*(1.0-gap/38.0)*(1.0-separation/0.8)*(1.0-load/0.22)*(1.0-0.85*wet)
+	# 031: own line and frozen observations, not a neighbor's goal.
+	if independent_enabled:
+		for c in order:
+			var id: int = int(c.id)
+			var a: Dictionary = intents[id]
+			var m: Dictionary = metrics[id]
+			var leader: Dictionary = {}
+			var gap: float = INF
+			for other in order:
+				if other.id==id: continue
+				var g: float = MergeTraffic.relative_gap(float(c.progress),float(other.progress),length)
+				if g>0.000001 and g<gap and g<=38.0:
+					gap=g;leader=other
+			var limit: float = minf(lane_limit(track,float(c.progress),shape),lane_limit(track,float(c.progress)+LENGTH*2.0/length,shape))
+			var wet: float = clampf(float(weather.get("wetness_factor",0.0)),0.0,1.0)
+			var own: float = clampf(float(m.get("line_ratio",0.0)),-1.0,1.0)*limit
+			var load: float = float(m.get("line_load",1.0))
+			var memory: Dictionary = Independent.decide(c,a,leader,gap,own,limit,load,float(m.get("ahead_load",1.0)),wet,dt)
+			a.goal=memory.aim
+			a["independent_memory"]=memory
+			if not leader.is_empty() and str(a.state) not in Independent.ATTACK:
+				a.pace=Independent.longitudinal(float(a.pace),gap,absf(float(a.lane)-float(leader.get("race_lane",0.0))),load,wet)
 	# Hold lateral occupancy through overlap, including a recently passed car.
 	for c in order:
 		var id := int(c.id)
@@ -204,6 +312,8 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 				break
 		var limit := minf(lane_limit(track,float(c.progress),shape),lane_limit(track,float(c.progress)+LENGTH*2/length,shape))
 		var wanted := move_toward(float(a.lane),clampf(float(a.goal),-limit,limit),dt*1.8)
+		if independent_enabled and a.has("independent_memory") and is_equal_approx(float(a.goal),float(a.independent_memory.aim)):
+			wanted = float(a.independent_memory.wanted)
 		# Do not enter a third car's occupied corridor.
 		for other in order:
 			# An unchanged lane cannot newly cross a separated corridor.
@@ -262,6 +372,14 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 			"combat_last_side":str(a.side) if not str(a.side).is_empty() else str(c.get("combat_last_side","")),
 			"combat_last_margin_m":float(a.margin) if not str(a.side).is_empty() else float(c.get("combat_last_margin_m",0.0)),
 			"combat_cooldown":maxf(0.0,float(c.get("combat_cooldown",0.0))-dt)}
+		if independent_enabled and a.has("independent_memory"):
+			var memory: Dictionary = a.independent_memory.duplicate()
+			memory.erase("wanted")
+			if str(a.state) in Independent.ATTACK:
+				memory["attack_target"]=int(a.target)
+				memory["attack_side"]=str(a.side)
+			memory.velocity=(float(a.next_lane)-float(a.lane))/maxf(dt,0.00001)
+			states["racecraft_memory"]=memory
 		result[id]={"progress":next,"states":states,"event":reaction,"defender_id":int(a.defender_id)}
 	# Physical traffic also includes lapped cars; distance wraps at the line.
 	for iteration in range(order.size()):
@@ -273,6 +391,17 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 				var gap := fposmod(float(other.progress)-float(c.progress),1)
 				if gap>.25 or gap<.00000001:continue
 				var b: Dictionary=result[int(other.id)]
+				if completion_enabled and gap*length<LENGTH+2.2 and str(intents[id].state) not in ["preparing","attacking","duel"] and absf(float(c.get("race_lane",0))-float(other.get("race_lane",0)))>=WIDTH-0.01:
+					# Compare the leader's RESOLVED advance, not nominal lap time.
+					# A passive pair must not swap every time the lead car queues
+					# behind a third car. A truly stationary leader does not impose
+					# this voluntary constraint (free corridor escape remains).
+					var leader_advance:float=maxf(0.0,float(b.progress)-float(other.progress))
+					if leader_advance>0.00000001:
+						var voluntary_limit:float=float(c.progress)+leader_advance*0.88
+						if voluntary_limit<float(result[id].progress)-0.000000001:
+							result[id].progress=voluntary_limit
+							changed=true
 				if not corridor_crosses(float(c.get("race_lane",0)),float(result[id].states.race_lane),float(other.get("race_lane",0)),float(b.states.race_lane)): continue
 				var offset := float(c.progress)+gap-float(other.progress)
 				var allowed := maxf(float(c.progress),float(b.progress)+offset-LENGTH/length)

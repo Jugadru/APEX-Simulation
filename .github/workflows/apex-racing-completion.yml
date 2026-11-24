@@ -1,0 +1,85 @@
+name: APEX - Racing Completion validation
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'scripts/core/race_pass_completion_091710.gd'
+      - 'scripts/core/race_space_0655.gd'
+      - 'scripts/race_engine.gd'
+      - 'tests/racing_completion_091710_test.gd'
+      - '.github/workflows/apex-racing-completion.yml'
+permissions:
+  contents: read
+jobs:
+  completion:
+    if: github.head_ref == 'feat/v0.6.6.9.17.10-racing-line'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {track: GBR, climate: Seco, production: '0', ticks: '240'}
+          - {track: ITA, climate: Seco, production: '0', ticks: '240'}
+          - {track: GBR, climate: Seco, production: '1', ticks: '1800'}
+          - {track: ITA, climate: Seco, production: '1', ticks: '1800'}
+          - {track: MON, climate: Seco, production: '1', ticks: '1800'}
+          - {track: ITA, climate: Chuva intensa, production: '1', ticks: '1800'}
+    env:
+      APEX_COMPLETION_TRACK: ${{ matrix.track }}
+      APEX_COMPLETION_CLIMATE: ${{ matrix.climate }}
+      APEX_COMPLETION_PRODUCTION: ${{ matrix.production }}
+      APEX_COMPLETION_TICKS: ${{ matrix.ticks }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+        with:
+          version: 4.7.2-stable
+      - run: bash tools/apex_ci_import.sh import.log
+      - run: |
+          set -euo pipefail
+          bash tools/apex_ci_isolated_test.sh racing_completion_091710_test.gd 2>&1 | tee completion.log
+          grep -Fq COMPLETION_091710_PASS completion.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' completion.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apex-completion-${{ matrix.track }}-${{ matrix.climate }}-${{ matrix.production }}
+          path: |
+            import.log
+            completion.log
+          retention-days: 14
+  full-gp:
+    if: github.head_ref == 'feat/v0.6.6.9.17.10-racing-line'
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    strategy:
+      fail-fast: false
+      matrix:
+        track: [GBR, ITA, MON]
+    env:
+      APEX_TRACK: ${{ matrix.track }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+        with:
+          version: 4.7.2-stable
+      - run: bash tools/apex_ci_import.sh import.log
+      - run: |
+          set -euo pipefail
+          sandbox="$(mktemp -d)"
+          trap 'rm -rf -- "$sandbox"' EXIT
+          export HOME="$sandbox/home" XDG_DATA_HOME="$sandbox/data" XDG_CONFIG_HOME="$sandbox/config" XDG_CACHE_HOME="$sandbox/cache" XDG_STATE_HOME="$sandbox/state"
+          mkdir -p "$HOME" "$XDG_DATA_HOME" "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME" "$XDG_STATE_HOME"
+          timeout 900s godot --headless --single-threaded-scene --path . --script res://tests/race_traffic_full_gp_09177_test.gd 2>&1 | tee gp.log
+          grep -Fq TRAFFIC_FULL_GP_09177_PASS gp.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' gp.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apex-completion-full-${{ matrix.track }}
+          path: |
+            import.log
+            gp.log
+          retention-days: 14

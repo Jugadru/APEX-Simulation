@@ -3,7 +3,7 @@ extends RefCounted
 const Race = preload("res://scripts/race_engine.gd")
 const SCHEMA := 1
 const CHILDREN := ["weather", "track_dynamics", "telemetry"]
-const EXCLUDED := ["command_session", "rng", "weather", "track_dynamics", "telemetry", "_engineer_advice_cache", "prediction_ledger", "prediction_staff", "driver_traffic_enabled", "driver_soul3_enabled", "pit_coordination2_enabled", "pit_queue_prevention_enabled", "wet_strategy_intelligence_enabled", "strategy_staff_intelligence_enabled", "strategy_staff_profile", "race_start_intelligence_enabled", "race_start20_enabled", "competitive_start_enabled", "merge_traffic_enabled", "traffic_hotfix_enabled", "overtaking_intelligence_enabled"]
+const EXCLUDED := ["command_session", "rng", "weather", "track_dynamics", "telemetry", "_engineer_advice_cache", "prediction_ledger", "prediction_staff", "driver_traffic_enabled", "driver_soul3_enabled", "pit_coordination2_enabled", "pit_queue_prevention_enabled", "wet_strategy_intelligence_enabled", "strategy_staff_intelligence_enabled", "strategy_staff_profile", "race_start_intelligence_enabled", "race_start20_enabled", "competitive_start_enabled", "merge_traffic_enabled", "traffic_hotfix_enabled", "racing_line_enabled", "following_enabled", "pass_completion_enabled", "independent_racecraft_enabled", "racing_line_profile", "overtaking_intelligence_enabled"]
 
 static func fields(obj: Object, excluded: Array = [], clone: bool = true) -> Dictionary:
 	var result: Dictionary = {}
@@ -43,6 +43,7 @@ static func restore(state: Dictionary):
 		if typeof(car.id) != TYPE_INT or ids.has(car.id) or typeof(car.finished) != TYPE_BOOL or typeof(car.progress) != TYPE_FLOAT: return null
 		ids[car.id] = true
 	apply_fields(race, e)
+	race.racing_line_profile = race.RacingLine.build(race.track)
 	for child in CHILDREN: apply_fields(race.get(child), state[child])
 	race.rng.seed = int(state.rng.seed)
 	race.rng.state = int(state.rng.state)

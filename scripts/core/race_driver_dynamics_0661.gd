@@ -9,7 +9,7 @@ const Soul3 = preload("res://scripts/core/race_driver_soul_06694.gd")
 
 static func choose(attacker: Dictionary, defender: Dictionary,
 		gap_m: float, advantage_s: float, usable_lane: float,
-		track: Dictionary, weather: Dictionary, soul3_enabled: bool = false) -> Dictionary:
+		track: Dictionary, weather: Dictionary, soul3_enabled: bool = false, following_enabled: bool = false) -> Dictionary:
 	var risk: float = clampf(float(attacker.get("risk_tolerance", 55.0)), 0.0, 100.0)
 	var awareness: float = clampf(float(attacker.get("spatial_awareness", 80.0)), 0.0, 100.0)
 	var aggression: float = clampf(float(defender.get("defense_aggression", 55.0)), 0.0, 100.0)
@@ -55,7 +55,8 @@ static func choose(attacker: Dictionary, defender: Dictionary,
 	var margin: float = absf(goal - defend_lane) - CAR_WIDTH
 	# A previous attacking side may be impossible at a narrow turn. An early
 	# alternative is permitted; neither side may cross an occupied car.
-	if margin < 0.12 and gap_m > 11.5 and absf(current_lane) < 0.30:
+	var following_aligned: bool = following_enabled and gap_m >= 6.4 - 0.00001 and absf(current_lane-float(defender.get("race_lane",0.0))) <= 0.8 and str(attacker.get("combat_state","clear")) not in ["preparing","attacking","duel"]
+	if margin < 0.12 and ((gap_m > 11.5 and absf(current_lane) < 0.30) or following_aligned):
 		var alternate: float = -side * usable_lane
 		if absf(alternate - defend_lane) > absf(goal - defend_lane):
 			goal = alternate

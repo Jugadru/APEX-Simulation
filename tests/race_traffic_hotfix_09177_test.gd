@@ -55,6 +55,7 @@ func fixture()->void:
 func run_case(teams:Array,track:Dictionary,climate:String,seed_value:int,modern:bool,ticks:int)->Dictionary:
 	var race=Race.new(teams,"Ferrari",seed_value,{},track,{})
 	race.traffic_hotfix_enabled=modern
+	race.racing_line_enabled=false
 	race.configure_weather(climate)
 	race.running=true
 	var last:Dictionary={};var streak:Dictionary={}
@@ -103,7 +104,7 @@ func run()->void:
 			cases+=1
 	check(cases==8,"all scenarios")
 	# Historical 026 rule path and new archives must remain independently replayable.
-	for revision in [Replay.PRE_TRAFFIC_HOTFIX_SIMULATION_REVISION,Replay.SIMULATION_REVISION]:
+	for revision in [Replay.PRE_TRAFFIC_HOTFIX_SIMULATION_REVISION,Replay.PRE_RACING_LINE_SIMULATION_REVISION]:
 		var rec=Replay.new();rec.attach(Race.new(data.teams,"Ferrari",42,{},data.tracks[0],{}))
 		rec.recorded_simulation_revision=revision
 		for i in range(300): check(rec.step_tick(),revision+" tick")
