@@ -207,12 +207,18 @@ func _start_grid() -> void:
 			})
 			idx += 1
 	entries.sort_custom(func(a, b): return float(a["qualifying"]) < float(b["qualifying"]))
-	# The full first-corner corridor, not just the starting line, must support
-	# both grid columns. Monaco, Spa and Monza narrow AFTER the straight.
-	var grid_lane_limit: float = RaceSpace.MAX_LANE
+	# Grid columns require a full-width opening AND enough safe space at
+	# the first pinch. Monaco closes almost to a single lane; Spa pinches
+	# immediately. Monza retains sufficient separate corridors before the
+	# chicane, which the authoritative solver then narrows safely in motion.
+	var first_sector_min_lane: float = RaceSpace.MAX_LANE
+	var opening_min_lane: float = RaceSpace.MAX_LANE
 	for segment in range(17):
-		grid_lane_limit = minf(grid_lane_limit,
-			RaceSpace.lane_limit(track, float(segment) * 0.01, space_profile))
+		var clear_lane: float = RaceSpace.lane_limit(track, float(segment) * 0.01, space_profile)
+		first_sector_min_lane = minf(first_sector_min_lane, clear_lane)
+		if segment <= 4:
+			opening_min_lane = minf(opening_min_lane, clear_lane)
+	var grid_lane_limit: float = opening_min_lane if first_sector_min_lane >= 2.05 else 0.0
 	for i in range(entries.size()):
 		var driver: Dictionary = entries[i]
 		var grid_pose: Dictionary = CompetitiveStart.slot(i, float(space_profile.length), grid_lane_limit) if competitive_start_enabled else {"progress": -maxf(0.0018, 6.6 / float(space_profile.length)) * float(i), "lane": 0.0}
