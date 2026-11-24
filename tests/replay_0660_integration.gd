@@ -4,7 +4,7 @@ const C=preload("res://scripts/core/race_state_codec_0660.gd")
 func _initialize()->void:call_deferred("run")
 func run()->void:
 	var h=load("res://scenes/main.tscn").instantiate();root.add_child(h);await process_frame
-	h.set_process(false);h.seed_picker.value=660;h.team_control_mode="Automático";h._start_race()
+	h.set_process(false);h.seed_picker.value=660;h.team_control_mode="Automático";h.replay_recording_enabled=true;h._start_race()
 	var live=h.replay_session
 	var initial:Dictionary=live.export_data()
 	var direct=R.new();direct.attach(C.restore(initial.checkpoints[0].state),initial.checkpoints[0].policy.modes,initial.checkpoints[0].policy.staff)

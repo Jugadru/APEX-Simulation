@@ -6,6 +6,7 @@ const Perf = preload("res://scripts/debug/apex_perf_trace_0657.gd")
 
 const BattleMotion = preload("res://scripts/apex_racecraft_0654.gd")
 var occupation: Dictionary = {}
+var grid_slots: Dictionary = {}
 var pose_anchors: Dictionary = {}
 var visual_lanes: Dictionary = {}
 
@@ -117,6 +118,7 @@ func set_track_data(track: PackedVector2Array, title: String, teams: Array = [],
 	projection_hints.clear()
 	visual_lanes.clear()
 	occupation.clear()
+	grid_slots.clear()
 	live_cars.clear()
 	marker_cache.clear()
 	pit_visual_phase.clear()
@@ -287,6 +289,47 @@ func set_race_cars(cars: Array, selected_id: int, motion_delta: float = -1.0) ->
 			visual_lanes.erase(existing)
 			pit_visual_phase.erase(existing)
 			projection_hints.erase(existing)
+
+# Mark the actual sporting grid, not a second independently spaced grid.
+# Position and heading use precisely the same sampler as live occupation.
+func build_start_grid(cars: Array, map: Object) -> void:
+	grid_slots.clear()
+	pose_anchors.clear()
+	var prior := course_root.get_node_or_null("StartingGrid")
+	if prior != null:
+		course_root.remove_child(prior)
+		prior.queue_free()
+	var marks := Node3D.new()
+	marks.name = "StartingGrid"
+	course_root.add_child(marks)
+	var paint := _material("#f2f0e8")
+	for source in cars:
+		var car: Dictionary = source.duplicate()
+		car.route_point = map.point_on_track(float(car.progress))
+		car.route_direction = map.direction_on_track(float(car.progress))
+		var pose := _sample_occupied_pose(car,float(car.get("race_lane",0.0)),0.0)
+		var slot := int(car.grid)
+		grid_slots[slot] = pose.duplicate()
+		var mark := Node3D.new()
+		mark.name = "P%02d" % slot
+		marks.add_child(mark)
+		mark.position = Vector3(pose.position.x,0.112,pose.position.y)
+		mark.rotation.y = atan2(-float(pose.direction.x),-float(pose.direction.y))
+		var half_width := CarModelScript.OCCUPATION_HALF_WIDTH+0.08
+		var half_length := CarModelScript.OCCUPATION_HALF_LENGTH+0.08
+		# U-shaped starting box, with a transverse front stop line.
+		_box(mark,Vector3(half_width*2,0.012,0.10),Vector3(0,0,-half_length),paint)
+		for side in [-1.0,1.0]:
+			_box(mark,Vector3(0.10,0.012,half_length*2),Vector3(side*half_width,0,0),paint)
+		var number := Label3D.new()
+		number.text = "P%d" % slot
+		number.font_size = 32
+		number.pixel_size = 0.018
+		number.outline_size = 4
+		number.rotation.x = -PI/2.0
+		number.position = Vector3(0,0.015,half_length+0.35)
+		mark.add_child(number)
+	pose_anchors.clear()
 
 func _sample_occupied_pose_legacy(car: Dictionary, requested_lane: float, retreat: float) -> Dictionary:
 	var pose := _sample_occupied_pose(car,requested_lane,retreat)

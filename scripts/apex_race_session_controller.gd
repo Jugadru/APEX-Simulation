@@ -110,6 +110,7 @@ static func _start_race(host) -> void:
 		host.map_view.direction_on_track(RaceScript.PIT_ENTRY_FRACTION),
 		host.map_view.point_on_track(RaceScript.PIT_EXIT_FRACTION),
 		host.map_view.direction_on_track(RaceScript.PIT_EXIT_FRACTION))
+	host.world_view.build_start_grid(host.race.cars,host.map_view)
 	# Auto starts in 3D at 1x and switches to cached 2D at 10x+.
 	# Changing view manually afterwards has priority over automatic changes.
 	host.visual_setting = 0
@@ -129,7 +130,7 @@ static func _start_race(host) -> void:
 	host.pit_wall_header.text = "PIT WALL / ESTRATÉGIA  /  %s" % host.selected_team.to_upper()
 	host.race_progress.max_value = float(host.race.lap_count)
 	host.replay_session = preload("res://scripts/core/race_replay_0660.gd").new()
-	host.replay_session.attach(host.race, host.engineer_driver_modes, host.garage.effective_staff_levels(host.selected_team))
+	host.replay_session.attach(host.race, host.engineer_driver_modes, host.garage.effective_staff_levels(host.selected_team), host.replay_recording_enabled)
 	host._update_game_ui()
 	host._layout_ui()
 

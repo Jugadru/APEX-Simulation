@@ -172,9 +172,19 @@
         "tests/race_start_3d_sync_0669171_test.gd",
         "tests/visual_stutter_06672_benchmark.gd",
         "scripts/car_model_3d.gd",
-        "tests/car_model_smoke_test.gd"
+        "tests/car_model_smoke_test.gd",
+        "tests/race_live_without_replay_09173_test.gd",
+        "tests/grid_placement_09173_test.gd"
       ],
       "fast_tests": [
+        {
+          "script": "race_live_without_replay_09173_test.gd",
+          "marker": "LIVE_WITHOUT_REPLAY_09173_PASS"
+        },
+        {
+          "script": "grid_placement_09173_test.gd",
+          "marker": "GRID_PLACEMENT_09173_PASS"
+        },
         {
           "script": "car_model_smoke_test.gd",
           "marker": "APEX CAR MODEL TEST OK"
