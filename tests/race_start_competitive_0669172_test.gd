@@ -73,6 +73,8 @@ func _run() -> void:
 	var nominal = Race.new(season["teams"],"Ferrari",6617,{},gbr,{})
 	var legacy = Race.new(season["teams"],"Ferrari",6617,{},gbr,{},false)
 	var narrow = Race.new(season["teams"],"Ferrari",6617,{},mon,{})
+	var monza_grid = Race.new(season["teams"],"Ferrari",6617,{},track(season, "ITA"),{})
+	var spa_grid = Race.new(season["teams"],"Ferrari",6617,{},track(season, "BEL"),{})
 	check(nominal.cars.size()==24 and legacy.cars.size()==24
 		and narrow.cars.size()==24,"exact 2012 24-car grid")
 	var by_grid: Dictionary = {}
@@ -100,8 +102,10 @@ func _run() -> void:
 		"new sporting revision gate is not serialized in saves")
 	check(float(nominal.cars[0].progress) >= float(legacy.cars[0].progress),
 		"new grid preserves poleman's starting line")
-	check(absf(float(narrow.cars[0].race_lane)) < 0.001,
-		"narrow Monaco start falls back to safe single corridor")
+	check(absf(float(narrow.cars[0].race_lane)) < 0.001
+		and absf(float(monza_grid.cars[0].race_lane)) < 0.001
+		and absf(float(spa_grid.cars[0].race_lane)) < 0.001,
+		"Monaco/Monza/Spa first-corner pinches keep safe old grid spacing")
 
 	var first = Race.new(season["teams"],"Ferrari",6617,{},gbr,{})
 	var recording = Replay.new()
@@ -149,6 +153,11 @@ func _run() -> void:
 				scenarios_with_new_position += 1
 			if int(after.passes) > 0:
 				scenarios_with_pass += 1
+			check(int(after.passes) <= 24,
+				"%s %s: no unrealistic pass inflation in two minutes (%d)" % [code,climate,int(after.passes)])
+			if climate == "Chuva intensa":
+				check(int(after.passes) <= 4,
+					"%s wet start: conservative racecraft, <=4 true passes in first 120s" % code)
 			var report := {"track":code,"climate":climate,"rank_difference_vs_9171_18":at18,
 				"rank_difference_vs_9171_60":at60,
 				"rank_difference_vs_9171_120":at120,
