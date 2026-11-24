@@ -26,3 +26,6 @@ Status inicial: implementação e fixtures propostas; execução, desempenho e i
 
 ## Segunda tentativa — após CI 45420829487
 A primeira implementação passou nas fixtures e no gate de segurança, mas o benchmark nativo apresentou zero recuperações graduais, salto máximo MON de 35,79 versus 27,98 no run anterior. Não homologada. Comparações de runs distintos não isolam seed/carga; nesta revisão o benchmark roda o solver legado e o candidato sobre os mesmos snapshots oficiais. A recuperação passa a ser local, aplicada após a resolução normal e aceita somente quando diminui o salto e não colide com nenhuma trajetória vizinha. O fator 125% permanece experimental. Não modificar critérios anteriores.
+
+### Gate A/B pareado obrigatório
+As duas variantes começam com a mesma ocupação inicial e recebem os mesmos snapshots, sem simular novamente a corrida. O benchmark registra seed, maior salto total, maior salto de resync, retenções e amostras estacionárias do legado. Reprovar se o maior salto crescer em qualquer pista (tolerância numérica 0,01), se em MON a recuperação gradual nunca atuar, se não houver redução de resyncs ou do maior salto, ou se crescerem as amostras estacionárias em MON. Esses critérios complementam, não substituem, os gates de segurança já existentes. Múltiplas seeds e inspeção gráfica ainda são exigidas antes de merge.
