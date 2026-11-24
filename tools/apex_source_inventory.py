@@ -62,6 +62,7 @@ def main():
     args.output.parent.mkdir(parents=True,exist_ok=True)
     args.output.write_text(json.dumps(report,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
     print("APEX_SOURCE_INVENTORY",json.dumps({"files":len(sizes),"duplicate_groups":len(duplicates),"duplicate_bytes":report["duplicate_bytes"],"report_sidecars":len(sidecars),"identical_function_blocks":len(repeated),"excluded_runtime_refs":bad,"duplicate_classes":duplicate_classes}))
+    print("APEX_SOURCE_DETAILS",json.dumps({"identical_runtime_function_blocks":repeated,"unresolved_literal_references":missing,"runtime_scripts_not_reached_by_literal_graph":report["runtime_scripts_not_reached_by_literal_graph"]}))
     return 1 if args.check and (bad or duplicate_classes) else 0
 
 if __name__=="__main__": raise SystemExit(main())

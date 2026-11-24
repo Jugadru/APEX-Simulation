@@ -148,7 +148,75 @@ static func pending_old_clearance(pose: Dictionary, car_id: int,
 				- (rival.position - pose.position).dot(pose.direction) + 0.1)
 	return step
 
-static func solve(cars: Array,previous: Dictionary,dt: float,sample: Callable, retreat_step_cap: float = INF) -> Dictionary:
+# Evaluate a complete simultaneous motion before the order-dependent fallback.
+# The authoritative lane/progress are never modified. All accepted endpoints
+# and every tested sweep must be collision-free. Legacy fixtures omit the
+# explicit route length and continue to use the original solver.
+static func simultaneous_clear(before: Dictionary, after: Dictionary) -> bool:
+	var ids := after.keys()
+	for i in range(ids.size()):
+		var id = ids[i]
+		for j in range(i+1,ids.size()):
+			var other = ids[j]
+			if overlaps(after[id],after[other]): return false
+			if before.has(id) and before.has(other) and swept(before[id],after[id],before[other],after[other]): return false
+	return true
+
+static func try_official_motion(active: Array, previous: Dictionary, sample: Callable) -> Dictionary:
+	var nominal := {}
+	var maximum_arc := 0.0
+	var maximum_lane := 0.0
+	for car in active:
+		if not car.has("race_lane"): return {}
+		var id := int(car.id)
+		var pose: Dictionary = sample.call(car,float(car.race_lane),0.0)
+		if not pose.has("route_length"): return {}
+		if previous.has(id):
+			var old: Dictionary = previous[id]
+			if float(pose.progress)+0.00000001 < float(old.progress): return {}
+			maximum_arc = maxf(maximum_arc,(float(pose.progress)-float(old.progress))*float(pose.route_length))
+			maximum_lane = maxf(maximum_lane,absf(float(pose.lane)-float(old.lane)))
+		pose["held"] = false
+		pose["hold_frames"] = 0
+		pose["resynced"] = false
+		pose["visible"] = true
+		pose["intent_lane"] = float(car.race_lane)
+		pose["target_id"] = int(car.get("combat_target_id",-1))
+		nominal[id] = pose
+	if simultaneous_clear(previous,nominal): return nominal
+	# A straight chord over a bend can falsely cross another car. Validate
+	# the actual arc, using the exact same road sampler as the model.
+	if previous.size()!=nominal.size() or not simultaneous_clear({},nominal): return {}
+	var count := maxi(2,int(ceil(maxf(maximum_arc,maximum_lane)/1.0)))
+	if count>32: return {}
+	# Never claim a route sweep unless its first sample reproduces the
+	# actual preceding accepted pose, including lane and heading.
+	for car in active:
+		var id := int(car.id)
+		if not previous.has(id): return {}
+		var old: Dictionary = previous[id]
+		var target: Dictionary = nominal[id]
+		var retreat := (float(target.progress)-float(old.progress))*float(target.route_length)
+		var origin: Dictionary = sample.call(car,float(old.lane),retreat)
+		if Vector2(origin.position).distance_to(Vector2(old.position))>0.01 or Vector2(origin.direction).dot(Vector2(old.direction))<0.999: return {}
+	var prior := previous
+	for n in range(1,count+1):
+		var fraction := float(n)/float(count)
+		var next := {}
+		if n==count:
+			next=nominal
+		else:
+			for car in active:
+				var id := int(car.id)
+				var old: Dictionary = previous[id]
+				var target: Dictionary = nominal[id]
+				var retreat := (float(target.progress)-float(old.progress))*float(target.route_length)*(1.0-fraction)
+				next[id]=sample.call(car,lerpf(float(old.lane),float(target.lane),fraction),retreat)
+		if not simultaneous_clear(prior,next): return {}
+		prior=next
+	return nominal
+
+static func solve(cars: Array,previous: Dictionary,dt: float,sample: Callable, retreat_step_cap: float = INF, synchronize: bool = true) -> Dictionary:
 	var active := []
 	var active_ids := {}
 	for car in cars:
@@ -160,6 +228,9 @@ static func solve(cars: Array,previous: Dictionary,dt: float,sample: Callable, r
 		for car in active:
 			if previous.has(int(car.id)): frozen[int(car.id)] = previous[int(car.id)]
 		if frozen.size()==active.size(): return frozen
+	if synchronize:
+		var synchronized := try_official_motion(active,previous,sample)
+		if not synchronized.is_empty(): return synchronized
 	# A visual hold must not become a permanent ordering lock after the
 	# authoritative simulation passes a blocked rival. Rebase only the stuck
 	# car's presentation history; no race dictionary or physics is modified.

@@ -21,7 +21,7 @@ func run() -> void:
 			car.route_point = host.map_view.point_on_track(car.progress)
 			car.route_direction = host.map_view.direction_on_track(car.progress)
 		host.world_view.pose_anchors.clear()
-		var baseline: Dictionary = R.solve(grid,{},0.0,host.world_view._sample_occupied_pose_legacy)
+		var baseline: Dictionary = R.solve(grid,{},0.0,host.world_view._sample_occupied_pose_legacy,INF,false)
 		var worst_jump: Dictionary = {}
 		var baseline_max_step := 0.0
 		var baseline_max_resync_step := 0.0
@@ -62,7 +62,7 @@ func run() -> void:
 			var poses: Dictionary = host.world_view.occupation
 			# Exactly the same authoritative snapshots and geometry for both solvers.
 			var prior_baseline := baseline
-			baseline = R.solve(cars,prior_baseline,.5,host.world_view._sample_occupied_pose_legacy)
+			baseline = R.solve(cars,prior_baseline,.5,host.world_view._sample_occupied_pose_legacy,INF,false)
 			for id in baseline:
 				var legacy_pose: Dictionary = baseline[id]
 				for other in baseline:

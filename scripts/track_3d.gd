@@ -335,6 +335,7 @@ func _sample_occupied_pose_legacy(car: Dictionary, requested_lane: float, retrea
 	var pose := _sample_occupied_pose(car,requested_lane,retreat)
 	pose.erase("half_length")
 	pose.erase("half_width")
+	pose.erase("route_length")
 	return pose
 
 func _sample_occupied_pose(car: Dictionary, requested_lane: float, retreat: float) -> Dictionary:
@@ -362,6 +363,7 @@ func _sample_occupied_pose(car: Dictionary, requested_lane: float, retreat: floa
 	var lane := clampf(requested_lane,-maxf(0,width-1.45),maxf(0,width-1.45))
 	var position := center+side*lane
 	var perf_result_32 = {"position":Vector2(position.x,position.z),"direction":Vector2(direction.x,direction.z),"lane":lane,"progress":float(car.progress)-retreat/maxf(total,1)}
+	perf_result_32["route_length"] = total
 	perf_result_32["half_length"] = CarModelScript.OCCUPATION_HALF_LENGTH
 	perf_result_32["half_width"] = CarModelScript.OCCUPATION_HALF_WIDTH
 	if Perf.enabled: Perf.end(&"route.3d_occupied_pose",perf_started)

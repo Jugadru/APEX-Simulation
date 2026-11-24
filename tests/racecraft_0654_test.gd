@@ -11,6 +11,13 @@ func car(id: int,x: float) -> Dictionary:
 func sample(c: Dictionary,lane: float,retreat: float) -> Dictionary:
 	lane = clampf(lane,-maxf(0,width-1.45),maxf(0,width-1.45))
 	return {"position":c.route_point*.6+Vector2(-retreat,lane),"direction":Vector2.RIGHT,"lane":lane,"progress":float(c.progress)-retreat/1000}
+func official_sample(c: Dictionary,lane: float,retreat: float) -> Dictionary:
+	var p := sample(c,lane,retreat)
+	p["route_length"]=1000.0
+	p["half_length"]=2.4
+	p["half_width"]=1.25
+	return p
+
 func valid(poses: Dictionary, old: Dictionary = {}) -> void:
 	for id in poses:
 		check(poses[id].visible,"car remains visible")
@@ -72,5 +79,19 @@ func _initialize() -> void:
 	check(not R.overlaps(a,b),"padded scaled meshes have clearance at five units")
 	b.position = Vector2(4.7,0)
 	check(R.overlaps(a,b),"scaled mesh contact still rejected")
+	# Synchronized nominal convoy stays on official poses; crossing still rejects.
+	cars=[car(0,0),car(1,8)]
+	for c in cars: c["race_lane"]=0.0
+	poses=R.solve(cars,{},.5,official_sample)
+	for c in cars:
+		c.route_point.x+=10.0/.6
+		c.progress+=.01
+	old=poses
+	poses=R.solve(cars,old,.5,official_sample)
+	valid(poses,old)
+	check(absf(float(poses[0].progress)-float(cars[0].progress))<.000001,"synchronized convoy uses official progress")
+	cars[0]=car(0,30)
+	cars[0]["race_lane"]=0.0
+	check(R.try_official_motion(cars,poses,official_sample).is_empty(),"synchronized crossing rejected")
 	if failures==0: print("RACECRAFT_PASS attacker / defense / no overlap / continuous sweep / traffic / narrow road / pause / immutable")
 	quit(0 if failures==0 else 1)
