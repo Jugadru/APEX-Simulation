@@ -213,7 +213,13 @@ static func solve(cars: Array,previous: Dictionary,dt: float,sample: Callable) -
 							changed = true
 		else:
 			pose["held"] = retreat>0
-			pose["hold_frames"] = 0
+			# A cleared candidate can land exactly on its old visual position
+			# after retreat. Count this as an actual hold, not a fake advance:
+			# otherwise two more rollback frames yield three stationary ticks
+			# without ever triggering the bounded recovery (Monaco car 7).
+			var visually_still: bool = retreat > 0.0 and not old.is_empty() \
+				and Vector2(pose.position).distance_squared_to(Vector2(old.position)) < 0.015 * 0.015
+			pose["hold_frames"] = int(old.get("hold_frames",0)) + 1 if visually_still else 0
 		pose["resynced"] = not previous.is_empty() and previous.has(id) and not history.has(id)
 		pose["visible"] = true
 		pose["intent_lane"] = float(lanes[id])
