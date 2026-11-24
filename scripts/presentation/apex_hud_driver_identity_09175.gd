@@ -1,8 +1,9 @@
 extends Control
-## Original neutral racing helmet badge, not a portrait or a recreation of a
-## real helmet design. Static CanvasItem drawing: no texture/HTTP/file access.
-## Team colour and slot markers come from the current race card.
+## Optional real local portrait; original neutral helmet only when absent.
+## Presentation only: no HTTP, sporting state or per-frame texture loading.
 const HudSkin = preload("res://scripts/apex_race_hud_skin_ui01.gd")
+const PortraitLocal = preload("res://scripts/apex_portrait_local_2012.gd")
+var portrait: Texture2D
 var driver_id: int = -1
 var driver_name: String = ""
 var team_name: String = ""
@@ -28,12 +29,22 @@ func configure(car: Dictionary, slot: int) -> void:
 	team_name=next_team
 	team_tint=next_tint
 	driver_slot=slot
+	portrait = PortraitLocal.get_texture(driver_name)
+	custom_minimum_size = Vector2(34, 36) if portrait != null else Vector2(34, 25)
 	# Name and team remain available from the existing card labels. Ignore
 	# mouse input so this additional drawing cannot swallow command clicks.
 	queue_redraw()
 
 func _draw() -> void:
 	draw_count+=1
+	if portrait != null:
+		var available := Vector2(maxf(1.0, size.x - 4.0), maxf(1.0, size.y - 2.0))
+		var scale_factor := minf(available.x / portrait.get_width(), available.y / portrait.get_height())
+		var photo_size := portrait.get_size() * scale_factor
+		draw_rect(Rect2(Vector2.ZERO, size), HudSkin.SURFACE_SOLID)
+		draw_texture_rect(portrait, Rect2((size - photo_size) * 0.5, photo_size), false)
+		draw_rect(Rect2(Vector2.ZERO, Vector2(2, size.y)), team_tint)
+		return
 	var origin: Vector2 = (size-Vector2(34,25))*0.5
 	# High-contrast background + original stylized helmet outline.
 	draw_rect(Rect2(origin,Vector2(34,25)),HudSkin.SURFACE_SOLID,true)

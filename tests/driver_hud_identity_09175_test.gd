@@ -1,6 +1,7 @@
 extends SceneTree
 const Codec = preload("res://scripts/core/race_state_codec_0660.gd")
 const Identity = preload("res://scripts/presentation/apex_hud_driver_identity_09175.gd")
+const PortraitLocal = preload("res://scripts/apex_portrait_local_2012.gd")
 var failures: Array[String]=[]
 var checks: int=0
 var graphical: bool=false
@@ -35,7 +36,20 @@ func run() -> void:
 	await settle()
 	check(hud.race_card_panels.size()==2,"existing two cards")
 	check(hud.standing_rows.size()==24,"existing 24 standings")
-	check(host.portrait_manager.get_photo("Fernando Alonso")==null,"neutral policy unchanged")
+	var strict: bool = "--require-real-portraits" in OS.get_cmdline_user_args()
+	var hud_count: int = PortraitLocal.available_count("hud")
+	var profile_count: int = PortraitLocal.available_count("profile")
+	print("PORTRAIT_PACK_COUNTS HUD=", hud_count, " PROFILE=", profile_count)
+	if strict:
+		check(hud_count == 24 and profile_count == 24, "strict real local pack 48 resources")
+	for key in PortraitLocal.DRIVER_IDS:
+		for kind in ["hud", "profile"]:
+			var name: String = str(key)
+			var tex: Texture2D = PortraitLocal.get_texture(name, kind)
+			if tex != null:
+				check(tex == PortraitLocal.get_texture(name, kind), "cached texture " + name + " " + kind)
+				check(tex.get_size() == (Vector2(384,400) if kind == "hud" else Vector2(640,800)), "pack dimensions " + name + " " + kind)
+	check(PortraitLocal.get_texture("unknown fictional driver") == null, "unknown driver never receives another portrait")
 	var hash_before: String=Codec.sporting_hash(host.race,host.replay_session.policy)
 	var initial_nodes: Array=[]
 	for i in range(2):
@@ -47,6 +61,7 @@ func run() -> void:
 			quit(1)
 			return
 		initial_nodes.append(badge)
+		check(badge.portrait == PortraitLocal.get_texture(str(driver.name)), "card matches local portrait or fallback")
 		check(badge.driver_id==int(card.id) and badge.driver_name==str(driver.name) and badge.team_name==str(driver.team),"real driver identity")
 		check(badge.team_tint==Color.from_string(str(driver.color),Color.WHITE) and badge.driver_slot==i,"team colour and slot")
 		check(badge.mouse_filter==Control.MOUSE_FILTER_IGNORE and badge.focus_mode==Control.FOCUS_NONE,"no input interception")
@@ -86,6 +101,30 @@ func run() -> void:
 			check(card.expanded.visible and hud.expanded_context[i]==context,"original expandable context")
 			check(card.expanded.get_global_rect().end.y<=card.base.get_global_rect().position.y+1.0,"detail opens upward")
 			hud._collapse_driver(i)
+	# Check the actual ranking, radio selection and profile viewer in this tree.
+	for i in range(hud.standing_rows.size()):
+		var row: Dictionary = hud.standing_rows[i]
+		var car: Dictionary = host.race.get_sorted()[i]
+		check(row.portrait.texture == PortraitLocal.get_texture(str(car.name)), "ranking portrait binding")
+	hud._open_window("radio")
+	await settle()
+	for i in range(hud.radio_driver_ids.size()):
+		hud.radio_driver_picker.select(i)
+		hud._radio_driver_changed(i)
+		await settle()
+		var car: Dictionary = host._car_by_id(hud.radio_driver_ids[i])
+		check(hud.radio_identity_badge.portrait == PortraitLocal.get_texture(str(car.name)), "radio selected identity")
+		hud._show_profile_2012()
+		await settle()
+		var expected: Texture2D = PortraitLocal.get_texture(str(car.name), "profile")
+		check(is_instance_valid(hud.driver_profile_panel_2012), "profile viewer opened")
+		if expected != null:
+			check(is_instance_valid(hud.driver_profile_photo_2012) and hud.driver_profile_photo_2012.texture == expected, "profile uses correct photo")
+		if graphical:
+			await capture("profile_%d" % i)
+		hud._close_profile_2012()
+	if graphical: await capture("radio")
+	hud._close_window()
 	# Existing controls and sporting state stay connected.
 	for i in range(10): hud.refresh_hud()
 	await settle()

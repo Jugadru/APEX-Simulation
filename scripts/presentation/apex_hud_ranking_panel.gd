@@ -32,6 +32,13 @@ static func build(parent: Node, rank_idle_style: StyleBoxFlat, rank_selected_sty
 		stripe.custom_minimum_size = Vector2(3, 20)
 		stripe.color = HudSkin.MUTED
 		row.add_child(stripe)
+		var portrait := TextureRect.new()
+		portrait.custom_minimum_size = Vector2(22, 24)
+		portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		portrait.hide()
+		row.add_child(portrait)
 		var pos: Label = label.call(row, "%d" % (i + 1), 14, HudSkin.WHITE)
 		pos.custom_minimum_size.x = 20
 		var driver: Button = button.call(row, "---", select_car.bind(i), 43)
@@ -51,6 +58,6 @@ static func build(parent: Node, rank_idle_style: StyleBoxFlat, rank_selected_sty
 		var detail: Label = label.call(row, "—", 14, HudSkin.WHITE)
 		detail.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		detail.custom_minimum_size.x = 66
-		standing_rows.append({"row":row, "stripe":stripe, "pos":pos, "driver":driver,
+		standing_rows.append({"row":row, "stripe":stripe, "portrait":portrait, "pos":pos, "driver":driver,
 			"tyre":tyre, "state":state, "detail":detail})
 	return {"ranking": ranking, "standings_title": standings_title, "standing_rows": standing_rows}
