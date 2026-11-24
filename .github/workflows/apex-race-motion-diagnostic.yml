@@ -111,3 +111,31 @@ jobs:
           name: apex-motion-replay-${{ matrix.revision }}
           path: replay-control/
           retention-days: 14
+  live-grid-control:
+    if: github.head_ref == 'fix/v0.6.6.9.17.3-race-motion'
+    name: Live recording isolation and numbered grid
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        script: [race_live_without_replay_09173_test, grid_placement_09173_test]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+        with:
+          version: 4.7.2-stable
+      - run: |
+          set -euo pipefail
+          mkdir -p live-grid
+          timeout 240s godot --headless --single-threaded-scene --path . --import 2>&1 | tee live-grid/import.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' live-grid/import.log
+          timeout 240s godot --headless --single-threaded-scene --path . --script res://tests/${{ matrix.script }}.gd 2>&1 | tee live-grid/test.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' live-grid/test.log
+          grep -Eq 'LIVE_WITHOUT_REPLAY_09173_PASS|GRID_PLACEMENT_09173_PASS' live-grid/test.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apex-motion-${{ matrix.script }}
+          path: live-grid/
+          retention-days: 14

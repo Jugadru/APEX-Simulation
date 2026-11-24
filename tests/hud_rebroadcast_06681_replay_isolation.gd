@@ -9,6 +9,7 @@ func _run() -> void:
  await process_frame
  host.set_process(false)
  host.seed_picker.value=660
+ host.replay_recording_enabled = true
  host._start_race()
  var live = host.replay_session
  var hud = host.race_hud_0620

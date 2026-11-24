@@ -11,6 +11,7 @@ func run()->void:
 	h.set_process(false)
 	for i in range(h.season_tracks.size()):
 		if h.season_tracks[i].code=="GBR":h.selected_track_index=i
+	h.replay_recording_enabled = true
 	h.seed_picker.value=6558;h._start_race();h.race.running=true;h.sim_speed=1
 	for i in range(210):h._process(1.0/60)
 	h.race.running=false;h._process(1.0/60)
