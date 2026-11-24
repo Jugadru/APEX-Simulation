@@ -32,6 +32,7 @@ func fixture():
 func drive(data:Dictionary,track:Dictionary,modern:bool,production:bool,climate:String,seed_value:int,ticks:int,dt:float)->Dictionary:
  var race=Race.new(data.teams,"Ferrari",seed_value,{},track,{})
  race.pass_completion_enabled=modern
+ race.independent_racecraft_enabled=false
  race.merge_traffic_enabled=production
  race.configure_weather(climate);race.running=true
  var pairs:Dictionary={};var pending:Dictionary={};var cleared:=0;var raw:=0;var overlap:=0;var stopped:=0;var reversals:=0;var side:=0;var aligned:=0;var near:=0;var field_stop:=0;var initial:Dictionary={}
@@ -109,7 +110,7 @@ func run():
   check(new.side<=old.side*1.20+100,"no material side-by-side regression vs 029")
   check(float(new.aligned)/maxf(1.0,float(new.near))>=float(old.aligned)/maxf(1.0,float(old.near))-0.05,"wake alignment retained")
  if code=="GBR" and production and climate=="Seco":
-  for revision in [Replay.PRE_COMPLETION_SIMULATION_REVISION,Replay.SIMULATION_REVISION]:
+  for revision in [Replay.PRE_COMPLETION_SIMULATION_REVISION,Replay.PRE_INDEPENDENT_SIMULATION_REVISION]:
    var rec=Replay.new();rec.attach(Race.new(data.teams,"Ferrari",42,{},track,{}));rec.recorded_simulation_revision=revision
    for i in range(600):check(rec.step_tick(),"record tick")
    var player=Replay.new()

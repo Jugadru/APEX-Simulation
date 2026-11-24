@@ -383,6 +383,19 @@
         {"script": "radio_0668101_booked_pit_advice_test.gd", "marker": "RADIO_0668101_BOOKED_PIT_PASS"}
       ],
       "checks": []
+    },
+    {
+      "id": "independent_racecraft_091710",
+      "paths": [
+        "scripts/core/race_independent_racecraft_091710.gd",
+        "scripts/core/race_space_0655.gd",
+        "scripts/race_engine.gd",
+        "tests/racing_independent_091710_test.gd"
+      ],
+      "fast_tests": [
+        {"script": "racing_independent_091710_test.gd", "marker": "INDEPENDENT_091710_PASS"}
+      ],
+      "checks": []
     }
   ]
 }
