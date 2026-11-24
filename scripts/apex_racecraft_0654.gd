@@ -327,6 +327,17 @@ static func solve(cars: Array,previous: Dictionary,dt: float,sample: Callable, r
 		var lane := float(lanes[id]) if car.has("race_lane") else (lerpf(from,float(lanes[id]),1.0-exp(-3.8*maxf(0,dt))) if not old.is_empty() else float(lanes[id]))
 		var pose: Dictionary = sample.call(car,lane,0.0)
 		var retreat := 0.0
+		# Short render intervals can be smaller than the 0.8-unit fallback
+		# retreat. Try a safe fractional retreat before stepping backwards.
+		if synchronize and dt>0.0 and dt<0.10 and not old.is_empty() and pose.has("route_length") and blocked(pose,old,result,history):
+			var travel: float = (float(pose.progress)-float(old.progress))*float(pose.route_length)
+			if travel>0.015 and travel<=2.0:
+				for ratio in [0.25,0.5,0.75]:
+					var probe: Dictionary = sample.call(car,lane,travel*ratio)
+					if float(probe.progress)>=float(old.progress) and not blocked(probe,old,result,history):
+						pose=probe
+						retreat=travel*ratio
+						break
 		while (blocked(pose,old,result,history) or (recovering and pending_old_overlap(pose,id,previous,result,active_ids))) and retreat<240:
 			var step := .8
 			for other in result:
@@ -373,4 +384,40 @@ static func solve(cars: Array,previous: Dictionary,dt: float,sample: Callable, r
 		pose["target_id"] = int(car.get("combat_target_id",-1))
 		pose["progress"] = float(pose.get("progress",car.progress))
 		result[id] = pose
+	# At short cadences the experiment increased catch-up jumps; preserve the
+	# established high-frequency path. Coarser updates can recover safely.
+	if synchronize and dt>=0.10:
+		_recover_stationary(active,previous,result,sample)
 	return result
+
+# Recover a visually stationary car only through a safe intermediate pose.
+static func _recover_stationary(active: Array, previous: Dictionary, result: Dictionary, sample: Callable) -> void:
+	for car in active:
+		var id: int = int(car.id)
+		if not previous.has(id) or not result.has(id): continue
+		var old: Dictionary = previous[id]
+		var current: Dictionary = result[id]
+		if not bool(current.get("held",false)) or Vector2(current.position).distance_squared_to(Vector2(old.position)) >= 0.015*0.015: continue
+		var target: Dictionary = sample.call(car,float(car.get("race_lane",current.lane)),0.0)
+		if not target.has("route_length") or float(target.progress)<=float(old.progress): continue
+		var distance: float = (float(target.progress)-float(old.progress))*float(target.route_length)
+		if distance < 0.015 or distance > 32.0: continue
+		for fraction in [1.0,0.75,0.5,0.25,0.125]:
+			var candidate: Dictionary = sample.call(car,lerpf(float(old.lane),float(target.lane),fraction),distance*(1.0-fraction))
+			if float(candidate.progress)<=float(old.progress) or Vector2(candidate.position).distance_squared_to(Vector2(old.position))<0.015*0.015: continue
+			var clear := true
+			for other in result:
+				if other==id: continue
+				if overlaps(candidate,result[other]) or (previous.has(other) and swept(old,candidate,previous[other],result[other])):
+					clear=false
+					break
+			if not clear: continue
+			candidate["held"]=false
+			candidate["hold_frames"]=0
+			candidate["resynced"]=false
+			candidate["visible"]=true
+			candidate["intent_lane"]=float(car.get("race_lane",target.lane))
+			candidate["target_id"]=int(car.get("combat_target_id",-1))
+			candidate["stationary_recovery"]=true
+			result[id]=candidate
+			break

@@ -172,11 +172,23 @@ func set_race_cars(cars: Array, selected_id: int, motion_delta: float = -1.0) ->
 	var delta: float = maxf(0.0, get_process_delta_time() if motion_delta < 0.0 else motion_delta)
 	pose_anchors.clear()
 	var perf_occupation := Perf.begin() if Perf.enabled else 0
+	var prior_occupation: Dictionary = occupation if Perf.enabled else {}
+	var prior_nominal: Dictionary = previous_nominal if Perf.enabled else {}
 	occupation = BattleMotion.solve_interval(cars,occupation,delta,_sample_occupied_pose,previous_nominal)
 	previous_nominal = BattleMotion.nominal_history(cars)
 	if Perf.enabled:
 		Perf.end(&"visual.occupancy",perf_occupation)
-		for pose in occupation.values():
+		for id in occupation:
+			var pose: Dictionary = occupation[id]
+			if delta>0.0 and prior_occupation.has(id) and prior_nominal.has(id) and previous_nominal.has(id):
+				var before: Dictionary = prior_nominal[id]
+				var after: Dictionary = previous_nominal[id]
+				if before.stage==after.stage:
+					var arc_step: float = (float(after.progress)-float(before.progress))*float(pose.get("route_length",0.0))
+					if arc_step>=0.015 and Vector2(pose.position).distance_squared_to(Vector2(prior_occupation[id].position))<0.015*0.015:
+						Perf.count(&"visual.traffic_nominal_advancing_stalled")
+					elif arc_step>=0.0 and arc_step<0.015:
+						Perf.count(&"visual.traffic_nominal_low_advance")
 			if int(pose.get("hold_frames",0)) > 0:
 				Perf.count(&"visual.occupancy_stalled_car_frames")
 			if bool(pose.get("resynced",false)):

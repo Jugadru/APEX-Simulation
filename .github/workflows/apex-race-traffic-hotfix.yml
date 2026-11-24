@@ -9,6 +9,11 @@ on:
       - 'scripts/core/race_replay_0660.gd'
       - 'scripts/race_engine.gd'
       - 'tests/race_traffic_hotfix_09177_test.gd'
+      - 'scripts/apex_racecraft_0654.gd'
+      - 'scripts/track_3d.gd'
+      - 'tests/traffic_visual_ab_09177_test.gd'
+      - 'tests/traffic_space_ab_09177_test.gd'
+      - 'tests/legacy/*baseline_09177.gd'
       - '.github/workflows/apex-race-traffic-hotfix.yml'
 permissions:
   contents: read
@@ -64,4 +69,56 @@ jobs:
           path: |
             import.log
             motion.log
+          retention-days: 14
+  visual-ab:
+    if: github.head_ref == 'fix/v0.6.6.9.17.7-race-traffic'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        track: [MON, GBR, ITA, BEL]
+    env:
+      APEX_VISUAL_TRACK: ${{ matrix.track }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+        with:
+          version: 4.7.2-stable
+      - run: bash tools/apex_ci_import.sh import.log
+      - run: |
+          set -euo pipefail
+          bash tools/apex_ci_isolated_test.sh traffic_visual_ab_09177_test.gd 2>&1 | tee visual-ab.log
+          grep -Fq TRAFFIC_VISUAL_AB_09177_PASS visual-ab.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' visual-ab.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apex-visual-ab-${{ matrix.track }}
+          path: |
+            import.log
+            visual-ab.log
+          retention-days: 14
+  space-ab:
+    if: github.head_ref == 'fix/v0.6.6.9.17.7-race-traffic'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+        with:
+          version: 4.7.2-stable
+      - run: bash tools/apex_ci_import.sh import.log
+      - run: |
+          set -euo pipefail
+          bash tools/apex_ci_isolated_test.sh traffic_space_ab_09177_test.gd 2>&1 | tee space-ab.log
+          grep -Fq TRAFFIC_SPACE_AB_09177_PASS space-ab.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' space-ab.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apex-space-ab
+          path: |
+            import.log
+            space-ab.log
           retention-days: 14

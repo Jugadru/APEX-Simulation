@@ -196,15 +196,20 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 		var a: Dictionary=intents[id]
 		for other in order:
 			if other.id==id: continue
+			# Reject same-lane neighbors before computing circular distance.
+			if absf(float(a.lane)-float(other.get("race_lane",0)))<WIDTH-.01: continue
 			var gap := absf(MergeTraffic.relative_gap(float(c.progress),float(other.progress),length)) if hotfix else absf(float(c.progress)-float(other.progress))*length
-			if gap<LENGTH+1 and absf(float(a.lane)-float(other.get("race_lane",0)))>=WIDTH-.01:
+			if gap<LENGTH+1:
 				a.goal=a.lane
 				break
 		var limit := minf(lane_limit(track,float(c.progress),shape),lane_limit(track,float(c.progress)+LENGTH*2/length,shape))
 		var wanted := move_toward(float(a.lane),clampf(float(a.goal),-limit,limit),dt*1.8)
 		# Do not enter a third car's occupied corridor.
 		for other in order:
+			# An unchanged lane cannot newly cross a separated corridor.
+			if wanted==float(a.lane): break
 			if other.id==id:continue
+			if absf(float(a.lane)-float(other.get("race_lane",0)))<WIDTH: continue
 			var gap := absf(MergeTraffic.relative_gap(float(c.progress),float(other.progress),length)) if hotfix else absf(float(c.progress)-float(other.progress))*length
 			if gap<LENGTH+2 and corridor_crosses(float(a.lane),wanted,float(other.get("race_lane",0)),float(other.get("race_lane",0))):
 				if absf(float(a.lane)-float(other.get("race_lane",0)))>=WIDTH:
