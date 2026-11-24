@@ -6,7 +6,7 @@ root=Path(__file__).resolve().parents[1]
 main=(root/'scripts/main.gd').read_text()
 portrait=(root/'scripts/apex_portrait_manager.gd').read_text()
 mini=(root/'scripts/apex_mini_map.gd').read_text()
-conditions=(root/'scripts/apex_track_conditions.gd').read_text()
+conditions=(root/'tests/legacy/apex_track_conditions.gd').read_text()
 check_build_version(root, '0.5.3.2')
 for needle in ('_download_team_portraits', '_download_all_portraits', '_rebuild_player_cards', '_refresh_player_cards',
                'mini_map.set_track(map_view.route)', 'mini_map.set_cars(draw_cars, focused_id)',

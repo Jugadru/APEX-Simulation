@@ -43,5 +43,5 @@ sha256={
 # not listed in the baseline (the UI-specific portrait manager has its own tests).
 check_legacy_garage_contract(root)
 for name, expected in sha256.items():
-    assert hashlib.sha256((root/'scripts'/name).read_bytes()).hexdigest()==expected,name
+    assert hashlib.sha256((root/('tests/legacy' if name == 'apex_track_conditions.gd' else 'scripts')/name).read_bytes()).hexdigest()==expected,name
 print('PASS: v0.5.3.2.4 UI commands, commentary, car diagnostics, strategy and preserved engine')

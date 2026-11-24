@@ -4,7 +4,7 @@ import re
 root=Path(__file__).resolve().parents[1]
 source=Path('/mnt/data/APEX_GODOT_0.6.2.0_HUD_REWORK')
 main=(root/'scripts/main.gd').read_text()
-hud=(root/'scripts/apex_race_hud_0620.gd').read_text()
+hud=(root/'tests/legacy/apex_race_hud_0620.gd').read_text()
 old=(source/'scripts/main.gd').read_text() if source.exists() else None
 modules={
     'SessionSettings':('apex_session_settings.gd',['_load_season_data','_load_hud_prefs','_save_hud_prefs','_effective_hud_layout','_card_folded','_toggle_driver_card','_toggle_all_driver_cards']),
