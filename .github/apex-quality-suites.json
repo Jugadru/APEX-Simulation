@@ -264,6 +264,29 @@
         }
       ],
       "checks": []
+    },
+    {
+      "id": "driver_hud_restoration_09175",
+      "paths": [
+        "scripts/apex_race_hud_0622.gd",
+        "scripts/presentation/apex_hud_driver_identity_09175.gd",
+        "tests/driver_hud_identity_09175_test.gd"
+      ],
+      "fast_tests": [
+        {
+          "script": "driver_hud_identity_09175_test.gd",
+          "marker": "DRIVER_HUD_IDENTITY_09175_PASS"
+        },
+        {
+          "script": "core2_06684_hidden_legacy_hud_test.gd",
+          "marker": "APEX_06684_HIDDEN_LEGACY"
+        },
+        {
+          "script": "hud_race_context_test.gd",
+          "marker": "HUD_RACE_CONTEXT_PASS"
+        }
+      ],
+      "checks": []
     }
   ]
 }

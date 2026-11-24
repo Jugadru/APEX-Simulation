@@ -8,6 +8,7 @@ extends Control
 
 const MiniMap = preload("res://scripts/apex_mini_map.gd")
 const HudSkin = preload("res://scripts/apex_race_hud_skin_ui01.gd")
+const DriverIdentity = preload("res://scripts/presentation/apex_hud_driver_identity_09175.gd")
 const ReBroadcast = preload("res://scripts/apex_hud_rebroadcast_0668.gd")
 const HudStandingMetric = preload("res://scripts/presentation/apex_hud_standings_metric.gd")
 const HudRankingPanel = preload("res://scripts/presentation/apex_hud_ranking_panel.gd")
@@ -372,14 +373,17 @@ func _create_driver_card(car: Dictionary, slot: int) -> void:
 	header.add_theme_stylebox_override("panel", HudSkin.panel(HudSkin.HEADER, 0, HudSkin.HEADER, 6))
 	var title_line := _line(header, 9)
 	var pos := _text(title_line, "P%d" % int(car.get("position", 0)), 18, HudSkin.HEADER_INK)
-	var team_stripe := ColorRect.new()
-	team_stripe.custom_minimum_size = Vector2(4, 23)
-	team_stripe.color = Color.from_string(str(car.get("color", "#FF8A21")), ACCENT)
-	title_line.add_child(team_stripe)
+	# In-place identity graphic: replace only the four-pixel colour rail.
+	# The original header, name, controls and three metric columns remain.
+	var driver_identity := DriverIdentity.new()
+	driver_identity.name = "DriverIdentity"
+	driver_identity.configure(car, slot)
+	title_line.add_child(driver_identity)
 	var identity := _text(title_line, "P%d" % (slot + 1), 13, HudSkin.HEADER_INK)
 	identity.tooltip_text = "Piloto %d da equipe" % (slot + 1)
 	var name := _text(title_line, str(car.get("name", "Piloto")), 17, HudSkin.HEADER_INK)
 	name.clip_text = true
+	name.tooltip_text = str(car.get("name", "Piloto"))
 	name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var drs := _text(title_line, "DRS —", 12, HudSkin.HEADER_INK)
 	var follow := _btn(title_line, "CÂMERA", _follow.bind(int(car["id"])), 74)
@@ -458,7 +462,7 @@ func _create_driver_card(car: Dictionary, slot: int) -> void:
 	var detail_body := _column(content, 6)
 	expanded.hide()
 	race_card_panels.append({"base":base, "expanded":expanded, "content":detail_body, "heading":heading_label,
-		"compound_badge":compound_badge, "neighbours":neighbours, "identity":identity, "id":int(car["id"]), "slot":slot, "pos":pos, "name":name, "status":status, "secondary":second_line,
+		"compound_badge":compound_badge, "neighbours":neighbours, "identity":identity, "driver_identity":driver_identity, "id":int(car["id"]), "slot":slot, "pos":pos, "name":name, "status":status, "secondary":second_line,
 		"wear_bar":tyre_bar, "tabs":tab_buttons, "quick":quick, "context":-1,
 		"tyre_temp":tyre_temp, "pace_value":pace_value, "lap_value":lap_value, "pace_hint":pace_hint,
 		"energy_value":energy_value, "energy_mode":energy_mode, "energy_bar":energy_bar, "drs":drs,
@@ -759,7 +763,8 @@ func refresh_hud() -> void:
 		if car.is_empty():
 			continue
 		card["name"].text = str(car.get("name", "Piloto"))
-		card["identity"].text = "%d · %s" % [i + 1, HudRaceContext.code(car)]
+		ReBroadcast.set_text_if_changed(card["identity"], "%d · %s" % [i + 1, HudRaceContext.code(car)])
+		# Identity is static for a GP: no new texture, per-frame redraw or I/O.
 		card["neighbours"].text = HudRaceContext.neighbours(order, int(car["id"]), bool(race.finished))
 		card["neighbours"].tooltip_text = "Vizinhos na classificação, não proximidade física na pista. " + card["neighbours"].text
 		card["pos"].text = "P%02d" % int(car.get("position", 0))
