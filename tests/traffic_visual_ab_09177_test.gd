@@ -92,6 +92,15 @@ func run() -> void:
 			printerr("FIXED_TIMELINE_FIXTURE_FAIL ",cfg)
 			quit(1)
 			return
+		# Preserve the original REV2 solver fixture (0.60 scale) on both
+		# variants. The enlarged Monaco geometry has its own stricter arc test;
+		# do not turn the historical improvement gate into a no-op.
+		if track_code=="MON":
+			host.world_view.visual_world_scale=host.world_view.WORLD_SCALE
+			host.world_view._build_road_sections()
+			host.world_view.projection_index.build(host.world_view.road_centers)
+			host.world_view.pose_anchors.clear()
+			host.world_view.projection_hints.clear()
 		host.race.running=true
 		var timeline: Array=[detached(host.race.cars)]
 		# Use the real live scheduler's fixed ticks, including staff/commands.

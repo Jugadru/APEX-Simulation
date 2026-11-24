@@ -23,6 +23,11 @@ const CircuitDetailScript = preload("res://scripts/apex_circuit_detail_0629.gd")
 # v0.5.1.27 drew very broad quads using a *different* tangent for every
 # little segment: the corners tore open into long, thin triangles.
 const WORLD_SCALE: float = 0.60
+# Monaco's compressed visual centerline produces hairpins narrower than
+# the actual car footprint. Only the 3D display scale changes; the 2D map,
+# sporting arc, circuit length, classification and model dimensions stay.
+const MONACO_VISUAL_WORLD_SCALE: float = 0.84
+var visual_world_scale: float = WORLD_SCALE
 const ROAD_HALF: float = 4.40
 const SHOULDER_MULTIPLIER: float = 1.18
 const RUNOFF_MULTIPLIER: float = 1.38
@@ -130,6 +135,7 @@ func set_track_data(track: PackedVector2Array, title: String, teams: Array = [],
 			old_car.queue_free()
 	route = track.duplicate()
 	course_name = title
+	visual_world_scale = MONACO_VISUAL_WORLD_SCALE if title == "Circuit de Monaco" else WORLD_SCALE
 	var palette: Dictionary = CircuitSceneryScript.palette_for(title)
 	if world_environment_3d != null and world_environment_3d.environment != null:
 		world_environment_3d.environment.background_color = Color(str(palette["sky"]))
@@ -392,6 +398,7 @@ func _sample_occupied_pose(car: Dictionary, requested_lane: float, retreat: floa
 	var perf_result_32 = {"position":Vector2(position.x,position.z),"direction":Vector2(direction.x,direction.z),"lane":lane,"progress":float(car.progress)-retreat/maxf(total,1)}
 	perf_result_32["road_half_width"] = width
 	perf_result_32["route_length"] = total
+	perf_result_32["arc_distance"] = distance
 	perf_result_32["half_length"] = CarModelScript.OCCUPATION_HALF_LENGTH
 	perf_result_32["half_width"] = CarModelScript.OCCUPATION_HALF_WIDTH
 	if Perf.enabled: Perf.end(&"route.3d_occupied_pose",perf_started)
@@ -541,7 +548,7 @@ func _apply_camera() -> void:
 	camera_3d.look_at(camera_look_target, Vector3.UP)
 
 func _to_world(p: Vector2) -> Vector3:
-	return Vector3((p.x - 550.0) * WORLD_SCALE, 0.0, (p.y - 450.0) * WORLD_SCALE)
+	return Vector3((p.x - 550.0) * visual_world_scale, 0.0, (p.y - 450.0) * visual_world_scale)
 
 func _point_on_route(progress: float) -> Vector2:
 	var perf_started := Perf.begin() if Perf.enabled else 0
