@@ -6,6 +6,10 @@ on:
     types: [opened, reopened, synchronize]
     paths:
       - 'scripts/apex_racecraft_0654.gd'
+      - 'scripts/core/race_merge_traffic_0669174.gd'
+      - 'scripts/core/race_space_0655.gd'
+      - 'scripts/race_engine.gd'
+      - 'scripts/core/race_replay_0660.gd'
       - 'scripts/track_3d.gd'
       - 'scripts/race_view_snapshot_0658.gd'
       - 'scripts/main.gd'
@@ -23,7 +27,7 @@ concurrency:
 
 jobs:
   preflight:
-    if: github.head_ref == 'fix/v0.6.6.9.17.3-race-motion'
+    if: (github.head_ref == 'fix/v0.6.6.9.17.3-race-motion' || github.head_ref == 'feat/v0.6.6.9.17.4-competitive-traffic')
     name: Compile and verify motion prerequisites
     runs-on: ubuntu-latest
     timeout-minutes: 8
@@ -47,7 +51,7 @@ jobs:
           retention-days: 14
   paired:
     needs: preflight
-    if: github.head_ref == 'fix/v0.6.6.9.17.3-race-motion'
+    if: (github.head_ref == 'fix/v0.6.6.9.17.3-race-motion' || github.head_ref == 'feat/v0.6.6.9.17.4-competitive-traffic')
     name: Paired visual benchmark / ${{ matrix.profile }} / seed ${{ matrix.seed }} / ${{ matrix.step }}s
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -84,7 +88,7 @@ jobs:
           retention-days: 14
   capture:
     needs: preflight
-    if: github.head_ref == 'fix/v0.6.6.9.17.3-race-motion'
+    if: (github.head_ref == 'fix/v0.6.6.9.17.3-race-motion' || github.head_ref == 'feat/v0.6.6.9.17.4-competitive-traffic')
     name: Monaco native graphics capture
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -114,7 +118,7 @@ jobs:
           retention-days: 14
   legacy-replay-control:
     needs: preflight
-    if: github.head_ref == 'fix/v0.6.6.9.17.3-race-motion'
+    if: (github.head_ref == 'fix/v0.6.6.9.17.3-race-motion' || github.head_ref == 'feat/v0.6.6.9.17.4-competitive-traffic')
     name: Historical replay / corrected candidate
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -145,7 +149,7 @@ jobs:
           retention-days: 14
   live-grid-control:
     needs: preflight
-    if: github.head_ref == 'fix/v0.6.6.9.17.3-race-motion'
+    if: (github.head_ref == 'fix/v0.6.6.9.17.3-race-motion' || github.head_ref == 'feat/v0.6.6.9.17.4-competitive-traffic')
     name: Live recording isolation and numbered grid
     runs-on: ubuntu-latest
     timeout-minutes: 15

@@ -1,4 +1,6 @@
-# APEX Motorsport Manager — Core 2 v0.6.6.9.17.3
+# APEX Motorsport Manager — Core 2 v0.6.6.9.17.4 (candidata)
+
+**Candidata desta branch:** Competitive Start & Traffic Intelligence. Antecipação de convergência em gargalos e validação esportiva com múltiplas sementes. [Escopo e critérios](docs/APEX_RELEASE_v0.6.6.9.17.4_COMPETITIVE_TRAFFIC.md). Ainda não homologada nem distribuída. A base integrada e jogável continua 9.17.3.
 
 **Versão integrada: v0.6.6.9.17.3 — Race Motion Refinement.** [PR #116](https://github.com/Jugadru/APEX-Simulation/pull/116) integrada em 24/11/2026; merge `e8ab858` com árvore idêntica ao SHA homologado `aee1cea`. FAST + APEX Test Lab e diagnóstico de movimento: **22/22 jobs PASS**. [Notas técnicas](docs/APEX_RELEASE_v0.6.6.9.17.3_RACE_MOTION_REFINEMENT.md).
 
