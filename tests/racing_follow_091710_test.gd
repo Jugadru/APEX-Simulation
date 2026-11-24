@@ -51,6 +51,7 @@ func fixture():
 func drive(data:Dictionary,track:Dictionary,modern:bool,climate:String,seed_value:int,ticks:int)->Dictionary:
  var race=Race.new(data.teams,"Ferrari",seed_value,{},track,{})
  race.following_enabled=modern
+ race.pass_completion_enabled=false
  race.configure_weather(climate)
  race.running=true
  var side:=0;var aligned:=0;var near:=0;var longest:=0;var overlap:=0;var stopped:=0;var runs:Dictionary={};var passive_runs:Dictionary={};var passive_side:=0;var passive_longest:=0;var last:Dictionary={};var passes:=0;var reversals:=0;var initial:Dictionary={}
@@ -114,6 +115,7 @@ func run():
  if code=="ITA" and climate=="Seco": check(now.side<old.side and now.longest_samples<old.longest_samples,"reported Monza defect must improve")
  if code=="GBR" and climate=="Seco":
   var rec=Replay.new();rec.attach(Race.new(data.teams,"Ferrari",42,{},track,{}))
+  rec.recorded_simulation_revision=Replay.PRE_COMPLETION_SIMULATION_REVISION
   for i in range(350): check(rec.step_tick(),"029 record tick")
   var player=Replay.new()
   check(player.load_data(rec.export_data()) and player.seek(350) and player.first_divergence<0,"029 replay and seek")

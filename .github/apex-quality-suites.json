@@ -371,11 +371,14 @@
         "scripts/core/race_state_codec_0660.gd",
         "scripts/race_engine.gd",
         "tests/racing_line_091710_test.gd",
-        "tests/racing_follow_091710_test.gd"
+        "tests/racing_follow_091710_test.gd",
+        "tests/racing_completion_091710_test.gd",
+        "scripts/core/race_pass_completion_091710.gd"
       ],
       "fast_tests": [
         {"script": "racing_line_091710_test.gd", "marker": "RACING_LINE_091710_PASS"},
         {"script": "racing_follow_091710_test.gd", "marker": "FOLLOW_091710_PASS"},
+        {"script": "racing_completion_091710_test.gd", "marker": "COMPLETION_091710_PASS"},
         {"script": "sim_space_0655_test.gd", "marker": "SIM_SPACE_PASS"},
         {"script": "radio_0668101_booked_pit_advice_test.gd", "marker": "RADIO_0668101_BOOKED_PIT_PASS"}
       ],

@@ -62,9 +62,10 @@ static func corridor_crosses(a0: float,a1: float,b0: float,b1: float) -> bool:
 
 static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,shape: Dictionary, weather: Dictionary = {}, traffic_enabled: bool = true, soul3_enabled: bool = false,
 		overtaking_enabled: bool = false, competitive_start_enabled: bool = false,
-		start_clock_s: float = 0.0, merge_traffic_enabled: bool = false, traffic_hotfix_enabled: bool = false, following_enabled: bool = false) -> Dictionary:
+		start_clock_s: float = 0.0, merge_traffic_enabled: bool = false, traffic_hotfix_enabled: bool = false, following_enabled: bool = false, completion_enabled: bool = false) -> Dictionary:
 	var length: float=shape.length
 	following_enabled = following_enabled and start_clock_s>=24.0
+	completion_enabled = completion_enabled and following_enabled
 	var hotfix: bool = merge_traffic_enabled and traffic_hotfix_enabled
 	# 06686: RaceEngine normally supplies a sorted frozen sporting snapshot.
 	# Filtering out inactive cars preserves its order. Avoid sorting 24
@@ -178,6 +179,10 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 				and str(ahead.get("team", "")) == str(c.get("team", "")):
 			tactic["defense"] = false
 		var cooling: bool = float(c.get("combat_cooldown", 0.0)) > 0.0
+		if completion_enabled and str(c.get("combat_state","")) in ["preparing","attacking","duel"] and previous_target==rival and advantage>0.0 and absf(float(a.lane)-float(d.lane))>=WIDTH-0.01 and float(tactic.margin_m)>=-0.004 and not bool(tactic.get("blocked",false)) and not bool(narrowing.get(id,false)):
+			# Continue a physically established attack while it retains real pace advantage.
+			# No new attack outside the passing zone; no override of occupied lanes.
+			if Combat.in_passing_zone(float(c.progress),track): tactic.commit=true
 		if int(d.defending) < 0:
 			# Once the cars approach overlap, the defender must HOLD its actual
 			# lane. No late squeeze or return to the racing line during a duel.
@@ -333,6 +338,17 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 				var gap := fposmod(float(other.progress)-float(c.progress),1)
 				if gap>.25 or gap<.00000001:continue
 				var b: Dictionary=result[int(other.id)]
+				if completion_enabled and gap*length<LENGTH+2.2 and str(intents[id].state) not in ["preparing","attacking","duel"] and absf(float(c.get("race_lane",0))-float(other.get("race_lane",0)))>=WIDTH-0.01:
+					# Compare the leader's RESOLVED advance, not nominal lap time.
+					# A passive pair must not swap every time the lead car queues
+					# behind a third car. A truly stationary leader does not impose
+					# this voluntary constraint (free corridor escape remains).
+					var leader_advance:float=maxf(0.0,float(b.progress)-float(other.progress))
+					if leader_advance>0.00000001:
+						var voluntary_limit:float=float(c.progress)+leader_advance*0.88
+						if voluntary_limit<float(result[id].progress)-0.000000001:
+							result[id].progress=voluntary_limit
+							changed=true
 				if not corridor_crosses(float(c.get("race_lane",0)),float(result[id].states.race_lane),float(other.get("race_lane",0)),float(b.states.race_lane)): continue
 				var offset := float(c.progress)+gap-float(other.progress)
 				var allowed := maxf(float(c.progress),float(b.progress)+offset-LENGTH/length)

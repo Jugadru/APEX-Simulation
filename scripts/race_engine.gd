@@ -17,6 +17,9 @@ const MERGE_TRAFFIC_SIM_REVISION := "026_competitive_traffic_v1"
 const TRAFFIC_HOTFIX_SIM_REVISION := "027_race_traffic_hotfix_v1"
 const RACING_LINE_SIM_REVISION := "028_racing_line_v1"
 const FOLLOWING_SIM_REVISION := "029_racing_line_following_v1"
+const PASS_COMPLETION_SIM_REVISION := "030_racing_line_completion_v1"
+const PassCompletion = preload("res://scripts/core/race_pass_completion_091710.gd")
+var pass_completion_enabled: bool = true
 var following_enabled: bool = true
 var racing_line_enabled: bool = true
 var racing_line_profile: Dictionary = {}
@@ -708,18 +711,20 @@ func _advance(dt: float) -> void:
 	var traffic_hotfix_rules: bool = traffic_hotfix_enabled
 	var racing_line_rules: bool = racing_line_enabled
 	var following_rules: bool = following_enabled and racing_line_enabled
+	var completion_rules: bool = pass_completion_enabled and following_rules
 	if command_session != null:
 		var attached_session: Object = command_session.get_ref()
 		if attached_session != null:
 			launch_legacy = bool(attached_session.get("legacy_launch_physics"))
 			var revision: String = str(attached_session.get("recorded_simulation_revision"))
-			overtaking_rules = overtaking_rules and revision in [OVERTAKING_SIM_REVISION, START20_SIM_REVISION, COMPETITIVE_SIM_REVISION, MERGE_TRAFFIC_SIM_REVISION, TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION]
+			overtaking_rules = overtaking_rules and revision in [OVERTAKING_SIM_REVISION, START20_SIM_REVISION, COMPETITIVE_SIM_REVISION, MERGE_TRAFFIC_SIM_REVISION, TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION, PASS_COMPLETION_SIM_REVISION]
 			start20_rules = start20_rules and revision in [START20_SIM_REVISION, COMPETITIVE_SIM_REVISION]
-			competitive_rules = competitive_rules and revision in [COMPETITIVE_SIM_REVISION, MERGE_TRAFFIC_SIM_REVISION, TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION]
-			merge_rules = merge_rules and revision in [MERGE_TRAFFIC_SIM_REVISION, TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION]
-			traffic_hotfix_rules = traffic_hotfix_rules and revision in [TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION]
-			racing_line_rules = racing_line_rules and revision in [RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION]
-			following_rules = following_rules and revision == FOLLOWING_SIM_REVISION
+			competitive_rules = competitive_rules and revision in [COMPETITIVE_SIM_REVISION, MERGE_TRAFFIC_SIM_REVISION, TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION, PASS_COMPLETION_SIM_REVISION]
+			merge_rules = merge_rules and revision in [MERGE_TRAFFIC_SIM_REVISION, TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION, PASS_COMPLETION_SIM_REVISION]
+			traffic_hotfix_rules = traffic_hotfix_rules and revision in [TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION, PASS_COMPLETION_SIM_REVISION]
+			racing_line_rules = racing_line_rules and revision in [RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION, PASS_COMPLETION_SIM_REVISION]
+			following_rules = following_rules and revision in [FOLLOWING_SIM_REVISION, PASS_COMPLETION_SIM_REVISION]
+			completion_rules = completion_rules and revision == PASS_COMPLETION_SIM_REVISION
 	var launch_clearance: float = 1.0
 	var launch_limit: float = RaceStart066917.CORNER_PHASE_SECONDS if start20_rules else RaceStart066911.PHASE_SECONDS
 	if race_start_intelligence_enabled and clock < launch_limit:
@@ -762,6 +767,11 @@ func _advance(dt: float) -> void:
 			if following_rules:
 				metrics["decision_pace"] = float(metrics.target)
 				metrics["line_load"] = float(line.load)
+				if completion_rules:
+					# Tactical judgement separates sustained race pace from short energy bursts.
+					metrics["decision_pace"] = float(metrics.target)-0.80*(float(metrics.drs)+float(metrics.kers))-float(metrics.traffic)
+					# Retain braking/recovery, but temper schematic curvature gradients.
+					line.pace_factor = lerpf(1.0,float(line.pace_factor),0.55)
 			metrics.target = float(metrics.target)*float(line.pace_factor)
 			# A pit-bound car retains existing pit approach behavior.
 			var fraction: float = fposmod(old_progress,1.0)
@@ -770,7 +780,7 @@ func _advance(dt: float) -> void:
 		pace_metrics[int(old_car["id"])] = metrics
 	if Perf.enabled: Perf.end(&"race.pace_thermal_drs_kers",perf_pace)
 	var perf_space := Perf.begin() if Perf.enabled else 0
-	var space_plan := RaceSpace.plan(old_order,pace_metrics,dt,track,space_profile,current_weather,driver_traffic_enabled,driver_soul3_enabled,overtaking_rules,competitive_rules,clock,merge_rules,traffic_hotfix_rules,following_rules)
+	var space_plan := RaceSpace.plan(old_order,pace_metrics,dt,track,space_profile,current_weather,driver_traffic_enabled,driver_soul3_enabled,overtaking_rules,competitive_rules,clock,merge_rules,traffic_hotfix_rules,following_rules,completion_rules)
 	if Perf.enabled: Perf.end(&"race.overtaking",perf_space)
 	var defenders: Dictionary = {}
 	for car in cars:
@@ -883,6 +893,7 @@ func _advance(dt: float) -> void:
 			if str(car.get("combat_state", Combat.CLEAR)) in [Combat.CLEAR, Combat.CLOSING, Combat.RECOVERING]:
 				car["combat_state"] = Combat.DEFENDING
 	var ordered := get_sorted()
+	var completed_passes: Dictionary = PassCompletion.observe(old_order,ordered,float(space_profile.length),dt) if completion_rules else {}
 	var leader: Dictionary = ordered[0]
 	var lead_prog := float(leader["progress"])
 	lap = mini(lap_count, maxi(0, int(floor(lead_prog)) + 1))
@@ -892,7 +903,17 @@ func _advance(dt: float) -> void:
 		car["gap"] = maxf(0.0, (lead_prog - float(car["progress"])) * base_lap)
 		car["interval"] = 0.0 if i == 0 else maxf(0.0, (float(ordered[i - 1]["progress"]) - float(car["progress"])) * base_lap)
 		var previous := int(_last_ranks.get(car["id"], i + 1))
-		if i + 1 < previous and clock > 5.0:
+		if completion_rules:
+			car["combat_pass_pending"] = false
+			var confirmed: int = int(completed_passes.get(car.id,0))
+			if confirmed>0:
+				car["combat_passes"] = int(car.get("combat_passes",0))+confirmed
+				_event("pass", int(car.id), "ULTRAPASSAGEM CONFIRMADA | %s consolidou P%d." % [str(car.name),i+1],85)
+				car["last_pass_event_at"] = clock
+			elif i+1<previous and clock>5.0 and clock-float(car.get("last_pass_event_at",-100.0))>=6.0:
+				_event("position_gain",int(car.id),"GANHO DE POSICAO | %s avancou para P%d." % [str(car.name),i+1],57)
+				car["last_pass_event_at"] = clock
+		elif i + 1 < previous and clock > 5.0:
 			# Rank movement (pit/traffic) is not proof of a wheel-to-wheel pass.
 			var on_track_pass: bool = bool(car.get("combat_pass_pending", false))
 			if on_track_pass:
