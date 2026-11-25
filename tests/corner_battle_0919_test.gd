@@ -20,6 +20,9 @@ func run():
  check(not Corner.refine(c,d,tactic,9,2.95,.3,.7,0,false).commit,"late entry veto")
  check(not Corner.refine(c,d,tactic,9,2.95,.8,.75,0,false).commit,"late apex veto")
  check(Corner.refine(c,d,tactic,14,2.95,.3,.7,0,false)==tactic,"early clear attack survives")
+ check(Corner.refine(c,d,tactic,10.5,2.95,.3,.7,0,false)==tactic,"moderate dry gap not over-restricted")
+ var small=tactic.duplicate();small.attack_goal=-0.8
+ check(Corner.refine(c,d,small,9,2.95,.3,.7,0,false)==small,"small lateral correction not vetoed")
  check(Corner.refine(c,d,tactic,12,2.95,.3,.7,0,false).commit and not Corner.refine(c,d,tactic,12,2.95,.3,.7,.9,false).commit,"wet margin expands")
  check(Corner.refine(c,d,tactic,9,2.95,.7,.1,0,false)==tactic,"exit preserves base decision")
  check(snapshot==var_to_bytes([c,d,tactic]),"pure no input mutation")
@@ -29,6 +32,8 @@ func run():
  var hold=Corner.refine(c,d,tactic,6,2.95,.6,.65,.6,false)
  check(hold.commit and hold.attack_goal==-2.6 and not hold.defense,"occupied legal corridor held")
  check(not Corner.refine(c,d,tactic,6,2.0,.6,.65,.6,true).has("corner_reason"),"narrowing stays with solver")
+ check(Corner.refine(c,d,tactic,6,2.95,.7,.1,0,false)==tactic,"established exit uses normal solver")
+ check(Corner.refine(c,d,tactic,6,2.95,.3,.7,0,false)==tactic,"established entry uses normal solver")
  c.combat_target_id=9
  check(not Corner.refine(c,d,tactic,6,2.95,.6,.65,.6,false).has("corner_reason"),"unrelated duel cannot claim hold")
  # Real RaceSpace integration: late entry attack in a controlled passing zone.
