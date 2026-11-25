@@ -141,8 +141,74 @@ func physical_fixture()->void:
 	compare_physical([],{}, {},1000.0,"empty")
 	compare_physical([chain[0]],intents,initial,1000.0,"singleton")
 
+# Differential oracle: original insertion-ordered dictionary scan.
+func compare_leaders(order:Array,intents:Dictionary,length:float,label:String)->Dictionary:
+	var frozen:PackedByteArray=var_to_bytes([order,intents])
+	var by_id:Dictionary={}
+	for car in order:by_id[int(car.id)]=car
+	var expected:Dictionary={}
+	var actual:Dictionary={}
+	var cache:=PackedFloat64Array()
+	for car in order:
+		var id:int=int(car.id)
+		var a:Dictionary=intents[id]
+		var next:float=float(a.next)
+		for leader_id in expected:
+			var leader:Dictionary=expected[leader_id]
+			var old_leader:Dictionary=by_id[leader_id]
+			if Space.corridor_crosses(float(a.lane),float(a.next_lane),float(old_leader.get("race_lane",0)),float(leader.states.race_lane)):
+				next=minf(next,float(leader.progress)-Space.LENGTH/length)
+		next=maxf(float(car.progress),next)
+		var optimized:float=maxf(float(car.progress),Space.leader_limit(float(a.next),float(a.lane),float(a.next_lane),cache))
+		expected[id]={"progress":next,"states":{"race_lane":float(a.next_lane),"race_space_blocked":next<float(a.next)-.00000001}}
+		actual[id]={"progress":optimized,"states":{"race_lane":float(a.next_lane),"race_space_blocked":optimized<float(a.next)-.00000001}}
+		Space.remember_resolved_leader(cache,float(car.get("race_lane",0)),float(a.next_lane),optimized,Space.LENGTH/length)
+		check(cache.size()==actual.size()*3,"leader cache insertion "+label)
+	check(var_to_bytes(expected)==var_to_bytes(actual),"leader complete result "+label)
+	check(var_to_bytes([order,intents])==frozen,"leader frozen inputs "+label)
+	return actual
+
+func leader_fixture()->void:
+	var rng:=RandomNumberGenerator.new()
+	rng.seed=93303
+	for scenario in range(96):
+		var length:float=1000.0 if scenario%2==0 else 5300.0
+		var center:float=1.0 if scenario%3==0 else (-0.01 if scenario%3==1 else 0.4)
+		var grid:Array=[]
+		var intents:Dictionary={}
+		for i in range(24):
+			var p:float=center+rng.randf_range(-30.0,30.0)/length
+			if i==0 or i==1:p=center
+			if i==2:p=center+1.0
+			if i==3:p=center-Space.LENGTH/length
+			var lane:float=float(rng.randi_range(-2,2))*Space.WIDTH*0.5
+			if i==0:lane=0.0
+			if i==1:lane=Space.WIDTH
+			if i==2:lane=Space.WIDTH-0.00000001
+			var next_lane:float=float(rng.randi_range(-2,2))*Space.WIDTH*0.5
+			if scenario%4==0:next_lane=lane
+			var id:int=100+i*3
+			grid.append(c(id,p,lane))
+			intents[id]={"lane":lane,"next_lane":next_lane,"next":p+rng.randf_range(0.0,25.0)/length}
+		if scenario%2==0:grid.reverse()
+		grid.sort_custom(func(a,b):return float(a.progress)>float(b.progress) if a.progress!=b.progress else int(a.id)<int(b.id))
+		compare_leaders(grid,intents,length,str(scenario))
+	var chain:Array=[c(2,.22),c(1,.21),c(0,.20)]
+	var intents:Dictionary={2:{"lane":0.0,"next_lane":0.0,"next":.22},
+		1:{"lane":0.0,"next_lane":0.0,"next":.24},
+		0:{"lane":0.0,"next_lane":0.0,"next":.23}}
+	var result:Dictionary=compare_leaders(chain,intents,1000.0,"three-car chain")
+	check(float(result[1].progress)==.22-Space.LENGTH/1000.0 and float(result[0].progress)==float(result[1].progress)-Space.LENGTH/1000.0,"resolved leader cap propagated to next follower")
+	var cache:=PackedFloat64Array()
+	Space.remember_resolved_leader(cache,Space.WIDTH,Space.WIDTH,.22,Space.LENGTH/1000.0)
+	check(Space.leader_limit(.24,0.0,0.0,cache)==.24,"strict corridor boundary permits separate lanes")
+	check(Space.leader_limit(.24,0.0,0.00000001,cache)==.22-Space.LENGTH/1000.0,"swept corridor just inside boundary blocks")
+	compare_leaders([],{},1000.0,"empty")
+	compare_leaders([chain[0]],intents,1000.0,"singleton")
+
 func _initialize()->void:
 	physical_fixture()
+	leader_fixture()
 	check(run_pair(8.8).passed,"open corridor permits natural pass")
 	check(not run_pair(4.2).passed,"narrow road blocks stronger attacker")
 	check(run_pair(8.8).defended,"defender protects a line")
