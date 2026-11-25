@@ -29,10 +29,15 @@ static func frame_rate(car:Dictionary,fallback:float,rates:Dictionary)->float:
  return observed if observed>0.0 else fallback
 
 static func observe(car:Dictionary, grid:Array, metrics:Dictionary, length:float, weather:Dictionary, dt:float, rates:Dictionary={})->Dictionary:
- var own:Dictionary=metrics[int(car.id)]
+ var own_id:int=int(car.id)
+ var own_progress:float=float(car.progress)
+ var own_lane:float=float(car.get("race_lane",0.0))
+ var own_team:String=str(car.get("team",""))
+ var own:Dictionary=metrics[own_id]
  var prior:Dictionary=car.get(KEY,{})
  var fallback:float=1.0/maxf(20.0,float(own.get("decision_pace",own.target)))
  var v:float=frame_rate(car,fallback,rates)
+ var seconds_denominator:float=length*v
  var awareness:float=clampf(float(car.get("spatial_awareness",80.0))/100.0,0.0,1.0)
  var soul:Dictionary=car.get("driver_soul",{})
  var focus:float=clampf(float(soul.get("focus",.85)),0.0,1.0)
@@ -50,15 +55,15 @@ static func observe(car:Dictionary, grid:Array, metrics:Dictionary, length:float
  var blue_behind:int=0
  var merge_ahead:int=0
  for other in grid:
-  if int(other.id)==int(car.id) or bool(other.get("finished",false)):continue
+  if int(other.id)==own_id or bool(other.get("finished",false)):continue
   if float(other.get("pit_left",0.0))>0.0:
    if float(other.pit_left)<=2.0 and other.has("pit_to"):
-    var merge_gap:float=fposmod(float(other.pit_to)-float(car.progress),1.0)/v
+    var merge_gap:float=fposmod(float(other.pit_to)-own_progress,1.0)/v
     if merge_gap<1.5:merge_ahead+=1
    continue
-  var g:float=Merge.relative_gap(float(car.progress),float(other.progress),length)
-  var seconds:float=g/(length*v)
-  if absf(g)<BODY+1.0 and absf(float(other.get("race_lane",0.0))-float(car.get("race_lane",0.0)))>=2.94:side+=1
+  var g:float=Merge.relative_gap(own_progress,float(other.progress),length)
+  var seconds:float=g/seconds_denominator
+  if absf(g)<BODY+1.0 and absf(float(other.get("race_lane",0.0))-own_lane)>=2.94:side+=1
   if g<0.0:
    if -seconds<rear_s or (-seconds==rear_s and int(other.id)<rear_id):
     rear_s=-seconds;rear_id=int(other.id)
@@ -66,9 +71,20 @@ static func observe(car:Dictionary, grid:Array, metrics:Dictionary, length:float
     rear_catch=-g/(length*rear_closing) if rear_closing>0.000001 else -1.0
    if -g<=38.0 and Blue.lapping(other,car,-g,length):blue_behind+=1
   elif g>0.000001 and seconds<=horizon:
-   ahead.append({"id":int(other.id),"gap":g,"gap_s":seconds,"rate":frame_rate(other,fallback,rates),"lane":float(other.get("race_lane",0.0)),"drs":bool(other.get("drs_active",false)) or bool(other.get("drs_eligible",false)),"duel":str(other.get("combat_state","")) in ATTACK,"stint_age":int(other.get("stint_laps",-1)),"compound":str(other.get("tire","")),"mate":str(other.get("team",""))==str(car.get("team","")) and str(car.get("team",""))!="","lapping":g<=38.0 and Blue.lapping(car,other,g,length),"pit_approach":str(other.get("team",""))==str(car.get("team","")) and bool(other.get("pit_request",false)) and fposmod(float(other.progress),1.0)>.85})
+   # Only sorting and group-chain fields are needed for every candidate.
+   # The remaining perception belongs to the selected leader alone.
+   ahead.append({"id":int(other.id),"gap":g,"gap_s":seconds,"drs":bool(other.get("drs_active",false)) or bool(other.get("drs_eligible",false)),"duel":str(other.get("combat_state","")) in ATTACK,"car":other})
  ahead.sort_custom(func(a,b):return int(a.id)<int(b.id) if float(a.gap)==float(b.gap) else float(a.gap)<float(b.gap))
  var first:Dictionary=ahead[0] if not ahead.is_empty() else {}
+ if not first.is_empty():
+  var leader_car:Dictionary=first.car
+  var same_team:bool=str(leader_car.get("team",""))==own_team
+  first["rate"]=frame_rate(leader_car,fallback,rates)
+  first["stint_age"]=int(leader_car.get("stint_laps",-1))
+  first["compound"]=str(leader_car.get("tire",""))
+  first["mate"]=same_team and own_team!=""
+  first["lapping"]=float(first.gap)<=38.0 and Blue.lapping(car,leader_car,float(first.gap),length)
+  first["pit_approach"]=same_team and bool(leader_car.get("pit_request",false)) and fposmod(float(leader_car.progress),1.0)>.85
  var gap_s:float=float(first.get("gap_s",999.0))
  var leader:int=int(first.get("id",-1))
  var closing:float=v-float(first.get("rate",v))
