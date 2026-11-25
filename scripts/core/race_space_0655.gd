@@ -133,6 +133,76 @@ static func tactical_neighbors(car: Dictionary, order: Array, length: float,
 				nearest=other
 	return {"nearest":nearest,"following_gap":following_gap,"leader":leader,"independent_gap":independent_gap,"wake_candidates":wake_candidates}
 
+# Only frozen geometry is cached. Resolved progress stays live: each
+# pair observes all prior reductions in the same iteration, as before.
+static func resolve_physical(order: Array, intents: Dictionary, result: Dictionary,
+		length: float, completion_enabled: bool, wake_stability: bool) -> void:
+	var size: int=order.size()
+	var ids: Array[int]=[]
+	var positions:=PackedFloat64Array()
+	var lanes:=PackedFloat64Array()
+	var low:=PackedFloat64Array()
+	var high:=PackedFloat64Array()
+	var passive:=PackedByteArray()
+	var rows: Array[Dictionary]=[]
+	var states: Array[Dictionary]=[]
+	positions.resize(size);lanes.resize(size);low.resize(size);high.resize(size);passive.resize(size)
+	var clearance: float=LENGTH/length
+	for i in range(size):
+		var car: Dictionary=order[i]
+		var id: int=int(car.id)
+		var row: Dictionary=result[id]
+		var state: Dictionary=row.states
+		var lane: float=float(car.get("race_lane",0))
+		var next_lane: float=float(state.race_lane)
+		ids.append(id)
+		rows.append(row)
+		states.append(state)
+		positions[i]=float(car.progress)
+		lanes[i]=lane
+		low[i]=minf(lane,next_lane)
+		high[i]=maxf(lane,next_lane)
+		passive[i]=1 if completion_enabled and str(intents[id].state) not in ["preparing","attacking","duel"] else 0
+	for iteration in range(size):
+		var changed := false
+		for i in range(size):
+			var id: int=ids[i]
+			var p: float=positions[i]
+			var lane: float=lanes[i]
+			var lower: float=low[i]
+			var upper: float=high[i]
+			var a: Dictionary=rows[i]
+			var a_state: Dictionary=states[i]
+			for j in range(size):
+				if ids[j]==id:continue
+				var other_p: float=positions[j]
+				var gap: float=fposmod(other_p-p,1)
+				if wake_stability and (gap<.00000001 or gap>1.0-.00000001):
+					if MergeTraffic.has_priority(order[i],order[j]): continue
+					gap=0.0
+				elif gap>.25 or gap<.00000001:continue
+				var b: Dictionary=rows[j]
+				if passive[i]!=0 and gap*length<LENGTH+2.2 and absf(lane-lanes[j])>=WIDTH-0.01:
+					var leader_advance:float=maxf(0.0,float(b.progress)-other_p)
+					if leader_advance>0.00000001:
+						var voluntary_limit:float=p+leader_advance*0.88
+						if voluntary_limit<float(a.progress)-0.000000001:
+							a.progress=voluntary_limit
+							changed=true
+				# Same strict swept-corridor inequalities, with frozen bounds.
+				if not (lower<high[j]+WIDTH and upper>low[j]-WIDTH): continue
+				var offset: float=p+gap-other_p
+				var allowed: float=maxf(p,float(b.progress)+offset-clearance)
+				if wake_stability and gap*length<LENGTH+4.0:
+					var advance: float=maxf(0.0,float(b.progress)-other_p)
+					var headroom: float=maxf(0.0,gap-clearance)
+					allowed=minf(allowed,p+advance+headroom*0.5)
+				if allowed<float(a.progress)-.000000001:
+					a.progress=allowed
+					a_state.race_space_blocked=true
+					changed=true
+		if not changed:break
+
 static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,shape: Dictionary, weather: Dictionary = {}, traffic_enabled: bool = true, soul3_enabled: bool = false,
 		overtaking_enabled: bool = false, competitive_start_enabled: bool = false,
 		start_clock_s: float = 0.0, merge_traffic_enabled: bool = false, traffic_hotfix_enabled: bool = false, following_enabled: bool = false, completion_enabled: bool = false, independent_enabled: bool = false, aero_wake_enabled: bool = false, aero_wake_corrected: bool = true, wake_stability: bool = false, wet_line_stability: bool = false, coordination_enabled: bool = false, corner_battle_enabled: bool = false, traffic_intelligence_enabled: bool = false, traffic_pack_enabled: bool = false) -> Dictionary:
@@ -564,43 +634,7 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 			states["aero_wake_032"]=a.aero_wake_032
 		result[id]={"progress":next,"states":states,"event":reaction,"defender_id":int(a.defender_id)}
 	# Physical traffic also includes lapped cars; distance wraps at the line.
-	for iteration in range(order.size()):
-		var changed := false
-		for c in order:
-			var id := int(c.id)
-			for other in order:
-				if other.id==id:continue
-				var gap := fposmod(float(other.progress)-float(c.progress),1)
-				if wake_stability and (gap<.00000001 or gap>1.0-.00000001):
-					if MergeTraffic.has_priority(c,other): continue
-					gap=0.0
-				elif gap>.25 or gap<.00000001:continue
-				var b: Dictionary=result[int(other.id)]
-				if completion_enabled and gap*length<LENGTH+2.2 and str(intents[id].state) not in ["preparing","attacking","duel"] and absf(float(c.get("race_lane",0))-float(other.get("race_lane",0)))>=WIDTH-0.01:
-					# Compare the leader's RESOLVED advance, not nominal lap time.
-					# A passive pair must not swap every time the lead car queues
-					# behind a third car. A truly stationary leader does not impose
-					# this voluntary constraint (free corridor escape remains).
-					var leader_advance:float=maxf(0.0,float(b.progress)-float(other.progress))
-					if leader_advance>0.00000001:
-						var voluntary_limit:float=float(c.progress)+leader_advance*0.88
-						if voluntary_limit<float(result[id].progress)-0.000000001:
-							result[id].progress=voluntary_limit
-							changed=true
-				if not corridor_crosses(float(c.get("race_lane",0)),float(result[id].states.race_lane),float(other.get("race_lane",0)),float(b.states.race_lane)): continue
-				var offset := float(c.progress)+gap-float(other.progress)
-				var allowed := maxf(float(c.progress),float(b.progress)+offset-LENGTH/length)
-				# Use remaining headway progressively, not all at once. This is
-				# a one-sided speed cap; no minimum speed or collision override.
-				if wake_stability and gap*length<LENGTH+4.0:
-					var advance: float=maxf(0.0,float(b.progress)-float(other.progress))
-					var headroom: float=maxf(0.0,gap-LENGTH/length)
-					allowed=minf(allowed,float(c.progress)+advance+headroom*0.5)
-				if allowed<float(result[id].progress)-.000000001:
-					result[id].progress=allowed
-					result[id].states.race_space_blocked=true
-					changed=true
-		if not changed:break
+	resolve_physical(order,intents,result,length,completion_enabled,wake_stability)
 	for c in order:
 		var id := int(c.id)
 		var target := int(result[id].states.combat_target_id)
