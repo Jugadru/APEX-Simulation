@@ -8,6 +8,13 @@ on:
       - 'scripts/apex_race_hud_0622.gd'
       - 'scripts/presentation/race_communication_0922.gd'
       - 'scripts/presentation/race_radio_06695.gd'
+      - 'scripts/core/race_engineer_career_0922.gd'
+      - 'scripts/presentation/race_radio_audio_0922.gd'
+      - 'scripts/presentation/race_radio_pt_0922.gd'
+      - 'scripts/apex_race_session_controller.gd'
+      - 'scripts/apex_championship_flow.gd'
+      - 'scripts/apex_race_ui_presenter.gd'
+      - 'tests/race_engineer_0922_ui_test.gd'
       - 'tests/race_engineer_0922_test.gd'
       - '.github/workflows/apex-race-engineer-0922.yml'
 permissions:
@@ -45,4 +52,34 @@ jobs:
           path: |
             import.log
             engineer.log
+          retention-days: 14
+
+  radio_ui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+        with:
+          version: 4.7.2-stable
+      - run: sudo apt-get update && sudo apt-get install -y xvfb libgl1-mesa-dri
+      - run: bash tools/apex_ci_import.sh import.log
+      - run: |
+          set -euo pipefail
+          bash tools/apex_ci_isolated_test.sh race_engineer_0922_ui_test.gd 2>&1 | tee engineer-ui.log
+          grep -Fq ENGINEER_0922_UI_PASS engineer-ui.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' engineer-ui.log
+          bash tools/apex_ci_isolated_test.sh race_radio_06695_test.gd 2>&1 | tee legacy-radio.log
+          bash tools/apex_ci_isolated_test.sh core_0637_reactive_radio_smoke_test.gd 2>&1 | tee reactive-radio.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' legacy-radio.log reactive-radio.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apex-engineer-native-ui
+          path: |
+            qa/engineer_0922/*.png
+            import.log
+            engineer-ui.log
+            legacy-radio.log
+            reactive-radio.log
           retention-days: 14
