@@ -74,7 +74,7 @@ func run()->void:
 			a.race.running=true
 			var dt:float=[1.0/30,1.0/60,1.0/144,0.003][frames%4]
 			dt=minf(dt,(200-a.tick)*Replay.STEP/speed-a.accumulator/speed)
-			var cap: int=12 if speed>=32.0 else (8 if speed>=16.0 else (6 if speed>=10.0 else 0))
+			var cap: int=Replay.interactive_backlog_steps(speed)
 			a.advance(maxf(0,dt),speed,observe,0,cap)
 			if frames%17==0:
 				a.race.running=false;var tick:int=a.tick;a.advance(2,32);assert(a.tick==tick)
