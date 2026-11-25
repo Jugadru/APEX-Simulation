@@ -32,7 +32,7 @@ func run():
   host.race.running=false;host._process(.016667)
   for i in range(5):await process_frame
   await RenderingServer.frame_post_draw
-  var path="res://qa/racing_independent_091710/monza_"+revision.substr(0,3)+"_p15.png"
+  var path="res://qa/racing_independent_091710/monza_"+("rev3" if revision==Replay.PRE_INDEPENDENT_SIMULATION_REVISION else ("rev4" if revision==Replay.PRE_AERO_WAKE_SIMULATION_REVISION else revision.substr(0,3)))+"_p15.png"
   var img:Image=root.get_texture().get_image()
   if img.is_empty() or img.save_png(path)!=OK:quit(1);return
   print("P15_CAPTURE ",path," tick=",host.replay_session.tick," focused=",host.focused_id," expected=",p15.id," camera=",host.world_view.camera_mode_3d)
