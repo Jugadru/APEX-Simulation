@@ -23,16 +23,17 @@ jobs:
 
     steps:
       - name: Baixar projeto
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # Export the exact commit selected by the workflow event.
           ref: ${{ github.sha }}
 
       - name: Instalar Godot e export templates oficiais
-        uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c # v3.0.1
+        uses: chickensoft-games/setup-godot@ac93246ea68518a384c1c280a496e5989341f2f6 # v2.4.3
         with:
-          version: 4.7.2-stable
-          export-templates: true
+          version: '4.7.2'
+          use-dotnet: false
+          include-templates: true
 
       - name: Conferir versao e presets
         run: |
@@ -185,7 +186,7 @@ jobs:
 
       - name: Salvar ZIPs e hashes
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: apex-pc-linux-windows-godot-4-7-2
           path: |
@@ -199,7 +200,7 @@ jobs:
 
       - name: Guardar logs para diagnostico
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: apex-pc-export-logs
           path: |

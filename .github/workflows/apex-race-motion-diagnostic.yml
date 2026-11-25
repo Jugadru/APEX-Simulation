@@ -32,10 +32,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
-      - uses: actions/checkout@v4
-      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: chickensoft-games/setup-godot@ac93246ea68518a384c1c280a496e5989341f2f6 # v2.4.3
         with:
-          version: 4.7.2-stable
+          version: '4.7.2'
+          use-dotnet: false
       - run: |
           set -euo pipefail
           mkdir -p motion-preflight
@@ -43,7 +44,7 @@ jobs:
           bash tools/apex_ci_isolated_test.sh tick_presentation_09173_test.gd 2>&1 | tee motion-preflight/ticks.log
           grep -Fq 'TICK_PRESENTATION_09173_PASS' motion-preflight/ticks.log
           ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' motion-preflight/ticks.log
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: apex-motion-preflight
@@ -66,10 +67,11 @@ jobs:
       APEX_MOTION_PROFILE: ${{ matrix.profile }}
       APEX_MOTION_STEP: ${{ matrix.step }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: chickensoft-games/setup-godot@ac93246ea68518a384c1c280a496e5989341f2f6 # v2.4.3
         with:
-          version: 4.7.2-stable
+          version: '4.7.2'
+          use-dotnet: false
       - run: |
           set -euo pipefail
           mkdir -p motion-results
@@ -80,7 +82,7 @@ jobs:
           bash tools/apex_ci_isolated_test.sh visual_stutter_06672_benchmark.gd 2>&1 | tee motion-results/benchmark.log
           grep -Fq 'VISUAL_STUTTER_06672_BENCHMARK' motion-results/benchmark.log
           ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' motion-results/benchmark.log
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: apex-motion-${{ matrix.profile }}-${{ matrix.seed }}-${{ matrix.step }}
@@ -98,10 +100,11 @@ jobs:
       APEX_MOTION_CAPTURE_TRACK: MON
       APEX_MOTION_SEED: 42
     steps:
-      - uses: actions/checkout@v4
-      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: chickensoft-games/setup-godot@ac93246ea68518a384c1c280a496e5989341f2f6 # v2.4.3
         with:
-          version: 4.7.2-stable
+          version: '4.7.2'
+          use-dotnet: false
       - run: sudo apt-get update && sudo apt-get install -y xvfb libgl1 libgl1-mesa-dri
       - run: |
           set -euo pipefail
@@ -110,7 +113,7 @@ jobs:
           timeout 300s xvfb-run -a -s '-screen 0 1920x1080x24' godot --path . --rendering-method gl_compatibility --rendering-driver opengl3 --script res://tests/visual_stutter_06672_capture.gd 2>&1 | tee qa/visual_stutter_06672/capture.log
           grep -Fq 'VISUAL_STUTTER_06672_VISUAL_PASS' qa/visual_stutter_06672/capture.log
           ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' qa/visual_stutter_06672/capture.log
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: apex-motion-monaco-graphics
@@ -127,12 +130,13 @@ jobs:
       matrix:
         revision: [candidate]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ matrix.revision == 'base' && github.event.pull_request.base.sha || github.event.pull_request.head.sha }}
-      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+      - uses: chickensoft-games/setup-godot@ac93246ea68518a384c1c280a496e5989341f2f6 # v2.4.3
         with:
-          version: 4.7.2-stable
+          version: '4.7.2'
+          use-dotnet: false
       - run: |
           set -euo pipefail
           mkdir -p replay-control
@@ -141,7 +145,7 @@ jobs:
           bash tools/apex_ci_isolated_test.sh driver_traffic_06693_test.gd 2>&1 | tee replay-control/replay.log
           grep -Fq 'DRIVER_TRAFFIC_06693_PASS' replay-control/replay.log
           ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' replay-control/replay.log
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: apex-motion-replay-${{ matrix.revision }}
@@ -158,10 +162,11 @@ jobs:
       matrix:
         script: [race_live_without_replay_09173_test, grid_placement_09173_test, live_3d_replay_ab_09173_test, motion_retreat_probe_09173_test, tick_presentation_09173_test, fixed_timeline_09173_test]
     steps:
-      - uses: actions/checkout@v4
-      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: chickensoft-games/setup-godot@ac93246ea68518a384c1c280a496e5989341f2f6 # v2.4.3
         with:
-          version: 4.7.2-stable
+          version: '4.7.2'
+          use-dotnet: false
       - run: |
           set -euo pipefail
           mkdir -p live-grid
@@ -169,7 +174,7 @@ jobs:
           bash tools/apex_ci_isolated_test.sh ${{ matrix.script }}.gd 2>&1 | tee live-grid/test.log
           ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' live-grid/test.log
           grep -Eq 'LIVE_WITHOUT_REPLAY_09173_PASS|GRID_PLACEMENT_09173_PASS|LIVE_3D_REPLAY_AB_09173_PASS|MOTION_RETREAT_PROBE_09173_PASS|TICK_PRESENTATION_09173_PASS|FIXED_TIMELINE_09173_PASS' live-grid/test.log
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: apex-motion-${{ matrix.script }}
