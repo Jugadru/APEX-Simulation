@@ -104,6 +104,35 @@ static func straight_hold_allowed(load: float, ahead_load: float, held: bool, na
 	if wet_line_stability and wet>=0.45: return false
 	return load<(0.18 if held else 0.12) and ahead_load<0.22 and not narrowing and absf(lane)<=limit
 
+# Frozen signed-gap observations shared by the following and independent
+# tactical passes. Their eligibility and tie rules are intentionally distinct.
+static func tactical_neighbors(car: Dictionary, order: Array, length: float,
+		include_following: bool, wake_stability: bool, wake_range: float) -> Dictionary:
+	var id: int = int(car.id)
+	var progress: float = float(car.progress)
+	var nearest: Dictionary = {}
+	var following_gap: float = INF
+	var leader: Dictionary = {}
+	var independent_gap: float = INF
+	var wake_candidates: Array = []
+	for other in order:
+		if other.id==id: continue
+		var g: float = MergeTraffic.relative_gap(progress,float(other.progress),length)
+		if wake_stability and (wake_range==INF or (g>0.0 and g<=wake_range+0.000001)):
+			wake_candidates.append(other)
+		if g>0.000001 and g<independent_gap and g<=38.0:
+			independent_gap=g
+			leader=other
+		if include_following:
+			var follow_g: float=g
+			if absf(follow_g)<=0.000001:
+				if MergeTraffic.has_priority(car,other): continue
+				follow_g=0.0
+			if follow_g>=0.0 and follow_g<following_gap:
+				following_gap=follow_g
+				nearest=other
+	return {"nearest":nearest,"following_gap":following_gap,"leader":leader,"independent_gap":independent_gap,"wake_candidates":wake_candidates}
+
 static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,shape: Dictionary, weather: Dictionary = {}, traffic_enabled: bool = true, soul3_enabled: bool = false,
 		overtaking_enabled: bool = false, competitive_start_enabled: bool = false,
 		start_clock_s: float = 0.0, merge_traffic_enabled: bool = false, traffic_hotfix_enabled: bool = false, following_enabled: bool = false, completion_enabled: bool = false, independent_enabled: bool = false, aero_wake_enabled: bool = false, aero_wake_corrected: bool = true, wake_stability: bool = false, wet_line_stability: bool = false, coordination_enabled: bool = false, corner_battle_enabled: bool = false, traffic_intelligence_enabled: bool = false, traffic_pack_enabled: bool = false) -> Dictionary:
@@ -337,22 +366,36 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 	# 029: close the loop after tactical commitment. A driver who cannot
 	# make a real attack yields longitudinally before seeking the leader's wake.
 	# The unchanged occupancy solver decides whether the lane is safe.
+	# The independent mode implies following_enabled and start_clock_s>=24.
+	# Only intents change between these two passes; positions stay frozen.
+	var neighbor_cache: Dictionary = {}
+	var lap_km: float = float(track.get("lap_km",0.0)) if independent_enabled else 0.0
+	var wake_range: float = AeroWake.MAX_RANGE_M*length/(lap_km*1000.0) if lap_km>0.3 else INF
 	if following_enabled and start_clock_s>=24.0:
 		for c in order:
 			var id:int=int(c.id)
 			var a:Dictionary=intents[id]
-			if str(a.state) in ["preparing","attacking","duel"]: continue
+			var attacking: bool=str(a.state) in ["preparing","attacking","duel"]
 			var nearest:Dictionary={}
 			var gap:float=INF
-			for other in order:
-				if other.id==id: continue
-				var g:float=MergeTraffic.relative_gap(float(c.progress),float(other.progress),length)
-				if absf(g)<=0.000001:
-					if MergeTraffic.has_priority(c,other): continue
-					g=0.0
-				if g>=0.0 and g<gap:
-					gap=g
-					nearest=other
+			if independent_enabled:
+				var observations: Dictionary=tactical_neighbors(c,order,length,not attacking,wake_stability,wake_range)
+				neighbor_cache[id]=observations
+				nearest=observations.nearest
+				gap=float(observations.following_gap)
+				if attacking: continue
+			else:
+				# Preserve the legacy following-only path.
+				if attacking: continue
+				for other in order:
+					if other.id==id: continue
+					var g:float=MergeTraffic.relative_gap(float(c.progress),float(other.progress),length)
+					if absf(g)<=0.000001:
+						if MergeTraffic.has_priority(c,other): continue
+						g=0.0
+					if g>=0.0 and g<gap:
+						gap=g
+						nearest=other
 			if nearest.is_empty() or gap>38.0: continue
 			var d:Dictionary=intents[int(nearest.id)]
 			var separation:float=absf(float(a.lane)-float(d.lane))
@@ -374,18 +417,10 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 			var id: int = int(c.id)
 			var a: Dictionary = intents[id]
 			var m: Dictionary = metrics[id]
-			var leader: Dictionary = {}
-			var gap: float = INF
-			var wake_candidates: Array = []
-			var lap_km: float = float(track.get("lap_km",0.0))
-			var wake_range: float = AeroWake.MAX_RANGE_M*length/(lap_km*1000.0) if lap_km>0.3 else INF
-			for other in order:
-				if other.id==id: continue
-				var g: float = MergeTraffic.relative_gap(float(c.progress),float(other.progress),length)
-				if wake_stability and (wake_range==INF or (g>0.0 and g<=wake_range+0.000001)):
-					wake_candidates.append(other)
-				if g>0.000001 and g<gap and g<=38.0:
-					gap=g;leader=other
+			var observations: Dictionary=neighbor_cache[id]
+			var leader: Dictionary=observations.leader
+			var gap: float=float(observations.independent_gap)
+			var wake_candidates: Array=observations.wake_candidates
 			var limit: float = minf(lane_limit(track,float(c.progress),shape),lane_limit(track,float(c.progress)+LENGTH*2.0/length,shape))
 			var wet: float = clampf(float(weather.get("wetness_factor",0.0)),0.0,1.0)
 			var own: float = clampf(float(m.get("line_ratio",0.0)),-1.0,1.0)*limit
