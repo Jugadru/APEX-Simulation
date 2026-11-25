@@ -363,7 +363,10 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 			# resumes before the next curve or narrowing; never chase wake laterally.
 			if wake_stability and str(a.state) not in Independent.ATTACK and int(a.defending)<0:
 				var held: bool = str(c.get("racecraft_memory",{}).get("mode",""))=="STRAIGHT_HOLD"
-				if straight_hold_allowed(load,float(m.get("ahead_load",load)),held,bool(narrowing.get(id,false)),float(a.lane),limit,wet,wet_line_stability):
+				var settle: bool = straight_hold_allowed(load,float(m.get("ahead_load",load)),held,bool(narrowing.get(id,false)),float(a.lane),limit,wet,wet_line_stability)
+				if corner_battle_enabled:
+					settle = CornerBattle.passive_line_settled(load,float(m.get("ahead_load",load)),held,bool(narrowing.get(id,false)),float(a.lane),limit,wet)
+				if settle:
 					memory.mode="STRAIGHT_HOLD"
 					memory.aim=float(a.lane)
 					memory.wanted=float(a.lane)

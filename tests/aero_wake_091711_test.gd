@@ -101,6 +101,8 @@ func drive(data:Dictionary,track:Dictionary,revision:int,climate:String,ticks:in
  var race=Race.new(data.teams,"Ferrari",seed,{},track,{})
  race.aero_wake_enabled=revision>=32;race.aero_wake_corrected=revision>=33;race.aero_wake_stability=revision>=34;race.aero_wet_line_stability=revision>=35;race.tactical_coordination_enabled=revision>=36;race.corner_battle_enabled=revision>=37;race.configure_weather(climate);race.running=true
  var corner_reasons:Dictionary={}
+ var steering_examples:Array=[]
+ var previous_steering:Dictionary={}
  var tow:=0;var dirty:=0;var max_tow:=0.0;var max_dirty:=0.0;var side:=0;var reverse_steer:=0;var stops:=0;var overlaps:=0;var reverse:=0;var passes:=0;var changed:=0;var last_sign:Dictionary={};var initial:Dictionary={};var start:=Time.get_ticks_usec()
  for c in race.cars:initial[c.id]=int(c.grid)
  var by_driver:Dictionary={};var last_active_tick:Dictionary={};var rapid_by_driver:Dictionary={};var engine_us:int=0;var actual_ticks:int=0;var peak_memory:float=0.0;var pits:int=0;var classification:Array=[];var wet_min:float=1.0;var wet_max:float=0.0;var release_overlaps:int=0;var examples:Array=[]
@@ -154,10 +156,13 @@ func drive(data:Dictionary,track:Dictionary,revision:int,climate:String,ticks:in
      if last_sign.has(c.id) and last_sign[c.id]!=sign_d:
       reverse_steer+=1
       by_driver[c.id]=int(by_driver.get(c.id,0))+1
+      if steering_examples.size()<120:
+       steering_examples.append({"tick":tick,"id":c.id,"progress":c.progress,"previous":previous_steering.get(c.id,{}),"lane_before":before[c.id].race_lane,"lane_after":c.race_lane,"load":line.load,"memory_before":before[c.id].get("racecraft_memory",{}),"memory_after":c.get("racecraft_memory",{})})
       if tick-int(last_active_tick.get(c.id,-100))<=10:
        rapid_by_driver[c.id]=int(rapid_by_driver.get(c.id,0))+1
      last_active_tick[c.id]=tick
      last_sign[c.id]=sign_d
+     previous_steering[c.id]={"tick":tick,"lane":c.race_lane,"progress":c.progress,"load":line.load,"mode":c.get("racecraft_memory",{}).get("mode","")}
    else:
     last_sign.erase(c.id);last_active_tick.erase(c.id)
   for i in range(active.size()):
@@ -173,7 +178,7 @@ func drive(data:Dictionary,track:Dictionary,revision:int,climate:String,ticks:in
   classification.append({"id":sorted[i].id,"position":sorted[i].position,"laps":sorted[i].get("finish_laps",0),"finished":sorted[i].finished})
   passes+=int(sorted[i].combat_passes)
   if int(initial[sorted[i].id])!=i+1:changed+=1
- return {"corner_reasons":corner_reasons,"hash":Codec.sporting_hash(race,{}),"tow_samples":tow,"dirty_samples":dirty,"max_tow":max_tow,"max_dirty":max_dirty,"stopped":stops,"reversals":reverse,"overlaps":overlaps,"straight_reversals":reverse_steer,"side":side,"passes":passes,"changed_grid":changed,"elapsed_us":Time.get_ticks_usec()-start,"engine_us":engine_us,"ticks":actual_ticks,"peak_static_bytes_sampled":peak_memory,"pits":pits,"finished":race.finished,"leader_finished":race.first_finish_at>=0.0,"classification":classification,"driver_reversals":by_driver,"rapid_driver_reversals":rapid_by_driver,"release_overlaps":release_overlaps,"examples":examples,"wet_min":wet_min,"wet_max":wet_max,"engine_us_per_tick":float(engine_us)/maxi(1,actual_ticks)}
+ return {"steering_examples":steering_examples,"corner_reasons":corner_reasons,"hash":Codec.sporting_hash(race,{}),"tow_samples":tow,"dirty_samples":dirty,"max_tow":max_tow,"max_dirty":max_dirty,"stopped":stops,"reversals":reverse,"overlaps":overlaps,"straight_reversals":reverse_steer,"side":side,"passes":passes,"changed_grid":changed,"elapsed_us":Time.get_ticks_usec()-start,"engine_us":engine_us,"ticks":actual_ticks,"peak_static_bytes_sampled":peak_memory,"pits":pits,"finished":race.finished,"leader_finished":race.first_finish_at>=0.0,"classification":classification,"driver_reversals":by_driver,"rapid_driver_reversals":rapid_by_driver,"release_overlaps":release_overlaps,"examples":examples,"wet_min":wet_min,"wet_max":wet_max,"engine_us_per_tick":float(engine_us)/maxi(1,actual_ticks)}
 func run():
  fixture()
  if "--fixture-only" in OS.get_cmdline_user_args():

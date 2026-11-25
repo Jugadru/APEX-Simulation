@@ -11,6 +11,13 @@ static func phase(load: float, ahead_load: float) -> String:
 	if load>ahead_load+0.08: return "exit"
 	return "apex"
 
+static func passive_line_settled(load: float, ahead_load: float, held: bool, narrowing: bool, lane: float, limit: float, wet: float) -> bool:
+	# Use the same curvature envelope as the corner classifier, with
+	# hysteresis on exit. Low-load transitions do not require a new aim.
+	# In the wet retain the continuous line policy of revision 035.
+	if wet>=0.45 or narrowing or absf(lane)>limit: return false
+	return load<(0.28 if held else 0.20) and ahead_load<0.28
+
 static func recovery_active(car: Dictionary, rival: Dictionary, load: float, ahead_load: float, narrowing: bool, limit: float) -> bool:
 	# Reconsider on exit, a changed target, or a narrowing road. Keep only
 	# the actual occupied legal lane; never preserve an invalid corridor.

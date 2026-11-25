@@ -12,6 +12,14 @@ func run():
  check(Corner.phase(.12,.6)=="entry","entry")
  check(Corner.phase(.65,.62)=="apex","apex")
  check(Corner.phase(.6,.12)=="exit","exit")
+ check(Corner.passive_line_settled(.15,.16,false,false,.4,2.95,0),"settle at low-load exit")
+ check(not Corner.passive_line_settled(.24,.16,false,false,.4,2.95,0),"do not acquire hold in loaded section")
+ check(Corner.passive_line_settled(.24,.16,true,false,.4,2.95,0),"hysteresis preserves established hold")
+ check(not Corner.passive_line_settled(.15,.31,true,false,.4,2.95,0),"upcoming corner releases hold")
+ check(not Corner.passive_line_settled(.30,.12,true,false,.4,2.95,0),"loaded corner releases hold")
+ check(not Corner.passive_line_settled(.05,.05,true,true,.4,2.95,0),"narrowing releases passive hold")
+ check(not Corner.passive_line_settled(.05,.05,true,false,3.1,2.95,0),"road limit releases passive hold")
+ check(not Corner.passive_line_settled(.05,.05,true,false,.4,2.95,.5),"wet continuous line preserved")
  var c={"id":1,"race_lane":0.0,"combat_state":"closing","combat_target_id":0}
  var d={"id":0,"race_lane":.4}
  var tactic={"commit":true,"defense":true,"attack_goal":-2.95,"margin_m":.4,"side":"left","blocked":false}
@@ -72,6 +80,16 @@ func run():
  var next=Space.plan(next_grid,metrics,.2,track,shape,{},false,false,true,false,40.2,true,true,true,true,true,true,true,true,true,true,true)
  check(next[1].states.racecraft_memory.get("corner_recovery_target",-1)==0 and next[1].states.combat_attempts==0,"native next tick defers reattack")
  check(is_equal_approx(float(next[1].states.race_lane),float(resumed.race_lane)),"native next tick lane settled")
+ var free_car={"id":5,"progress":.5,"race_lane":.7,"skill":85}
+ var free_metrics={5:{"target":100.0,"line_ratio":-.5,"line_load":.15,"ahead_load":.16}}
+ var free_plan=Space.plan([free_car],free_metrics,.2,track,shape,{},false,false,true,false,40.0,true,true,true,true,true,true,true,true,true,true,true)
+ check(free_plan[5].states.racecraft_memory.mode=="STRAIGHT_HOLD","native low-load settlement")
+ check(is_equal_approx(float(free_plan[5].states.race_lane),.7),"native settled lane unchanged")
+ free_metrics[5].ahead_load=.4
+ var approach=Space.plan([free_car],free_metrics,.2,track,shape,{},false,false,true,false,40.0,true,true,true,true,true,true,true,true,true,true,true)
+ check(approach[5].states.racecraft_memory.mode!="STRAIGHT_HOLD","native approach releases hold")
+ var wet_plan=Space.plan([free_car],free_metrics,.2,track,shape,{"wetness_factor":.8},false,false,true,false,40.0,true,true,true,true,true,true,true,true,true,true,true)
+ check(wet_plan[5].states.racecraft_memory.mode!="STRAIGHT_HOLD","native wet line continuous")
  print("CORNER_BATTLE_REPORT ",JSON.stringify({"checks":checks,"failures":failures}))
  if failures.is_empty():print("CORNER_BATTLE_0919_PASS")
  quit(0 if failures.is_empty() else 1)
