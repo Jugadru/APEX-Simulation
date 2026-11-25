@@ -787,7 +787,10 @@ func _process(delta: float) -> void:
 		# feedback loop: slow frame -> more owed ticks -> even slower frame.
 		# Every executed tick is still simulated and recorded in exact order.
 		if sim_speed >= 10.0:
-			replay_session.advance(delta, sim_speed, _observe_live_tick, 12000, 6)
+			# Retain more owed work at higher requested speeds, within the same
+			# 12 ms frame budget and 16-tick hard cap. No sporting tick is skipped.
+			var backlog_steps: int = 12 if sim_speed >= 32.0 else (8 if sim_speed >= 16.0 else 6)
+			replay_session.advance(delta, sim_speed, _observe_live_tick, 12000, backlog_steps)
 		else:
 			replay_session.advance(delta, sim_speed, _observe_live_tick)
 		# 066724: inform the player about the *measured* acceleration,
