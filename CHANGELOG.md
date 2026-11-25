@@ -1,5 +1,12 @@
 # Changelog — APEX Motorsport Manager Core 2
 
+## Unreleased — Performance Recovery 3.1 (Race Space Tactical Optimization)
+
+- Compartilha a observação congelada de separações circulares entre following e racecraft independente, evitando repetir a mesma busca de adversários quando ambos estão ativos.
+- Preserva critérios distintos de prioridade, tolerância, desempate, ordem dos candidatos de vácuo, limites e percurso legado sem racecraft independente.
+- Acrescenta testes diferenciais das duas buscas originais, incluindo fronteira da volta, posições iguais, distância limite e grids determinísticos.
+- Revisão esportiva 040, saves/replays, Traffic Pack e Pass Completion preservados. FAST e A/B pendentes; nenhum ganho medido ou release publicada.
+
 ## Unreleased — Performance Recovery 2.0 (Pass Completion)
 
 - Cache dos estados escalares de cada carro por chamada; elimina o mapa live não utilizado e evita avaliar a distância atual de pares que não podem iniciar confirmação nem possuem confirmação pendente.

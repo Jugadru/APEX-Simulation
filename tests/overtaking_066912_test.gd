@@ -2,6 +2,7 @@ extends SceneTree
 ## APEX v0.6.6.9.12 — deterministic overtaking, real corridor and replay 022/023.
 const Overtaking = preload("res://scripts/core/race_overtaking_intelligence_066912.gd")
 const Space = preload("res://scripts/core/race_space_0655.gd")
+const Merge = preload("res://scripts/core/race_merge_traffic_0669174.gd")
 const Race = preload("res://scripts/race_engine.gd")
 const Replay = preload("res://scripts/core/race_replay_0660.gd")
 const Codec = preload("res://scripts/core/race_state_codec_0660.gd")
@@ -34,7 +35,74 @@ func _track(season: Dictionary, code: String) -> Dictionary:
 			return item
 	return {}
 
+# Test-only oracle: the two separate pre-3.1 signed-gap scans.
+func reference_neighbors(subject: Dictionary, grid: Array, length: float,
+		include_following: bool, wake_stability: bool, wake_range: float) -> Dictionary:
+	var id: int=int(subject.id)
+	var nearest: Dictionary={}
+	var following_gap: float=INF
+	if include_following:
+		for other in grid:
+			if other.id==id: continue
+			var g: float=Merge.relative_gap(float(subject.progress),float(other.progress),length)
+			if absf(g)<=0.000001:
+				if Merge.has_priority(subject,other): continue
+				g=0.0
+			if g>=0.0 and g<following_gap:
+				following_gap=g
+				nearest=other
+	var leader: Dictionary={}
+	var independent_gap: float=INF
+	var wake_candidates: Array=[]
+	for other in grid:
+		if other.id==id: continue
+		var g: float=Merge.relative_gap(float(subject.progress),float(other.progress),length)
+		if wake_stability and (wake_range==INF or (g>0.0 and g<=wake_range+0.000001)):
+			wake_candidates.append(other)
+		if g>0.000001 and g<independent_gap and g<=38.0:
+			independent_gap=g
+			leader=other
+	return {"nearest":nearest,"following_gap":following_gap,"leader":leader,"independent_gap":independent_gap,"wake_candidates":wake_candidates}
+
+func tactical_neighbor_fixture() -> void:
+	var rng:=RandomNumberGenerator.new()
+	rng.seed=93101
+	for scenario in range(48):
+		var length: float=1000.0 if scenario%2==0 else 5300.0
+		var center: float=1.0 if scenario%3==0 else (-0.01 if scenario%3==1 else 0.4)
+		var grid: Array=[]
+		for i in range(24):
+			var p: float=center+rng.randf_range(-60.0,60.0)/length
+			grid.append(car(i,p,float(i%3-1)*2.95))
+		# Equal progress, lap-separated equal arc, tiny signed separation,
+		# equal positive gaps, and exact range boundaries.
+		grid[0].progress=center
+		grid[1].progress=center
+		grid[2].progress=center+1.0
+		grid[3].progress=center+0.0000005/length
+		grid[4].progress=center+38.0/length
+		grid[5].progress=grid[4].progress
+		grid[6].progress=center+13.0/length
+		if scenario%4==0: grid.resize(1)
+		if scenario%2==0: grid.reverse()
+		var wake_range: float=INF if scenario%4==0 else (13.0 if scenario%4==1 else 38.0)
+		var frozen: PackedByteArray=var_to_bytes(grid)
+		for subject in grid:
+			for include_following in [false,true]:
+				for wake_stability in [false,true]:
+					var expected: Dictionary=reference_neighbors(subject,grid,length,include_following,wake_stability,wake_range)
+					var actual: Dictionary=Space.tactical_neighbors(subject,grid,length,include_following,wake_stability,wake_range)
+					check(var_to_bytes(actual)==var_to_bytes(expected),"tactical neighbor differential %d/%d/%s/%s" % [scenario,subject.id,include_following,wake_stability])
+		check(var_to_bytes(grid)==frozen,"tactical neighbor frozen input %d" % scenario)
+	var singleton: Dictionary=car(99,0.0)
+	check(Space.tactical_neighbors(singleton,[],1000.0,true,true,INF)==reference_neighbors(singleton,[],1000.0,true,true,INF),"empty neighbor input")
+	var tied: Array=[car(8,0.5),car(2,0.5),car(4,0.5+10.0/1000.0),car(3,0.5+10.0/1000.0)]
+	var obs: Dictionary=Space.tactical_neighbors(tied[0],tied,1000.0,true,true,INF)
+	check(obs.nearest.id==2 and obs.following_gap==0.0 and obs.leader.id==4,"following tie priority and independent first-in-order tie remain distinct")
+	check(obs.wake_candidates.size()==3,"infinite wake range preserves all non-self candidates in order")
+
 func _run() -> void:
+	tactical_neighbor_fixture()
 	var attacker: Dictionary = car(1, 0.350)
 	attacker["combat_target_id"] = 2 # Established target retains earned charge.
 	var defender: Dictionary = car(2, 0.370)
