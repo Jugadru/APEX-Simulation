@@ -69,7 +69,7 @@ func ingest(race, player_team: String) -> bool:
 		var weather: Dictionary = race.weather_snapshot()
 		for car in race.cars:
 			if str(car.get("team", "")) == player_team:
-				communication.observe(car, weather, now)
+				communication.observe(car, weather, now, race.prediction_staff)
 	for packet in communication.drain(now):
 		_push(float(packet.created), str(packet.sender), str(packet.text), true, "context_0922", int(packet.car_id))
 		lines[-1]["context_0922"] = packet
@@ -106,7 +106,11 @@ func _event_line(event: Dictionary, race, player_team: String) -> bool:
 			phrases = ["Disputa se formando: %s" % source]
 		"pass":
 			if is_ours:
-				communication.offer(car_id, "CONFIRMED_PASS", Communication0922.pass_words(car, int(event.get("event_id", 0))), 3, float(event.get("time", 0.0)), int(event.get("event_id", -1)))
+				communication.on_pass(car, event, race.prediction_staff)
+			else:
+				for player in race.cars:
+					if str(player.get("team", "")) == player_team and not bool(player.get("finished", false)):
+						communication.on_rival_pass(player, car, event, float(race.clock), race.prediction_staff)
 			phrases = ["%s ganha terreno: agora aparece na posição %d." % [name, int(car.get("position", 0))],
 				"Mudança na ordem! %s avança no pelotão." % name]
 		"lead":
@@ -147,6 +151,8 @@ func _event_line(event: Dictionary, race, player_team: String) -> bool:
 				return false
 			role = "PILOTO"
 			phrases = [source]
+			if source.contains("recuperei o ritmo"):
+				phrases = ["Pace is back now."]
 			var intent: String = Radio3.classify_source(source)
 			if intent != "":
 				var previous: Dictionary = _radio3_memory.get(car_id, {})
@@ -166,6 +172,8 @@ func _event_line(event: Dictionary, race, player_team: String) -> bool:
 				return false
 			role = "ENGENHEIRO"
 			phrases = [source]
+			if source.contains("estabilize o carro") and source.contains("Nenhuma ordem de box foi alterada"):
+				phrases = ["Copy. Settle the car and build the pace back."]
 			var prior: Dictionary = _radio3_memory.get(car_id, {})
 			var prior_kind: String = str(prior.get("last_pilot_kind", ""))
 			# Only pair with a confirmed driver report at the SAME sporting
