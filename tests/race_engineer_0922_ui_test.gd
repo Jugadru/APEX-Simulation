@@ -34,10 +34,11 @@ func run() -> void:
 	var voice: CheckButton = null
 	var subtitles: CheckButton = null
 	for node in hud.overlay_content.find_children("*", "CheckButton", true, false):
-		if node.text == "VOZ LOCAL":
-			voice = node
-		elif node.text == "LEGENDAS PT":
-			subtitles = node
+		var toggle: CheckButton = node as CheckButton
+		if toggle.text == "VOZ LOCAL":
+			voice = toggle
+		elif toggle.text == "LEGENDAS PT":
+			subtitles = toggle
 	check(voice != null and subtitles != null, "voice and subtitles controls")
 	if subtitles != null:
 		subtitles.button_pressed = false
@@ -47,7 +48,8 @@ func run() -> void:
 	var sliders: Array[Node] = hud.overlay_content.find_children("*", "HSlider", true, false)
 	check(not sliders.is_empty(), "independent radio volume")
 	if not sliders.is_empty():
-		sliders[0].value = 35
+		var slider: HSlider = sliders[0] as HSlider
+		slider.value = 35
 		check(game.commentary.radio_audio.volume == 35, "volume control bound")
 	for topic in ["diagnostico","recuperacao","clima","estrategia","kers_drs"]:
 		hud._ask_context_0922(topic)
