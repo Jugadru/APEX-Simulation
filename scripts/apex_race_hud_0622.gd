@@ -1213,6 +1213,10 @@ func _build_radio_window() -> void:
 	identity_row.add_child(radio_identity_badge)
 	_btn(identity_row, "VER PERFIL", _show_profile_2012, 122).tooltip_text = "Retrato local do piloto selecionado; não envia ordens."
 	_refresh_radio_identity_2012()
+	if host.commentary != null:
+		var staff: Dictionary = host.commentary.staff_context
+		var style: String = str(staff.get("engineer_radio_style", ""))
+		_text(overlay_content, "ENGENHEIRO · %s%s" % [str(staff.get("engineer_name", "Race Engineer")), "  |  " + style if not style.is_empty() else ""], 12, ACCENT)
 	var audio_row := _line(overlay_content, 8)
 	var voice_toggle := CheckButton.new()
 	voice_toggle.text = "VOZ LOCAL"
@@ -1770,6 +1774,15 @@ func _ask_context_0922(topic: String) -> void:
 	var car: Dictionary = host._car_by_id(car_id)
 	var answer: String = Communication0922.answer(topic, car, host.race.weather_snapshot())
 	radio_response_label.text = "ENGENHEIRO · " + answer
+	if topic == "diagnostico":
+		var diagnosis: Dictionary = Communication0922.diagnose(car, host.race.weather_snapshot())
+		radio_response_label.text += "\nConfiança: %s · causas observadas: %s" % ["limitada" if str(diagnosis.confidence) == "LIMITED" else "sustentada", ", ".join(diagnosis.causes) if not diagnosis.causes.is_empty() else "nenhuma conclusiva"]
+		if host.commentary != null:
+			var staff: Dictionary = host.commentary.staff_context
+			var contract_id: String = str(staff.get("engineer_contract_id", ""))
+			if not contract_id.is_empty():
+				var pair: String = "%s|%d" % [contract_id, car_id]
+				radio_response_label.text += "\nFamiliaridade: %d/100" % int(host.commentary.career_bonds.get(pair, 50))
 	var translation: String = Communication0922.subtitle(answer)
 	if not translation.is_empty() and host.commentary != null and host.commentary.radio_subtitles:
 		radio_response_label.text += "\n" + translation
