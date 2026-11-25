@@ -789,7 +789,7 @@ func _process(delta: float) -> void:
 		if sim_speed >= 10.0:
 			# Retain more owed work at higher requested speeds, within the same
 			# 12 ms frame budget and 16-tick hard cap. No sporting tick is skipped.
-			var backlog_steps: int = 12 if sim_speed >= 32.0 else (8 if sim_speed >= 16.0 else 6)
+			var backlog_steps: int = replay_session.interactive_backlog_steps(sim_speed)
 			replay_session.advance(delta, sim_speed, _observe_live_tick, 12000, backlog_steps)
 		else:
 			replay_session.advance(delta, sim_speed, _observe_live_tick)
