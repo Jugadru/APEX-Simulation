@@ -587,6 +587,57 @@
         }
       ],
       "checks": []
+    },
+    {
+      "id": "traffic_mega_09201",
+      "paths": [
+        "scripts/core/race_traffic_pack_09201.gd",
+        "scripts/core/race_traffic_strategy_09201.gd",
+        "scripts/core/race_space_0655.gd",
+        "scripts/race_engine.gd",
+        "scripts/core/race_replay_0660.gd",
+        "scripts/core/race_state_codec_0660.gd",
+        "scripts/core/race_tyre_thermal.gd",
+        "tests/traffic_mega_09201_test.gd",
+        "tests/aero_wake_091711_test.gd",
+        "scripts/apex_race_hud_0622.gd",
+        "scripts/apex_telemetry.gd"
+      ],
+      "fast_tests": [
+        {
+          "script": "traffic_mega_09201_test.gd",
+          "marker": "TRAFFIC_MEGA_09201_PASS"
+        },
+        {
+          "script": "driver_traffic_0920_test.gd",
+          "marker": "DRIVER_TRAFFIC_0920_PASS"
+        },
+        {
+          "script": "wet_weather_setups_0918_test.gd",
+          "marker": "WET_SETUPS_0918_PASS"
+        },
+        {
+          "script": "radio_0668101_booked_pit_advice_test.gd",
+          "marker": "RADIO_0668101_BOOKED_PIT_PASS"
+        },
+        {
+          "script": "pitwall_0649_strategy_test.gd",
+          "marker": "PITWALL_0649_STRATEGY_PASS"
+        },
+        {
+          "script": "team_radio_06689_advice_test.gd",
+          "marker": "TEAM_RADIO_06689_PASS"
+        },
+        {
+          "script": "pitwall_0649_ui_test.gd",
+          "marker": "PITWALL_0667_QUEUE_AWARE_UI_PASS"
+        },
+        {
+          "script": "hud_pitwall_quick_panel_refactor_test.gd",
+          "marker": "HUD_PITWALL_QUICK_PANEL_REFACTOR_PASS"
+        }
+      ],
+      "checks": []
     }
   ]
 }

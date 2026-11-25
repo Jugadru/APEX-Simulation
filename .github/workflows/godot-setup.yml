@@ -146,6 +146,23 @@ jobs:
               --project . > ci-results/fast-plan.tsv
             mapfile -t tests < ci-results/fast-plan.tsv
           fi
+          # Fail fast on the selected real-rendering fixture; do not delete
+          # it or any other test from the plan. Only install graphics support
+          # for a plan that actually contains the screenshot regression.
+          graphical=()
+          remaining=()
+          for entry in "${tests[@]}"; do
+            if [[ "${entry%%|*}" == "pitwall_0649_ui_test.gd" ]]; then
+              graphical+=("$entry")
+            else
+              remaining+=("$entry")
+            fi
+          done
+          if (( ${#graphical[@]} > 0 )); then
+            sudo apt-get update
+            sudo apt-get install -y --no-install-recommends xvfb xauth libgl1 libgl1-mesa-dri
+            tests=("${graphical[@]}" "${remaining[@]}")
+          fi
           echo "APEX_CI_TIER=$APEX_CI_TIER tests=${#tests[@]}"
           printf '%s\n' "${tests[@]}" > ci-results/test-plan.txt
           for entry in "${tests[@]}"; do
@@ -192,5 +209,7 @@ jobs:
             ci-results/source-inventory.json
             ci-results/test-plan.txt
             ci-results/lab-perf/
+            qa/stabilization_0667/pitwall_1600.png
+            qa/stabilization_0667/pitwall_1920.png
           if-no-files-found: warn
           retention-days: 7

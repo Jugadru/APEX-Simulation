@@ -1,0 +1,54 @@
+name: APEX - Traffic Mega 9.20.1 validation
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'scripts/core/race_traffic_pack_09201.gd'
+      - 'scripts/core/race_traffic_strategy_09201.gd'
+      - 'scripts/core/race_space_0655.gd'
+      - 'scripts/race_engine.gd'
+      - 'scripts/core/race_replay_0660.gd'
+      - 'tests/traffic_mega_09201_test.gd'
+      - 'tests/aero_wake_091711_test.gd'
+      - '.github/workflows/apex-traffic-mega-09201.yml'
+permissions:
+  contents: read
+jobs:
+  traffic_mega:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        track: [ITA, GBR, MON]
+        climate: [Seco, Chuva intensa]
+        seed: [42, 123]
+    env:
+      APEX_TRAFFIC_MEGA: '1'
+      APEX_AERO_TRACK: ${{ matrix.track }}
+      APEX_AERO_CLIMATE: ${{ matrix.climate }}
+      APEX_AERO_TICKS: '1800'
+      APEX_AERO_SEED: ${{ matrix.seed }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+        with:
+          version: 4.7.2-stable
+      - run: bash tools/apex_ci_import.sh import.log
+      - run: |
+          set -euo pipefail
+          bash tools/apex_ci_isolated_test.sh traffic_mega_09201_test.gd 2>&1 | tee fixture.log
+          grep -Fq TRAFFIC_MEGA_09201_PASS fixture.log
+          bash tools/apex_ci_isolated_test.sh aero_wake_091711_test.gd 2>&1 | tee traffic_mega.log
+          grep -Fq AERO_WAKE_091711_PASS traffic_mega.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' fixture.log traffic_mega.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apex-traffic-mega-${{ matrix.track }}-${{ matrix.climate }}-${{ matrix.seed }}
+          path: |
+            import.log
+            fixture.log
+            traffic_mega.log
+          retention-days: 14
