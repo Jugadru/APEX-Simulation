@@ -11,6 +11,52 @@ const ERROR_WORDS := {
 	"RUNNING_WIDE": "Copy. Regroup and focus on the next corner.",
 	"SPIN": "Take your time. Bring the pace back when you can."
 }
+# PT-BR subtitle catalogue for the new original English radio vocabulary.
+const SUBTITLES := {
+	"Lock-up noted. Build the pace back gradually.":"Travamento registrado. Recupere o ritmo aos poucos.",
+	"Copy. Reset for the next corner.":"Entendido. Concentre-se na próxima curva.",
+	"Copy. Smooth on the throttle as you recover.":"Entendido. Acelere suavemente durante a recuperação.",
+	"Understood. Give yourself room to settle the car.":"Entendido. Dê espaço para estabilizar o carro.",
+	"Copy. Regroup and focus on the next corner.":"Entendido. Recupere a concentração para a próxima curva.",
+	"Take your time. Bring the pace back when you can.":"Sem pressa. Recupere o ritmo quando puder.",
+	"Copy. Build the pace back gradually.":"Entendido. Recupere o ritmo aos poucos.",
+	"No clear cause yet. We'll keep watching the sectors.":"Ainda não há uma causa clara. Vamos acompanhar os setores.",
+	"Grip may be dropping on these tyres. We are checking the pit window.":"A aderência pode estar diminuindo. Estamos avaliando a janela de box.",
+	"Tyre wear is high. We need to compare the pace with the cost of stopping.":"Desgaste elevado. Precisamos comparar o ritmo com o custo da parada.",
+	"Tyre temperature is outside the target window. Watch the grip.":"Temperatura fora da faixa ideal. Observe a aderência.",
+	"We're seeing an aerodynamic wake effect. Let's watch the gap.":"Estamos observando efeito de ar sujo. Vamos acompanhar a diferença.",
+	"Traffic may be costing us time. Let's look for clean air.":"O tráfego pode estar custando tempo. Vamos buscar ar limpo.",
+	"That's one off the list. Don't send me the bill.":"Mais um fora da lista. Não me mande a conta.",
+	"One less car to worry about. Very considerate.":"Um carro a menos para preocupar. Muito gentil.",
+	"Pass confirmed. Build the gap now.":"Ultrapassagem confirmada. Agora abra vantagem.",
+	"Nice work. Keep it tidy and look ahead.":"Bom trabalho. Mantenha a precisão e olhe à frente.",
+	"That's one done.":"Mais um resolvido.",
+	"Good pass. Keep the pace under control.":"Boa ultrapassagem. Mantenha o ritmo sob controle.",
+	"Pace recovery noted. Keep building from here.":"Recuperação registrada. Continue evoluindo o ritmo.",
+	"That indicator has settled. We'll keep monitoring.":"Esse indicador estabilizou. Continuaremos monitorando.",
+	"Copy. Settle the car and build the pace back.":"Entendido. Estabilize o carro e recupere o ritmo.",
+	"Pace is back now.":"Recuperei o ritmo.",
+	"No active recovery indicated.":"Nenhuma recuperação ativa indicada.",
+	"No data available.":"Dados indisponíveis.",
+	"No stop booked. We are reviewing the pit window.":"Sem parada agendada. Estamos avaliando a janela de box."
+}
+
+static func subtitle(words: String, evidence: Dictionary = {}) -> String:
+	if SUBTITLES.has(words):
+		return str(SUBTITLES[words])
+	if evidence.has("rival_name") and evidence.has("position"):
+		return "%s avançou para P%d. Fique atento." % [str(evidence.rival_name), int(evidence.position)]
+	return ""
+
+static func language(words: String) -> String:
+	if SUBTITLES.has(words):
+		return "en"
+	var lower: String = words.to_lower()
+	for token in ["rádio", "engenheiro:", "para ", "pneus", "volta", "piloto", "ção", "não", "está", "ordem", "aderência"]:
+		if lower.contains(token):
+			return "pt"
+	return "en"
+
 var history: Dictionary = {}
 var pending: Array[Dictionary] = []
 var last_at: Dictionary = {}
@@ -164,7 +210,7 @@ func on_rival_pass(player: Dictionary, rival: Dictionary, event: Dictionary, now
 	var words: String = "%s is through to P%d. Keep an eye on that." % [name, pos]
 	if str(p.style) == "DEADPAN" and float((player.get("driver_soul", {}) as Dictionary).get("pressure", 0.0)) < .4:
 		words = "%s has found a way through. P%d now. No time for sightseeing." % [name, pos]
-	offer(id, "RIVAL_PASS", words, 2, float(event.get("time", 0.0)), int(event.get("event_id", -1)), {"rival_id": int(rival.get("id", -1)), "position": pos, "style": p.style, "voice_profile_id": p.voice_profile_id})
+	offer(id, "RIVAL_PASS", words, 2, float(event.get("time", 0.0)), int(event.get("event_id", -1)), {"rival_id": int(rival.get("id", -1)), "rival_name": name, "position": pos, "style": p.style, "voice_profile_id": p.voice_profile_id})
 
 
 func reset() -> void:
@@ -196,7 +242,7 @@ func offer(car_id: int, intent: String, words: String, priority: int, now: float
 		pending.remove_at(worst)
 	serial += 1
 	var cid: String = conversation_id if not conversation_id.is_empty() else "%d:%d" % [car_id, serial]
-	pending.append({"message_id": serial, "conversation_id": cid, "car_id": car_id, "intent": intent, "sender": sender, "priority": priority, "created": now, "expires": now + (35.0 if priority <= 1 else 20.0), "source_event_id": event_id, "evidence": evidence.duplicate(true), "text": words, "command_authorized": false, "voice_profile_id": ("apex_original_driver_%d" % car_id) if sender == "PILOTO" else str(evidence.get("voice_profile_id", "apex_original_engineer_%d" % posmod(car_id, 3))), "subtitle": words, "audio_channel": "TEAM_RADIO", "interruptible": priority > 1})
+	pending.append({"message_id": serial, "conversation_id": cid, "car_id": car_id, "intent": intent, "sender": sender, "priority": priority, "created": now, "expires": now + (35.0 if priority <= 1 else 20.0), "source_event_id": event_id, "evidence": evidence.duplicate(true), "text": words, "command_authorized": false, "voice_profile_id": ("apex_original_driver_%d" % car_id) if sender == "PILOTO" else str(evidence.get("voice_profile_id", "apex_original_engineer_%d" % posmod(car_id, 3))), "subtitle": words, "subtitle_pt": subtitle(words, evidence), "locale": "en", "audio_channel": "TEAM_RADIO", "interruptible": priority > 1})
 	last_at[key] = now
 	return true
 
@@ -237,7 +283,7 @@ func record_legacy(at: float, role: String, text: String, kind: String, car_id: 
 		return {}
 	serial += 1
 	var p: Dictionary = profile({"id": car_id}, staff_context)
-	var packet: Dictionary = {"message_id": serial, "conversation_id": "%d:legacy:%d" % [car_id, serial], "car_id": car_id, "intent": kind, "sender": role, "priority": 2 if kind == "engineer_reply" else 3, "created": at, "expires": at + 20.0, "source_event_id": -1, "evidence": {}, "text": text, "command_authorized": false, "voice_profile_id": "apex_original_driver_%d" % car_id if role == "PILOTO" else str(p.voice_profile_id), "subtitle": text, "audio_channel": "TEAM_RADIO", "interruptible": true}
+	var packet: Dictionary = {"message_id": serial, "conversation_id": "%d:legacy:%d" % [car_id, serial], "car_id": car_id, "intent": kind, "sender": role, "priority": 2 if kind == "engineer_reply" else 3, "created": at, "expires": at + 20.0, "source_event_id": -1, "evidence": {}, "text": text, "command_authorized": false, "voice_profile_id": "apex_original_driver_%d" % car_id if role == "PILOTO" else str(p.voice_profile_id), "subtitle": text, "subtitle_pt": subtitle(text), "locale": language(text), "audio_channel": "TEAM_RADIO", "interruptible": true}
 	remember_delivery(packet)
 	return packet
 
