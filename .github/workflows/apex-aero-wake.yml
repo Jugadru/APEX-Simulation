@@ -6,6 +6,7 @@ on:
     paths:
       - 'scripts/core/race_aero_wake_091711.gd'
       - 'scripts/core/race_space_0655.gd'
+      - 'scripts/core/race_independent_racecraft_091710.gd'
       - 'scripts/core/race_pit_lane.gd'
       - 'scripts/core/race_replay_0660.gd'
       - 'scripts/core/race_state_codec_0660.gd'
@@ -62,6 +63,7 @@ jobs:
           - {track: ITA, climate: Seco}
           - {track: GBR, climate: Seco}
           - {track: MON, climate: Seco}
+          - {track: MON, climate: Chuva intensa}
           - {track: ITA, climate: Chuva intensa}
           - {track: ITA, climate: Variável}
     env:
@@ -123,14 +125,14 @@ jobs:
       - name: Package tracked source candidate (no private portraits)
         run: |
           set -euo pipefail
-          git archive --format=zip --prefix=APEX-REV3/ --output=APEX_091711_REV3_SOURCE.zip HEAD
-          unzip -tq APEX_091711_REV3_SOURCE.zip
-          sha256sum APEX_091711_REV3_SOURCE.zip > APEX_091711_REV3_SOURCE.sha256
-          sha256sum -c APEX_091711_REV3_SOURCE.sha256
+          git archive --format=zip --prefix=APEX-REV4/ --output=APEX_091711_REV4_SOURCE.zip HEAD
+          unzip -tq APEX_091711_REV4_SOURCE.zip
+          sha256sum APEX_091711_REV4_SOURCE.zip > APEX_091711_REV4_SOURCE.sha256
+          sha256sum -c APEX_091711_REV4_SOURCE.sha256
       - uses: actions/upload-artifact@v4
         with:
-          name: apex-091711-rev3-source-candidate
+          name: apex-091711-rev4-source-candidate
           path: |
-            APEX_091711_REV3_SOURCE.zip
-            APEX_091711_REV3_SOURCE.sha256
+            APEX_091711_REV4_SOURCE.zip
+            APEX_091711_REV4_SOURCE.sha256
           retention-days: 14

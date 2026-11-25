@@ -78,6 +78,16 @@ func fixture():
  PitLane.advance(host,exit_car,.2,.2,.4,.6,true)
  check(exit_car.pit_stage=="done" and exit_car.pit_left==0 and host.records==1,"release once when safe")
  check(is_equal_approx(float(exit_car.pit_last_total),10.2) and exit_car.pit_last_extra==0,"real merge delay included in total")
+ # 035: no stop/start dry straight-hold policy in low grip.
+ check(Space.straight_hold_allowed(.08,.1,false,false,0,1.0,0.0,true),"dry hold retained")
+ check(Space.straight_hold_allowed(.08,.1,false,false,0,1.0,.6,false),"034 wet hold historical")
+ check(not Space.straight_hold_allowed(.08,.1,true,false,0,1.0,.6,true),"035 continuous wet line")
+ var draft_car=car(24,.2,0)
+ draft_car["racecraft_memory"]={"target":25,"stable":2.0,"observed":.3}
+ var draft_leader=car(25,.21,.3)
+ var draft_intent={"state":"closing","defending":-1,"goal":0.0}
+ check(Decision.decide(draft_car,draft_intent,draft_leader,10.0,0,1.0,.05,.05,.5,.2,true).mode=="DRAFT","legacy wet draft acquisition")
+ check(Decision.decide(draft_car,draft_intent,draft_leader,10.0,0,1.0,.05,.05,.5,.2,false).mode=="FOLLOW","wet own line without lateral draft")
  var pair=[car(0,.21,0),car(1,.2,0)]
  var metrics={0:{"target":100.0,"decision_pace":100.0,"line_ratio":0.0,"line_load":0.0,"ahead_load":0.0},1:{"target":100.0,"decision_pace":100.0,"line_ratio":0.0,"line_load":0.0,"ahead_load":0.0}}
  var track={"lap_km":5.0,"race_width_m":8.8,"overtake_zones":[]};var shape={"length":1000.0}
@@ -89,7 +99,7 @@ func fixture():
  print("AERO_WAKE_FIXTURE ",JSON.stringify({"close":close,"far":far,"corner":corner,"wet":wet,"sporting_old":old[1].progress,"sporting_new":new[1].progress}))
 func drive(data:Dictionary,track:Dictionary,revision:int,climate:String,ticks:int,seed:int=42)->Dictionary:
  var race=Race.new(data.teams,"Ferrari",seed,{},track,{})
- race.aero_wake_enabled=revision>=32;race.aero_wake_corrected=revision>=33;race.aero_wake_stability=revision>=34;race.configure_weather(climate);race.running=true
+ race.aero_wake_enabled=revision>=32;race.aero_wake_corrected=revision>=33;race.aero_wake_stability=revision>=34;race.aero_wet_line_stability=revision>=35;race.configure_weather(climate);race.running=true
  var tow:=0;var dirty:=0;var max_tow:=0.0;var max_dirty:=0.0;var side:=0;var reverse_steer:=0;var stops:=0;var overlaps:=0;var reverse:=0;var passes:=0;var changed:=0;var last_sign:Dictionary={};var initial:Dictionary={};var start:=Time.get_ticks_usec()
  for c in race.cars:initial[c.id]=int(c.grid)
  var by_driver:Dictionary={};var last_active_tick:Dictionary={};var rapid_by_driver:Dictionary={};var engine_us:int=0;var actual_ticks:int=0;var peak_memory:float=0.0;var pits:int=0;var classification:Array=[];var wet_min:float=1.0;var wet_max:float=0.0;var release_overlaps:int=0;var examples:Array=[]
@@ -178,7 +188,7 @@ func run():
  check(not track.is_empty(),"track found")
  if track.is_empty():quit(1);return
  var old=drive(data,track,31,climate,ticks,seed)
- var new=drive(data,track,34,climate,ticks,seed)
+ var new=drive(data,track,35,climate,ticks,seed)
  print("AERO_WAKE_AB ",JSON.stringify({"track":code,"climate":climate,"ticks":ticks,"seed":seed,"full":full,"old":old,"new":new}))
  check(new.tow_samples>0 and new.dirty_samples>0,"both effects exercised")
  check(new.max_tow<=Aero.TOW_FRACTION and new.max_dirty<=Aero.DIRTY_FRACTION,"bounded modifiers")
@@ -208,9 +218,11 @@ func run():
    var historical=drive(data,track,32,climate,ticks,seed)
    check(historical.hash=="7d40eff8b5285682a7aa5165d96fb91b0f4dc7366c0ff17b9d367baa6e4bcbc9","historical CI 032 hash")
    print("AERO_WAKE_HISTORICAL_032 ",JSON.stringify(historical))
-  var again=drive(data,track,34,climate,ticks,seed)
-  check(new.hash==again.hash,"deterministic 034")
-  for rev in [Replay.PRE_AERO_WAKE_SIMULATION_REVISION,Replay.PRE_WAKE_SOURCE_SIMULATION_REVISION,Replay.PRE_WAKE_STABILITY_SIMULATION_REVISION,Replay.SIMULATION_REVISION]:
+   var historical_034=drive(data,track,34,climate,ticks,seed)
+   check(historical_034.hash=="067ec801e8bef03f137cfcadd229f2662cc400f8ccdbbe17f8ed45ffa1fc9e85","historical CI 034 hash")
+  var again=drive(data,track,35,climate,ticks,seed)
+  check(new.hash==again.hash,"deterministic 035")
+  for rev in [Replay.PRE_AERO_WAKE_SIMULATION_REVISION,Replay.PRE_WAKE_SOURCE_SIMULATION_REVISION,Replay.PRE_WAKE_STABILITY_SIMULATION_REVISION,Replay.PRE_WET_LINE_SIMULATION_REVISION,Replay.SIMULATION_REVISION]:
    var rec=Replay.new();rec.attach(Race.new(data.teams,"Ferrari",42,{},track,{}));rec.recorded_simulation_revision=rev
    for i in range(350):check(rec.step_tick(),"record tick")
    var play=Replay.new()

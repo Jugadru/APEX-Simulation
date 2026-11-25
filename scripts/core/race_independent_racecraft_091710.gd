@@ -1,7 +1,7 @@
 extends RefCounted
 ## Frozen observations; no opponent goal is read. State is checkpointed per car.
 const ATTACK := ["preparing","attacking","duel"]
-static func decide(car:Dictionary, intent:Dictionary, leader:Dictionary, gap:float, own:float, limit:float, load:float, ahead_load:float, wet:float, dt:float)->Dictionary:
+static func decide(car:Dictionary, intent:Dictionary, leader:Dictionary, gap:float, own:float, limit:float, load:float, ahead_load:float, wet:float, dt:float, allow_draft:bool=true)->Dictionary:
  var prior:Dictionary=car.get("racecraft_memory",{})
  var lane:float=float(car.get("race_lane",0.0))
  var target:int=int(leader.get("id",-1))
@@ -22,7 +22,7 @@ static func decide(car:Dictionary, intent:Dictionary, leader:Dictionary, gap:flo
  elif target>=0 and gap<=38.0:
   mode="FOLLOW"
   # Wake acquisition is small, stable, and anchored to our own line.
-  if gap>=7.4 and gap<=30.0 and load<0.12 and ahead_load<0.16 and wet<0.65 and stable>=1.4 and absf(observed-own)<=0.95:
+  if allow_draft and gap>=7.4 and gap<=30.0 and load<0.12 and ahead_load<0.16 and wet<0.65 and stable>=1.4 and absf(observed-own)<=0.95:
    mode="DRAFT";aim=clampf(observed,own-0.45,own+0.45)
   if gap<7.4 and absf(lane-observed)>=2.94:
    mode="SIDE_BY_SIDE";aim=lane

@@ -95,9 +95,14 @@ static func pit_exit_clear(exit_progress: float, order: Array, plan: Dictionary,
 		if absf(MergeTraffic.relative_gap(exit_progress,float(position),length))<LENGTH+1.0: return false
 	return true
 
+static func straight_hold_allowed(load: float, ahead_load: float, held: bool, narrowing: bool, lane: float, limit: float, wet: float, wet_line_stability: bool) -> bool:
+	# In low grip, a continuous own line is preferable to stop/start lane holds.
+	if wet_line_stability and wet>=0.45: return false
+	return load<(0.18 if held else 0.12) and ahead_load<0.22 and not narrowing and absf(lane)<=limit
+
 static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,shape: Dictionary, weather: Dictionary = {}, traffic_enabled: bool = true, soul3_enabled: bool = false,
 		overtaking_enabled: bool = false, competitive_start_enabled: bool = false,
-		start_clock_s: float = 0.0, merge_traffic_enabled: bool = false, traffic_hotfix_enabled: bool = false, following_enabled: bool = false, completion_enabled: bool = false, independent_enabled: bool = false, aero_wake_enabled: bool = false, aero_wake_corrected: bool = true, wake_stability: bool = false) -> Dictionary:
+		start_clock_s: float = 0.0, merge_traffic_enabled: bool = false, traffic_hotfix_enabled: bool = false, following_enabled: bool = false, completion_enabled: bool = false, independent_enabled: bool = false, aero_wake_enabled: bool = false, aero_wake_corrected: bool = true, wake_stability: bool = false, wet_line_stability: bool = false) -> Dictionary:
 	var length: float=shape.length
 	following_enabled = following_enabled and start_clock_s>=24.0
 	completion_enabled = completion_enabled and following_enabled
@@ -334,13 +339,12 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 			var wet: float = clampf(float(weather.get("wetness_factor",0.0)),0.0,1.0)
 			var own: float = clampf(float(m.get("line_ratio",0.0)),-1.0,1.0)*limit
 			var load: float = float(m.get("line_load",1.0))
-			var memory: Dictionary = Independent.decide(c,a,leader,gap,own,limit,load,float(m.get("ahead_load",1.0)),wet,dt)
+			var memory: Dictionary = Independent.decide(c,a,leader,gap,own,limit,load,float(m.get("ahead_load",1.0)),wet,dt,not (wet_line_stability and wet>=0.45))
 			# Hold the actual lane in a non-tactical straight. A stable return
 			# resumes before the next curve or narrowing; never chase wake laterally.
 			if wake_stability and str(a.state) not in Independent.ATTACK and int(a.defending)<0:
 				var held: bool = str(c.get("racecraft_memory",{}).get("mode",""))=="STRAIGHT_HOLD"
-				var threshold: float = 0.18 if held else 0.12
-				if load<threshold and float(m.get("ahead_load",load))<0.22 and not bool(narrowing.get(id,false)) and absf(float(a.lane))<=limit:
+				if straight_hold_allowed(load,float(m.get("ahead_load",load)),held,bool(narrowing.get(id,false)),float(a.lane),limit,wet,wet_line_stability):
 					memory.mode="STRAIGHT_HOLD"
 					memory.aim=float(a.lane)
 					memory.wanted=float(a.lane)

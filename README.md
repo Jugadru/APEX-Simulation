@@ -1,6 +1,6 @@
-# APEX Motorsport Manager — Core 2 v0.6.6.9.17.11 REV3 (candidata)
+# APEX Motorsport Manager — Core 2 v0.6.6.9.17.11 REV4 (candidata)
 
-**Candidata desta branch:** Slipstream & Dirty Air 1.0 REV3. Revisão esportiva 034: proteção de convergência, saída dos boxes e estabilidade lateral; 031–033 preservadas para replays. [Escopo e testes](docs/APEX_RELEASE_v0.6.6.9.17.11_AERO_WAKE.md).
+**Candidata desta branch:** Slipstream & Dirty Air 1.0 REV4. Revisão esportiva 035: linha própria contínua em baixa aderência, sem retirar proteções 034; 031–034 preservadas para replays. [Escopo e testes](docs/APEX_RELEASE_v0.6.6.9.17.11_AERO_WAKE.md).
 
 **Versão integrada: v0.6.6.9.17.10 — Racing Line Intelligence REV4.** [PR #125](https://github.com/Jugadru/APEX-Simulation/pull/125), merge `6293a5b1`. Retratos privados opcionais; não redistribuir fotografias sem licença. A 9.17.11 permanece candidata até homologação.
 
