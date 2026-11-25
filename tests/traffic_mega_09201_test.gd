@@ -31,6 +31,33 @@ func run():
  check(Pack.observe(unknown,unknown_grid,metrics,1000,weather,.2,Pack.rate_frame(unknown_grid))==Pack.observe(unknown,unknown_grid,metrics,1000,weather,.2),"rate fallback identical without timing history")
  check(Pack.observe(own,[rear,c,b,a,own],metrics,1000,weather,.2)==obs,"order independent")
  check(not Pack.observe(own,grid,metrics,1000,{"wetness_factor":.8,"drs_allowed":false},.2).drs_train,"wet DRS train not armed")
+ # Performance recovery: leader-only metadata must follow gap/id sorting,
+ # while all candidates still contribute to the DRS/duel chain.
+ var subject=car(201,.90);subject.team="Same";subject["stint_laps"]=2
+ var leader=car(202,.91);leader.team="Same";leader["pit_request"]=true
+ leader["stint_laps"]=15;leader.last_lap=130.0;leader.tire="Duro"
+ var tied=car(203,.91);tied.team="Other";tied["stint_laps"]=1
+ tied.last_lap=80.0;tied.tire="Macio";tied.combat_state="duel"
+ var third_ahead=car(204,.92);third_ahead.combat_state="attacking"
+ var parked=car(205,.905);parked.pit_left=3.0
+ var retired=car(206,.901);retired.finished=true
+ var fixture:Array=[subject,tied,third_ahead,parked,retired,leader]
+ var fixture_metrics:Dictionary={201:metric(100)}
+ var fixture_bytes=var_to_bytes([fixture,fixture_metrics,weather])
+ var perception=Pack.observe(subject,fixture,fixture_metrics,1000.0,weather,.2,Pack.rate_frame(fixture))
+ check(perception.leader==202 and perception.mate and perception.pit_approach,"leader metadata follows gap/id tie break")
+ check(perception.leader_tyre_age==15 and perception.leader_compound=="Duro" and perception.tyre_hint=="OLDER_STINT","only selected leader tyre metadata")
+ check(perception.leader_slower_observed and perception.catch_s>0.0,"only selected leader observed rate")
+ check(perception.group_size==4 and perception.drs_train and perception.front_duels==2,"all candidates still contribute to chain")
+ var reversed_fixture:Array=fixture.duplicate();reversed_fixture.reverse()
+ check(Pack.observe(subject,reversed_fixture,fixture_metrics,1000.0,weather,.2,Pack.rate_frame(reversed_fixture))==perception,"tie and leader metadata independent of input order")
+ check(Pack.observe(subject,fixture,fixture_metrics,1000.0,weather,.2)==perception,"leader metadata cached/uncached equivalent")
+ check(var_to_bytes([fixture,fixture_metrics,weather])==fixture_bytes,"perception does not mutate frozen inputs")
+ var wrap_fast=car(210,2.99);var wrap_slow=car(211,2.0)
+ var wrap_obs=Pack.observe(wrap_fast,[wrap_slow,wrap_fast],{210:metric(100)},1000.0,weather,.2)
+ check(wrap_obs.leader==211 and wrap_obs.lapping_ahead,"leader lapping preserved at lap seam")
+ var isolated=Pack.observe(subject,[subject,parked,retired],fixture_metrics,1000.0,weather,.2)
+ check(isolated.leader==-1 and isolated.group_size==1 and isolated.leader_tyre_age==-1 and not isolated.mate,"empty ahead defaults preserved")
  var fast=car(6,.1);fast.last_lap=80.0
  var slow=car(7,.145);slow.last_lap=130.0
  fast["stint_laps"]=2;slow["stint_laps"]=15
