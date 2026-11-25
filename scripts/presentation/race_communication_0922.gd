@@ -283,7 +283,12 @@ func record_legacy(at: float, role: String, text: String, kind: String, car_id: 
 		return {}
 	serial += 1
 	var p: Dictionary = profile({"id": car_id}, staff_context)
-	var packet: Dictionary = {"message_id": serial, "conversation_id": "%d:legacy:%d" % [car_id, serial], "car_id": car_id, "intent": kind, "sender": role, "priority": 2 if kind == "engineer_reply" else 3, "created": at, "expires": at + 20.0, "source_event_id": -1, "evidence": {}, "text": text, "command_authorized": false, "voice_profile_id": "apex_original_driver_%d" % car_id if role == "PILOTO" else str(p.voice_profile_id), "subtitle": text, "subtitle_pt": subtitle(text), "locale": language(text), "audio_channel": "TEAM_RADIO", "interruptible": true}
+	var words: String = text
+	if words.begins_with("Para ") or words.begins_with("RÁDIO FICTÍCIO |") or words.begins_with("RADIO FICTICIO |"):
+		var separator: int = words.find(": ")
+		if separator >= 0:
+			words = words.substr(separator + 2)
+	var packet: Dictionary = {"message_id": serial, "conversation_id": "%d:legacy:%d" % [car_id, serial], "car_id": car_id, "intent": kind, "sender": role, "priority": 2 if kind == "engineer_reply" else 3, "created": at, "expires": at + 20.0, "source_event_id": -1, "evidence": {}, "text": text, "command_authorized": false, "voice_profile_id": "apex_original_driver_%d" % car_id if role == "PILOTO" else str(p.voice_profile_id), "subtitle": text, "subtitle_pt": subtitle(words), "locale": language(words), "speech_text": words, "audio_channel": "TEAM_RADIO", "interruptible": true}
 	remember_delivery(packet)
 	return packet
 
