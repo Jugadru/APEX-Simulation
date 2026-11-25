@@ -675,7 +675,14 @@
         "scripts/apex_commentary.gd",
         "scripts/apex_race_hud_0622.gd",
         "scripts/presentation/race_radio_06695.gd",
-        "tests/race_engineer_0922_test.gd"
+        "tests/race_engineer_0922_test.gd",
+        "scripts/core/race_engineer_career_0922.gd",
+        "scripts/presentation/race_radio_audio_0922.gd",
+        "scripts/presentation/race_radio_pt_0922.gd",
+        "scripts/apex_race_session_controller.gd",
+        "scripts/apex_championship_flow.gd",
+        "scripts/apex_race_ui_presenter.gd",
+        "tests/race_engineer_0922_ui_test.gd"
       ],
       "fast_tests": [
         {
