@@ -49,29 +49,74 @@ func run() -> void:
 	check(b.history[5].size() == Bus.MAX_HISTORY, "bounded memory")
 	check(b.history[6].size() == 1, "independent memories")
 	check(not bool(b.history[5][-1].command_authorized), "no commands")
+	b.reset()
+	var racer: Dictionary = {"id": 5, "team": "Ferrari", "position": 4, "driver_soul": {"pressure": .1, "confidence": .8}}
+	var rival: Dictionary = {"id": 1, "team": "Red Bull", "name": "Vettel"}
+	var pass_event: Dictionary = {"type": "pass", "event_id": 120, "time": 100.0, "message": "ULTRAPASSAGEM CONFIRMADA | Vettel consolidou P3."}
+	b.on_pass(racer, pass_event, {"engineer_radio_style": "DEADPAN"})
+	var dialogue: Array = b.drain(100.0)
+	check(dialogue.size() == 2, "banter paired")
+	if dialogue.size() == 2:
+		check(dialogue[0].conversation_id == dialogue[1].conversation_id and dialogue[0].sender == "PILOTO" and dialogue[1].sender == "ENGENHEIRO", "conversation order")
+		check(dialogue[0].voice_profile_id != dialogue[1].voice_profile_id, "distinct voice profiles")
+	b.on_rival_pass(racer, rival, pass_event, 100.0, {"engineer_radio_style": "DEADPAN"})
+	var rivals: Array = b.drain(100.0)
+	check(rivals.size() == 1 and str(rivals[0].text).contains("Vettel") and str(rivals[0].text).contains("P3"), "verified nearby rival pass")
+	b.on_rival_pass(racer, rival, pass_event, 130.0)
+	check(b.drain(130.0).is_empty(), "stale event rejected")
+	var hot: Dictionary = {"id": 8, "wear": 15.0, "tire": "Médio", "tyre_surface_c": 130.0}
+	b.observe(hot, dry, 140.0, {"Engenheiro":3})
+	check(b.drain(140.0).is_empty(), "sustained evidence required")
+	b.observe(hot, dry, 142.0, {"Engenheiro":3})
+	check(b.drain(142.0).size() == 1, "competence changes communication latency")
+	hot["tyre_surface_c"] = 95.0
+	b.observe(hot, dry, 144.0, {"Engenheiro":3})
+	check(b.drain(144.0).size() == 1, "condition follow-up")
 	var data: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/season_2012.json"))
-	var a = Race.new(data.teams, "Ferrari", 42, {}, data.tracks[0], {})
-	var reference = Race.new(data.teams, "Ferrari", 42, {}, data.tracks[0], {})
-	a.configure_weather("Seco")
-	reference.configure_weather("Seco")
+	var track: Dictionary = data.tracks[0]
+	var track_code: String = OS.get_environment("APEX_ENGINEER_TRACK")
+	for item in data.tracks:
+		if str(item.get("code", "")) == track_code:
+			track = item
+			break
+	var climate: String = OS.get_environment("APEX_ENGINEER_CLIMATE")
+	if climate.is_empty():
+		climate = "Seco"
+	var seed: int = int(OS.get_environment("APEX_ENGINEER_SEED"))
+	if seed == 0:
+		seed = 42
+	var ticks: int = maxi(240, int(OS.get_environment("APEX_ENGINEER_TICKS")))
+	var a = Race.new(data.teams, "Ferrari", seed, {}, track, {})
+	var reference = Race.new(data.teams, "Ferrari", seed, {}, track, {})
+	a.configure_weather(climate)
+	reference.configure_weather(climate)
 	a.running = true
 	reference.running = true
 	var commentary = Commentary.new()
-	commentary.reset(42)
+	commentary.reset(seed)
 	var driver: Dictionary = a.player_cars()[0]
 	var player_id: int = int(driver.id)
 	driver["pit_scheduled_lap"] = 21
 	reference.player_cars()[0]["pit_scheduled_lap"] = 21
 	check(not commentary._event_line({"type":"strategy","message":"Modo automático ativado","driver_id":player_id,"priority":75,"time":0.0},a,"Ferrari"), "real dispatcher suppresses system")
-	for i in range(240):
+	var engine_us: int = 0
+	var reference_us: int = 0
+	var observer_us: int = 0
+	for i in range(ticks):
+		var start: int = Time.get_ticks_usec()
 		a.step(.2)
+		engine_us += Time.get_ticks_usec() - start
+		start = Time.get_ticks_usec()
 		reference.step(.2)
+		reference_us += Time.get_ticks_usec() - start
 		if i % 3 == 0:
+			start = Time.get_ticks_usec()
 			commentary.ingest(a,"Ferrari")
+			observer_us += Time.get_ticks_usec() - start
 	check(Codec.sporting_hash(a,{}) == Codec.sporting_hash(reference,{}), "presentation sporting hash parity")
 	check(a.rng.state == reference.rng.state, "RNG parity")
 	check(int(driver.pit_scheduled_lap) == 21, "BOX V21")
-	print("ENGINEER_0922_REPORT ", JSON.stringify({"checks":checks,"failures":failures}))
+	print("ENGINEER_0922_REPORT ", JSON.stringify({"checks":checks,"failures":failures,"track":str(track.get("code","")),"climate":climate,"seed":seed,"ticks":ticks,"engine_us":engine_us,"reference_us":reference_us,"observer_us":observer_us,"observer_overhead_percent":100.0 * float(observer_us) / maxf(1.0,float(engine_us))}))
 	if failures.is_empty():
 		print("ENGINEER_0922_PASS")
 	quit(0 if failures.is_empty() else 1)
