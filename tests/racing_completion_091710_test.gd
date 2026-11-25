@@ -29,6 +29,81 @@ func fixture():
  check(Completion.observe([a.duplicate(true),b.duplicate(true)],[a,b],1000.0,.2).is_empty(),"no recount")
  a.progress=0.19;old=[a.duplicate(true),b.duplicate(true)];a.progress=0.21;a.pit_left=1.0
  check(Completion.observe(old,[a,b],1000.0,.2).is_empty(),"pit is not pass")
+# Frozen pre-optimization reference (7723644e); test-only differential oracle.
+func reference_observe(old_order:Array,now:Array,length:float,dt:float)->Dictionary:
+ var old:Dictionary={};var live:Dictionary={};var counts:Dictionary={}
+ for c in old_order:old[c.id]=c
+ for c in now:live[c.id]=c
+ for a in now:
+  var pending:Dictionary=(a.get("pass_confirmation_pairs",{}) as Dictionary).duplicate()
+  if not Completion.active(a) or not old.has(a.id) or not Completion.active(old[a.id]):
+   if a.has("pass_confirmation_pairs"):a.erase("pass_confirmation_pairs")
+   continue
+  var before:Dictionary=old[a.id]
+  for b in now:
+   if b.id==a.id:continue
+   if not Completion.active(b) or not old.has(b.id) or not Completion.active(old[b.id]):
+    pending.erase(b.id);continue
+   var prev:float=(float(before.progress)-float(old[b.id].progress))*length
+   var gap:float=(float(a.progress)-float(b.progress))*length
+   if gap<=0.0:
+    pending.erase(b.id);continue
+   if prev<=0.0 and absf(prev)<=Completion.LENGTH*2.0 and absf(float(a.race_lane)-float(b.race_lane))>=Completion.WIDTH-0.01:
+    pending[b.id]=0.0
+   if pending.has(b.id):
+    if gap>=Completion.LENGTH:
+     pending[b.id]=float(pending[b.id])+dt
+     if float(pending[b.id])>=Completion.CONFIRM_SECONDS-0.000001:
+      counts[a.id]=int(counts.get(a.id,0))+1
+      pending.erase(b.id)
+    else:pending[b.id]=0.0
+  if pending.is_empty():a.erase("pass_confirmation_pairs")
+  else:a["pass_confirmation_pairs"]=pending
+ return counts
+
+func differential_fixture():
+ var rng:=RandomNumberGenerator.new()
+ rng.seed=921710
+ for scenario in range(120):
+  var length:float=1000.0 if scenario%2==0 else 5300.0
+  var dt:float=0.2 if scenario%3==0 else 0.5
+  var before:Array=[]
+  var after:Array=[]
+  var center:float=2.0 if scenario%4==0 else 0.2
+  for i in range(24):
+   var p:float=center+rng.randf_range(-25.0,25.0)/length
+   var c:Dictionary={"id":i,"progress":p,"race_lane":float(i%3-1)*2.95,"finished":false,"pit_left":0.0}
+   if rng.randf()<0.08:c.finished=true
+   if rng.randf()<0.08:c.pit_left=1.0
+   before.append(c)
+   var n:Dictionary=c.duplicate(true)
+   n.progress=p+rng.randf_range(0.0,20.0)/length
+   n.race_lane=float(rng.randi_range(-1,1))*2.95
+   if rng.randf()<0.12:n.finished=not n.finished
+   if rng.randf()<0.12:n.pit_left=1.0 if float(n.pit_left)==0.0 else 0.0
+   var pending:Dictionary={}
+   for j in range(24):
+    if j!=i and rng.randf()<0.12:pending[j]=float(rng.randi_range(0,4))*0.2
+   # Missing opponents are retained by the original contract.
+   if scenario%7==0:pending[999]=0.4
+   if not pending.is_empty():n["pass_confirmation_pairs"]=pending
+   after.append(n)
+  if scenario%5==0:before.pop_back()
+  if scenario%6==0:after.pop_front()
+  if scenario%2==0:after.reverse()
+  var expected:Array=after.duplicate(true)
+  var actual:Array=after.duplicate(true)
+  var frozen:PackedByteArray=var_to_bytes(before)
+  var ec:Dictionary=reference_observe(before,expected,length,dt)
+  var ac:Dictionary=Completion.observe(before,actual,length,dt)
+  check(ec==ac and var_to_bytes(expected)==var_to_bytes(actual),"differential complete state "+str(scenario))
+  check(var_to_bytes(before)==frozen,"differential frozen old order "+str(scenario))
+  # Re-observe unchanged positions to exercise timer continuation and no recount.
+  var next_old:Array=expected.duplicate(true)
+  ec=reference_observe(next_old,expected,length,dt)
+  ac=Completion.observe(next_old,actual,length,dt)
+  check(ec==ac and var_to_bytes(expected)==var_to_bytes(actual),"differential continuation "+str(scenario))
+
 func drive(data:Dictionary,track:Dictionary,modern:bool,production:bool,climate:String,seed_value:int,ticks:int,dt:float)->Dictionary:
  var race=Race.new(data.teams,"Ferrari",seed_value,{},track,{})
  race.pass_completion_enabled=modern
@@ -82,6 +157,7 @@ func drive(data:Dictionary,track:Dictionary,modern:bool,production:bool,climate:
  return {"raw_crossings":raw,"unique_pairs":pairs.size(),"repeat_crossings":repeat,"clearances":cleared,"confirmed_passes":passes,"changed_grid":changed,"side":side,"aligned":aligned,"near":near,"stopped":stopped,"reversals":reversals,"overlap":overlap,"field_stop":field_stop,"hash":Codec.sporting_hash(race,{})}
 func run():
  fixture()
+ differential_fixture()
  var data:Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://data/season_2012.json"))
  var code:=OS.get_environment("APEX_COMPLETION_TRACK") if OS.has_environment("APEX_COMPLETION_TRACK") else "GBR"
  var climate:=OS.get_environment("APEX_COMPLETION_CLIMATE") if OS.has_environment("APEX_COMPLETION_CLIMATE") else "Seco"

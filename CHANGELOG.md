@@ -1,5 +1,12 @@
 # Changelog — APEX Motorsport Manager Core 2
 
+## Unreleased — Performance Recovery 2.0 (Pass Completion)
+
+- Cache dos estados escalares de cada carro por chamada; elimina o mapa live não utilizado e evita avaliar a distância atual de pares que não podem iniciar confirmação nem possuem confirmação pendente.
+- Preserva ordem original, regras de cruzamento, largura, folga, tempo de confirmação, cancelamento, exclusão por boxes/abandono e revisão esportiva 040.
+- Teste diferencial contra a implementação anterior: 120 grids determinísticos, estados completos, contagens, continuação e imutabilidade da entrada histórica.
+- FAST e comparação A/B no Development Lab pendentes; nenhuma melhoria medida ou release publicada até a homologação.
+
 ## Unreleased — Performance Recovery 1.0 (Traffic Pack)
 
 - Preserva revisão esportiva 040, formatos de save/replay e regras do Traffic Pack.
