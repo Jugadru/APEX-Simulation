@@ -667,6 +667,27 @@
         }
       ],
       "checks": []
+    },
+    {
+      "id": "race_engineer_context_0922",
+      "paths": [
+        "scripts/presentation/race_communication_0922.gd",
+        "scripts/apex_commentary.gd",
+        "scripts/apex_race_hud_0622.gd",
+        "scripts/presentation/race_radio_06695.gd",
+        "tests/race_engineer_0922_test.gd"
+      ],
+      "fast_tests": [
+        {
+          "script": "race_engineer_0922_test.gd",
+          "marker": "ENGINEER_0922_PASS"
+        },
+        {
+          "script": "radio_0668101_booked_pit_advice_test.gd",
+          "marker": "RADIO_0668101_BOOKED_PIT_PASS"
+        }
+      ],
+      "checks": []
     }
   ]
 }
