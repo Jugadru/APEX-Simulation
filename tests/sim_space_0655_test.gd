@@ -1,5 +1,6 @@
 extends SceneTree
 const Space=preload("res://scripts/core/race_space_0655.gd")
+const Merge=preload("res://scripts/core/race_merge_traffic_0669174.gd")
 var failures:=0
 func check(ok:bool,label:String)->void:
 	if not ok:failures+=1;printerr("FAIL ",label)
@@ -38,7 +39,110 @@ func run_pair(width:float,defense:float=50,skill:float=80,advantage:float=3)->Di
 			check(side_seen,"must leave racing line before pass")
 			break
 	return {"passed":passed,"defended":defended,"cars":cars}
+# Exact pre-optimization solver from a0d5765d, test-only oracle.
+func reference_physical(order:Array,intents:Dictionary,result:Dictionary,length:float,completion_enabled:bool,wake_stability:bool)->void:
+	# Physical traffic also includes lapped cars; distance wraps at the line.
+	for iteration in range(order.size()):
+		var changed := false
+		for c in order:
+			var id := int(c.id)
+			for other in order:
+				if other.id==id:continue
+				var gap := fposmod(float(other.progress)-float(c.progress),1)
+				if wake_stability and (gap<.00000001 or gap>1.0-.00000001):
+					if Merge.has_priority(c,other): continue
+					gap=0.0
+				elif gap>.25 or gap<.00000001:continue
+				var b: Dictionary=result[int(other.id)]
+				if completion_enabled and gap*length<Space.LENGTH+2.2 and str(intents[id].state) not in ["preparing","attacking","duel"] and absf(float(c.get("race_lane",0))-float(other.get("race_lane",0)))>=Space.WIDTH-0.01:
+					# Compare the leader's RESOLVED advance, not nominal lap time.
+					# A passive pair must not swap every time the lead car queues
+					# behind a third car. A truly stationary leader does not impose
+					# this voluntary constraint (free corridor escape remains).
+					var leader_advance:float=maxf(0.0,float(b.progress)-float(other.progress))
+					if leader_advance>0.00000001:
+						var voluntary_limit:float=float(c.progress)+leader_advance*0.88
+						if voluntary_limit<float(result[id].progress)-0.000000001:
+							result[id].progress=voluntary_limit
+							changed=true
+				if not Space.corridor_crosses(float(c.get("race_lane",0)),float(result[id].states.race_lane),float(other.get("race_lane",0)),float(b.states.race_lane)): continue
+				var offset := float(c.progress)+gap-float(other.progress)
+				var allowed := maxf(float(c.progress),float(b.progress)+offset-Space.LENGTH/length)
+				# Use remaining headway progressively, not all at once. This is
+				# a one-sided speed cap; no minimum speed or collision override.
+				if wake_stability and gap*length<Space.LENGTH+4.0:
+					var advance: float=maxf(0.0,float(b.progress)-float(other.progress))
+					var headroom: float=maxf(0.0,gap-Space.LENGTH/length)
+					allowed=minf(allowed,float(c.progress)+advance+headroom*0.5)
+				if allowed<float(result[id].progress)-.000000001:
+					result[id].progress=allowed
+					result[id].states.race_space_blocked=true
+					changed=true
+		if not changed:break
+
+func compare_physical(order:Array,intents:Dictionary,initial:Dictionary,length:float,label:String)->void:
+	var frozen:PackedByteArray=var_to_bytes([order,intents,initial])
+	for completion in [false,true]:
+		for wake in [false,true]:
+			var expected:Dictionary=initial.duplicate(true)
+			var actual:Dictionary=initial.duplicate(true)
+			reference_physical(order,intents,expected,length,completion,wake)
+			Space.resolve_physical(order,intents,actual,length,completion,wake)
+			check(var_to_bytes(expected)==var_to_bytes(actual),"physical complete result "+label+"/"+str(completion)+"/"+str(wake))
+	check(var_to_bytes([order,intents,initial])==frozen,"physical frozen fixture "+label)
+
+func physical_fixture()->void:
+	var rng:=RandomNumberGenerator.new()
+	rng.seed=93202
+	var tactical_states:Array[String]=["clear","preparing","attacking","duel","recovering"]
+	for scenario in range(96):
+		var length:float=1000.0 if scenario%2==0 else 5300.0
+		var center:float=1.0 if scenario%3==0 else 0.4
+		var grid:Array=[]
+		var intents:Dictionary={}
+		var initial:Dictionary={}
+		for i in range(24):
+			var p:float=center+rng.randf_range(-40.0,40.0)/length
+			if i==0 or i==1:p=center
+			if i==2:p=center+1.0
+			if i==3:p=center+0.000000005
+			if i==4:p=center-0.000000005
+			if i==5:p=center+0.25
+			if i==6:p=center+(Space.LENGTH+2.2)/length
+			if i==7:p=center+(Space.LENGTH+4.0)/length
+			var lane:float=float(rng.randi_range(-1,1))*Space.WIDTH
+			if i==0:lane=0.0
+			if i==1:lane=Space.WIDTH
+			if i==2:lane=Space.WIDTH-0.01
+			var next_lane:float=float(rng.randi_range(-1,1))*Space.WIDTH
+			if scenario%4==0:next_lane=lane
+			var car:Dictionary=c(i,p,lane)
+			grid.append(car)
+			intents[i]={"state":tactical_states[rng.randi_range(0,4)]}
+			initial[i]={"progress":p+rng.randf_range(0.0,20.0)/length,
+				"states":{"race_lane":next_lane,"race_space_blocked":i%4==0,"untouched":i},
+				"event":"keep","defender_id":-1}
+		if scenario%2==0:grid.reverse()
+		compare_physical(grid,intents,initial,length,str(scenario))
+	# Deliberately place the follower before the intermediate and stationary
+	# leader: the next iteration must propagate the newly resolved constraint.
+	var chain:Array=[c(0,0.2),c(1,0.21),c(2,0.22)]
+	var intents:Dictionary={}
+	var initial:Dictionary={}
+	for car in chain:
+		var id:int=int(car.id)
+		intents[id]={"state":"clear"}
+		initial[id]={"progress":float(car.progress)+(0.03 if id<2 else 0.0),
+			"states":{"race_lane":0.0,"race_space_blocked":false}}
+	compare_physical(chain,intents,initial,1000.0,"multi-pass chain")
+	var actual:Dictionary=initial.duplicate(true)
+	Space.resolve_physical(chain,intents,actual,1000.0,false,false)
+	check(float(actual[0].progress)<=float(actual[1].progress)-Space.LENGTH/1000.0+0.000000001 and bool(actual[0].states.race_space_blocked),"live leader propagation across iterations")
+	compare_physical([],{}, {},1000.0,"empty")
+	compare_physical([chain[0]],intents,initial,1000.0,"singleton")
+
 func _initialize()->void:
+	physical_fixture()
 	check(run_pair(8.8).passed,"open corridor permits natural pass")
 	check(not run_pair(4.2).passed,"narrow road blocks stronger attacker")
 	check(run_pair(8.8).defended,"defender protects a line")

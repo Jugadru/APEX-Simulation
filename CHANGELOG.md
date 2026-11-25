@@ -1,5 +1,12 @@
 # Changelog — APEX Motorsport Manager Core 2
 
+## Unreleased — Performance Recovery 3.2 (Race Space Physical Finalization)
+
+- Cache local de posições iniciais, faixas, limites de corredores, elegibilidade passiva e referências de estados durante a resolução longitudinal iterativa.
+- Mantém a ordem dos pares, posições resolvidas vivas, limites de iterações, critérios de prioridade, tolerâncias e aritmética de separação; nenhuma alteração na física pretendida.
+- Teste diferencial com o solver anterior em 96 grids determinísticos e casos explícitos de propagação entre iterações, vazio e carro isolado.
+- Preserva revisão esportiva 040, formatos de save/replay e otimizações 1.0, 2.0 e 3.1. FAST e Lab A/B pendentes; nenhum ganho medido nesta etapa.
+
 ## Unreleased — Performance Recovery 3.1 (Race Space Tactical Optimization)
 
 - Compartilha a observação congelada de separações circulares entre following e racecraft independente, evitando repetir a mesma busca de adversários quando ambos estão ativos.
