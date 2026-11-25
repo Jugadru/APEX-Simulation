@@ -5,6 +5,7 @@ extends RefCounted
 ## The short fictional text is original; no historical recordings or voice clones.
 const VERSION := "3.0"
 const LOCALE := "en"
+const Portuguese0922 = preload("res://scripts/presentation/race_radio_pt_0922.gd")
 const STYLE_NAMES := ["TERSE", "FIERY", "TECHNICAL", "CAUTIOUS", "COMPETITIVE"]
 const MAX_MEMORY := 8
 
@@ -275,7 +276,7 @@ static func _packet(car: Dictionary, kind: String, context: Dictionary, role: St
 	return {"version": VERSION, "speaker_id": id, "speaker_role": role,
 		"intent": kind, "emotion": str(p["emotion"]),
 		"intensity": int(p["intensity"]), "text_key": "radio3.%s.%s.%d" % [kind, role.to_lower(), variant],
-		"locale": LOCALE, "text": message, "subtitle_pt": "",
+		"locale": LOCALE, "text": message, "subtitle_pt": Portuguese0922.translate(message),
 		"voice_profile_id": "", "simulation_tick": int(context.get("simulation_tick", -1)),
 		"event_id": event_id, "lap": lap, "sim_time": float(context.get("sim_time", -1.0)),
 		"conversation_id": conversation,
