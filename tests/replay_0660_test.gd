@@ -38,6 +38,18 @@ func run()->void:
 	assert(restored.rng.state==s.race.rng.state)
 	restored.cars[0].wear=0
 	assert(s.race.cars[0].wear!=0,"detached snapshot")
+	# Both decoded and legacy checkpoint exports must be detached from the recorder.
+	var packed: Dictionary=s._packed_checkpoint(cp)
+	assert(packed.has("packed_state"))
+	s.checkpoints.append(packed)
+	var exported: Array=s._export_checkpoints()
+	var expected: String=Codec.digest(cp.state)
+	assert(Codec.digest(exported[-1].state)==expected)
+	exported[-1].state.engine.cars[0].wear=-123.0
+	exported[0].state.engine.cars[0].wear=-123.0
+	assert(Codec.digest(s._checkpoint_state(packed))==expected)
+	assert(float(s._checkpoint_state(s.checkpoints[0]).engine.cars[0].wear)!=-123.0)
+	s.checkpoints.pop_back()
 	var r=Replay.new();assert(r.load_data(s.export_data()),r.error)
 	assert(r.seek(200),r.error)
 	assert(Codec.sporting_hash(r.race,r.policy)==s.hashes[-1])
@@ -50,7 +62,7 @@ func run()->void:
 	var diverged=Replay.new();assert(diverged.load_data(corrupt));assert(not diverged.seek(30));assert(diverged.first_divergence==18)
 	# Same ticks and commands across FPS/speeds, including pause and retained backlog.
 	var expected_km: Array = []
-	for speed in [1.0,2.0,5.0,16.0,32.0]:
+	for speed in [1.0,2.0,5.0,10.0,16.0,32.0]:
 		var a=make_session();a.commands=s.commands.duplicate(true)
 		var inventory: Dictionary = {"parts":{"one":{"status":"installed","car":1,"km":0.0,"history":[]},"two":{"status":"installed","car":2,"km":0.0,"history":[]}},"sessions":{}}
 		var observations: Array = [0]
@@ -62,7 +74,8 @@ func run()->void:
 			a.race.running=true
 			var dt:float=[1.0/30,1.0/60,1.0/144,0.003][frames%4]
 			dt=minf(dt,(200-a.tick)*Replay.STEP/speed-a.accumulator/speed)
-			a.advance(maxf(0,dt),speed,observe)
+			var cap: int=12 if speed>=32.0 else (8 if speed>=16.0 else (6 if speed>=10.0 else 0))
+			a.advance(maxf(0,dt),speed,observe,0,cap)
 			if frames%17==0:
 				a.race.running=false;var tick:int=a.tick;a.advance(2,32);assert(a.tick==tick)
 			frames+=1;assert(frames<10000)
@@ -75,7 +88,7 @@ func run()->void:
 	assert(backlog.tick==16 and backlog.accumulator>20)
 	while backlog.accumulator>=Replay.STEP-0.00000001:backlog.advance(0,1)
 	assert(backlog.tick==160)
-	var output:Dictionary={"pass":true,"ticks":200,"speeds":[1,2,5,16,32],"wall_s":(Time.get_ticks_usec()-start)/1000000.0,"checkpoint_bytes":var_to_bytes(cp).size(),"replay_bytes":var_to_bytes(s.export_data()).size()}
+	var output:Dictionary={"pass":true,"ticks":200,"speeds":[1,2,5,10,16,32],"wall_s":(Time.get_ticks_usec()-start)/1000000.0,"checkpoint_bytes":var_to_bytes(cp).size(),"replay_bytes":var_to_bytes(s.export_data()).size()}
 	FileAccess.open("res://qa/replay_0660/unit.json",FileAccess.WRITE).store_string(JSON.stringify(output))
 	print("REPLAY_UNIT_PASS ",output)
 	quit()
