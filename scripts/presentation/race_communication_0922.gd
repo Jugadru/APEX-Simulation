@@ -1,6 +1,7 @@
 extends RefCounted
 ## 9.22 presentation-only communication. No writes to RaceEngine or RNG.
 const Thermal = preload("res://scripts/core/race_tyre_thermal.gd")
+const Portuguese0922 = preload("res://scripts/presentation/race_radio_pt_0922.gd")
 const MAX_HISTORY := 32
 const MAX_PENDING := 16
 const ERROR_WORDS := {
@@ -46,7 +47,15 @@ static func subtitle(words: String, evidence: Dictionary = {}) -> String:
 		return str(SUBTITLES[words])
 	if evidence.has("rival_name") and evidence.has("position"):
 		return "%s avançou para P%d. Fique atento." % [str(evidence.rival_name), int(evidence.position)]
-	return ""
+	if words.begins_with("Box lap ") and words.ends_with(" is booked. We will review the window."):
+		var lap: String = words.substr(8).split(" ")[0]
+		if lap.is_valid_int():
+			return "A parada da volta %d está marcada. Vamos rever a janela." % int(lap)
+	if words.begins_with("Track wetness indicator: ") and words.ends_with(". Future conditions remain uncertain."):
+		return "Indicador de umidade da pista: " + words.trim_prefix("Track wetness indicator: ").trim_suffix(". Future conditions remain uncertain.") + ". As condições futuras permanecem incertas."
+	if words.begins_with("KERS: ") and words.contains(". DRS: "):
+		return words.replace("not confirmed active", "atividade não confirmada").replace("active", "ativo").replace("unknown", "desconhecido")
+	return Portuguese0922.translate(words)
 
 static func language(words: String) -> String:
 	if SUBTITLES.has(words):
@@ -293,7 +302,7 @@ func legacy_packet(at: float, role: String, text: String, kind: String, car_id: 
 	var cid: String = str(metadata.get("conversation_id", "%d:legacy:%.3f" % [car_id, at]))
 	if cid.is_empty():
 		cid = "%d:legacy:%.3f" % [car_id, at]
-	return {"message_id": serial, "conversation_id": cid, "car_id": car_id, "intent": kind, "sender": role, "priority": priority, "created": at, "expires": at + (35.0 if priority <= 1 else 20.0), "source_event_id": int(metadata.get("source_event_id", -1)), "evidence": {}, "text": text, "command_authorized": false, "voice_profile_id": "apex_original_driver_%d" % car_id if role == "PILOTO" else str(p.voice_profile_id), "subtitle": text, "subtitle_pt": subtitle(words), "locale": str(raw.get("locale", language(words))), "speech_text": words, "audio_channel": "TEAM_RADIO", "interruptible": priority > 1, "legacy_kind": kind, "radio3": raw.duplicate(true)}
+	return {"message_id": serial, "conversation_id": cid, "car_id": car_id, "intent": kind, "sender": role, "priority": priority, "created": at, "expires": at + (35.0 if priority <= 1 else 20.0), "source_event_id": int(metadata.get("source_event_id", -1)), "evidence": {}, "text": text, "command_authorized": false, "voice_profile_id": "apex_original_driver_%d" % car_id if role == "PILOTO" else str(p.voice_profile_id), "subtitle": text, "subtitle_pt": str(raw.get("subtitle_pt", subtitle(words))), "locale": str(raw.get("locale", language(words))), "speech_text": words, "audio_channel": "TEAM_RADIO", "interruptible": priority > 1, "legacy_kind": kind, "radio3": raw.duplicate(true)}
 
 func record_legacy(at: float, role: String, text: String, kind: String, car_id: int) -> Dictionary:
 	# Explicit player consultations stay synchronous; all use the shared packet.
