@@ -532,6 +532,29 @@
         }
       ],
       "checks": []
+    },
+    {
+      "id": "corner_battle_0919",
+      "paths": [
+        "scripts/core/race_corner_battle_0919.gd",
+        "scripts/core/race_space_0655.gd",
+        "scripts/race_engine.gd",
+        "scripts/core/race_replay_0660.gd",
+        "scripts/core/race_state_codec_0660.gd",
+        "tests/corner_battle_0919_test.gd",
+        "tests/aero_wake_091711_test.gd"
+      ],
+      "fast_tests": [
+        {
+          "script": "corner_battle_0919_test.gd",
+          "marker": "CORNER_BATTLE_0919_PASS"
+        },
+        {
+          "script": "wet_weather_setups_0918_test.gd",
+          "marker": "WET_SETUPS_0918_PASS"
+        }
+      ],
+      "checks": []
     }
   ]
 }

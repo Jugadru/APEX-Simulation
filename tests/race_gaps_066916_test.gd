@@ -108,7 +108,7 @@ func _run() -> void:
 		and race.rng.state == rng_before
 		and int(player.get("pit_scheduled_lap",0)) == 21,
 		"full native snapshot, RNG and manual pit unchanged by radar")
-	check(Replay.SIMULATION_REVISION in ["023_overtaking_intelligence_v1", "024_race_start_spatial_v1", "025_competitive_grid_start_v1", "026_competitive_traffic_v1", "027_race_traffic_hotfix_v1", "028_racing_line_v1", "029_racing_line_following_v1", "030_racing_line_completion_v1", "031_independent_racecraft_v1", "032_aero_wake_v1", "033_aero_wake_source_v2", "034_aero_traffic_stability_v1", "035_aero_wet_line_v1", "036_tactical_coordination_v1"]
+	check(Replay.SIMULATION_REVISION in ["023_overtaking_intelligence_v1", "024_race_start_spatial_v1", "025_competitive_grid_start_v1", "026_competitive_traffic_v1", "027_race_traffic_hotfix_v1", "028_racing_line_v1", "029_racing_line_following_v1", "030_racing_line_completion_v1", "031_independent_racecraft_v1", "032_aero_wake_v1", "033_aero_wake_source_v2", "034_aero_traffic_stability_v1", "035_aero_wet_line_v1", "036_tactical_coordination_v1", "037_corner_battle_v1"]
 		and Replay.PRE_START20_SIMULATION_REVISION == "023_overtaking_intelligence_v1",
 		"9.16 HUD remains advisory; archived replay 023 still supported")
 	var first = Replay.new()

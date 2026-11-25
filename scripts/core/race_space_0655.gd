@@ -10,6 +10,7 @@ const WIDTH := 2.95
 const MAX_LANE := 2.95
 const AeroWake = preload("res://scripts/core/race_aero_wake_091711.gd")
 const Coordination = preload("res://scripts/core/race_tactical_coordination_091712.gd")
+const CornerBattle = preload("res://scripts/core/race_corner_battle_0919.gd")
 const Independent = preload("res://scripts/core/race_independent_racecraft_091710.gd")
 const MergeTraffic = preload("res://scripts/core/race_merge_traffic_0669174.gd")
 
@@ -103,7 +104,7 @@ static func straight_hold_allowed(load: float, ahead_load: float, held: bool, na
 
 static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,shape: Dictionary, weather: Dictionary = {}, traffic_enabled: bool = true, soul3_enabled: bool = false,
 		overtaking_enabled: bool = false, competitive_start_enabled: bool = false,
-		start_clock_s: float = 0.0, merge_traffic_enabled: bool = false, traffic_hotfix_enabled: bool = false, following_enabled: bool = false, completion_enabled: bool = false, independent_enabled: bool = false, aero_wake_enabled: bool = false, aero_wake_corrected: bool = true, wake_stability: bool = false, wet_line_stability: bool = false, coordination_enabled: bool = false) -> Dictionary:
+		start_clock_s: float = 0.0, merge_traffic_enabled: bool = false, traffic_hotfix_enabled: bool = false, following_enabled: bool = false, completion_enabled: bool = false, independent_enabled: bool = false, aero_wake_enabled: bool = false, aero_wake_corrected: bool = true, wake_stability: bool = false, wet_line_stability: bool = false, coordination_enabled: bool = false, corner_battle_enabled: bool = false) -> Dictionary:
 	var length: float=shape.length
 	following_enabled = following_enabled and start_clock_s>=24.0
 	completion_enabled = completion_enabled and following_enabled
@@ -111,6 +112,7 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 	aero_wake_enabled = aero_wake_enabled and independent_enabled
 	wake_stability = wake_stability and aero_wake_enabled
 	coordination_enabled = coordination_enabled and independent_enabled
+	corner_battle_enabled = corner_battle_enabled and coordination_enabled
 	var hotfix: bool = merge_traffic_enabled and traffic_hotfix_enabled
 	# 06686: RaceEngine normally supplies a sorted frozen sporting snapshot.
 	# Filtering out inactive cars preserves its order. Avoid sorting 24
@@ -229,6 +231,11 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 			# Continue a physically established attack while it retains real pace advantage.
 			# No new attack outside the passing zone; no override of occupied lanes.
 			if Combat.in_passing_zone(float(c.progress),track): tactic.commit=true
+		if corner_battle_enabled and bool(tactic.commit) and not bool(traffic.lapping) and not cooling:
+			var corner_metrics: Dictionary=metrics[id]
+			var local_load: float=float(corner_metrics.get("line_load",0.0))
+			tactic=CornerBattle.refine(c,ahead,tactic,gap,limit,local_load,float(corner_metrics.get("ahead_load",local_load)),float(weather.get("wetness_factor",0.0)),bool(narrowing.get(id,false)))
+			if tactic.has("corner_reason"): a["corner_reason"]=tactic.corner_reason
 		if independent_enabled:
 			var memory: Dictionary = c.get("racecraft_memory",{})
 			# Keep the chosen attacking side until the manoeuvre ends. A blocked
@@ -450,6 +457,8 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 			memory.erase("wanted")
 			if coordination_enabled and a.has("coordination_reason"):
 				memory["coordination_reason"]=a.coordination_reason
+			if corner_battle_enabled and a.has("corner_reason"):
+				memory["corner_reason"]=a.corner_reason
 			if str(a.state) in Independent.ATTACK:
 				memory["attack_target"]=int(a.target)
 				memory["attack_side"]=str(a.side)
