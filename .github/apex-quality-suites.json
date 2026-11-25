@@ -555,6 +555,38 @@
         }
       ],
       "checks": []
+    },
+    {
+      "id": "driver_traffic_0920",
+      "paths": [
+        "scripts/core/race_driver_traffic_0920.gd",
+        "scripts/core/race_space_0655.gd",
+        "scripts/race_engine.gd",
+        "scripts/core/race_replay_0660.gd",
+        "scripts/core/race_state_codec_0660.gd",
+        "tests/driver_traffic_0920_test.gd",
+        "tests/aero_wake_091711_test.gd",
+        "scripts/core/race_driver_traffic_06693.gd"
+      ],
+      "fast_tests": [
+        {
+          "script": "driver_traffic_0920_test.gd",
+          "marker": "DRIVER_TRAFFIC_0920_PASS"
+        },
+        {
+          "script": "driver_traffic_06693_test.gd",
+          "marker": "DRIVER_TRAFFIC_06693_PASS"
+        },
+        {
+          "script": "corner_battle_0919_test.gd",
+          "marker": "CORNER_BATTLE_0919_PASS"
+        },
+        {
+          "script": "wet_weather_setups_0918_test.gd",
+          "marker": "WET_SETUPS_0918_PASS"
+        }
+      ],
+      "checks": []
     }
   ]
 }
