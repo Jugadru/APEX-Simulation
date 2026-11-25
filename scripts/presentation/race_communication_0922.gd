@@ -18,6 +18,8 @@ var active: Dictionary = {}
 var relationships: Dictionary = {}
 var observed_candidates: Dictionary = {}
 var last_banter: Dictionary = {}
+var staff_context: Dictionary = {}
+var career_bonds: Dictionary = {}
 var serial: int = 0
 var last_clock: float = -1.0
 
@@ -25,7 +27,7 @@ static func is_system(text: String, kind: String = "") -> bool:
 	var s: String = text.to_lower()
 	if kind in ["system", "configuration", "driver_control"]:
 		return true
-	for token in ["controle individual:", "controle de box ", "modo automático ativado", "modo automatico ativado", "modo manual ativado", "automatic mode activated", "auto mode activated", "manual mode activated", "modo automático habilitado", "modo ia ativado", "modo automatico habilitado", "modo assistido ativado", "auto mode enabled", "ia de estratégia habilitada", "staff | controle"]:
+	for token in ["controle individual:", "controle de box ", "modo auto ativado", "modo auto habilitado", "modo automatico ligado", "automatic mode enabled", "auto mode on", "modo automático ativado", "modo automatico ativado", "modo manual ativado", "automatic mode activated", "auto mode activated", "manual mode activated", "modo automático habilitado", "modo ia ativado", "modo automatico habilitado", "modo assistido ativado", "auto mode enabled", "ia de estratégia habilitada", "staff | controle"]:
 		if s.contains(token):
 			return true
 	return false
@@ -102,7 +104,9 @@ static func profile(car: Dictionary, staff: Dictionary = {}) -> Dictionary:
 	if not style in styles:
 		style = styles[posmod(int(car.get("id", 0)), styles.size())]
 	var competence: int = clampi(int(staff.get("Engenheiro", 1)), 0, 3)
-	return {"style": style, "competence": competence, "voice_profile_id": "apex_original_" + style.to_lower(), "locale": "en"}
+	var contract_id: String = str(staff.get("engineer_contract_id", ""))
+	var voice: String = "apex_original_" + (contract_id if not contract_id.is_empty() else style.to_lower())
+	return {"style": style, "competence": competence, "voice_profile_id": voice, "locale": "en", "name": str(staff.get("engineer_name", "Race Engineer"))}
 
 static func pass_words(car: Dictionary, event_id: int, staff: Dictionary = {}) -> String:
 	# Only for an actual confirmed on-track pass.
@@ -133,8 +137,10 @@ func on_pass(car: Dictionary, event: Dictionary, staff: Dictionary = {}) -> void
 	var e: Dictionary = car.get("driver_error_0921", {})
 	var facts: Dictionary = {"position": confirmed_position(str(event.get("message", ""))), "style": p.style, "voice_profile_id": p.voice_profile_id, "source": "confirmed_pass"}
 	var cid: String = "%d:pass:%d" % [id, event_id]
+	var pair: String = "%s|%d" % [str(staff.get("engineer_contract_id", "")), id]
+	var bond: int = clampi(int(career_bonds.get(pair, 50)), 0, 100)
 	var relaxed: bool = float(soul.get("pressure", 0.0)) < .4 and float(soul.get("confidence", .55)) > .5 and str(e.get("mode", "NORMAL")) in ["NORMAL", "REBUILD"]
-	if relaxed and str(p.style) == "DEADPAN" and now - float(last_banter.get(id, -9999.0)) >= 90.0:
+	if relaxed and str(p.style) == "DEADPAN" and now - float(last_banter.get(id, -9999.0)) >= float(130 - bond * 4 / 5):
 		if offer(id, "PASS_PILOT", "That's one done.", 3, now, event_id, facts, "PILOTO", cid):
 			last_banter[id] = now
 			offer(id, "CONFIRMED_PASS", pass_words(car, event_id, staff), 3, now, event_id, facts, "ENGENHEIRO", cid)
@@ -169,6 +175,8 @@ func reset() -> void:
 	relationships.clear()
 	observed_candidates.clear()
 	last_banter.clear()
+	staff_context.clear()
+	career_bonds.clear()
 	serial = 0
 	last_clock = -1.0
 
@@ -201,18 +209,37 @@ func drain(now: float) -> Array[Dictionary]:
 	ready.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		return int(a.priority) < int(b.priority) if int(a.priority) != int(b.priority) else int(a.message_id) < int(b.message_id))
 	for packet in ready:
-		var id: int = int(packet.car_id)
-		var entries: Array = history.get(id, [])
-		entries.append(packet.duplicate(true))
-		while entries.size() > MAX_HISTORY:
-			entries.pop_front()
-		history[id] = entries
-		var relationship: Dictionary = relationships.get(id, {"acknowledged": 0, "followups": 0})
-		relationship["acknowledged"] = int(relationship.acknowledged) + 1
-		if str(packet.intent).ends_with("FOLLOWUP"):
-			relationship["followups"] = int(relationship.followups) + 1
-		relationships[id] = relationship
+		remember_delivery(packet)
 	return ready
+
+func remember_delivery(packet: Dictionary) -> void:
+	var id: int = int(packet.get("car_id", -1))
+	if id < 0:
+		return
+	var entries: Array = history.get(id, [])
+	entries.append(packet.duplicate(true))
+	while entries.size() > MAX_HISTORY:
+		entries.pop_front()
+	history[id] = entries
+	var relationship: Dictionary = relationships.get(id, {"acknowledged": 0, "followups": 0, "exchanges": 0})
+	relationship["acknowledged"] = int(relationship.get("acknowledged", 0)) + 1
+	var intent: String = str(packet.get("intent", ""))
+	if intent.ends_with("FOLLOWUP"):
+		relationship["followups"] = int(relationship.get("followups", 0)) + 1
+	if intent in ["interactive_reply", "stint_analysis", "engineer_comparison", "soul_engineer"]:
+		relationship["exchanges"] = int(relationship.get("exchanges", 0)) + 1
+	relationships[id] = relationship
+
+func record_legacy(at: float, role: String, text: String, kind: String, car_id: int) -> Dictionary:
+	# Existing synchronous radio consultations are immediately delivered,
+	# but use the same bounded history and packet contract as queued traffic.
+	if text.is_empty() or is_system(text, kind):
+		return {}
+	serial += 1
+	var p: Dictionary = profile({"id": car_id}, staff_context)
+	var packet: Dictionary = {"message_id": serial, "conversation_id": "%d:legacy:%d" % [car_id, serial], "car_id": car_id, "intent": kind, "sender": role, "priority": 2 if kind == "engineer_reply" else 3, "created": at, "expires": at + 20.0, "source_event_id": -1, "evidence": {}, "text": text, "command_authorized": false, "voice_profile_id": "apex_original_driver_%d" % car_id if role == "PILOTO" else str(p.voice_profile_id), "subtitle": text, "audio_channel": "TEAM_RADIO", "interruptible": true}
+	remember_delivery(packet)
+	return packet
 
 func observe(car: Dictionary, weather: Dictionary, now: float, staff: Dictionary = {}) -> void:
 	if car.is_empty() or bool(car.get("finished", false)) or float(car.get("pit_left", 0.0)) > 0.0:
