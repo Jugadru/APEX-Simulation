@@ -1,5 +1,6 @@
 extends RefCounted
 ## 9.22 presentation-only communication. No writes to RaceEngine or RNG.
+const Thermal = preload("res://scripts/core/race_tyre_thermal.gd")
 const MAX_HISTORY := 32
 const MAX_PENDING := 16
 const ERROR_WORDS := {
@@ -14,6 +15,7 @@ var history: Dictionary = {}
 var pending: Array[Dictionary] = []
 var last_at: Dictionary = {}
 var active: Dictionary = {}
+var relationships: Dictionary = {}
 var serial: int = 0
 var last_clock: float = -1.0
 
@@ -34,6 +36,9 @@ static func diagnose(car: Dictionary, weather: Dictionary) -> Dictionary:
 	var tire: String = str(car.get("tire", ""))
 	var traffic: Dictionary = car.get("traffic_pack_09201", {})
 	var booked: int = int(car.get("pit_scheduled_lap", 0))
+	var aero: Dictionary = car.get("aero_wake_032", {})
+	var band: Array = Thermal.band(tire)
+	var temperature: float = float(car.get("tyre_surface_c", -1.0))
 	var causes: Array[String] = []
 	if mode in ["ERROR", "CONTROL", "RECOVERY"]:
 		causes.append("RECOVERY")
@@ -41,6 +46,10 @@ static func diagnose(car: Dictionary, weather: Dictionary) -> Dictionary:
 		causes.append("WET_MISMATCH")
 	if wear >= 78.0:
 		causes.append("TYRE_WEAR")
+	if temperature >= 0.0 and band.size() >= 2 and (temperature > float(band[1]) or temperature < float(band[0])):
+		causes.append("TYRE_TEMPERATURE")
+	if float(aero.get("dirty_fraction", 0.0)) > 0.005:
+		causes.append("DIRTY_AIR")
 	if str(traffic.get("mode", "")) in ["FOLLOWING", "TRAIN", "WAIT"]:
 		causes.append("TRAFFIC")
 	var cause: String = "UNKNOWN" if causes.is_empty() else causes[0]
@@ -56,10 +65,16 @@ static func diagnose(car: Dictionary, weather: Dictionary) -> Dictionary:
 		"TYRE_WEAR":
 			advice = "Tyre wear is high. We need to compare the pace with the cost of stopping."
 			priority = 1
+		"TYRE_TEMPERATURE":
+			advice = "Tyre temperature is outside the target window. Watch the grip."
+			priority = 2
+		"DIRTY_AIR":
+			advice = "We're seeing an aerodynamic wake effect. Let's watch the gap."
+			priority = 2
 		"TRAFFIC":
 			advice = "Traffic may be costing us time. Let's look for clean air."
 			priority = 2
-	return {"cause": cause, "causes": causes, "priority": priority, "confidence": "LIMITED" if cause == "UNKNOWN" or causes.size() > 1 else "SUPPORTED", "advice": advice, "booked_lap": booked, "recovery_mode": mode, "wear": wear, "wetness": wet, "tire": tire}
+	return {"cause": cause, "causes": causes, "priority": priority, "confidence": "LIMITED" if cause == "UNKNOWN" or causes.size() > 1 else "SUPPORTED", "advice": advice, "booked_lap": booked, "recovery_mode": mode, "wear": wear, "wetness": wet, "tire": tire, "temperature": temperature, "dirty_fraction": float(aero.get("dirty_fraction", 0.0))}
 
 static func answer(topic: String, car: Dictionary, weather: Dictionary) -> String:
 	if car.is_empty():
@@ -89,6 +104,7 @@ func reset() -> void:
 	pending.clear()
 	last_at.clear()
 	active.clear()
+	relationships.clear()
 	serial = 0
 	last_clock = -1.0
 
@@ -108,7 +124,7 @@ func offer(car_id: int, intent: String, words: String, priority: int, now: float
 		pending.remove_at(worst)
 	serial += 1
 	var cid: String = conversation_id if not conversation_id.is_empty() else "%d:%d" % [car_id, serial]
-	pending.append({"message_id": serial, "conversation_id": cid, "car_id": car_id, "intent": intent, "sender": sender, "priority": priority, "created": now, "expires": now + (35.0 if priority <= 1 else 20.0), "source_event_id": event_id, "evidence": evidence.duplicate(true), "text": words, "command_authorized": false})
+	pending.append({"message_id": serial, "conversation_id": cid, "car_id": car_id, "intent": intent, "sender": sender, "priority": priority, "created": now, "expires": now + (35.0 if priority <= 1 else 20.0), "source_event_id": event_id, "evidence": evidence.duplicate(true), "text": words, "command_authorized": false, "voice_profile_id": "apex_original_engineer_%d" % posmod(car_id, 3), "subtitle": words, "audio_channel": "TEAM_RADIO", "interruptible": priority > 1})
 	last_at[key] = now
 	return true
 
@@ -127,6 +143,11 @@ func drain(now: float) -> Array[Dictionary]:
 		while entries.size() > MAX_HISTORY:
 			entries.pop_front()
 		history[id] = entries
+		var relationship: Dictionary = relationships.get(id, {"acknowledged": 0, "followups": 0})
+		relationship["acknowledged"] = int(relationship.acknowledged) + 1
+		if str(packet.intent).ends_with("FOLLOWUP"):
+			relationship["followups"] = int(relationship.followups) + 1
+		relationships[id] = relationship
 	return ready
 
 func observe(car: Dictionary, weather: Dictionary, now: float) -> void:
@@ -141,6 +162,8 @@ func observe(car: Dictionary, weather: Dictionary, now: float) -> void:
 		return
 	if previous == "RECOVERY" and str(d.recovery_mode) in ["REBUILD", "NORMAL"] and float(car.get("pit_left", 0.0)) <= 0.0:
 		offer(id, "RECOVERY_FOLLOWUP", "Pace recovery noted. Keep building from here.", 2, now, -1, d, "ENGENHEIRO", str(current.get("conversation_id", "")))
+	if previous != "UNKNOWN" and previous != "RECOVERY" and cause == "UNKNOWN":
+		offer(id, previous + "_FOLLOWUP", "That indicator has settled. We'll keep monitoring.", 3, now, -1, d, "ENGENHEIRO", str(current.get("conversation_id", "")))
 	if cause == "UNKNOWN":
 		active.erase(id)
 		return
