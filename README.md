@@ -1,4 +1,4 @@
-# APEX Motorsport Manager — Core 2 v0.6.6.9.19 (candidata)
+# APEX Motorsport Manager — Core 2 v0.6.6.9.19 REV3 (candidata)
 
 **Candidata desta branch:** Corner Battle Intelligence — compromisso e ocupação de corredores em curvas. Revisão esportiva 037; histórico 036 preservado. [Escopo e testes](docs/APEX_RELEASE_v0.6.6.9.19_CORNER_BATTLE.md).
 

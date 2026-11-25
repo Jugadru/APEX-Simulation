@@ -36,6 +36,18 @@ func run():
  check(Corner.refine(c,d,tactic,6,2.95,.3,.7,0,false)==tactic,"established entry uses normal solver")
  c.combat_target_id=9
  check(not Corner.refine(c,d,tactic,6,2.95,.6,.65,.6,false).has("corner_reason"),"unrelated duel cannot claim hold")
+ var waiting={"id":1,"race_lane":.25,"racecraft_memory":{"corner_recovery_target":0}}
+ var deferred=Corner.refine(waiting,d,tactic,14,2.95,.35,.7,0,false)
+ check(not deferred.commit and deferred.corner_reason=="deferred_entry","same corner retry deferred even if gap fluctuates")
+ var already_vetoed=tactic.duplicate();already_vetoed.commit=false
+ check(Corner.refine(waiting,d,already_vetoed,14,2.95,.6,.63,0,false).corner_reason=="deferred_apex","recovery retained without new attack request")
+ check(Corner.refine(waiting,d,tactic,14,2.95,.7,.1,0,false)==tactic,"recovery ends on exit")
+ check(Corner.refine(waiting,{"id":2,"race_lane":.4},tactic,14,2.95,.35,.7,0,false)==tactic,"recovery tied to rival")
+ check(not Corner.recovery_active(waiting,d,.4,.7,true,2.95),"narrowing releases recovery")
+ check(Corner.recovery_hold("late_commit_entry","closing",-1,.25,2.95,false),"hold actual legal lane after abort")
+ check(not Corner.recovery_hold("deferred_apex","closing",2,.25,2.95,false),"defense overrides recovery")
+ check(not Corner.recovery_hold("deferred_apex","closing",-1,3.1,2.95,false),"out of bounds recovery forbidden")
+ check(not Corner.recovery_hold("deferred_apex","attacking",-1,.25,2.95,false),"accepted attack overrides recovery")
  # Real RaceSpace integration: late entry attack in a controlled passing zone.
  var attacker={"id":1,"progress":.2,"race_lane":0.0,"combat_state":"closing","combat_target_id":0,"attack_charge":2.0,"skill":95,"risk_tolerance":80,"spatial_awareness":95}
  var defender={"id":0,"progress":.209,"race_lane":.4,"skill":70,"defense_aggression":50}
@@ -48,6 +60,18 @@ func run():
  check(old[1].states.combat_attempts==1,"036 base attack exercised")
  check(new[1].states.racecraft_memory.get("corner_reason","")=="late_commit_entry" and new[1].states.combat_attempts==0,"037 real entry veto no phantom attempt")
  check(float(new[1].progress)>=float(attacker.progress),"solver no reverse")
+ check(new[1].states.racecraft_memory.get("corner_recovery_target",-1)==0 and new[1].states.racecraft_memory.mode=="CORNER_WAIT","native veto enters recovery")
+ check(is_equal_approx(float(new[1].states.race_lane),float(attacker.race_lane)),"native recovery keeps lane")
+ var resumed:Dictionary=attacker.duplicate(true)
+ resumed.merge(new[1].states,true)
+ resumed.progress=new[1].progress
+ var next_defender:Dictionary=defender.duplicate(true)
+ next_defender.merge(new[0].states,true)
+ next_defender.progress=new[0].progress
+ var next_grid=[next_defender,resumed]
+ var next=Space.plan(next_grid,metrics,.2,track,shape,{},false,false,true,false,40.2,true,true,true,true,true,true,true,true,true,true,true)
+ check(next[1].states.racecraft_memory.get("corner_recovery_target",-1)==0 and next[1].states.combat_attempts==0,"native next tick defers reattack")
+ check(is_equal_approx(float(next[1].states.race_lane),float(resumed.race_lane)),"native next tick lane settled")
  print("CORNER_BATTLE_REPORT ",JSON.stringify({"checks":checks,"failures":failures}))
  if failures.is_empty():print("CORNER_BATTLE_0919_PASS")
  quit(0 if failures.is_empty() else 1)

@@ -231,11 +231,13 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 			# Continue a physically established attack while it retains real pace advantage.
 			# No new attack outside the passing zone; no override of occupied lanes.
 			if Combat.in_passing_zone(float(c.progress),track): tactic.commit=true
-		if corner_battle_enabled and bool(tactic.commit) and not bool(traffic.lapping) and not cooling:
+		if corner_battle_enabled and not bool(traffic.lapping) and not cooling:
 			var corner_metrics: Dictionary=metrics[id]
 			var local_load: float=float(corner_metrics.get("line_load",0.0))
 			tactic=CornerBattle.refine(c,ahead,tactic,gap,limit,local_load,float(corner_metrics.get("ahead_load",local_load)),float(weather.get("wetness_factor",0.0)),bool(narrowing.get(id,false)))
-			if tactic.has("corner_reason"): a["corner_reason"]=tactic.corner_reason
+			if tactic.has("corner_reason"):
+				a["corner_reason"]=tactic.corner_reason
+				a["corner_recovery_target"]=rival
 		if independent_enabled:
 			var memory: Dictionary = c.get("racecraft_memory",{})
 			# Keep the chosen attacking side until the manoeuvre ends. A blocked
@@ -366,6 +368,15 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 					memory.aim=float(a.lane)
 					memory.wanted=float(a.lane)
 					memory.velocity=0.0
+			# 037: after declining a corner attack, settle in the occupied lane
+			# until exit instead of immediately seeking a different racing line.
+			# Defense, narrowing and the physical solver remain authoritative.
+			if corner_battle_enabled and CornerBattle.recovery_hold(str(a.get("corner_reason","")),str(a.state),int(a.defending),float(a.lane),limit,bool(narrowing.get(id,false))):
+				memory.mode="CORNER_WAIT"
+				memory.aim=float(a.lane)
+				memory.wanted=float(a.lane)
+				memory.velocity=0.0
+				memory["corner_recovery_target"]=int(a.corner_recovery_target)
 			a.goal=memory.aim
 			a["independent_memory"]=memory
 			if aero_wake_enabled:

@@ -11,11 +11,27 @@ static func phase(load: float, ahead_load: float) -> String:
 	if load>ahead_load+0.08: return "exit"
 	return "apex"
 
+static func recovery_active(car: Dictionary, rival: Dictionary, load: float, ahead_load: float, narrowing: bool, limit: float) -> bool:
+	# Reconsider on exit, a changed target, or a narrowing road. Keep only
+	# the actual occupied legal lane; never preserve an invalid corridor.
+	var memory: Dictionary=car.get("racecraft_memory",{})
+	return not narrowing and absf(float(car.get("race_lane",0.0)))<=limit and int(rival.get("id",-1))>=0 and int(memory.get("corner_recovery_target",-2))==int(rival.get("id",-1)) and phase(load,ahead_load) in ["entry","apex"]
+
+static func recovery_hold(reason: String, state: String, defending: int, lane: float, limit: float, narrowing: bool) -> bool:
+	return (reason.begins_with("late_commit_") or reason.begins_with("deferred_")) and not state in ATTACK and defending<0 and not narrowing and absf(lane)<=limit
+
 static func refine(car: Dictionary, rival: Dictionary, tactic: Dictionary, gap: float,
 		limit: float, load: float, ahead_load: float, wet: float, narrowing: bool) -> Dictionary:
+	var section: String=phase(load,ahead_load)
+	if recovery_active(car,rival,load,ahead_load,narrowing,limit):
+		var waiting: Dictionary=tactic.duplicate()
+		waiting.commit=false
+		waiting.defense=false
+		waiting.blocked=true
+		waiting["corner_reason"]="deferred_"+section
+		return waiting
 	# Never resurrect an attack vetoed by the earlier racecraft layers.
 	if not bool(tactic.get("commit",false)): return tactic
-	var section: String=phase(load,ahead_load)
 	if section=="straight": return tactic
 	var lane: float=float(car.get("race_lane",0.0))
 	var other_lane: float=float(rival.get("race_lane",0.0))
