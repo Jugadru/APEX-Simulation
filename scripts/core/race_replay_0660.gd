@@ -222,6 +222,10 @@ func enqueue(method: String, args: Array, at_tick: int = -1, origin: String = "M
 	commands.sort_custom(func(a,b): return a.tick < b.tick or (a.tick == b.tick and a.sequence < b.sequence))
 	return true
 
+## Shared policy for interactive acceleration and its deterministic tests.
+static func interactive_backlog_steps(speed: float) -> int:
+	return 12 if speed >= 32.0 else (8 if speed >= 16.0 else (6 if speed >= 10.0 else 0))
+
 func advance(delta: float, speed: float, observer: Callable = Callable(), frame_budget_us: int = 0, max_backlog_steps: int = 0) -> int:
 	if not race.running or race.finished or first_divergence >= 0: return 0
 	if not is_finite(delta) or not is_finite(speed) or delta < 0 or speed < 0: return 0
