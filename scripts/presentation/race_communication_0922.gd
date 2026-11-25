@@ -16,6 +16,8 @@ var pending: Array[Dictionary] = []
 var last_at: Dictionary = {}
 var active: Dictionary = {}
 var relationships: Dictionary = {}
+var observed_candidates: Dictionary = {}
+var last_banter: Dictionary = {}
 var serial: int = 0
 var last_clock: float = -1.0
 
@@ -93,11 +95,71 @@ static func answer(topic: String, car: Dictionary, weather: Dictionary) -> Strin
 			return "Box lap %d is booked. We will review the window." % int(d.booked_lap) if int(d.booked_lap) > 0 else "No stop booked. We are reviewing the pit window."
 	return str(d.advice)
 
-static func pass_words(car: Dictionary, event_id: int) -> String:
-	# Original dry humour, only on a confirmed pass. No claims about rivals' thoughts.
-	var style: int = posmod(int(car.get("id", 0)), 3)
-	var options: Array[String] = ["Nice work. One less car to worry about.", "That's done. Next one, please.", "Good pass. Now let's make it stick."]
-	return options[posmod(style + event_id, options.size())]
+static func profile(car: Dictionary, staff: Dictionary = {}) -> Dictionary:
+	# Fictional session voice, not a claim about a real engineer.
+	var style: String = str(staff.get("engineer_radio_style", ""))
+	var styles: Array[String] = ["CALM", "DEADPAN", "TECHNICAL"]
+	if not style in styles:
+		style = styles[posmod(int(car.get("id", 0)), styles.size())]
+	var competence: int = clampi(int(staff.get("Engenheiro", 1)), 0, 3)
+	return {"style": style, "competence": competence, "voice_profile_id": "apex_original_" + style.to_lower(), "locale": "en"}
+
+static func pass_words(car: Dictionary, event_id: int, staff: Dictionary = {}) -> String:
+	# Only for an actual confirmed on-track pass.
+	match str(profile(car, staff).style):
+		"DEADPAN":
+			return "That's one off the list. Don't send me the bill." if event_id % 2 == 0 else "One less car to worry about. Very considerate."
+		"TECHNICAL":
+			return "Pass confirmed. Build the gap now."
+		_:
+			return "Nice work. Keep it tidy and look ahead."
+
+static func confirmed_position(source: String) -> int:
+	# Event text carries the confirmed position, not the identity of the car passed.
+	var index: int = source.rfind("P")
+	if index < 0:
+		return -1
+	var value: String = source.substr(index + 1).strip_edges().trim_suffix(".")
+	return int(value) if value.is_valid_int() and int(value) > 0 else -1
+
+func on_pass(car: Dictionary, event: Dictionary, staff: Dictionary = {}) -> void:
+	if str(event.get("type", "")) != "pass" or car.is_empty():
+		return
+	var id: int = int(car.get("id", -1))
+	var event_id: int = int(event.get("event_id", -1))
+	var now: float = float(event.get("time", 0.0))
+	var p: Dictionary = profile(car, staff)
+	var soul: Dictionary = car.get("driver_soul", {})
+	var e: Dictionary = car.get("driver_error_0921", {})
+	var facts: Dictionary = {"position": confirmed_position(str(event.get("message", ""))), "style": p.style, "voice_profile_id": p.voice_profile_id, "source": "confirmed_pass"}
+	var cid: String = "%d:pass:%d" % [id, event_id]
+	var relaxed: bool = float(soul.get("pressure", 0.0)) < .4 and float(soul.get("confidence", .55)) > .5 and str(e.get("mode", "NORMAL")) in ["NORMAL", "REBUILD"]
+	if relaxed and str(p.style) == "DEADPAN" and now - float(last_banter.get(id, -9999.0)) >= 90.0:
+		if offer(id, "PASS_PILOT", "That's one done.", 3, now, event_id, facts, "PILOTO", cid):
+			last_banter[id] = now
+			offer(id, "CONFIRMED_PASS", pass_words(car, event_id, staff), 3, now, event_id, facts, "ENGENHEIRO", cid)
+	else:
+		offer(id, "CONFIRMED_PASS", "Good pass. Keep the pace under control." if not relaxed else pass_words(car, event_id, staff), 3, now, event_id, facts, "ENGENHEIRO", cid)
+
+func on_rival_pass(player: Dictionary, rival: Dictionary, event: Dictionary, now: float, staff: Dictionary = {}) -> void:
+	if str(event.get("type", "")) != "pass" or rival.is_empty() or now - float(event.get("time", 0.0)) > 2.0:
+		return
+	var pos: int = confirmed_position(str(event.get("message", "")))
+	var ours: int = int(player.get("position", -1))
+	if pos < 1 or ours < 1 or absi(pos - ours) > 2 or pos == ours:
+		return
+	if str(rival.get("team", "")) == str(player.get("team", "")):
+		return
+	var id: int = int(player.get("id", -1))
+	var name: String = str(rival.get("name", ""))
+	if name.is_empty():
+		return
+	var p: Dictionary = profile(player, staff)
+	var words: String = "%s is through to P%d. Keep an eye on that." % [name, pos]
+	if str(p.style) == "DEADPAN" and float((player.get("driver_soul", {}) as Dictionary).get("pressure", 0.0)) < .4:
+		words = "%s has found a way through. P%d now. No time for sightseeing." % [name, pos]
+	offer(id, "RIVAL_PASS", words, 2, float(event.get("time", 0.0)), int(event.get("event_id", -1)), {"rival_id": int(rival.get("id", -1)), "position": pos, "style": p.style, "voice_profile_id": p.voice_profile_id})
+
 
 func reset() -> void:
 	history.clear()
@@ -105,6 +167,8 @@ func reset() -> void:
 	last_at.clear()
 	active.clear()
 	relationships.clear()
+	observed_candidates.clear()
+	last_banter.clear()
 	serial = 0
 	last_clock = -1.0
 
@@ -124,7 +188,7 @@ func offer(car_id: int, intent: String, words: String, priority: int, now: float
 		pending.remove_at(worst)
 	serial += 1
 	var cid: String = conversation_id if not conversation_id.is_empty() else "%d:%d" % [car_id, serial]
-	pending.append({"message_id": serial, "conversation_id": cid, "car_id": car_id, "intent": intent, "sender": sender, "priority": priority, "created": now, "expires": now + (35.0 if priority <= 1 else 20.0), "source_event_id": event_id, "evidence": evidence.duplicate(true), "text": words, "command_authorized": false, "voice_profile_id": "apex_original_engineer_%d" % posmod(car_id, 3), "subtitle": words, "audio_channel": "TEAM_RADIO", "interruptible": priority > 1})
+	pending.append({"message_id": serial, "conversation_id": cid, "car_id": car_id, "intent": intent, "sender": sender, "priority": priority, "created": now, "expires": now + (35.0 if priority <= 1 else 20.0), "source_event_id": event_id, "evidence": evidence.duplicate(true), "text": words, "command_authorized": false, "voice_profile_id": ("apex_original_driver_%d" % car_id) if sender == "PILOTO" else str(evidence.get("voice_profile_id", "apex_original_engineer_%d" % posmod(car_id, 3))), "subtitle": words, "audio_channel": "TEAM_RADIO", "interruptible": priority > 1})
 	last_at[key] = now
 	return true
 
@@ -150,16 +214,32 @@ func drain(now: float) -> Array[Dictionary]:
 		relationships[id] = relationship
 	return ready
 
-func observe(car: Dictionary, weather: Dictionary, now: float) -> void:
-	if car.is_empty() or bool(car.get("finished", false)):
+func observe(car: Dictionary, weather: Dictionary, now: float, staff: Dictionary = {}) -> void:
+	if car.is_empty() or bool(car.get("finished", false)) or float(car.get("pit_left", 0.0)) > 0.0:
 		return
 	var id: int = int(car.get("id", -1))
 	var d: Dictionary = diagnose(car, weather)
+	var p: Dictionary = profile(car, staff)
+	d["style"] = p.style
+	d["voice_profile_id"] = p.voice_profile_id
+	d["competence"] = p.competence
 	var current: Dictionary = active.get(id, {})
 	var cause: String = str(d.cause)
 	var previous: String = str(current.get("cause", "UNKNOWN"))
 	if cause == previous:
+		observed_candidates.erase(id)
 		return
+	# Require sustained evidence for ordinary alerts; urgent recovery and wet
+	# mismatch are observed immediately. Staff competence affects interpretation
+	# latency only, never the simulation or what gets commanded.
+	if cause not in ["RECOVERY", "WET_MISMATCH"] and cause != "UNKNOWN" and previous != "RECOVERY":
+		var candidate: Dictionary = observed_candidates.get(id, {})
+		if str(candidate.get("cause", "")) != cause:
+			observed_candidates[id] = {"cause": cause, "since": now}
+			return
+		if now - float(candidate.get("since", now)) < float(8 - int(p.competence) * 2):
+			return
+	observed_candidates.erase(id)
 	if previous == "RECOVERY" and str(d.recovery_mode) in ["REBUILD", "NORMAL"] and float(car.get("pit_left", 0.0)) <= 0.0:
 		offer(id, "RECOVERY_FOLLOWUP", "Pace recovery noted. Keep building from here.", 2, now, -1, d, "ENGENHEIRO", str(current.get("conversation_id", "")))
 	if previous != "UNKNOWN" and previous != "RECOVERY" and cause == "UNKNOWN":
