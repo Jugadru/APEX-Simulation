@@ -4,6 +4,8 @@ extends RefCounted
 
 const MAX_LINES: int = 72
 const Radio3 = preload("res://scripts/presentation/race_radio_06695.gd")
+const Communication0922 = preload("res://scripts/presentation/race_communication_0922.gd")
+var communication = Communication0922.new()
 const CAST := {
 	"NARRADOR": "#d9eaff",
 	"ANALISTA": "#75d8df",
@@ -34,6 +36,7 @@ func reset(race_seed: int) -> void:
 	_last_interlude = 0.0
 	_last_event_id = 0
 	_radio3_memory.clear()
+	communication.reset()
 
 func ingest(race, player_team: String) -> bool:
 	var changed := false
@@ -58,6 +61,19 @@ func ingest(race, player_team: String) -> bool:
 		for event in race.events:
 			var sig := "%.3f|%s|%d|%s" % [float(event.get("time", 0.0)), str(event.get("type", "")), int(event.get("driver_id", -1)), str(event.get("message", ""))]
 			_seen[sig] = true
+	var now: float = float(race.clock)
+	if now < communication.last_clock:
+		communication.reset()
+	if race.running and not race.finished and now - communication.last_clock >= 2.0:
+		communication.last_clock = now
+		var weather: Dictionary = race.weather_snapshot()
+		for car in race.cars:
+			if str(car.get("team", "")) == player_team:
+				communication.observe(car, weather, now)
+	for packet in communication.drain(now):
+		_push(float(packet.created), str(packet.sender), str(packet.text), true, "context_0922", int(packet.car_id))
+		lines[-1]["context_0922"] = packet
+		changed = true
 	if race.running and not race.finished and float(race.clock) - _last_interlude > 115.0:
 		_last_interlude = float(race.clock)
 		if _ambient_line(race):
@@ -67,6 +83,8 @@ func ingest(race, player_team: String) -> bool:
 func _event_line(event: Dictionary, race, player_team: String) -> bool:
 	var kind: String = str(event.get("type", ""))
 	var source: String = str(event.get("message", ""))
+	if Communication0922.is_system(source, kind):
+		return false
 	var car_id: int = int(event.get("driver_id", -1))
 	var car := _driver_by_id(race, car_id)
 	var name: String = str(car.get("name", "Piloto"))
@@ -87,6 +105,8 @@ func _event_line(event: Dictionary, race, player_team: String) -> bool:
 			role = "ANALISTA"
 			phrases = ["Disputa se formando: %s" % source]
 		"pass":
+			if is_ours:
+				communication.offer(car_id, "CONFIRMED_PASS", Communication0922.pass_words(car, int(event.get("event_id", 0))), 3, float(event.get("time", 0.0)), int(event.get("event_id", -1)))
 			phrases = ["%s ganha terreno: agora aparece na posição %d." % [name, int(car.get("position", 0))],
 				"Mudança na ordem! %s avança no pelotão." % name]
 		"lead":
@@ -161,6 +181,9 @@ func _event_line(event: Dictionary, race, player_team: String) -> bool:
 					"conversation_id": str(prior.get("last_conversation_id", ""))})
 				if not radio_packet.is_empty():
 					phrases = ["RÁDIO FICTÍCIO | Engenheiro: %s" % str(radio_packet["text"])]
+		"engineer_strategy", "engineer_command":
+			# Administrative/diagnostic events remain in telemetry, not spoken radio.
+			return false
 		"radio":
 			role = "ENGENHEIRO" if is_ours else "ANALISTA"
 			phrases = [source]
