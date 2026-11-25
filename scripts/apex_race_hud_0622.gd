@@ -1213,6 +1213,37 @@ func _build_radio_window() -> void:
 	identity_row.add_child(radio_identity_badge)
 	_btn(identity_row, "VER PERFIL", _show_profile_2012, 122).tooltip_text = "Retrato local do piloto selecionado; não envia ordens."
 	_refresh_radio_identity_2012()
+	var audio_row := _line(overlay_content, 8)
+	var voice_toggle := CheckButton.new()
+	voice_toggle.text = "VOZ LOCAL"
+	voice_toggle.button_pressed = host.commentary != null and host.commentary.radio_audio.enabled
+	voice_toggle.tooltip_text = "Voz sintética opcional do sistema operacional; se indisponível, use o texto."
+	audio_row.add_child(voice_toggle)
+	voice_toggle.toggled.connect(func(value: bool):
+		if host.commentary == null:
+			return
+		var active: bool = host.commentary.radio_audio.set_enabled(value)
+		voice_toggle.set_pressed_no_signal(active)
+		if value and not active and radio_response_label != null:
+			radio_response_label.text = "Voz local indisponível. O rádio textual continua ativo.")
+	var volume := HSlider.new()
+	volume.min_value = 0
+	volume.max_value = 100
+	volume.step = 5
+	volume.custom_minimum_size.x = 110
+	volume.value = host.commentary.radio_audio.volume if host.commentary != null else 70
+	audio_row.add_child(volume)
+	volume.value_changed.connect(func(value: float):
+		if host.commentary != null:
+			host.commentary.radio_audio.volume = int(value))
+	var subtitles := CheckButton.new()
+	subtitles.text = "LEGENDAS PT"
+	subtitles.button_pressed = host.commentary != null and host.commentary.radio_subtitles
+	audio_row.add_child(subtitles)
+	subtitles.toggled.connect(func(value: bool):
+		if host.commentary != null:
+			host.commentary.radio_subtitles = value
+			_refresh_interactive_history())
 	var questions := _line(overlay_content, 5)
 	for topic in ["pneus", "ritmo", "trafego", "box"]:
 		var button := _btn(questions, str(EngineerInteractive.QUESTIONS[topic]), _ask_engineer.bind(topic))
@@ -1739,6 +1770,9 @@ func _ask_context_0922(topic: String) -> void:
 	var car: Dictionary = host._car_by_id(car_id)
 	var answer: String = Communication0922.answer(topic, car, host.race.weather_snapshot())
 	radio_response_label.text = "ENGENHEIRO · " + answer
+	var translation: String = Communication0922.subtitle(answer)
+	if not translation.is_empty() and host.commentary != null and host.commentary.radio_subtitles:
+		radio_response_label.text += "\n" + translation
 	if host.commentary != null:
 		var key: String = "0922|%d|%s" % [car_id, topic]
 		var now: float = float(host.race.clock)
