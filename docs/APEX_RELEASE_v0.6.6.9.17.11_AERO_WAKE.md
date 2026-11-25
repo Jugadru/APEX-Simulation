@@ -9,3 +9,10 @@ Base: `6293a5b1d26a0aea6da747c343686268cb4d7391` / PR #125. Revisão esportiva 0
 - QA: fixture física e integração com solver, A/B de Monza, Silverstone, Mônaco e Monza molhado, contagem de exposição, inversões, sobreposição, paradas e ultrapassagens; hash 031 independente, replay 031/032 e seek; FAST + Test Lab, pit agendado. CI dedicada 1800 ticks por cenário. Não equivale a GP completo ou prova de naturalidade visual universal. Resultados no PR do SHA exato.
 
 Rollback: main base acima. Não publicar retratos privados ou release, nem fazer merge sem homologação.
+
+
+## REV2 — revisão esportiva 033 (candidata)
+
+A revisão 032 selecionava a maior exposição de ar sujo mesmo em reta. A 033 escolhe a maior magnitude efetiva entre vácuo e ar sujo + cautela, com desempate estável por ID e fonte única. Coeficientes e direção permanecem inalterados. Replays 031 e 032 mantêm seus caminhos históricos; flag de revisão excluída do codec. O campo de diagnóstico aero_wake_032 mantém o nome para compatibilidade.
+
+QA acrescentado: fixture de três carros, ordem estável, empate, chuva, frenagem e retardatários; tolerância agregada de 10% (piso 2) e por piloto (piso 3), 30 comparativos de seis minutos, GPs completos direcionados e câmera P15 030/031/032/033 com renderer Compatibility em ambiente virtual. Tempo de motor e memória estática amostrada registrados; não representam GPU física ou benchmark de velocidade de apresentação. Resultados dependem dos jobs no SHA exato; nenhum PASS antecipado. Rollback: commit a6a272a4 ou main 6293a5b1. Não publicar retratos privados.

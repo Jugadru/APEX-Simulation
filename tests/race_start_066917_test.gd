@@ -111,7 +111,7 @@ func _run() -> void:
 	var b = Replay.new()
 	b.attach(second)
 	check(a.recorded_simulation_revision == Replay.SIMULATION_REVISION
-		and Replay.SIMULATION_REVISION == "032_aero_wake_v1"
+		and Replay.SIMULATION_REVISION == "033_aero_wake_source_v2"
 		and Replay.PRE_COMPETITIVE_START_SIMULATION_REVISION == "024_race_start_spatial_v1"
 		and first.race_start20_enabled,
 		"new recordings activate first-corner model and revision 024")

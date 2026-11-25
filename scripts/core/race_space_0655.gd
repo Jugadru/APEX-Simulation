@@ -64,7 +64,7 @@ static func corridor_crosses(a0: float,a1: float,b0: float,b1: float) -> bool:
 
 static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,shape: Dictionary, weather: Dictionary = {}, traffic_enabled: bool = true, soul3_enabled: bool = false,
 		overtaking_enabled: bool = false, competitive_start_enabled: bool = false,
-		start_clock_s: float = 0.0, merge_traffic_enabled: bool = false, traffic_hotfix_enabled: bool = false, following_enabled: bool = false, completion_enabled: bool = false, independent_enabled: bool = false, aero_wake_enabled: bool = false) -> Dictionary:
+		start_clock_s: float = 0.0, merge_traffic_enabled: bool = false, traffic_hotfix_enabled: bool = false, following_enabled: bool = false, completion_enabled: bool = false, independent_enabled: bool = false, aero_wake_enabled: bool = false, aero_wake_corrected: bool = true) -> Dictionary:
 	var length: float=shape.length
 	following_enabled = following_enabled and start_clock_s>=24.0
 	completion_enabled = completion_enabled and following_enabled
@@ -301,7 +301,7 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 			if aero_wake_enabled:
 				# Replace 031 longitudinal aero, do not stack it. Direction and tactical
 				# judgement stay independent. Effects apply to attackers too.
-				var effect: Dictionary = AeroWake.choose(c,order,length,float(track.get("lap_km",0.0)),load,float(m.get("ahead_load",load)),wet)
+				var effect: Dictionary = AeroWake.choose(c,order,length,float(track.get("lap_km",0.0)),load,float(m.get("ahead_load",load)),wet,aero_wake_corrected)
 				a.pace=AeroWake.apply(float(a.pace),effect)
 				a["aero_wake_032"]=effect
 			elif not leader.is_empty() and str(a.state) not in Independent.ATTACK:

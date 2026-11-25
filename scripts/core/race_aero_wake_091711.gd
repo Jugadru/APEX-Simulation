@@ -26,8 +26,9 @@ static func sample(gap_units: float, gap_m: float, separation: float, load: floa
 	out.gap_m=gap_m
 	return out
 
-static func choose(car: Dictionary, candidates: Array, length: float, lap_km: float, load: float, ahead_load: float, wet: float) -> Dictionary:
+static func choose(car: Dictionary, candidates: Array, length: float, lap_km: float, load: float, ahead_load: float, wet: float, corrected: bool = true) -> Dictionary:
 	var best := clean()
+	var best_score := 0.0
 	if lap_km<=0.0 or length<=0.0 or not is_finite(lap_km): return best
 	for other in candidates:
 		if other.id==car.id or bool(other.get("finished",false)) or float(other.get("pit_left",0.0))>0.0: continue
@@ -37,10 +38,16 @@ static func choose(car: Dictionary, candidates: Array, length: float, lap_km: fl
 		var separation: float=absf(float(car.get("race_lane",0.0))-float(other.get("race_lane",0.0)))
 		if separation>=2.30: continue
 		var effect: Dictionary=sample(fraction*length,distance,separation,load,ahead_load,wet)
-		# One strongest effective wake, never a sum of the whole pack. Stable ID tie.
-		if float(effect.exposure)>float(best.exposure) or (float(effect.exposure)>0.0 and float(effect.exposure)==float(best.exposure) and int(other.id)<int(best.source_id)):
+		# 032 retains the original exposure ranking for archived replays.
+		# 033 ranks actual effects, not broad dirty-air exposure on a straight.
+		# A single source still supplies all modifiers; no stacking across cars.
+		var score: float = float(effect.exposure)
+		if corrected:
+			score = maxf(float(effect.tow_fraction), float(effect.dirty_fraction)+float(effect.wet_buffer_fraction))
+		if score>best_score or (score>0.0 and score==best_score and int(other.id)<int(best.source_id)):
 			effect.source_id=int(other.id)
 			best=effect
+			best_score=score
 	return best
 
 static func apply(pace: float, effect: Dictionary) -> float:
