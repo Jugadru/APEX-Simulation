@@ -4,6 +4,7 @@ const Strategy=preload("res://scripts/core/race_traffic_strategy_09201.gd")
 const Space=preload("res://scripts/core/race_space_0655.gd")
 const Kers=preload("res://scripts/core/race_kers_2012.gd")
 const Thermal=preload("res://scripts/core/race_tyre_thermal.gd")
+const Race=preload("res://scripts/race_engine.gd")
 var checks:int=0
 var failures:Array[String]=[]
 func _initialize():call_deferred("run")
@@ -26,8 +27,8 @@ func run():
  check(Pack.observe(own,[rear,c,b,a,own],metrics,1000,weather,.2)==obs,"order independent")
  check(not Pack.observe(own,grid,metrics,1000,{"wetness_factor":.8,"drs_allowed":false},.2).drs_train,"wet DRS train not armed")
  var fast=car(6,.1);fast.last_lap=80.0
- var slow=car(7,.145);slow.last_lap=110.0
- var approach=Pack.observe(fast,[fast,slow],{6:metric(80),7:metric(110)},1000,weather,.2)
+ var slow=car(7,.145);slow.last_lap=130.0
+ var approach=Pack.observe(fast,[fast,slow],{6:metric(80),7:metric(130)},1000,weather,.2)
  check(approach.catch_s>0 and approach.catch_s<10 and approach.prepared_s>0,"anticipation beyond tactical range")
  fast[Pack.KEY]=approach
  check(Pack.preparation_bonus(fast,7,1.0)>0 and Pack.preparation_bonus(fast,8,1.0)==0,"preparation target bound")
@@ -53,7 +54,7 @@ func run():
  var risk_car=own.duplicate(true);risk_car.risk_tolerance=95
  var risk_obs=Pack.observe(risk_car,grid,metrics,1000,weather,.2);risk_obs.congestion_run_s=5.0
  check(not Pack.policy(risk_car,risk_obs,intent,0,0,false).save_kers,"personality changes decision")
- var third=car(9,.219,-1.5)
+ var third=car(9,.188,-1.5)
  var tactic={"commit":true,"defense":true,"attack_goal":-2.95}
  var early=car(10,.20)
  var front=car(11,.215)
@@ -61,6 +62,8 @@ func run():
  check(not Pack.refine(early,front,[early,front,third],tm,tactic,{"group_size":3},15,1000).commit,"third corridor forecast veto")
  early.combat_state="duel"
  check(Pack.refine(early,front,[early,front,third],tm,tactic,{"group_size":3},15,1000)==tactic,"established duel untouched")
+ early.combat_state="closing"
+ check(Pack.refine(early,front,[early,front],tm,tactic,{"group_size":1,"merge_ahead":1},15,1000).pack_reason=="pit_transition","pit exit delays fresh commitment")
  var back=car(12,.4,-1.0);var previous=car(13,1.405);var next_fast=car(14,1.38)
  back[Pack.KEY]={"yield_to":13,"yield_goal":-1.25,"yield_grace":2.0}
  var context={"gap":20.0,"length":1000.0,"limit":2.95,"wet":0.0,"load":0.0,"ahead_load":0.0,"narrowing":false,"busy":false,"advantage":10.0,"passing_lane":-2.95}
@@ -82,6 +85,7 @@ func run():
  var fake_report={"protected":false,"cases":[{"score":4.0,"coverage":1.0},{"score":0.0,"coverage":1.0}]}
  forecast_car.wear=40;forecast_car["stint_laps"]=8
  check(not Strategy.can_hold(forecast_car,proposal,{"protected":true,"cases":fake_report.cases},weather,false,21,53),"manual no auto extension")
+ check(not Strategy.can_hold(forecast_car,proposal,fake_report,weather,false,21,53),"manual independent hard gate")
  forecast_car.pit_scheduled_lap=0
  check(Strategy.can_hold(forecast_car,proposal,fake_report,weather,false,21,53),"bounded safe auto extension")
  check(not Strategy.can_hold(forecast_car,proposal,fake_report,{"wetness_factor":.8},false,21,53),"wet no extension")
@@ -120,6 +124,34 @@ func run():
     if g<6.39999 and absf(float(field[i].race_lane)-float(field[j].race_lane))<2.94999:overlaps+=1
  check(overlaps==0 and stops==0,"native pack no collision or immobilization")
  check(int(modes.get("CLEAN_AIR",0))>0,"native clean air exercised")
+ # Real RaceEngine, not a substitute for the controlled Space fixture.
+ var data:Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://data/season_2012.json"))
+ var race=Race.new(data.teams,"Ferrari",42,{},data.tracks[0],{})
+ race.configure_weather("Seco");race.running=true;race.clock=40.0
+ var ai:Dictionary={}
+ for index in range(race.cars.size()):
+  var item:Dictionary=race.cars[index]
+  item.progress=3.04+index*.038;item.laps_done=3;item.last_lap=100.0
+  if ai.is_empty() and str(item.team)!="Ferrari" and bool(item.get("kers_equipped",false)):ai=item
+ check(not ai.is_empty(),"native AI KERS participant")
+ if not ai.is_empty():
+  ai.progress=3.15;ai.kers_mode="Equilibrado";Kers.reset_lap(ai);ai[Pack.KEY]={"save_kers":true,"mode":"WAIT","rate":.01}
+  var energy:float=float(ai.kers_remaining_kj)
+  check(Kers.should_deploy(ai,float(ai.progress),1.0,race.track),"native burst eligible")
+  var manual:Dictionary=race.player_cars()[0]
+  manual["pit_control_mode"]="Manual";manual["pit_scheduled_lap"]=21
+  race._request_ai_pit(manual)
+  check(int(manual.pit_scheduled_lap)==21 and not bool(manual.pit_request),"native manual BOX V21 retained")
+  race.step(.2)
+  check(ai.has(Pack.KEY) and int(ai[Pack.KEY].get("kers_skipped_ticks",0))==1 and is_equal_approx(float(ai.kers_remaining_kj),energy),"native KERS energy preserved")
+  check(int(manual.pit_scheduled_lap)==21,"BOX V21 survives real step")
+  var advice:Dictionary=race.get_engineer_advice(int(manual.id))
+  check(advice.has("traffic_window_09201") and advice.traffic_window_09201.protected,"live strategy exposed and protected")
+  var sampled:bool=false
+  if race.telemetry!=null:
+   for item in race.telemetry.position_history:
+    if item.has("traffic_mode"):sampled=true;break
+  check(sampled,"live telemetry traffic fields")
  print("TRAFFIC_MEGA_REPORT ",JSON.stringify({"checks":checks,"failures":failures,"modes":modes,"overlaps":overlaps,"stops":stops}))
  if failures.is_empty():print("TRAFFIC_MEGA_09201_PASS")
  quit(0 if failures.is_empty() else 1)

@@ -863,8 +863,13 @@ func _update_driver_context(slot: int) -> void:
 		var pace: String = str(car.get("pace", "Normal"))
 		var reference: String = str(car.get("ai_plan", {}).get("pace", "Sem previsão"))
 		var traffic: String = str(car.get("combat_state", "clear"))
+		var pack_state:Dictionary=car.get("traffic_pack_09201",{})
+		var traffic_label:String="Disputa" if traffic in ["duel","attacking","defending"] else "Pista livre"
+		if not pack_state.is_empty():
+			var state_labels:Dictionary={"FREE_AIR":"Ar livre","APPROACHING":"Aproximando","ASSESSING":"Avaliando","FOLLOWING":"Seguindo","TRAIN":"Trem DRS","WAIT":"Conservando","PREPARE":"Preparando","COMMIT":"Ataque","CLEAN_AIR":"Gerindo distância","CLEAR":"Tráfego superado","PIT":"Boxes"}
+			traffic_label=str(state_labels.get(str(pack_state.get("mode","")),traffic_label))+" · %d carros" % int(pack_state.get("group_size",1))
 		var energy_line: String = "KERS %dkJ | DRS %s" % [int(energy.get("kers_remaining_kj", 0)), "ON" if bool(energy.get("drs_active", false)) else "OFF"]
-		values = [pace, reference, "Disputa" if traffic in ["duel", "attacking", "defending"] else "Pista livre", energy_line]
+		values = [pace, reference, traffic_label, energy_line]
 		if card.has("pace_picker") and is_instance_valid(card["pace_picker"]):
 			var index: int = ["Conservar", "Normal", "Atacar"].find(pace)
 			if index >= 0:
@@ -2038,10 +2043,12 @@ func _pitwall3_read(car: Dictionary, teammate: Dictionary) -> Dictionary:
 	if host == null or host.race == null or car.is_empty():
 		return {}
 	var advice: Dictionary = host.race.get_engineer_advice(int(car.get("id", -1)))
-	return PitWallStrategy3.assess(car, teammate, host.race.get_sorted(), advice,
+	var report:Dictionary=PitWallStrategy3.assess(car, teammate, host.race.get_sorted(), advice,
 		host.race.weather_snapshot(), host.race.available_pit_compounds(),
 		int(host.race.lap_count), float(host.race.pit_loss), float(host.race.base_lap),
 		int(host.race._next_pit_entry_lap(car)))
+	if advice.has("traffic_window_09201"):report["traffic_window_09201"]=advice.traffic_window_09201
+	return report
 
 func _build_pitwall3_window() -> void:
 	overlay_title.text = "PIT WALL 3.0  /  UNDERCUT · OVERCUT · DOUBLE STACK"
@@ -2110,6 +2117,13 @@ func _refresh_pitwall3_window() -> void:
 			else:
 				scenarios.append("%s: %s" % [str(case.get("label", "")), traffic])
 		(ui["scenarios"] as Label).text = "  |  ".join(scenarios)
+		var traffic_window:Dictionary=report.get("traffic_window_09201",{})
+		if not traffic_window.is_empty():
+			var traffic_lines:Array[String]=[]
+			for option in traffic_window.get("cases",[]):
+				traffic_lines.append("V%d ~P%d · %d lentos · %s" % [int(option.lap),int(option.position),int(option.slower_ahead),str(option.risk)])
+			(ui["scenarios"] as Label).text+="\nTRÁFEGO PROJETADO | "+"  |  ".join(traffic_lines)+" · Confiança "+str(traffic_window.get("confidence","BAIXA"))
+			if bool(traffic_window.get("protected",false)):(ui["scenarios"] as Label).text+=" · ordem protegida"
 		(ui["notes"] as Label).text = "%s\nEQUIPE: %s  |  COMP.: %s  |  PORTA: %s" % [
 			str(report.get("forecast_note", "")), str(report.get("stack_note", "")),
 			str(report.get("compound", "indefinido")), str(report.get("gate", ""))]

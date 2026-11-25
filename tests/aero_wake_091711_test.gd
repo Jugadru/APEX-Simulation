@@ -176,12 +176,18 @@ func drive(data:Dictionary,track:Dictionary,revision:int,climate:String,ticks:in
      overlaps+=1
      if examples.size()<12:examples.append({"kind":"overlap","tick":tick,"a":active[i].id,"b":active[j].id,"gap":gap,"lane":lane})
     if gap<7.4 and lane>=2.94:side+=1
+ var pack_totals:Dictionary={}
+ for item in race.cars:
+  var pack_state:Dictionary=item.get("traffic_pack_09201",{})
+  if pack_state.is_empty():continue
+  for key in ["clear_s","congestion_s","estimated_lift_s","solver_delay_s","cancelled","opportunities","confirmed_passes","yield_samples","group_transfers","kers_skipped_ticks"]:
+   pack_totals[key]=float(pack_totals.get(key,0.0))+float(pack_state.get(key,0.0))
  var sorted:Array=race.get_sorted()
  for i in range(sorted.size()):
   classification.append({"id":sorted[i].id,"position":sorted[i].position,"laps":sorted[i].get("finish_laps",0),"finished":sorted[i].finished})
   passes+=int(sorted[i].combat_passes)
   if int(initial[sorted[i].id])!=i+1:changed+=1
- return {"pack_modes":pack_modes,"steering_examples":steering_examples,"corner_reasons":corner_reasons,"hash":Codec.sporting_hash(race,{}),"tow_samples":tow,"dirty_samples":dirty,"max_tow":max_tow,"max_dirty":max_dirty,"stopped":stops,"reversals":reverse,"overlaps":overlaps,"straight_reversals":reverse_steer,"side":side,"passes":passes,"changed_grid":changed,"elapsed_us":Time.get_ticks_usec()-start,"engine_us":engine_us,"ticks":actual_ticks,"peak_static_bytes_sampled":peak_memory,"pits":pits,"finished":race.finished,"leader_finished":race.first_finish_at>=0.0,"classification":classification,"driver_reversals":by_driver,"rapid_driver_reversals":rapid_by_driver,"release_overlaps":release_overlaps,"examples":examples,"wet_min":wet_min,"wet_max":wet_max,"engine_us_per_tick":float(engine_us)/maxi(1,actual_ticks)}
+ return {"pack_totals":pack_totals,"pack_modes":pack_modes,"steering_examples":steering_examples,"corner_reasons":corner_reasons,"hash":Codec.sporting_hash(race,{}),"tow_samples":tow,"dirty_samples":dirty,"max_tow":max_tow,"max_dirty":max_dirty,"stopped":stops,"reversals":reverse,"overlaps":overlaps,"straight_reversals":reverse_steer,"side":side,"passes":passes,"changed_grid":changed,"elapsed_us":Time.get_ticks_usec()-start,"engine_us":engine_us,"ticks":actual_ticks,"peak_static_bytes_sampled":peak_memory,"pits":pits,"finished":race.finished,"leader_finished":race.first_finish_at>=0.0,"classification":classification,"driver_reversals":by_driver,"rapid_driver_reversals":rapid_by_driver,"release_overlaps":release_overlaps,"examples":examples,"wet_min":wet_min,"wet_max":wet_max,"engine_us_per_tick":float(engine_us)/maxi(1,actual_ticks)}
 func run():
  fixture()
  if "--fixture-only" in OS.get_cmdline_user_args():

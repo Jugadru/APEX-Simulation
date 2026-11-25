@@ -424,6 +424,7 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 			var a:Dictionary=intents[id]
 			var policy:Dictionary=TrafficPack.policy(c,traffic_observations[id],a,float(metrics[id].get("line_load",0.0)),float(weather.get("wetness_factor",0.0)),bool(narrowing.get(id,false)))
 			a["traffic_policy"]=policy
+			a["traffic_kers_skipped"]=bool(metrics[id].get("traffic_kers_skipped",false))
 			a.pace=float(a.pace)*(1.0+float(policy.lift))
 	# Hold lateral occupancy through overlap, including a recently passed car.
 	for c in order:

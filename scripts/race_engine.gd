@@ -804,7 +804,8 @@ func _advance(dt: float) -> void:
 		old_car.merge(thermal_now, true)
 		var old_progress: float = float(old_car["progress"])
 		var projected_progress: float = old_progress + dt / maxf(1.0, base_lap)
-		if traffic_pack_rules and TrafficPack09201.conserve_kers(old_car,bool(context.player_car)):
+		var kers_skipped:bool=traffic_pack_rules and TrafficPack09201.conserve_kers(old_car,bool(context.player_car)) and RaceKers2012.should_deploy(live_car,old_progress,float(context["gap"]),track)
+		if kers_skipped:
 			live_car["kers_active"]=false;live_car["kers_power_kw"]=0.0
 			context["kers_active"]=false
 		else:
@@ -814,6 +815,7 @@ func _advance(dt: float) -> void:
 		context["drs_active"] = RaceDrs2012.update(live_car, old_progress, projected_progress,
 			float(context["gap"]), track, current_weather)
 		var metrics: Dictionary = RacePerformance.evaluate(old_car, context)
+		if traffic_pack_rules:metrics["traffic_kers_skipped"]=kers_skipped
 		if racing_line_rules and clock >= RacingLine.START_SECONDS and old_progress >= 0.0 and not racing_line_profile.is_empty():
 			var line: Dictionary = RacingLine.sample(racing_line_profile, old_progress, float(current_weather.get("wetness_factor",0.0)), float(old_car.get("skill",80.0)))
 			if following_rules:
@@ -1590,7 +1592,9 @@ func _on_lap_cross(car: Dictionary) -> void:
 			if reply != "":
 				_event("engineer_reply", int(car["id"]), reply, 73)
 	if _traffic_pack_active() and not pilot_spoke and str(car.get("team",""))==team_name:
-		var traffic_radio:Dictionary=TrafficStrategy09201.radio(car,get_engineer_advice(int(car.id)).get("traffic_window_09201",{}))
+		# Radio uses fresh pure observations, never a HUD-populated cache.
+		var radio_forecast:Dictionary=TrafficStrategy09201.report(car,cars,base_lap,pit_loss,_next_pit_entry_lap(car),lap_count)
+		var traffic_radio:Dictionary=TrafficStrategy09201.radio(car,radio_forecast)
 		if not traffic_radio.is_empty():
 			pilot_spoke=true
 			car["driver_radio_last_lap"]=int(traffic_radio.lap);car["driver_radio_last_kind"]=str(traffic_radio.kind)

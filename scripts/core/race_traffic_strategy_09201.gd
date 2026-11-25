@@ -45,18 +45,22 @@ static func report(car:Dictionary,grid:Array,base:float,pit_loss:float,next_lap:
   var item:Dictionary=window(car,grid,base,pit_loss,extra)
   item["lap"]=next_lap+extra;cases.append(item)
  var protected:bool=int(car.get("pit_scheduled_lap",0))>0 or bool(car.get("pit_request",false)) or float(car.get("pit_left",0.0))>0.0
+ var team_conflict:bool=false
+ for other in grid:
+  if int(other.id)==int(car.id) or str(other.get("team",""))!=str(car.get("team","")):continue
+  if bool(other.get("pit_request",false)) or float(other.get("pit_left",0.0))>0.0 or int(other.get("pit_scheduled_lap",0)) in [next_lap,next_lap+1]:team_conflict=true
  var quality:float=clampf(float(staff.get("skill",50.0))/100.0,0.0,1.0)
  var best:int=0
  for i in range(1,cases.size()):
   if float(cases[i].score)+.5*i<float(cases[best].score)+.5*best:best=i
  var confidence:String="BAIXA"
  if not cases.is_empty() and float(cases[0].coverage)>=.75 and quality>=.65:confidence="MODERADA"
- return {"cases":cases,"recommended_extend":0 if protected else best,"protected":protected,"confidence":confidence,"note":"Projeção de ritmo observado; não prevê futuras paradas ou incidentes."}
+ return {"cases":cases,"recommended_extend":0 if protected else best,"protected":protected,"team_conflict":team_conflict,"confidence":confidence,"note":"Projeção de ritmo observado; não prevê futuras paradas ou incidentes."}
 
 static func can_hold(car:Dictionary,proposal:Dictionary,report_data:Dictionary,weather:Dictionary,team_busy:bool,next_lap:int,total:int)->bool:
  var cases:Array=report_data.get("cases",[])
  var stint:int=int(car.get("stops",0))
- return cases.size()>=2 and not bool(report_data.get("protected",true)) and bool(proposal.get("pit_now",false)) and not bool(proposal.get("critical",false)) and not bool(proposal.get("deferred",false)) and not team_busy and not bool(car.get("finished",false)) and not bool(car.get("pitwall49_held",false)) and int(car.get("lap_strategy_adjusted_stint_06496",-999))!=stint and int(car.get("team_pit_adjusted_stint_06497",-999))!=stint and int(car.get("staff_strategy_hold_stint_066910",-999))!=stint and float(car.get("wear",100.0))<58.0 and float(proposal.get("life_laps",0.0))>=3.0 and int(car.get("stint_laps",0))>=4 and str(car.get("tire","")) in SLICKS and str(proposal.get("compound","")) in SLICKS and float(weather.get("wetness_factor",1.0))<.10 and float(proposal.get("forecast_3",1.0))<.10 and float(proposal.get("forecast_6",1.0))<.12 and next_lap+2<total and float(cases[0].coverage)>=.75 and float(cases[0].score)>=3.0 and float(cases[1].score)<=.5
+ return cases.size()>=2 and int(car.get("pit_scheduled_lap",0))==0 and not bool(car.get("pit_request",false)) and float(car.get("pit_left",0.0))<=0.0 and not bool(report_data.get("team_conflict",false)) and not bool(report_data.get("protected",true)) and bool(proposal.get("pit_now",false)) and not bool(proposal.get("critical",false)) and not bool(proposal.get("deferred",false)) and not team_busy and not bool(car.get("finished",false)) and not bool(car.get("pitwall49_held",false)) and int(car.get("lap_strategy_adjusted_stint_06496",-999))!=stint and int(car.get("team_pit_adjusted_stint_06497",-999))!=stint and int(car.get("staff_strategy_hold_stint_066910",-999))!=stint and float(car.get("wear",100.0))<58.0 and float(proposal.get("life_laps",0.0))>=3.0 and int(car.get("stint_laps",0))>=4 and str(car.get("tire","")) in SLICKS and str(proposal.get("compound","")) in SLICKS and float(weather.get("wetness_factor",1.0))<.10 and float(proposal.get("forecast_3",1.0))<.10 and float(proposal.get("forecast_6",1.0))<.12 and next_lap+2<total and float(cases[0].coverage)>=.75 and float(cases[0].score)>=3.0 and float(cases[1].score)<=.5
 
 static func radio(car:Dictionary,forecast:Dictionary)->Dictionary:
  var obs:Dictionary=car.get(Pack.KEY,{})

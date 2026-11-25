@@ -44,8 +44,8 @@ static func observe(car:Dictionary, grid:Array, metrics:Dictionary, length:float
    rear_s=minf(rear_s,-seconds)
    if Blue.lapping(other,car,-g,length):blue_behind+=1
   elif g>0.000001 and seconds<=horizon:
-   ahead.append({"id":int(other.id),"gap":g,"gap_s":seconds,"rate":rate(other,fallback),"lane":float(other.get("race_lane",0.0)),"drs":bool(other.get("drs_active",false)) or bool(other.get("drs_eligible",false)),"duel":str(other.get("combat_state","")) in ATTACK,"mate":str(other.get("team",""))==str(car.get("team","")) and str(car.get("team",""))!="","lapping":Blue.lapping(car,other,g,length),"pit_approach":bool(other.get("pit_request",false)) and fposmod(float(other.progress),1.0)>.85})
- ahead.sort_custom(func(a,b):return int(a.id)<int(b.id) if is_equal_approx(float(a.gap),float(b.gap)) else float(a.gap)<float(b.gap))
+   ahead.append({"id":int(other.id),"gap":g,"gap_s":seconds,"rate":rate(other,fallback),"lane":float(other.get("race_lane",0.0)),"drs":bool(other.get("drs_active",false)) or bool(other.get("drs_eligible",false)),"duel":str(other.get("combat_state","")) in ATTACK,"mate":str(other.get("team",""))==str(car.get("team","")) and str(car.get("team",""))!="","lapping":Blue.lapping(car,other,g,length),"pit_approach":str(other.get("team",""))==str(car.get("team","")) and bool(other.get("pit_request",false)) and fposmod(float(other.progress),1.0)>.85})
+ ahead.sort_custom(func(a,b):return int(a.id)<int(b.id) if float(a.gap)==float(b.gap) else float(a.gap)<float(b.gap))
  var first:Dictionary=ahead[0] if not ahead.is_empty() else {}
  var gap_s:float=float(first.get("gap_s",999.0))
  var leader:int=int(first.get("id",-1))
@@ -87,6 +87,10 @@ static func refine(car:Dictionary,rival:Dictionary,grid:Array,metrics:Dictionary
  if not bool(tactic.get("commit",false)) or gap<=11.5 or str(car.get("combat_state","")) in ATTACK:return tactic
  # Predict sweep only for a fresh move in an actual group. The previous
  # corner and coordination layers retain their vetoes and all safety rules.
+ if int(obs.get("merge_ahead",0))>0 or bool(obs.get("pit_approach",false)):
+  var wait:Dictionary=tactic.duplicate()
+  wait.commit=false;wait.defense=false;wait.blocked=true;wait["pack_reason"]="pit_transition"
+  return wait
  if int(obs.get("group_size",1))>=3 and not Blue.swept_clear(car,rival,grid,metrics,float(tactic.attack_goal),length):
   var result:Dictionary=tactic.duplicate()
   result.commit=false;result.defense=false;result.blocked=true;result["pack_reason"]="third_corridor"
@@ -103,12 +107,12 @@ static func blue(fast:Dictionary,slow:Dictionary,grid:Array,metrics:Dictionary,c
    if int(item.id)!=previous or not Blue.active(item):continue
    var g:float=Merge.relative_gap(float(slow.progress),float(item.progress),float(context.length))
    if g<0.0 or g>60.0:break
-   var virtual:Dictionary=slow.duplicate()
+   var shadow_car:Dictionary=slow.duplicate()
    var mem:Dictionary=slow.get("racecraft_memory",{}).duplicate()
    mem["traffic_yield_to"]=int(fast.id)
    mem["traffic_yield_goal"]=float(prior.get("yield_goal",slow.get("race_lane",0.0)))
-   virtual["racecraft_memory"]=mem
-   var result:Dictionary=Blue.evaluate(fast,virtual,grid,metrics,context)
+   shadow_car["racecraft_memory"]=mem
+   var result:Dictionary=Blue.evaluate(fast,shadow_car,grid,metrics,context)
    if bool(result.yield_early):result.reason="group_yield"
    return result
  return Blue.evaluate(fast,slow,grid,metrics,context)
@@ -138,6 +142,8 @@ static func policy(car:Dictionary,obs:Dictionary,intent:Dictionary,load:float,we
   result.reason="conserve_in_group"
  elif float(obs.prepared_s)>0.0:
   result.mode="PREPARE";result.reason="anticipated_catch"
+ elif int(obs.get("merge_ahead",0))>0 or bool(obs.get("pit_approach",false)):
+  result.mode="ASSESSING";result.reason="pit_transition"
  elif int(obs.front_duels)>0 and close:
   result.mode="ASSESSING";result.reason="front_duel"
  return result
@@ -153,8 +159,11 @@ static func settle(car:Dictionary,obs:Dictionary,intent:Dictionary,next:float,dt
  out["congestion_s"]=float(old.get("congestion_s",0.0))+(dt if int(obs.group_size)>=3 else 0.0)
  out["estimated_lift_s"]=float(old.get("estimated_lift_s",0.0))+dt*(1.0-1.0/(1.0+float(out.lift)))
  out["solver_delay_s"]=float(old.get("solver_delay_s",0.0))+minf(dt,maxf(0.0,float(intent.next)-next)*float(intent.pace))
- out["cancelled"]=int(old.get("cancelled",0))+(1 if intent.has("pack_reason") and str(old.get("reason",""))!="third_corridor" else 0)
- if intent.has("pack_reason"):out.reason="third_corridor"
+ out["cancelled"]=int(old.get("cancelled",0))+(1 if intent.has("pack_reason") and str(old.get("reason",""))!=str(intent.get("pack_reason","")) else 0)
+ if intent.has("pack_reason"):out.reason=str(intent.pack_reason)
+ out["opportunity"]=int(obs.front_duels)>0 and float(obs.closing)>0.00002
+ out["opportunities"]=int(old.get("opportunities",0))+(1 if bool(out.opportunity) and not bool(old.get("opportunity",false)) else 0)
+ out["kers_skipped_ticks"]=int(old.get("kers_skipped_ticks",0))+(1 if bool(intent.get("traffic_kers_skipped",false)) else 0)
  out["confirmed_passes"]=int(old.get("confirmed_passes",0))
  out["yield_to"]=int(old.get("yield_to",-1))
  out["yield_goal"]=float(old.get("yield_goal",car.get("race_lane",0.0)))
@@ -170,7 +179,7 @@ static func settle(car:Dictionary,obs:Dictionary,intent:Dictionary,next:float,dt
 
 static func pit_reset(car:Dictionary)->Dictionary:
  var state:Dictionary=car.get(KEY,{}).duplicate()
- state["mode"]="PIT";state["leader"]=-1;state["rate"]=0.0;state["lift"]=0.0;state["save_kers"]=false;state["prepared_s"]=0.0;state["congestion_run_s"]=0.0;state["yield_to"]=-1;state["yield_grace"]=0.0
+ state["mode"]="PIT";state["leader"]=-1;state["rate"]=0.0;state["lift"]=0.0;state["save_kers"]=false;state["prepared_s"]=0.0;state["congestion_run_s"]=0.0;state["opportunity"]=false;state["yield_to"]=-1;state["yield_grace"]=0.0
  return state
 
 static func conserve_kers(car:Dictionary,player:bool)->bool:
