@@ -40,7 +40,7 @@ offset_right = 1050
 offset_bottom = 53
 theme_override_colors/font_color = Color(0.72157, 0.79216, 0.86275, 1.0000)
 theme_override_font_sizes/font_size = 15
-text = "GODOT 4  /  v0.5.1  /  SPA"
+text = "GODOT 4.7.2  /  CORE 2"
 mouse_filter = 2
 
 [node name="RaceStatus" type="Label" parent="EditorPreview"]

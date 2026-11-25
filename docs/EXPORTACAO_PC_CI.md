@@ -23,8 +23,7 @@ executável:
 - Linux Mint x86_64: torne `APEX_Motorsport_Manager.x86_64` executável e abra.
 - Windows x86_64: abra `APEX_Motorsport_Manager.exe`.
 
-Arquivos de build não vão para a branch `main` nem para GitHub Releases:
-ficam como **artefatos temporários (14 dias)**.
+A execução manual produz **artefatos temporários (14 dias)**, vinculados ao SHA exportado (`SOURCE_COMMIT.txt`). A publicação de uma GitHub Release é outra etapa, com autorização e validação próprias. A pré-release permanente 9.17.4 permanece disponível; não é a build 9.22.
 
 ## Cobertura real dos testes
 - A criação de um arquivo, ainda que seja um EXE, não comprova que o jogo
@@ -44,4 +43,4 @@ precisa ser testado em uma partida exportada, além do smoke inicial.
 ## Preservação e segurança
 As exportações não alteram código do motor esportivo, HUD, replay ou saves.
 As alterações ficam em branch isolada e requerem PR/validação antes de merge.
-Não são publicados instaladores, chaves, credenciais ou releases automáticos.
+O workflow reutilizável não publica releases automaticamente. As releases já existentes permanecem intactas. Não são publicados instaladores, chaves ou credenciais.
