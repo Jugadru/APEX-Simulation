@@ -20,6 +20,7 @@ const HudWeatherPanel = preload("res://scripts/presentation/apex_hud_weather_pan
 const HudMiniMapPanel = preload("res://scripts/presentation/apex_hud_minimap_panel.gd")
 const Stints = preload("res://scripts/apex_strategy_planner_0620.gd")
 const EngineerInteractive = preload("res://scripts/core/race_engineer_interactive.gd")
+const Communication0922 = preload("res://scripts/presentation/race_communication_0922.gd")
 const DriverPerception = preload("res://scripts/core/race_driver_perception_0633.gd")
 const DriverMemory = preload("res://scripts/core/race_driver_memory_0634.gd")
 const StintDialogue = preload("res://scripts/core/race_stint_dialogue_0635.gd")
@@ -1190,7 +1191,7 @@ func _build_events_window() -> void:
 		_text(overlay_content, "%02d:%02d  •  %s" % [int(time / 60), time % 60, str(item.get("message", ""))], 12)
 
 func _build_radio_window() -> void:
-	overlay_title.text = "RÁDIO — PERGUNTAR AO ENGENHEIRO"
+	overlay_title.text = "RÁDIO — RACE ENGINEER 4.0"
 	_text(overlay_content, "Consultas não emitem ordens. AUTORIZAR PASSAGEM executa apenas com clique explícito; revogável.", 11, MUTED)
 	var driver_line := _line(overlay_content, 8)
 	_text(driver_line, "PILOTO", 11, ACCENT)
@@ -1217,6 +1218,11 @@ func _build_radio_window() -> void:
 		var button := _btn(questions, str(EngineerInteractive.QUESTIONS[topic]), _ask_engineer.bind(topic))
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		button.tooltip_text = "Consultar o engenheiro sem alterar o comando da equipe"
+	var context_line := _line(overlay_content, 5)
+	for entry in [{"topic":"diagnostico","label":"DIAGNÓSTICO"},{"topic":"recuperacao","label":"RECUPERAÇÃO"},{"topic":"clima","label":"CLIMA"},{"topic":"estrategia","label":"PLANO"},{"topic":"kers_drs","label":"KERS / DRS"}]:
+		var context_button := _btn(context_line, str(entry.label), _ask_context_0922.bind(str(entry.topic)))
+		context_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		context_button.tooltip_text = "Consulta contextual, sem enviar comandos."
 	var discuss_line := _line(overlay_content, 8)
 	_btn(discuss_line, "DISCUTIR STINT", _discuss_stint, 162).tooltip_text = "Confrontar sensação fictícia e telemetria; não executa box"
 	_btn(discuss_line, "COMPARAR COMPANHEIRO", _compare_teammate, 194).tooltip_text = "Análise consultiva; não executa ordens"
@@ -1428,7 +1434,7 @@ func _answer_soul_request(choice: String) -> void:
 	var brief: Dictionary = Radio3.choice_response(car, choice)
 	if not brief.is_empty():
 		driver_words = str(brief["text"])
-		engineer_words = "Copy. We're reviewing it. No pit or pace order changed."
+		engineer_words = "Copy. We\'re reviewing the situation."
 	radio_response_label.text = "%s: %s\nENGENHEIRO: %s" % [name, driver_words, engineer_words]
 	if host.commentary != null:
 		host.commentary.add_soul_alignment(float(host.race.clock), name,
@@ -1723,6 +1729,24 @@ func _ask_engineer(topic: String) -> void:
 		host.commentary.add_team_question(float(snapshot.get("time", 0.0)), str(response["question"]), str(response["car_name"]), str(response["reply"]), car_id)
 	_set_radio_category(2)
 
+func _ask_context_0922(topic: String) -> void:
+	if host == null or host.race == null or radio_driver_picker == null:
+		return
+	var index: int = radio_driver_picker.selected
+	if index < 0 or index >= radio_driver_ids.size():
+		return
+	var car_id: int = radio_driver_ids[index]
+	var car: Dictionary = host._car_by_id(car_id)
+	var answer: String = Communication0922.answer(topic, car, host.race.weather_snapshot())
+	radio_response_label.text = "ENGENHEIRO · " + answer
+	if host.commentary != null:
+		var key: String = "0922|%d|%s" % [car_id, topic]
+		var now: float = float(host.race.clock)
+		if now < float(engineer_query_cooldowns.get(key, -100.0)) or now - float(engineer_query_cooldowns.get(key, -100.0)) >= 4.0:
+			engineer_query_cooldowns[key] = now
+			host.commentary.add_team_question(now, topic, str(car.get("name", "Piloto")), answer, car_id)
+	_set_radio_category(2)
+
 func _refresh_interactive_history() -> void:
 	if radio_history == null or not is_instance_valid(radio_history):
 		return
@@ -1810,10 +1834,7 @@ func _update_engineer_reports() -> void:
 		elif host.replay_session == null and key != previous and current_lap >= 1 and not bool(host.race.finished) and host.race.running and current_lap - last_lap >= 4:
 			engineer_last_radio[car_id] = key
 			engineer_last_lap[car_id] = current_lap
-			host.race._event("engineer_strategy", car_id,
-				"RACE ENGINEER 3.0 (SIMULAÇÃO) | %s: %s %s" % [
-				str(car.get("name", "Piloto")), str(report.get("alert", "")),
-				str(report.get("action", ""))], 66)
+			# Diagnostic history is presentation-only; do not create race events from HUD refresh.
 	if active_window == "engineer":
 		_refresh_engineer_window()
 	elif active_window == "pitwall3":
