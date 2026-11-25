@@ -99,7 +99,10 @@ func fixture():
  print("AERO_WAKE_FIXTURE ",JSON.stringify({"close":close,"far":far,"corner":corner,"wet":wet,"sporting_old":old[1].progress,"sporting_new":new[1].progress}))
 func drive(data:Dictionary,track:Dictionary,revision:int,climate:String,ticks:int,seed:int=42)->Dictionary:
  var race=Race.new(data.teams,"Ferrari",seed,{},track,{})
- race.aero_wake_enabled=revision>=32;race.aero_wake_corrected=revision>=33;race.aero_wake_stability=revision>=34;race.aero_wet_line_stability=revision>=35;race.tactical_coordination_enabled=revision>=36;race.configure_weather(climate);race.running=true
+ race.aero_wake_enabled=revision>=32;race.aero_wake_corrected=revision>=33;race.aero_wake_stability=revision>=34;race.aero_wet_line_stability=revision>=35;race.tactical_coordination_enabled=revision>=36;race.corner_battle_enabled=revision>=37;race.configure_weather(climate);race.running=true
+ var corner_reasons:Dictionary={}
+ var steering_examples:Array=[]
+ var previous_steering:Dictionary={}
  var tow:=0;var dirty:=0;var max_tow:=0.0;var max_dirty:=0.0;var side:=0;var reverse_steer:=0;var stops:=0;var overlaps:=0;var reverse:=0;var passes:=0;var changed:=0;var last_sign:Dictionary={};var initial:Dictionary={};var start:=Time.get_ticks_usec()
  for c in race.cars:initial[c.id]=int(c.grid)
  var by_driver:Dictionary={};var last_active_tick:Dictionary={};var rapid_by_driver:Dictionary={};var engine_us:int=0;var actual_ticks:int=0;var peak_memory:float=0.0;var pits:int=0;var classification:Array=[];var wet_min:float=1.0;var wet_max:float=0.0;var release_overlaps:int=0;var examples:Array=[]
@@ -138,6 +141,8 @@ func drive(data:Dictionary,track:Dictionary,revision:int,climate:String,ticks:in
     stops+=1
     if examples.size()<12:examples.append({"kind":"stationary","tick":tick,"id":c.id,"progress":c.progress,"lane":c.race_lane,"state":c.combat_state,"blocked":c.race_space_blocked})
    if delta< -1e-8:reverse+=1
+   var reason:String=str(c.get("racecraft_memory",{}).get("corner_reason",""))
+   if not reason.is_empty():corner_reasons[reason]=int(corner_reasons.get(reason,0))+1
    var aero:Dictionary=c.get("aero_wake_032",{})
    if not aero.is_empty():
     if float(aero.tow_fraction)>0.00001:tow+=1
@@ -151,10 +156,13 @@ func drive(data:Dictionary,track:Dictionary,revision:int,climate:String,ticks:in
      if last_sign.has(c.id) and last_sign[c.id]!=sign_d:
       reverse_steer+=1
       by_driver[c.id]=int(by_driver.get(c.id,0))+1
+      if steering_examples.size()<120:
+       steering_examples.append({"tick":tick,"id":c.id,"progress":c.progress,"previous":previous_steering.get(c.id,{}),"lane_before":before[c.id].race_lane,"lane_after":c.race_lane,"load":line.load,"memory_before":before[c.id].get("racecraft_memory",{}),"memory_after":c.get("racecraft_memory",{})})
       if tick-int(last_active_tick.get(c.id,-100))<=10:
        rapid_by_driver[c.id]=int(rapid_by_driver.get(c.id,0))+1
      last_active_tick[c.id]=tick
      last_sign[c.id]=sign_d
+     previous_steering[c.id]={"tick":tick,"lane":c.race_lane,"progress":c.progress,"load":line.load,"mode":c.get("racecraft_memory",{}).get("mode","")}
    else:
     last_sign.erase(c.id);last_active_tick.erase(c.id)
   for i in range(active.size()):
@@ -170,7 +178,7 @@ func drive(data:Dictionary,track:Dictionary,revision:int,climate:String,ticks:in
   classification.append({"id":sorted[i].id,"position":sorted[i].position,"laps":sorted[i].get("finish_laps",0),"finished":sorted[i].finished})
   passes+=int(sorted[i].combat_passes)
   if int(initial[sorted[i].id])!=i+1:changed+=1
- return {"hash":Codec.sporting_hash(race,{}),"tow_samples":tow,"dirty_samples":dirty,"max_tow":max_tow,"max_dirty":max_dirty,"stopped":stops,"reversals":reverse,"overlaps":overlaps,"straight_reversals":reverse_steer,"side":side,"passes":passes,"changed_grid":changed,"elapsed_us":Time.get_ticks_usec()-start,"engine_us":engine_us,"ticks":actual_ticks,"peak_static_bytes_sampled":peak_memory,"pits":pits,"finished":race.finished,"leader_finished":race.first_finish_at>=0.0,"classification":classification,"driver_reversals":by_driver,"rapid_driver_reversals":rapid_by_driver,"release_overlaps":release_overlaps,"examples":examples,"wet_min":wet_min,"wet_max":wet_max,"engine_us_per_tick":float(engine_us)/maxi(1,actual_ticks)}
+ return {"steering_examples":steering_examples,"corner_reasons":corner_reasons,"hash":Codec.sporting_hash(race,{}),"tow_samples":tow,"dirty_samples":dirty,"max_tow":max_tow,"max_dirty":max_dirty,"stopped":stops,"reversals":reverse,"overlaps":overlaps,"straight_reversals":reverse_steer,"side":side,"passes":passes,"changed_grid":changed,"elapsed_us":Time.get_ticks_usec()-start,"engine_us":engine_us,"ticks":actual_ticks,"peak_static_bytes_sampled":peak_memory,"pits":pits,"finished":race.finished,"leader_finished":race.first_finish_at>=0.0,"classification":classification,"driver_reversals":by_driver,"rapid_driver_reversals":rapid_by_driver,"release_overlaps":release_overlaps,"examples":examples,"wet_min":wet_min,"wet_max":wet_max,"engine_us_per_tick":float(engine_us)/maxi(1,actual_ticks)}
 func run():
  fixture()
  if "--fixture-only" in OS.get_cmdline_user_args():
@@ -187,9 +195,10 @@ func run():
  if full:ticks=60000
  check(not track.is_empty(),"track found")
  if track.is_empty():quit(1);return
- var coordinated:bool=OS.get_environment("APEX_COORDINATION")=="1"
- var old=drive(data,track,35 if coordinated else 31,climate,ticks,seed)
- var new=drive(data,track,36 if coordinated else 35,climate,ticks,seed)
+ var corner:bool=OS.get_environment("APEX_CORNER_BATTLE")=="1"
+ var coordinated:bool=OS.get_environment("APEX_COORDINATION")=="1" and not corner
+ var old=drive(data,track,36 if corner else (35 if coordinated else 31),climate,ticks,seed)
+ var new=drive(data,track,37 if corner else (36 if coordinated else 35),climate,ticks,seed)
  print("AERO_WAKE_AB ",JSON.stringify({"track":code,"climate":climate,"ticks":ticks,"seed":seed,"full":full,"old":old,"new":new}))
  check(new.tow_samples>0 and new.dirty_samples>0,"both effects exercised")
  check(new.max_tow<=Aero.TOW_FRACTION and new.max_dirty<=Aero.DIRTY_FRACTION,"bounded modifiers")
@@ -213,19 +222,21 @@ func run():
    check(entry.finished,"classified car finished id="+str(entry.id))
   check(ids.size()==24 and ranks.size()==24,"unique final classification")
  if code=="ITA" and climate=="Seco" and seed==42:
-  if ticks==600 and not coordinated:check(old.hash=="4f2d91a2a34de0c8e0bcf04fef7f84858fdc4aafbfcc2230909b5524a54b8514","independent 031 reference")
+  if ticks==600 and not coordinated and not corner:check(old.hash=="4f2d91a2a34de0c8e0bcf04fef7f84858fdc4aafbfcc2230909b5524a54b8514","independent 031 reference")
   if ticks==1800 and coordinated:
    check(old.hash=="067ec801e8bef03f137cfcadd229f2662cc400f8ccdbbe17f8ed45ffa1fc9e85","historical CI 035 hash")
-  if ticks==1800 and not coordinated:
+  if ticks==1800 and corner:
+   check(old.hash=="e3eeb1189ffb049d65706b8c189dcc3e3b67111e42efed3383c7ec665de0ff53","historical CI 036 hash")
+  if ticks==1800 and not coordinated and not corner:
    check(old.hash=="0174f579e29d197c24df060340a95147407eb8bcaecc90f0e56ca0f3f265dab9","historical CI 031 hash")
    var historical=drive(data,track,32,climate,ticks,seed)
    check(historical.hash=="7d40eff8b5285682a7aa5165d96fb91b0f4dc7366c0ff17b9d367baa6e4bcbc9","historical CI 032 hash")
    print("AERO_WAKE_HISTORICAL_032 ",JSON.stringify(historical))
    var historical_034=drive(data,track,34,climate,ticks,seed)
    check(historical_034.hash=="067ec801e8bef03f137cfcadd229f2662cc400f8ccdbbe17f8ed45ffa1fc9e85","historical CI 034 hash")
-  var again=drive(data,track,36 if coordinated else 35,climate,ticks,seed)
+  var again=drive(data,track,37 if corner else (36 if coordinated else 35),climate,ticks,seed)
   check(new.hash==again.hash,"deterministic selected revision")
-  for rev in [Replay.PRE_AERO_WAKE_SIMULATION_REVISION,Replay.PRE_WAKE_SOURCE_SIMULATION_REVISION,Replay.PRE_WAKE_STABILITY_SIMULATION_REVISION,Replay.PRE_WET_LINE_SIMULATION_REVISION,Replay.PRE_COORDINATION_SIMULATION_REVISION,Replay.SIMULATION_REVISION]:
+  for rev in [Replay.PRE_AERO_WAKE_SIMULATION_REVISION,Replay.PRE_WAKE_SOURCE_SIMULATION_REVISION,Replay.PRE_WAKE_STABILITY_SIMULATION_REVISION,Replay.PRE_WET_LINE_SIMULATION_REVISION,Replay.PRE_COORDINATION_SIMULATION_REVISION,Replay.PRE_CORNER_BATTLE_SIMULATION_REVISION,Replay.SIMULATION_REVISION]:
    var rec=Replay.new();rec.attach(Race.new(data.teams,"Ferrari",42,{},track,{}));rec.recorded_simulation_revision=rev
    for i in range(350):check(rec.step_tick(),"record tick")
    var play=Replay.new()
