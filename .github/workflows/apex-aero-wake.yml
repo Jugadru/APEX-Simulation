@@ -1,0 +1,138 @@
+name: APEX - Slipstream and Dirty Air validation
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review, labeled]
+    paths:
+      - 'scripts/core/race_aero_wake_091711.gd'
+      - 'scripts/core/race_space_0655.gd'
+      - 'scripts/core/race_independent_racecraft_091710.gd'
+      - 'scripts/core/race_pit_lane.gd'
+      - 'scripts/core/race_replay_0660.gd'
+      - 'scripts/core/race_state_codec_0660.gd'
+      - 'scripts/race_engine.gd'
+      - 'tests/aero_wake_091711_test.gd'
+      - 'tests/racing_independent_p15_091710_test.gd'
+      - '.github/workflows/apex-aero-wake.yml'
+permissions:
+  contents: read
+jobs:
+  aero:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        track: [ITA, GBR, MON]
+        climate: [Seco, Chuva intensa]
+        seed: [42, 7, 19, 123, 2026]
+    env:
+      APEX_AERO_TRACK: ${{ matrix.track }}
+      APEX_AERO_CLIMATE: ${{ matrix.climate }}
+      APEX_AERO_TICKS: '1800'
+      APEX_AERO_SEED: ${{ matrix.seed }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+        with:
+          version: 4.7.2-stable
+      - run: bash tools/apex_ci_import.sh import.log
+      - run: |
+          set -euo pipefail
+          bash tools/apex_ci_isolated_test.sh aero_wake_091711_test.gd 2>&1 | tee aero.log
+          grep -Fq AERO_WAKE_091711_PASS aero.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' aero.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apex-aero-${{ matrix.track }}-${{ matrix.climate }}-${{ matrix.seed }}
+          path: |
+            import.log
+            aero.log
+          retention-days: 14
+
+  full-gp:
+    # Long GPs are explicitly authorized for PR 126; opt-in for later PRs.
+    if: github.event.pull_request.number == 126 || contains(github.event.pull_request.labels.*.name, 'ci:aero-full')
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {track: ITA, climate: Seco}
+          - {track: GBR, climate: Seco}
+          - {track: MON, climate: Seco}
+          - {track: MON, climate: Chuva intensa}
+          - {track: ITA, climate: Chuva intensa}
+          - {track: ITA, climate: Variável}
+    env:
+      APEX_AERO_TRACK: ${{ matrix.track }}
+      APEX_AERO_CLIMATE: ${{ matrix.climate }}
+      APEX_AERO_SEED: '42'
+      APEX_AERO_FULL: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+        with:
+          version: 4.7.2-stable
+      - run: bash tools/apex_ci_import.sh import.log
+      - run: |
+          set -euo pipefail
+          timeout 3300s godot --headless --single-threaded-scene --path . --script res://tests/aero_wake_091711_test.gd 2>&1 | tee aero-full.log
+          grep -Fq AERO_WAKE_091711_PASS aero-full.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' aero-full.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apex-aero-full-${{ matrix.track }}-${{ matrix.climate }}
+          path: |
+            import.log
+            aero-full.log
+          retention-days: 14
+  camera:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+        with:
+          version: 4.7.2-stable
+      - run: sudo apt-get update && sudo apt-get install -y xvfb libgl1-mesa-dri
+      - run: bash tools/apex_ci_import.sh import.log
+      - run: |
+          set -euo pipefail
+          xvfb-run -a -s "-screen 0 1920x1080x24" godot --rendering-method gl_compatibility --path . --script res://tests/racing_independent_p15_091710_test.gd 2>&1 | tee camera.log
+          grep -Fq P15_CAPTURE_PASS camera.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' camera.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apex-aero-p15
+          path: |
+            camera.log
+            qa/racing_independent_091710/*.png
+          retention-days: 14
+
+  source-package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event.pull_request.number == 126
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Package tracked source candidate (no private portraits)
+        run: |
+          set -euo pipefail
+          git archive --format=zip --prefix=APEX-REV4/ --output=APEX_091711_REV4_SOURCE.zip HEAD
+          unzip -tq APEX_091711_REV4_SOURCE.zip
+          sha256sum APEX_091711_REV4_SOURCE.zip > APEX_091711_REV4_SOURCE.sha256
+          sha256sum -c APEX_091711_REV4_SOURCE.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apex-091711-rev4-source-candidate
+          path: |
+            APEX_091711_REV4_SOURCE.zip
+            APEX_091711_REV4_SOURCE.sha256
+          retention-days: 14

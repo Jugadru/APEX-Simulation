@@ -10,12 +10,12 @@ func run():
  root.add_child(host)
  for i in range(10):await process_frame
  host.set_process(false)
- for modern in [false,true]:
+ for revision in [Replay.PRE_INDEPENDENT_SIMULATION_REVISION,Replay.PRE_AERO_WAKE_SIMULATION_REVISION,Replay.PRE_WAKE_SOURCE_SIMULATION_REVISION,Replay.PRE_WAKE_STABILITY_SIMULATION_REVISION,Replay.PRE_WET_LINE_SIMULATION_REVISION,Replay.SIMULATION_REVISION]:
   for i in range(host.season_tracks.size()):
    if host.season_tracks[i].code=="ITA":host.selected_track_index=i
   Fixture.configure(host,"stock",42)
   host._start_race()
-  host.replay_session.recorded_simulation_revision=Replay.SIMULATION_REVISION if modern else Replay.PRE_INDEPENDENT_SIMULATION_REVISION
+  host.replay_session.recorded_simulation_revision=revision
   host.race.running=true;host.sim_speed=16.0
   # Fast-forward actual sporting ticks, then exercise the native chase pipeline.
   for i in range(600):
@@ -32,7 +32,7 @@ func run():
   host.race.running=false;host._process(.016667)
   for i in range(5):await process_frame
   await RenderingServer.frame_post_draw
-  var path="res://qa/racing_independent_091710/monza_"+("rev4" if modern else "rev3")+"_p15.png"
+  var path="res://qa/racing_independent_091710/monza_"+("rev3" if revision==Replay.PRE_INDEPENDENT_SIMULATION_REVISION else ("rev4" if revision==Replay.PRE_AERO_WAKE_SIMULATION_REVISION else revision.substr(0,3)))+"_p15.png"
   var img:Image=root.get_texture().get_image()
   if img.is_empty() or img.save_png(path)!=OK:quit(1);return
   print("P15_CAPTURE ",path," tick=",host.replay_session.tick," focused=",host.focused_id," expected=",p15.id," camera=",host.world_view.camera_mode_3d)

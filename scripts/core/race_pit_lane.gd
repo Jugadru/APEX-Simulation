@@ -22,7 +22,7 @@ static func stage_duration(car: Dictionary, stage: String, queue_phase: float, s
 			return float(car["pit_release_delay"])
 	return 0.0
 
-static func advance(host, car: Dictionary, dt: float, queue_phase: float, service_begin: float, service_end: float) -> void:
+static func advance(host, car: Dictionary, dt: float, queue_phase: float, service_begin: float, service_end: float, exit_clear: bool = true) -> void:
 	var old_progress: float = float(car["progress"])
 	var remaining_dt: float = dt
 	var iterations: int = 0
@@ -43,6 +43,12 @@ static func advance(host, car: Dictionary, dt: float, queue_phase: float, servic
 			break
 		var stage_length: float = maxf(0.001, stage_duration(car, stage, queue_phase, service_begin, service_end))
 		var stage_time: float = float(car["pit_stage_elapsed"])
+		# 034: remain in the separate pit lane until the track opening is safe.
+		# Hold time is real elapsed pit time, neither a garage queue nor an incident.
+		if stage == "exit" and not exit_clear and stage_time+remaining_dt>=stage_length*0.999999:
+			car["pit_merge_hold_s"] = float(car.get("pit_merge_hold_s",0.0)) + remaining_dt
+			remaining_dt=0.0
+			break
 		var advance_by: float = minf(remaining_dt, maxf(0.0, stage_length - stage_time))
 		car["pit_stage_elapsed"] = stage_time + advance_by
 		if stage == "repair" or stage == "safety_hold":
@@ -92,6 +98,9 @@ static func advance(host, car: Dictionary, dt: float, queue_phase: float, servic
 					car["pit_last_extra"] = float(car["pit_extra_elapsed"])
 					car["pit_last_incident"] = str(car["pit_incident_type"])
 					car["pit_last_total"] = float(car["pit_active_elapsed"]) + float(car["pit_wait"]) + float(car["pit_extra_elapsed"])
+					if car.has("pit_merge_hold_s"):
+						car["pit_last_total"] += float(car["pit_merge_hold_s"])
+						host._event("pit_merge", int(car["id"]), "%s: aguardou %.2fs por abertura segura na pista." % [car["name"],float(car["pit_merge_hold_s"])], 65)
 					host._event("pit_exit", int(car["id"]), "%s saiu dos boxes: pneus %.2fs, fila %.1fs, incidente +%.1fs." % [car["name"], float(car["pit_last_service"]), float(car["pit_last_wait"]), float(car["pit_last_extra"])], 65)
 	# pit_left is remaining active pit time. It stops falling while in queue;
 	# pit_wait is the real extra delay for the double-stack.

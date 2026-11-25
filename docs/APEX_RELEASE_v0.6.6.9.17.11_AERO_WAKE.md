@@ -1,0 +1,34 @@
+# v0.6.6.9.17.11 — Slipstream & Dirty Air 1.0 (candidata)
+
+Base: `6293a5b1d26a0aea6da747c343686268cb4d7391` / PR #125. Revisão esportiva 032. Plano Mestre Unificado 2.0: resistência, carga aerodinâmica e ar sujo/vácuo, respeitando o nível de abstração.
+
+- Novo módulo puro `race_aero_wake_091711.gd`. Estima distância longitudinal usando progresso circular e lap_km; distância lateral continua em unidades esquemáticas. Janela máxima 150 m estimados, transições suaves por distância, alinhamento e carga de curva atual/prevista. Exposição mais larga para ar sujo; fonte de maior exposição, sem somar ganhos de um pelotão; ID estável em empate. Exclui carros finalizados, em box e atrás, inclusive passagem pela linha e retardatários. O modelo não interpreta a intenção do adversário.
+- Substitui apenas o modificador longitudinal 031 após 24 s, inclusive em ataques, sem alterar decisão tática, objetivo lateral, ocupação, pneus, DRS, KERS, pit ou apresentação. Preserva penalidade genérica de tráfego existente, que também representa efeitos não aerodinâmicos; não reaplica o modificador aero 031. Limites teóricos sobre tempo equivalente local: vácuo -1,4%, ar sujo +2%, cautela molhada +0,5%. Não são perdas medidas de downforce ou arrasto nem ganhos de volta inteira; sem CFD, calibração 2012 ou modelo térmico novo. Curvas reduzem vácuo, água reduz a vantagem e aumenta cautela. Coeficientes sujeitos à homologação e balanceamento.
+- Diagnóstico por carro `aero_wake_032` no snapshot esportivo (fonte, distância estimada, exposição, modificadores), não muda schema de save; flag excluída dos checkpoints. Preserva revisões 031 e anteriores. Não altera direção para buscar vácuo nem força ultrapassagem. As regras antigas de espaçamento permanecem autoritativas.
+- Referências conceituais: https://www.racecar-engineering.com/tech-explained/slipstream-and-dirty-air-explained/ e https://www.mclaren.com/racing/latest-news/mclarenracing/article/rookies-guide-f1/. Sem código externo.
+- QA: fixture física e integração com solver, A/B de Monza, Silverstone, Mônaco e Monza molhado, contagem de exposição, inversões, sobreposição, paradas e ultrapassagens; hash 031 independente, replay 031/032 e seek; FAST + Test Lab, pit agendado. CI dedicada 1800 ticks por cenário. Não equivale a GP completo ou prova de naturalidade visual universal. Resultados no PR do SHA exato.
+
+Rollback: main base acima. Não publicar retratos privados ou release, nem fazer merge sem homologação.
+
+
+## REV2 — revisão esportiva 033 (candidata)
+
+A revisão 032 selecionava a maior exposição de ar sujo mesmo em reta. A 033 escolhe a maior magnitude efetiva entre vácuo e ar sujo + cautela, com desempate estável por ID e fonte única. Coeficientes e direção permanecem inalterados. Replays 031 e 032 mantêm seus caminhos históricos; flag de revisão excluída do codec. O campo de diagnóstico aero_wake_032 mantém o nome para compatibilidade.
+
+QA acrescentado: fixture de três carros, ordem estável, empate, chuva, frenagem e retardatários; tolerância agregada de 10% (piso 2) e por piloto (piso 3), 30 comparativos de seis minutos, GPs completos direcionados e câmera P15 030/031/032/033 com renderer Compatibility em ambiente virtual. Tempo de motor e memória estática amostrada registrados; não representam GPU física ou benchmark de velocidade de apresentação. Resultados dependem dos jobs no SHA exato; nenhum PASS antecipado. Rollback: commit a6a272a4 ou main 6293a5b1. Não publicar retratos privados.
+
+Hashes históricos recuperados dos logs da CI da candidata original (Monza seco, 1800 ticks, seed 42): 031 `0174f579e29d197c24df060340a95147407eb8bcaecc90f0e56ca0f3f265dab9`; 032 `7d40eff8b5285682a7aa5165d96fb91b0f4dc7366c0ff17b9d367baa6e4bcbc9`. A REV2 deve reproduzir ambos exatamente. Adicionado contador de inversões rápidas individuais e ensaio climático variável. GPs longos são opt-in em PRs posteriores (ci:aero-full). A CI gera ZIP de código-fonte rastreado e SHA-256; não equivale ao pacote privado de 48 retratos ou a build jogável validada.
+
+
+## REV3 — revisão esportiva 034 (candidata)
+
+CI da REV2 falhou em identidade numérica e critérios esportivos. GPs completos: ITA chuva 69→156 amostras estacionárias, 34→45 sobreposições; MON seco 25→114 e 5→7; GBR seco 25→37 e 10→21. Câmera e pacote passaram. Estas são contagens por tick, não incidentes independentes. A 034 mantém seleção efetiva 033 e coeficientes, limita convergências simultâneas, conserva faixa em retas não táticas com histerese, usa folga longitudinal progressiva e verifica abertura real antes de reincorporar um carro dos boxes. Nenhuma ordem de entrada nos boxes é alterada. Retenção de saída conta tempo real extra; telemetria histórica anterior é preservada. A busca de candidatos aero reutiliza o loop de vizinhos físicos em circuitos reais. Não há ganho de CPU declarado sem medição. Os limiares e hipóteses de causa exigem verificação na CI; não são evidência de regressões eliminadas.
+
+Mantidos critérios rígidos de segurança/zigue-zague, novas fixtures de convergência e saída, contagem separada de sobreposição no retorno dos boxes e amostras diagnósticas. Revisões 031–033 ficam isoladas por flags excluídas do codec. Identidade do projeto volta ao padrão numérico; REV3 consta da descrição e documentação. A CI deve passar no SHA exato antes de merge. Rollback: c86f921e ou main 6293a5b1.
+
+Complemento REV3: retenção de reincorporação possui campo próprio `pit_merge_hold_s` e `merge_hold` no histórico; não é contabilizada como falha de equipamento ou fila de garagem. Teste de máquina de estados verifica retenção, liberação única e tempo total. A identidade 034 permanece candidata, sem aprovação.
+
+
+## REV4 — revisão esportiva 035 (candidata)
+
+A REV3 passou o GP de Monza em chuva intensa (69→11 amostras estacionárias, 34→0 sobreposições, 25→0 sobreposições na reincorporação), câmera e pacote, mas falhou nas cinco seeds de Mônaco molhado por inversões laterais agregadas (2→28 seed 7, 0→16 seed 2026, 2→29 seed 42, 1→20 seed 19, 0→24 seed 123). Não houve sobreposição ou imobilização nesses cinco ensaios curtos. A hipótese de interação entre STRAIGHT_HOLD e linha própria em baixa aderência é tratada sem reduzir os limites de QA: acima de 45% de wetness, desativa-se a alternância de retenção em reta e a aquisição lateral de vácuo, preservando a linha própria contínua e as decisões táticas. Proteções de tráfego, física aero, reincorporação e regras secas permanecem. Nova fixture testa a política seca/molhada e aquisição lateral. GP de Mônaco molhado adicionado. Hash 034 Monza seco, seed 42, 1800 ticks, recuperado da CI: `067ec801e8bef03f137cfcadd229f2662cc400f8ccdbbe17f8ed45ffa1fc9e85`. Compatibilidade 031–034 exigida. Sem declaração de PASS da 035 antes de CI no SHA exato. Rollback: 8d283e93 ou main 6293a5b1.

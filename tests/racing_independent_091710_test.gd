@@ -47,7 +47,7 @@ func fixture():
  check(corner.mode=="FOLLOW" and corner.aim==-1.0,"independent curve line")
 func drive(data:Dictionary,track:Dictionary,modern:bool,climate:String,ticks:int)->Dictionary:
  var race=Race.new(data.teams,"Ferrari",42,{},track,{})
- race.independent_racecraft_enabled=modern;race.configure_weather(climate);race.running=true
+ race.aero_wake_enabled=false;race.independent_racecraft_enabled=modern;race.configure_weather(climate);race.running=true
  var travel:=0.0;var straight_travel:=0.0;var reverse_steer:=0;var side:=0;var aligned:=0;var near:=0;var overlaps:=0;var stopped:=0;var last_sign:Dictionary={};var initial:Dictionary={};var modes:Dictionary={};var max_step:=0.0
  for c in race.cars:initial[c.id]=int(c.grid)
  for tick in range(ticks):
@@ -108,7 +108,7 @@ func run():
  check(new.straight_reversals<=old.straight_reversals,"no steering reversal regression")
  check(new.hash!=old.hash,"new behavior exercised")
  if code=="ITA" and climate=="Seco":
-  for rev in [Replay.PRE_INDEPENDENT_SIMULATION_REVISION,Replay.SIMULATION_REVISION]:
+  for rev in [Replay.PRE_INDEPENDENT_SIMULATION_REVISION,Replay.PRE_AERO_WAKE_SIMULATION_REVISION]:
    var rec=Replay.new();rec.attach(Race.new(data.teams,"Ferrari",42,{},track,{}));rec.recorded_simulation_revision=rev
    for i in range(350):check(rec.step_tick(),"replay record")
    var play=Replay.new()
