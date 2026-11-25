@@ -559,47 +559,51 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 	for c in order:
 		var id := int(c.id)
 		var a: Dictionary=intents[id]
+		var own_lane: float=float(a.lane)
+		var own_progress: float=float(c.progress)
 		for other in order:
 			if other.id==id: continue
 			# Reject same-lane neighbors before computing circular distance.
-			if absf(float(a.lane)-float(other.get("race_lane",0)))<WIDTH-.01: continue
-			var gap := absf(MergeTraffic.relative_gap(float(c.progress),float(other.progress),length)) if hotfix else absf(float(c.progress)-float(other.progress))*length
+			var other_lane: float=float(other.get("race_lane",0))
+			if absf(own_lane-other_lane)<WIDTH-.01: continue
+			var gap := absf(MergeTraffic.relative_gap(own_progress,float(other.progress),length)) if hotfix else absf(own_progress-float(other.progress))*length
 			if gap<LENGTH+1:
 				a.goal=a.lane
 				break
-		var limit := minf(lane_limit(track,float(c.progress),shape),lane_limit(track,float(c.progress)+LENGTH*2/length,shape))
-		var wanted := move_toward(float(a.lane),clampf(float(a.goal),-limit,limit),dt*1.8)
+		var limit := minf(lane_limit(track,own_progress,shape),lane_limit(track,own_progress+LENGTH*2/length,shape))
+		var wanted := move_toward(own_lane,clampf(float(a.goal),-limit,limit),dt*1.8)
 		if independent_enabled and a.has("independent_memory") and is_equal_approx(float(a.goal),float(a.independent_memory.aim)):
 			wanted = float(a.independent_memory.wanted)
 		# Do not enter a third car's occupied corridor.
 		for other in order:
 			# An unchanged lane cannot newly cross a separated corridor.
-			if wanted==float(a.lane): break
+			if wanted==own_lane: break
 			if other.id==id:continue
-			if absf(float(a.lane)-float(other.get("race_lane",0)))<WIDTH: continue
-			var gap := absf(MergeTraffic.relative_gap(float(c.progress),float(other.progress),length)) if hotfix else absf(float(c.progress)-float(other.progress))*length
-			if gap<LENGTH+2 and corridor_crosses(float(a.lane),wanted,float(other.get("race_lane",0)),float(other.get("race_lane",0))):
-				if absf(float(a.lane)-float(other.get("race_lane",0)))>=WIDTH:
-					wanted=float(a.lane)
+			var other_lane: float=float(other.get("race_lane",0))
+			if absf(own_lane-other_lane)<WIDTH: continue
+			var gap := absf(MergeTraffic.relative_gap(own_progress,float(other.progress),length)) if hotfix else absf(own_progress-float(other.progress))*length
+			if gap<LENGTH+2 and corridor_crosses(own_lane,wanted,other_lane,other_lane):
+				if absf(own_lane-other_lane)>=WIDTH:
+					wanted=own_lane
 					# Never freeze BOTH cars in an exact same-progress, narrow-lane
 					# tie. Stable ID order grants one car the forward turn while the
 					# other yields, keeping the original no-squeeze lane constraint.
 					# This is an experimental diagnostic for the Monaco seed case.
 					var ahead_progress: float = float(other.progress)
-					var our_progress: float = float(c.progress)
+					var our_progress: float = own_progress
 					if hotfix:
 						# A stopped lateral move is not a reason for a second brake.
 						# queue_027 applies the single longitudinal yield later.
 						var relative: float = MergeTraffic.relative_gap(our_progress,ahead_progress,length)
-						if absf(float(a.lane))>limit and (relative>0.000001 or (absf(relative)<=0.000001 and not MergeTraffic.has_priority(c,other))):
+						if absf(own_lane)>limit and (relative>0.000001 or (absf(relative)<=0.000001 and not MergeTraffic.has_priority(c,other))):
 							a.state="recovering"
-					elif absf(float(a.lane))>limit and (
+					elif absf(own_lane)>limit and (
 						our_progress < ahead_progress or (
 						our_progress == ahead_progress and int(c.id) > int(other.id))):
 						a.driving_dt=float(a.driving_dt)*0.55 if merge_traffic_enabled else 0.0
 						a.state="recovering"
 		a.next_lane=wanted
-		a.next=float(c.progress)+float(a.driving_dt)/maxf(1,float(a.pace))
+		a.next=own_progress+float(a.driving_dt)/maxf(1,float(a.pace))
 	# Before entering a single corridor, the trailing side yields gradually.
 	# Only the trailing car's existing proposed displacement is reduced.
 	if merge_traffic_enabled:
