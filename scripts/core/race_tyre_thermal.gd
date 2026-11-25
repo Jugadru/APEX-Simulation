@@ -23,7 +23,7 @@ static func reset(car: Dictionary, weather_now: Dictionary) -> void:
     car["thermal_wear_scale"] = 1.0
     car["tyre_heat"] = 0.0
 
-static func advance(car: Dictionary, weather_now: Dictionary, characteristics: Dictionary, dt: float, target_lap: float) -> Dictionary:
+static func advance(car: Dictionary, weather_now: Dictionary, characteristics: Dictionary, dt: float, target_lap: float, traffic_lift: float = 0.0) -> Dictionary:
     var name: String = str(car.get("tire", "Médio"))
     var b: Array = band(name)
     var low: float = float(b[0]); var high: float = float(b[1])
@@ -36,6 +36,7 @@ static func advance(car: Dictionary, weather_now: Dictionary, characteristics: D
     var is_wet: bool = name in ["Intermediário","Chuva"]
     var dry_on_wet: float = wet * (12.0 if is_wet else 34.0)
     var target_surface: float = 53.0 + asphalt * 0.88 + (intensity - 1.0) * 16.0 + (load - 1.0) * 13.0 + (traction - 1.0) * 6.0 - dry_on_wet
+    target_surface -= clampf(traffic_lift,0.0,.025)*60.0
     if is_wet:
         target_surface -= 6.0
         # Grooved tyres overheat when the racing line dries.

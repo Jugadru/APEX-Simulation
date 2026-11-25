@@ -1,8 +1,8 @@
-# APEX Motorsport Manager — Core 2 v0.6.6.9.20 (candidata)
+# APEX Motorsport Manager — Core 2 v0.6.6.9.20.1 (candidata)
 
-**Candidata desta branch:** Driver Traffic Intelligence — cessão de passagem preventiva em tráfego de retardatários. Revisão esportiva 038; histórico 037 preservado. [Escopo e testes](docs/APEX_RELEASE_v0.6.6.9.20_DRIVER_TRAFFIC.md).
+**Candidata:** Driver Traffic Intelligence 2.0 — percepção, grupos, DRS, conservação, bandeiras azuis, estratégia e rádio. Revisão esportiva 039, histórico 038 preservado. [Escopo](docs/APEX_RELEASE_v0.6.6.9.20.1_TRAFFIC_MEGA.md).
 
-**Versão integrada: v0.6.6.9.19 REV4 — Corner Battle Intelligence.** [PR #129](https://github.com/Jugadru/APEX-Simulation/pull/129), merge `b234d600`. Retratos privados opcionais; não redistribuir fotografias sem licença. A 9.20 permanece candidata até homologação.
+**Versão integrada: v0.6.6.9.20.** [PR #130](https://github.com/Jugadru/APEX-Simulation/pull/130), merge `c552c9d9`. Sem redistribuição de ativos privados. Candidata até homologação.
 
 A convergência preventiva antes de estreitamentos eliminou as 7 amostras estacionárias esportivas observadas nos 24 cenários testados, sem diminuir as 25 ultrapassagens reais. O grid, a interpolação da 9.17.3, as regras de 2012 e a gravação de replay desligada por padrão permanecem. A frequência de carros lado a lado ainda requer melhorias futuras.
 
