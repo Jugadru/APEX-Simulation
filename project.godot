@@ -10,8 +10,8 @@ config_version=5
 
 [application]
 
-config/name="APEX Motorsport Manager v0.6.6.9.17.11 — Core 2"
-config/description="v0.6.6.9.17.11: REV4 Slipstream & Dirty Air 1.0 — exposição aerodinâmica e ritmo local (Godot 4.7.2)."
+config/name="APEX Motorsport Manager v0.6.6.9.17.12 — Core 2"
+config/description="v0.6.6.9.17.12: Coordenação entre trajetória, ataque e defesa (Godot 4.7.2)."
 run/main_scene="res://scenes/main.tscn"
 config/use_custom_user_dir=true
 config/custom_user_dir_name="APEX_0650_SOUL_STAFF"

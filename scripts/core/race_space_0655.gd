@@ -9,6 +9,7 @@ const LENGTH := 6.4
 const WIDTH := 2.95
 const MAX_LANE := 2.95
 const AeroWake = preload("res://scripts/core/race_aero_wake_091711.gd")
+const Coordination = preload("res://scripts/core/race_tactical_coordination_091712.gd")
 const Independent = preload("res://scripts/core/race_independent_racecraft_091710.gd")
 const MergeTraffic = preload("res://scripts/core/race_merge_traffic_0669174.gd")
 
@@ -102,13 +103,14 @@ static func straight_hold_allowed(load: float, ahead_load: float, held: bool, na
 
 static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,shape: Dictionary, weather: Dictionary = {}, traffic_enabled: bool = true, soul3_enabled: bool = false,
 		overtaking_enabled: bool = false, competitive_start_enabled: bool = false,
-		start_clock_s: float = 0.0, merge_traffic_enabled: bool = false, traffic_hotfix_enabled: bool = false, following_enabled: bool = false, completion_enabled: bool = false, independent_enabled: bool = false, aero_wake_enabled: bool = false, aero_wake_corrected: bool = true, wake_stability: bool = false, wet_line_stability: bool = false) -> Dictionary:
+		start_clock_s: float = 0.0, merge_traffic_enabled: bool = false, traffic_hotfix_enabled: bool = false, following_enabled: bool = false, completion_enabled: bool = false, independent_enabled: bool = false, aero_wake_enabled: bool = false, aero_wake_corrected: bool = true, wake_stability: bool = false, wet_line_stability: bool = false, coordination_enabled: bool = false) -> Dictionary:
 	var length: float=shape.length
 	following_enabled = following_enabled and start_clock_s>=24.0
 	completion_enabled = completion_enabled and following_enabled
 	independent_enabled = independent_enabled and completion_enabled
 	aero_wake_enabled = aero_wake_enabled and independent_enabled
 	wake_stability = wake_stability and aero_wake_enabled
+	coordination_enabled = coordination_enabled and independent_enabled
 	var hotfix: bool = merge_traffic_enabled and traffic_hotfix_enabled
 	# 06686: RaceEngine normally supplies a sorted frozen sporting snapshot.
 	# Filtering out inactive cars preserves its order. Avoid sorting 24
@@ -215,6 +217,7 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 				d.goal = float(traffic.yield_lane)
 				d.defending = id
 				d.defense_line = float(d.goal)
+				if coordination_enabled: d["defense_origin"]="blue_flag"
 		# A player-approved order may suppress only an EARLY aggressive block.
 		# Already occupied lanes, overlap, third cars and safety still apply.
 		if int(ahead.get("team_yield_to_id", -1)) == id \
@@ -230,7 +233,7 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 			var memory: Dictionary = c.get("racecraft_memory",{})
 			# Keep the chosen attacking side until the manoeuvre ends. A blocked
 			# corridor cancels the attack instead of immediately switching sides.
-			if bool(tactic.commit) and int(memory.get("attack_target",-1))==rival and str(memory.get("attack_side","")) not in ["",str(tactic.side)]:
+			if bool(tactic.commit) and (Coordination.side_locked(c,rival) if coordination_enabled else int(memory.get("attack_target",-1))==rival) and str(memory.get("attack_side","")) not in ["",str(tactic.side)]:
 				tactic.commit=false
 			if str(memory.get("mode",""))=="ABORT" and float(memory.get("timer",0.0))>0.0:
 				tactic.commit=false
@@ -245,15 +248,18 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 					if (g*predicted<=0.0 or minf(absf(g),absf(predicted))<LENGTH+2.0) and absf(float(tactic.attack_goal)-float(third.get("race_lane",0.0)))<WIDTH-0.01:
 						tactic.commit=false
 						break
-		if int(d.defending) < 0:
+		var rival_attacking: bool=coordination_enabled and str(d.state) in Independent.ATTACK
+		if int(d.defending) < 0 and not rival_attacking:
 			# Once the cars approach overlap, the defender must HOLD its actual
 			# lane. No late squeeze or return to the racing line during a duel.
 			if gap <= LENGTH + 4.0 and (not following_enabled or (gap < LENGTH+1.0 and absf(float(a.lane)-float(d.lane))>=WIDTH-0.01) or bool(tactic.commit)):
 				d.goal = float(d.lane)
 				d.defending = id
 				d.defense_line = float(d.lane)
+				if coordination_enabled: d["defense_origin"]="overlap" if gap<LENGTH+1.0 else "attack"
 			elif bool(tactic.defense) and (not following_enabled or bool(tactic.commit)) and str(d.state) not in ["attacking", "duel", "preparing"]:
-				d.goal = clampf(float(tactic.defend_goal),-limit,limit)
+				d.goal = Coordination.defense_goal(ahead,id,gap,float(tactic.defend_goal),limit) if coordination_enabled else clampf(float(tactic.defend_goal),-limit,limit)
+				if coordination_enabled: d["defense_origin"]="attack"
 				d.defending = id
 				d.defense_line = float(d.goal)
 				d.defense_event = bool(int(ahead.get("race_defending_against",-1)) != id and absf(float(d.goal)-float(d.lane)) > 0.15)
@@ -264,25 +270,29 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 				a.event = "yield"
 			continue
 		if int(d.defending) >= 0 and int(d.defending) != id: continue
-		var defend_lane: float = float(d.goal) if int(d.defending) == id else float(d.lane)
+		var defend_lane: float = float(d.goal) if int(d.defending) == id or rival_attacking else float(d.lane)
 		if absf(float(tactic.attack_goal)-defend_lane) < WIDTH - 0.004:
 			if str(c.get("combat_state","")) in ["preparing","attacking","duel"]: a.event="yield"
 			continue
 		a.goal = float(tactic.attack_goal)
+		if coordination_enabled: a["committed_goal"]=float(a.goal)
 		a.state = "preparing" if absf(float(a.lane)-defend_lane) < WIDTH else ("duel" if gap < LENGTH*2.0 else "attacking")
 		a.defender_id = rival
 		a.side = str(tactic.side)
 		a.margin = float(tactic.margin_m)
 		if previous_target != rival or str(c.get("combat_state","clear")) not in ["preparing","attacking","duel"]:
 			a.event = "attack"
-		if int(d.defending) < 0:
+		if int(d.defending) < 0 and not rival_attacking:
 			d.defending = id
+			if coordination_enabled: d["defense_origin"]="attack"
 			d.goal = float(d.lane) # Too late to make a new defensive move.
 			d.defense_line = float(d.lane)
 		if str(d.state) == "clear": d.state = "defending"
 		# Every duel has a small, symmetric time cost; no boost is granted.
 		a.pace += 0.22
 		d.pace += 0.08
+	if coordination_enabled:
+		Coordination.resolve(order,intents)
 	# 029: close the loop after tactical commitment. A driver who cannot
 	# make a real attack yields longitudinally before seeking the leader's wake.
 	# The unchanged occupancy solver decides whether the lane is safe.
@@ -438,6 +448,8 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 		if independent_enabled and a.has("independent_memory"):
 			var memory: Dictionary = a.independent_memory.duplicate()
 			memory.erase("wanted")
+			if coordination_enabled and a.has("coordination_reason"):
+				memory["coordination_reason"]=a.coordination_reason
 			if str(a.state) in Independent.ATTACK:
 				memory["attack_target"]=int(a.target)
 				memory["attack_side"]=str(a.side)
