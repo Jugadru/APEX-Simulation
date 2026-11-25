@@ -133,7 +133,7 @@ static func diagnose(car: Dictionary, weather: Dictionary) -> Dictionary:
 		"TRAFFIC":
 			advice = "Traffic may be costing us time. Let's look for clean air."
 			priority = 2
-	return {"cause": cause, "causes": causes, "priority": priority, "confidence": "LIMITED" if cause == "UNKNOWN" or causes.size() > 1 else "SUPPORTED", "advice": advice, "booked_lap": booked, "recovery_mode": mode, "wear": wear, "wetness": wet, "tire": tire, "temperature": temperature, "dirty_fraction": float(aero.get("dirty_fraction", 0.0))}
+	return {"cause": cause, "causes": causes, "priority": priority, "confidence": "LIMITED" if cause == "UNKNOWN" or causes.size() > 1 else "SUPPORTED", "advice": advice, "booked_lap": booked, "recovery_mode": mode, "interrupted_count": int(e.get("interrupted_count", 0)), "wear": wear, "wetness": wet, "tire": tire, "temperature": temperature, "dirty_fraction": float(aero.get("dirty_fraction", 0.0))}
 
 static func answer(topic: String, car: Dictionary, weather: Dictionary) -> String:
 	if car.is_empty():
@@ -354,7 +354,7 @@ func observe(car: Dictionary, weather: Dictionary, now: float, staff: Dictionary
 		if now - float(candidate.get("since", now)) < float(8 - int(p.competence) * 2):
 			return
 	observed_candidates.erase(id)
-	if previous == "RECOVERY" and str(d.recovery_mode) in ["REBUILD", "NORMAL"] and float(car.get("pit_left", 0.0)) <= 0.0:
+	if previous == "RECOVERY" and str(d.recovery_mode) in ["REBUILD", "NORMAL"] and int(d.interrupted_count) == int(current.get("interrupted_count", 0)) and float(car.get("pit_left", 0.0)) <= 0.0:
 		offer(id, "RECOVERY_FOLLOWUP", "Pace recovery noted. Keep building from here.", 2, now, -1, d, "ENGENHEIRO", str(current.get("conversation_id", "")))
 	if previous != "UNKNOWN" and previous != "RECOVERY" and cause == "UNKNOWN":
 		offer(id, previous + "_FOLLOWUP", "That indicator has settled. We'll keep monitoring.", 3, now, -1, d, "ENGENHEIRO", str(current.get("conversation_id", "")))
@@ -363,7 +363,7 @@ func observe(car: Dictionary, weather: Dictionary, now: float, staff: Dictionary
 		return
 	if cause == "RECOVERY":
 		# Engine 040 already reports the initial error and recovery. Do not invent a second incident.
-		active[id] = {"cause": cause, "conversation_id": "%d:recovery:%d" % [id, int((car.get("driver_error_0921", {}) as Dictionary).get("count", 0))]}
+		active[id] = {"cause": cause, "interrupted_count": int(d.interrupted_count), "conversation_id": "%d:recovery:%d" % [id, int((car.get("driver_error_0921", {}) as Dictionary).get("count", 0))]}
 		return
 	if offer(id, cause, str(d.advice), int(d.priority), now, -1, d):
 		active[id] = {"cause": cause, "conversation_id": "%d:%d" % [id, serial]}
