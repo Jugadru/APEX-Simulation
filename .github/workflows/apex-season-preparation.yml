@@ -21,10 +21,11 @@ jobs:
       LIBGL_ALWAYS_SOFTWARE: '1'
       GALLIUM_DRIVER: llvmpipe
     steps:
-      - uses: actions/checkout@v4
-      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: chickensoft-games/setup-godot@ac93246ea68518a384c1c280a496e5989341f2f6 # v2.4.3
         with:
-          version: 4.7.2-stable
+          version: '4.7.2'
+          use-dotnet: false
       - run: sudo apt-get update && sudo apt-get install -y xvfb libgl1 libgl1-mesa-dri
       - run: |
           set -euo pipefail
@@ -37,7 +38,7 @@ jobs:
           timeout 300s xvfb-run -a -s '-screen 0 1920x1080x24' godot --path . --rendering-method gl_compatibility --rendering-driver opengl3 --audio-driver Dummy --script res://tests/season_preparation_09179_test.gd 2>&1 | tee qa/season_preparation_09179/native.log
           grep -Fq SEASON_PREPARATION_09179_PASS qa/season_preparation_09179/native.log
           ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' qa/season_preparation_09179/native.log
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: apex-season-preparation-native

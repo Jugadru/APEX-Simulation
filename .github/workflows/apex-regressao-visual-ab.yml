@@ -29,23 +29,24 @@ jobs:
 
     steps:
       - name: Baixar versao de referencia
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: baseline
           ref: ${{ github.event.pull_request.base.sha || inputs.baseline_ref || 'main' }}
           persist-credentials: false
 
       - name: Baixar versao candidata
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: candidate
           ref: ${{ github.event.pull_request.head.sha || inputs.candidate_ref || github.sha }}
           persist-credentials: false
 
       - name: Preparar Godot 4.7.2
-        uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c # v3.0.1
+        uses: chickensoft-games/setup-godot@ac93246ea68518a384c1c280a496e5989341f2f6 # v2.4.3
         with:
-          version: 4.7.2-stable
+          version: '4.7.2'
+          use-dotnet: false
 
       - name: Instalar ambiente grafico e Pillow
         run: |
@@ -103,7 +104,7 @@ jobs:
           mkdir -p "$HOME" "$XDG_DATA_HOME" "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME"
           xvfb-run -a -s '-screen 0 1920x1080x24' \
             godot --single-threaded-scene --path baseline \
-              --rendering-method gl_compatibility \
+              --audio-driver Dummy --rendering-method gl_compatibility \
               --rendering-driver opengl3 \
               --script res://tests/ci/apex_capture_screenshots.gd \
             2>&1 | tee visual-regression/baseline/capture.log
@@ -124,7 +125,7 @@ jobs:
           mkdir -p "$HOME" "$XDG_DATA_HOME" "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME"
           xvfb-run -a -s '-screen 0 1920x1080x24' \
             godot --single-threaded-scene --path candidate \
-              --rendering-method gl_compatibility \
+              --audio-driver Dummy --rendering-method gl_compatibility \
               --rendering-driver opengl3 \
               --script res://tests/ci/apex_capture_screenshots.gd \
             2>&1 | tee visual-regression/candidate/capture.log
@@ -156,7 +157,7 @@ jobs:
 
       - name: Salvar imagens base, candidatas, diffs e relatorios
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: apex-regressao-visual-ab
           path: visual-regression/

@@ -30,10 +30,11 @@ jobs:
       APEX_AERO_TICKS: '1800'
       APEX_AERO_SEED: ${{ matrix.seed }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: chickensoft-games/setup-godot@ac93246ea68518a384c1c280a496e5989341f2f6 # v2.4.3
         with:
-          version: 4.7.2-stable
+          version: '4.7.2'
+          use-dotnet: false
       - run: bash tools/apex_ci_import.sh import.log
       - run: |
           set -euo pipefail
@@ -42,7 +43,7 @@ jobs:
           bash tools/apex_ci_isolated_test.sh aero_wake_091711_test.gd 2>&1 | tee driver_error.log
           grep -Fq AERO_WAKE_091711_PASS driver_error.log
           ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' fixture.log driver_error.log
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: apex-driver-error-${{ matrix.track }}-${{ matrix.climate }}-${{ matrix.seed }}

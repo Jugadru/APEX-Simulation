@@ -32,17 +32,18 @@ jobs:
     env:
       APEX_TRAFFIC_SEED: ${{ matrix.seed }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: chickensoft-games/setup-godot@ac93246ea68518a384c1c280a496e5989341f2f6 # v2.4.3
         with:
-          version: 4.7.2-stable
+          version: '4.7.2'
+          use-dotnet: false
       - run: bash tools/apex_ci_import.sh import.log
       - run: |
           set -euo pipefail
           bash tools/apex_ci_isolated_test.sh race_traffic_hotfix_09177_test.gd 2>&1 | tee traffic.log
           grep -Fq TRAFFIC_09177_PASS traffic.log
           ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' traffic.log
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: apex-traffic-${{ matrix.seed }}
@@ -55,10 +56,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
-      - uses: actions/checkout@v4
-      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: chickensoft-games/setup-godot@ac93246ea68518a384c1c280a496e5989341f2f6 # v2.4.3
         with:
-          version: 4.7.2-stable
+          version: '4.7.2'
+          use-dotnet: false
       - run: bash tools/apex_ci_import.sh import.log
       - run: |
           set -euo pipefail
@@ -68,7 +70,7 @@ jobs:
           bash tools/apex_ci_isolated_test.sh traffic_road_width_09177_test.gd 2>&1 | tee road-width.log
           grep -Fq TRAFFIC_ROAD_WIDTH_09177_PASS road-width.log
           ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' road-width.log
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: apex-traffic-motion
@@ -88,17 +90,18 @@ jobs:
     env:
       APEX_VISUAL_TRACK: ${{ matrix.track }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: chickensoft-games/setup-godot@ac93246ea68518a384c1c280a496e5989341f2f6 # v2.4.3
         with:
-          version: 4.7.2-stable
+          version: '4.7.2'
+          use-dotnet: false
       - run: bash tools/apex_ci_import.sh import.log
       - run: |
           set -euo pipefail
           bash tools/apex_ci_isolated_test.sh traffic_visual_ab_09177_test.gd 2>&1 | tee visual-ab.log
           grep -Fq TRAFFIC_VISUAL_AB_09177_PASS visual-ab.log
           ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' visual-ab.log
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: apex-visual-ab-${{ matrix.track }}
@@ -111,17 +114,18 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
-      - uses: actions/checkout@v4
-      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: chickensoft-games/setup-godot@ac93246ea68518a384c1c280a496e5989341f2f6 # v2.4.3
         with:
-          version: 4.7.2-stable
+          version: '4.7.2'
+          use-dotnet: false
       - run: bash tools/apex_ci_import.sh import.log
       - run: |
           set -euo pipefail
           bash tools/apex_ci_isolated_test.sh traffic_space_ab_09177_test.gd 2>&1 | tee space-ab.log
           grep -Fq TRAFFIC_SPACE_AB_09177_PASS space-ab.log
           ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' space-ab.log
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: apex-space-ab
@@ -159,17 +163,18 @@ jobs:
       APEX_TRAFFIC_SEED: ${{ matrix.seed }}
       APEX_ARC_CLIMATE: ${{ matrix.climate }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: chickensoft-games/setup-godot@ac93246ea68518a384c1c280a496e5989341f2f6 # v2.4.3
         with:
-          version: 4.7.2-stable
+          version: '4.7.2'
+          use-dotnet: false
       - run: bash tools/apex_ci_import.sh import.log
       - run: |
           set -euo pipefail
           bash tools/apex_ci_isolated_test.sh traffic_arc_09177_test.gd 2>&1 | tee arc.log
           grep -Fq TRAFFIC_ARC_09177_PASS arc.log
           ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' arc.log
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: apex-arc-${{ matrix.track }}-${{ matrix.seed }}-${{ matrix.pipeline }}
@@ -188,10 +193,11 @@ jobs:
     env:
       APEX_TRACK: ${{ matrix.track }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: chickensoft-games/setup-godot@ac93246ea68518a384c1c280a496e5989341f2f6 # v2.4.3
         with:
-          version: 4.7.2-stable
+          version: '4.7.2'
+          use-dotnet: false
       - run: bash tools/apex_ci_import.sh import.log
       - run: |
           set -euo pipefail
@@ -202,7 +208,7 @@ jobs:
           timeout 900s godot --headless --single-threaded-scene --path . --script res://tests/race_traffic_full_gp_09177_test.gd 2>&1 | tee gp.log
           grep -Fq TRAFFIC_FULL_GP_09177_PASS gp.log
           ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' gp.log
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: apex-full-gp-${{ matrix.track }}
