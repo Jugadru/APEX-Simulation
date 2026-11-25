@@ -157,6 +157,7 @@ static func _update_game_ui(host) -> void:
 	var state: Dictionary = host.garage.get_team(host.selected_team)
 	var track: Dictionary = host.season_tracks[host.selected_track_index]
 	host.garage_readout.text = "%s\n\nMotor N%d • Asa N%d • Chassi N%d\n\nEQUIPE BOXES\nAgilidade N%d • Precisão N%d • Coordenação N%d\nServiço estimado: -%.2fs • Dock -%.2fs\n\nSaldo: R$ %.2f milhões\n\n%s\n%d voltas • %.3f km por volta\nBase IA: ~%s" % [host.selected_team, state["levels"]["Motor"], state["levels"]["Asa"], state["levels"]["Chassi"], state["crew_levels"]["Agilidade"], state["crew_levels"]["Precisão"], state["crew_levels"]["Coordenação"], float(host.race.get_pit_crew_effects()["service_saving"]), float(host.race.get_pit_crew_effects()["dock_saving"]), float(state["budget"]) / 1000000.0, str(track["name"]), int(track["laps"]), float(track["lap_km"]), host._format_lap(float(track["base_lap"]))]
+	host.commentary.radio_speed = float(host.sim_speed)
 	if host.commentary.ingest(host.race, host.selected_team):
 		host._render_commentary()
 	host.info_label.text = "%s\n\nVisual: %s\nModo efetivo: %s\nÂngulo: %s\nTecla M alterna visual; mouse move a câmera em modo Livre." % [host.director.reason, VISUAL_OPTIONS[host.visual_setting], "Câmera 3D" if host.render_mode == 1 else "Mapa estratégico", str(host.director.camera_style) if host.tv_shot_override == "Automático" else host.tv_shot_override]
