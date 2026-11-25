@@ -276,21 +276,48 @@ func remember_delivery(packet: Dictionary) -> void:
 		relationship["exchanges"] = int(relationship.get("exchanges", 0)) + 1
 	relationships[id] = relationship
 
-func record_legacy(at: float, role: String, text: String, kind: String, car_id: int) -> Dictionary:
-	# Existing synchronous radio consultations are immediately delivered,
-	# but use the same bounded history and packet contract as queued traffic.
+func legacy_packet(at: float, role: String, text: String, kind: String, car_id: int, metadata: Dictionary = {}) -> Dictionary:
 	if text.is_empty() or is_system(text, kind):
 		return {}
 	serial += 1
 	var p: Dictionary = profile({"id": car_id}, staff_context)
 	var words: String = text
-	if words.begins_with("Para ") or words.begins_with("RÁDIO FICTÍCIO |") or words.begins_with("RADIO FICTICIO |"):
+	if words.begins_with("Para ") or words.begins_with("RÁDIO FICTÍCIO |") or words.begins_with("RADIO FICTICIO |") or words.begins_with("ENGENHEIRO |"):
 		var separator: int = words.find(": ")
 		if separator >= 0:
 			words = words.substr(separator + 2)
-	var packet: Dictionary = {"message_id": serial, "conversation_id": "%d:legacy:%d" % [car_id, serial], "car_id": car_id, "intent": kind, "sender": role, "priority": 2 if kind == "engineer_reply" else 3, "created": at, "expires": at + 20.0, "source_event_id": -1, "evidence": {}, "text": text, "command_authorized": false, "voice_profile_id": "apex_original_driver_%d" % car_id if role == "PILOTO" else str(p.voice_profile_id), "subtitle": text, "subtitle_pt": subtitle(words), "locale": language(words), "speech_text": words, "audio_channel": "TEAM_RADIO", "interruptible": true}
-	remember_delivery(packet)
+	var raw: Dictionary = metadata.get("radio3", {})
+	if not raw.is_empty():
+		words = str(raw.get("text", words))
+	var priority: int = int(metadata.get("priority", 2 if kind == "engineer_reply" else 3))
+	var cid: String = str(metadata.get("conversation_id", "%d:legacy:%.3f" % [car_id, at]))
+	if cid.is_empty():
+		cid = "%d:legacy:%.3f" % [car_id, at]
+	return {"message_id": serial, "conversation_id": cid, "car_id": car_id, "intent": kind, "sender": role, "priority": priority, "created": at, "expires": at + (35.0 if priority <= 1 else 20.0), "source_event_id": int(metadata.get("source_event_id", -1)), "evidence": {}, "text": text, "command_authorized": false, "voice_profile_id": "apex_original_driver_%d" % car_id if role == "PILOTO" else str(p.voice_profile_id), "subtitle": text, "subtitle_pt": subtitle(words), "locale": str(raw.get("locale", language(words))), "speech_text": words, "audio_channel": "TEAM_RADIO", "interruptible": priority > 1, "legacy_kind": kind, "radio3": raw.duplicate(true)}
+
+func record_legacy(at: float, role: String, text: String, kind: String, car_id: int) -> Dictionary:
+	# Explicit player consultations stay synchronous; all use the shared packet.
+	var packet: Dictionary = legacy_packet(at, role, text, kind, car_id)
+	if not packet.is_empty():
+		remember_delivery(packet)
 	return packet
+
+func enqueue_legacy(at: float, role: String, text: String, kind: String, car_id: int, metadata: Dictionary = {}) -> bool:
+	var packet: Dictionary = legacy_packet(at, role, text, kind, car_id, metadata)
+	if packet.is_empty():
+		return false
+	# Critical messages may displace obsolete chatter. Prefer the oldest
+	# low-priority pending item, without reordering messages of equal priority.
+	if pending.size() >= MAX_PENDING:
+		var worst: int = 0
+		for i in range(1, pending.size()):
+			if int(pending[i].priority) > int(pending[worst].priority):
+				worst = i
+		if int(pending[worst].priority) <= int(packet.priority):
+			return false
+		pending.remove_at(worst)
+	pending.append(packet)
+	return true
 
 func observe(car: Dictionary, weather: Dictionary, now: float, staff: Dictionary = {}) -> void:
 	if car.is_empty() or bool(car.get("finished", false)) or float(car.get("pit_left", 0.0)) > 0.0:
