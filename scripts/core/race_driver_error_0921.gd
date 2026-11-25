@@ -16,11 +16,14 @@ const SPECS={
 # Counter-based random draws: no access to RaceEngine.rng.state.
 # Arithmetic stays in signed 64-bit range; stable across replay seek.
 static func sample(seed:int,id:int,tick:int,channel:int)->float:
- var x:int=posmod(seed,2147483647)
- x=posmod(x*48271+id*69621+tick*104729+channel*15485863,2147483647)
- x=posmod(x*48271+12820163,2147483647)
- x=posmod(x*48271+71317,2147483647)
- return float(x)/2147483647.0
+ var x:int=posmod(seed,4294967296)
+ x=(x ^ ((id*73856093)&0xffffffff) ^ ((tick*19349663)&0xffffffff) ^ ((channel*83492791)&0xffffffff))&0xffffffff
+ # Two integer avalanche rounds: adjacent ticks/channels do not form
+ # an affine sequence. Multiplication remains below signed 64-bit range.
+ x=((x^(x>>16))*0x45d9f3b)&0xffffffff
+ x=((x^(x>>16))*0x45d9f3b)&0xffffffff
+ x=(x^(x>>16))&0xffffffff
+ return float(x)/4294967296.0
 
 static func context(car:Dictionary,metrics:Dictionary,weather:Dictionary,dt:float)->Dictionary:
  var old:Dictionary=car.get(KEY,{})
@@ -48,8 +51,10 @@ static func context(car:Dictionary,metrics:Dictionary,weather:Dictionary,dt:floa
  var wear:float=clampf(float(car.get("wear",0.0))/100.0,0,1)
  var mismatch:float=wet if str(car.get("tire","Médio")) not in ["Intermediário","Chuva"] else maxf(0.0,.25-wet)
  var grip:float=clampf(1.0-float(weather.get("grip_factor",1.0)),0,1)
- var setup:Dictionary=Setup.evaluate(car.get("race_setup_15",{}),weather)
- var setup_cost:float=clampf((float(setup.brake_s)+float(setup.mechanical_s)+float(setup.aero_corner_s))/.55,-1,1)
+ var setup_cost:float=0.0
+ if phase!="STRAIGHT":
+  var setup:Dictionary=Setup.evaluate(car.get("race_setup_15",{}),weather)
+  setup_cost=clampf((float(setup.brake_s)+float(setup.mechanical_s)+float(setup.aero_corner_s))/.55,-1,1)
  var pace:float=1.65 if str(car.get("pace","Normal"))=="Atacar" else (.55 if str(car.get("pace","Normal"))=="Conservar" else 1.0)
  var hazard:float=.00032*pace*(.65+.75*risk+.65*(1.0-consistency)+.50*(1.0-focus)+.25*(1.0-confidence)+1.2*pressure+1.4*wear*wear+thermal+1.5*grip+1.8*wet*(1.0-wet_skill)+3.2*mismatch+.45*setup_cost)
  hazard=clampf(hazard,0.0,.0045) if phase!="STRAIGHT" else 0.0
@@ -80,7 +85,7 @@ static func begin(state:Dictionary,kind:String,ctx:Dictionary,u:float)->Dictiona
  # Integral = .625 * peak * duration, exactly the requested nominal loss.
  var peak:float=float(spec[2])
  var duration:float=loss/(.625*peak)
- out.merge({"mode":"ERROR","kind":kind,"elapsed":0.0,"duration":duration,"peak":peak,"planned_loss":loss,"event_loss":0.0,"rebuild_left":5.0+5.0*(1.0-quality)+3.0*float(ctx.wet),"cooldown":maxf(8.0,12.0-4.0*float(ctx.risk)),"confidence_hit":minf(.12,.015+loss*.012),"count":int(state.get("count",0))+1,"started":true,"completed":false,"interrupted":false},true)
+ out.merge({"mode":"ERROR","kind":kind,"elapsed":0.0,"duration":duration,"peak":peak,"planned_loss":loss,"event_loss":0.0,"rebuild_left":5.0+5.0*(1.0-quality)+3.0*float(ctx.wet),"rebuild_duration":5.0+5.0*(1.0-quality)+3.0*float(ctx.wet),"radio_announced":false,"cooldown":maxf(8.0,12.0-4.0*float(ctx.risk)),"confidence_hit":minf(.12,.015+loss*.012),"count":int(state.get("count",0))+1,"started":true,"completed":false,"interrupted":false},true)
  var counts:Dictionary=state.get("counts",{}).duplicate()
  counts[kind]=int(counts.get(kind,0))+1;out["counts"]=counts
  return out
@@ -98,11 +103,12 @@ static func advance(car:Dictionary,metrics:Dictionary,weather:Dictionary,dt:floa
  var ctx:Dictionary=context(car,metrics,weather,dt)
  out["pressure"]=ctx.pressure;out["hazard"]=ctx.hazard;out["phase"]=ctx.phase
  out["mode"]=str(out.get("mode","NORMAL"))
- out["speed_fraction"]=1.0;out["suppress_attack"]=false
+ out["speed_fraction"]=1.0;out["suppress_attack"]=false;out["confidence_delta"]=0.0
  if str(out.mode)=="NORMAL":
   out["cooldown"]=maxf(0.0,float(out.get("cooldown",0.0))-dt)
-  if clock>=24.0 and float(car.get("progress",0.0))>=0.0 and float(out.cooldown)<=0.0 and not bool(car.get("pit_request",false)) and float(car.get("combat_hesitation_s",0.0))<=0.0 and sample(seed,int(car.id),tick,1)<1.0-exp(-float(ctx.hazard)*dt):
+  if clock>=24.0 and float(car.get("progress",0.0))>=0.0 and float(out.cooldown)<=0.0 and not bool(car.get("pit_request",false)) and float(car.get("combat_hesitation_s",0.0))<=0.0 and float(ctx.hazard)>0.0 and sample(seed,int(car.id),tick,1)<1.0-exp(-float(ctx.hazard)*dt):
    out=begin(out,classify(ctx,sample(seed,int(car.id),tick,2)),ctx,sample(seed,int(car.id),tick,3))
+   out["confidence_delta"]=-float(out.confidence_hit)
  if str(out.mode) in ["ERROR","CONTROL","RECOVERY"]:
   var elapsed:float=float(out.elapsed)
   var duration:float=float(out.duration)
@@ -116,6 +122,8 @@ static func advance(car:Dictionary,metrics:Dictionary,weather:Dictionary,dt:floa
   out["mode"]="ERROR" if bool(out.started) else ("CONTROL" if end<duration*.25 else "RECOVERY")
   if end>=duration:out.mode="REBUILD";out.completed=true
  elif str(out.mode)=="REBUILD":
+  var rebuild_step:float=minf(dt,float(out.rebuild_left))
+  out["confidence_delta"]=float(out.confidence_hit)*.45*rebuild_step/maxf(.00001,float(out.rebuild_duration))
   out["rebuild_left"]=maxf(0.0,float(out.rebuild_left)-dt)
   if float(out.rebuild_left)<=0:out.mode="NORMAL"
  return out
@@ -128,10 +136,10 @@ static func pit_reset(car:Dictionary)->Dictionary:
  return out
 
 static func apply_soul(car:Dictionary,state:Dictionary)->void:
- if not bool(state.started) and not bool(state.completed):return
+ var change:float=float(state.get("confidence_delta",0.0))
+ if absf(change)<.000000001:return
  var soul:Dictionary=car.get("driver_soul",{}).duplicate(true)
  if soul.is_empty():return
- var change:float=-float(state.confidence_hit) if bool(state.started) else float(state.confidence_hit)*.45
  soul["confidence"]=clampf(float(soul.get("confidence",.55))+change,.20,.90)
  soul["focus"]=clampf(float(soul.get("focus",.85))+(change*.4),.35,1.0)
  car["driver_soul"]=soul

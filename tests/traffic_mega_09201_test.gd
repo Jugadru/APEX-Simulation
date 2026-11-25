@@ -147,6 +147,7 @@ func run():
   historical.set(flag,true)
  check(historical._traffic_pack_active(),"039 full dependency chain active")
  var race=Race.new(data.teams,"Ferrari",42,{},data.tracks[0],{})
+ race.driver_error_enabled=false
  race.configure_weather("Seco");race.running=true;race.clock=40.0
  var ai:Dictionary={}
  for index in range(race.cars.size()):

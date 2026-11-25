@@ -221,6 +221,7 @@ func run():
  print("AERO_WAKE_AB ",JSON.stringify({"track":code,"climate":climate,"ticks":ticks,"seed":seed,"full":full,"old":old,"new":new}))
  check(new.tow_samples>0 and new.dirty_samples>0,"both effects exercised")
  if mega:check(not new.pack_modes.is_empty() and old.pack_modes.is_empty(),"039 traffic states actually exercised")
+ if errors:check(old.error_totals.count==0,"039 has no 040 error state")
  check(new.max_tow<=Aero.TOW_FRACTION and new.max_dirty<=Aero.DIRTY_FRACTION,"bounded modifiers")
  check(new.overlaps<=old.overlaps and new.stopped<=old.stopped and new.reversals==0,"no safety regression")
  check(new.release_overlaps==0,"no overlap on pit rejoin")

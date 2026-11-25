@@ -896,10 +896,12 @@ func _advance(dt: float) -> void:
 			DriverError0921.apply_soul(car,error_state)
 			if bool(error_state.started):
 				_event("incident",int(car.id),"ERRO | %s: %s; perda nominal %.2fs." % [str(car.name),DriverError0921.label(str(error_state.kind)),float(error_state.planned_loss)],115)
-				if str(car.team)==team_name:
+				if str(car.team)==team_name and clock-float(error_state.get("last_radio_at",-100.0))>=12.0:
+					error_state["radio_announced"]=true
+					error_state["last_radio_at"]=clock
 					_event("driver_radio",int(car.id),"RADIO FICTICIO | %s: %s" % [str(car.name),DriverError0921.radio(error_state)],72)
 					_event("engineer_reply",int(car.id),"ENGENHEIRO | %s: estabilize o carro. Nenhuma ordem de box foi alterada." % str(car.name),73)
-			if bool(error_state.completed) and str(car.team)==team_name:
+			if bool(error_state.completed) and str(car.team)==team_name and bool(error_state.get("radio_announced",false)):
 				_event("driver_radio",int(car.id),"RADIO FICTICIO | %s: recuperei o ritmo." % str(car.name),72)
 		var next: float = float(contest.progress)
 		var ahead: Variant = null
