@@ -203,6 +203,24 @@ static func resolve_physical(order: Array, intents: Dictionary, result: Dictiona
 					changed=true
 		if not changed:break
 
+# Each triplet describes an already-resolved leader in insertion order:
+# upper corridor edge + WIDTH, lower edge - WIDTH, longitudinal cap.
+# Float64 preserves the scalar precision of the original dictionary scan.
+static func remember_resolved_leader(cache: PackedFloat64Array, lane: float,
+		next_lane: float, resolved_progress: float, clearance: float) -> void:
+	cache.append(maxf(lane,next_lane)+WIDTH)
+	cache.append(minf(lane,next_lane)-WIDTH)
+	cache.append(resolved_progress-clearance)
+
+static func leader_limit(next: float, lane: float, next_lane: float,
+		cache: PackedFloat64Array) -> float:
+	var lower: float=minf(lane,next_lane)
+	var upper: float=maxf(lane,next_lane)
+	for i in range(0,cache.size(),3):
+		if lower<cache[i] and upper>cache[i+1]:
+			next=minf(next,cache[i+2])
+	return next
+
 static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,shape: Dictionary, weather: Dictionary = {}, traffic_enabled: bool = true, soul3_enabled: bool = false,
 		overtaking_enabled: bool = false, competitive_start_enabled: bool = false,
 		start_clock_s: float = 0.0, merge_traffic_enabled: bool = false, traffic_hotfix_enabled: bool = false, following_enabled: bool = false, completion_enabled: bool = false, independent_enabled: bool = false, aero_wake_enabled: bool = false, aero_wake_corrected: bool = true, wake_stability: bool = false, wet_line_stability: bool = false, coordination_enabled: bool = false, corner_battle_enabled: bool = false, traffic_intelligence_enabled: bool = false, traffic_pack_enabled: bool = false) -> Dictionary:
@@ -594,15 +612,12 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 	# Resolve all same-corridor followers against already-resolved leaders,
 	# including a leader held by a third car. No resolution impulse exists.
 	var result := {}
+	var resolved_leaders := PackedFloat64Array()
+	var leader_clearance: float=LENGTH/length
 	for c in order:
 		var id := int(c.id)
 		var a: Dictionary=intents[id]
-		var next := float(a.next)
-		for leader_id in result:
-			var leader: Dictionary=result[leader_id]
-			var old_leader: Dictionary=by_id[leader_id]
-			if corridor_crosses(float(a.lane),float(a.next_lane),float(old_leader.get("race_lane",0)),float(leader.states.race_lane)):
-				next=minf(next,float(leader.progress)-LENGTH/length)
+		var next: float=leader_limit(float(a.next),float(a.lane),float(a.next_lane),resolved_leaders)
 		next=maxf(float(c.progress),next)
 		var passed := false
 		if by_id.has(int(a.target)) and result.has(int(a.target)):
@@ -633,6 +648,7 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 		if aero_wake_enabled and a.has("aero_wake_032"):
 			states["aero_wake_032"]=a.aero_wake_032
 		result[id]={"progress":next,"states":states,"event":reaction,"defender_id":int(a.defender_id)}
+		remember_resolved_leader(resolved_leaders,float(c.get("race_lane",0)),float(states.race_lane),next,leader_clearance)
 	# Physical traffic also includes lapped cars; distance wraps at the line.
 	resolve_physical(order,intents,result,length,completion_enabled,wake_stability)
 	for c in order:
