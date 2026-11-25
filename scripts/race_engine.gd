@@ -1002,6 +1002,7 @@ func _begin_pit(car: Dictionary, entry_progress: float) -> void:
 	car["drs_active"] = false
 	car["pit_request"] = false
 	car["pit_scheduled_lap"] = 0
+	car.erase("pit_merge_hold_s")
 	car["pit_entered_at"] = clock
 	car["pit_entry_position"] = int(car.get("position", 0))
 	car["pit_from"] = entry_progress
@@ -1172,6 +1173,8 @@ func _record_pit_history(car: Dictionary) -> void:
 		"crew_agility": int(crew_levels.get("Agilidade", 0)) if car["team"] == team_name else 0,
 		"crew_coordination": int(crew_levels.get("Coordenação", 0)) if car["team"] == team_name else 0
 	})
+	if car.has("pit_merge_hold_s"):
+		pit_history[-1]["merge_hold"] = float(car["pit_merge_hold_s"])
 	prediction_ledger.observe_exit(pit_history[-1], base_lap, PIT_TRACK_FRACTION, cars)
 	if telemetry != null:
 		telemetry.record_pit(pit_history[-1])

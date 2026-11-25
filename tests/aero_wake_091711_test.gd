@@ -6,6 +6,13 @@ const Replay=preload("res://scripts/core/race_replay_0660.gd")
 const Codec=preload("res://scripts/core/race_state_codec_0660.gd")
 const Merge=preload("res://scripts/core/race_merge_traffic_0669174.gd")
 const Decision=preload("res://scripts/core/race_independent_racecraft_091710.gd")
+const PitLane=preload("res://scripts/core/race_pit_lane.gd")
+class ExitHost:
+ extends RefCounted
+ var records:int=0
+ func _event(_kind:String,_id:int,_msg:String,_priority:int):pass
+ func _record_lap_cross(_car:Dictionary,_prev:float,_strategy:bool):pass
+ func _record_pit_history(_car:Dictionary):records+=1
 var checks:=0
 var failures:Array[String]=[]
 func _initialize():call_deferred("run")
@@ -63,6 +70,14 @@ func fixture():
  check(not Space.pit_exit_clear(.201,traffic_pair,pit_plan,[],1000.0),"pit exit occupied")
  check(not Space.pit_exit_clear(.995,[],{},[.001],1000.0),"pit exit reserved across finish line")
  check(Space.pit_exit_clear(.4,traffic_pair,pit_plan,[],1000.0),"pit exit free")
+ var host=ExitHost.new()
+ var exit_car={"id":99,"name":"Fixture","progress":.999,"pit_from":.9,"pit_to":1.0,"pit_stage":"exit","pit_stage_elapsed":3.9,"pit_phase":.99,"pit_nominal_total":10.0,"pit_total":10.0,"pit_active_elapsed":9.9,"pit_extra_elapsed":0.0,"pit_wait":0.0,"pit_service_delay":0.0,"pit_release_delay":0.0,"pit_incident_type":"","pit_last_service":2.0,"pit_left":.1}
+ PitLane.advance(host,exit_car,.2,.2,.4,.6,false)
+ check(exit_car.pit_stage=="exit" and exit_car.pit_left>0 and host.records==0,"blocked exit remains in pit lane")
+ check(is_equal_approx(float(exit_car.pit_merge_hold_s),.2) and exit_car.pit_extra_elapsed==0,"merge delay separate from incident")
+ PitLane.advance(host,exit_car,.2,.2,.4,.6,true)
+ check(exit_car.pit_stage=="done" and exit_car.pit_left==0 and host.records==1,"release once when safe")
+ check(is_equal_approx(float(exit_car.pit_last_total),10.2) and exit_car.pit_last_extra==0,"real merge delay included in total")
  var pair=[car(0,.21,0),car(1,.2,0)]
  var metrics={0:{"target":100.0,"decision_pace":100.0,"line_ratio":0.0,"line_load":0.0,"ahead_load":0.0},1:{"target":100.0,"decision_pace":100.0,"line_ratio":0.0,"line_load":0.0,"ahead_load":0.0}}
  var track={"lap_km":5.0,"race_width_m":8.8,"overtake_zones":[]};var shape={"length":1000.0}
