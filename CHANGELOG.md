@@ -1,5 +1,13 @@
 # Changelog — APEX Motorsport Manager Core 2
 
+## Unreleased — Performance Recovery 1.0 (Traffic Pack)
+
+- Preserva revisão esportiva 040, formatos de save/replay e regras do Traffic Pack.
+- Adia dados exclusivos do líder para depois da ordenação por distância/ID; conserva DRS e duelos de todos os candidatos, fallback de ritmo, retardatários, boxes e ordem determinística.
+- Reaproveita valores invariantes do observador dentro da mesma chamada. Não altera a busca quadrática nem a geometria.
+- Acrescenta regressões direcionadas ao teste Traffic Mega já integrado ao FAST.
+- Ganhos de desempenho e equivalência entre commits: pendentes de execução do Development Lab e FAST no SHA exato. Não constitui release homologada.
+
 ## v0.6.6.9.22 — Race Engineer 4.0
 
 Integrada na PR #133, merge `b295e467fc73fdb54d724dc1ee042a771a267f7a`.
