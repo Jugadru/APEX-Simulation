@@ -29,7 +29,7 @@ jobs:
           set -euo pipefail
           mkdir -p qa/driver_hud_09175
           bash tools/apex_ci_import.sh qa/driver_hud_09175/import.log
-          timeout 300s xvfb-run -a -s '-screen 0 1920x1080x24' godot --path . --rendering-method gl_compatibility --rendering-driver opengl3 --script res://tests/driver_hud_identity_09175_test.gd 2>&1 | tee qa/driver_hud_09175/native.log
+          timeout 300s xvfb-run -a -s '-screen 0 1920x1080x24' godot --path . --audio-driver Dummy --rendering-method gl_compatibility --rendering-driver opengl3 --script res://tests/driver_hud_identity_09175_test.gd 2>&1 | tee qa/driver_hud_09175/native.log
           grep -Fq DRIVER_HUD_IDENTITY_09175_PASS qa/driver_hud_09175/native.log
           ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' qa/driver_hud_09175/native.log
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

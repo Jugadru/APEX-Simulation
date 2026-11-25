@@ -104,7 +104,7 @@ jobs:
           mkdir -p "$HOME" "$XDG_DATA_HOME" "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME"
           xvfb-run -a -s '-screen 0 1920x1080x24' \
             godot --single-threaded-scene --path baseline \
-              --rendering-method gl_compatibility \
+              --audio-driver Dummy --rendering-method gl_compatibility \
               --rendering-driver opengl3 \
               --script res://tests/ci/apex_capture_screenshots.gd \
             2>&1 | tee visual-regression/baseline/capture.log
@@ -125,7 +125,7 @@ jobs:
           mkdir -p "$HOME" "$XDG_DATA_HOME" "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME"
           xvfb-run -a -s '-screen 0 1920x1080x24' \
             godot --single-threaded-scene --path candidate \
-              --rendering-method gl_compatibility \
+              --audio-driver Dummy --rendering-method gl_compatibility \
               --rendering-driver opengl3 \
               --script res://tests/ci/apex_capture_screenshots.gd \
             2>&1 | tee visual-regression/candidate/capture.log

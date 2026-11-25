@@ -28,4 +28,4 @@ jobs:
 
       - name: Iniciar APEX com tela virtual
         run: |
-          xvfb-run -a godot --path . --rendering-method gl_compatibility --quit-after 120
+          xvfb-run -a godot --path . --audio-driver Dummy --rendering-method gl_compatibility --quit-after 120
