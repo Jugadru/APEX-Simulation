@@ -172,7 +172,7 @@ func _export_checkpoints() -> Array:
 		if state.is_empty():
 			return []
 		result.append({"tick": int(cp.tick), "cursor": int(cp.cursor),
-			"state": state.duplicate(true), "policy": cp.policy.duplicate(true)})
+			"state": state.duplicate(true) if cp.has("state") else state, "policy": cp.policy.duplicate(true)})
 	return result
 
 func valid_command(method: String, args: Array) -> bool:
