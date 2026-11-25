@@ -1,8 +1,8 @@
-# APEX Motorsport Manager — Core 2 v0.6.6.9.17.12 (candidata)
+# APEX Motorsport Manager — Core 2 v0.6.6.9.18 (candidata)
 
-**Candidata desta branch:** Coordenação entre trajetória, ataque e defesa. Revisão esportiva 036; histórico 035 preservado. [Escopo e testes](docs/APEX_RELEASE_v0.6.6.9.17.12_COORDINATION.md).
+**Candidata desta branch:** Wet Weather Setups — acertos climáticos selecionáveis por piloto antes da largada. Revisão esportiva 036 preservada: usa o modelo 015 existente. [Escopo e testes](docs/APEX_RELEASE_v0.6.6.9.18_WET_SETUPS.md).
 
-**Versão integrada: v0.6.6.9.17.11 REV4 — Slipstream & Dirty Air.** [PR #126](https://github.com/Jugadru/APEX-Simulation/pull/126), merge `138bd30a`. Retratos privados opcionais; não redistribuir fotografias sem licença. A 9.17.12 permanece candidata até homologação.
+**Versão integrada: v0.6.6.9.17.12 — Tactical Coordination.** [PR #127](https://github.com/Jugadru/APEX-Simulation/pull/127), merge `f442d3b8`. Retratos privados opcionais; não redistribuir fotografias sem licença. A 9.18 permanece candidata até homologação.
 
 A convergência preventiva antes de estreitamentos eliminou as 7 amostras estacionárias esportivas observadas nos 24 cenários testados, sem diminuir as 25 ultrapassagens reais. O grid, a interpolação da 9.17.3, as regras de 2012 e a gravação de replay desligada por padrão permanecem. A frequência de carros lado a lado ainda requer melhorias futuras.
 
