@@ -400,6 +400,7 @@
     {
       "id": "aero_wake_091711",
       "paths": [
+        "scripts/core/race_pit_lane.gd",
         "scripts/core/race_aero_wake_091711.gd",
         "scripts/core/race_space_0655.gd",
         "scripts/core/race_replay_0660.gd",

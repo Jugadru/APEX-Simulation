@@ -22,7 +22,7 @@ static func stage_duration(car: Dictionary, stage: String, queue_phase: float, s
 			return float(car["pit_release_delay"])
 	return 0.0
 
-static func advance(host, car: Dictionary, dt: float, queue_phase: float, service_begin: float, service_end: float) -> void:
+static func advance(host, car: Dictionary, dt: float, queue_phase: float, service_begin: float, service_end: float, exit_clear: bool = true) -> void:
 	var old_progress: float = float(car["progress"])
 	var remaining_dt: float = dt
 	var iterations: int = 0
@@ -43,6 +43,12 @@ static func advance(host, car: Dictionary, dt: float, queue_phase: float, servic
 			break
 		var stage_length: float = maxf(0.001, stage_duration(car, stage, queue_phase, service_begin, service_end))
 		var stage_time: float = float(car["pit_stage_elapsed"])
+		# 034: remain in the separate pit lane until the track opening is safe.
+		# Hold time is real elapsed pit time, never a garage queue or free teleport.
+		if stage == "exit" and not exit_clear and stage_time+remaining_dt>=stage_length*0.999999:
+			car["pit_extra_elapsed"] = float(car["pit_extra_elapsed"]) + remaining_dt
+			remaining_dt=0.0
+			break
 		var advance_by: float = minf(remaining_dt, maxf(0.0, stage_length - stage_time))
 		car["pit_stage_elapsed"] = stage_time + advance_by
 		if stage == "repair" or stage == "safety_hold":

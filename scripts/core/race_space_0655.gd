@@ -62,14 +62,48 @@ static func active(car: Dictionary) -> bool:
 static func corridor_crosses(a0: float,a1: float,b0: float,b1: float) -> bool:
 	return minf(a0,a1)<maxf(b0,b1)+WIDTH and maxf(a0,a1)>minf(b0,b1)-WIDTH
 
+# 034: prevent simultaneous lateral convergence before longitudinal resolution.
+# Existing overlaps are not teleported apart; only new swept-corridor conflicts
+# are vetoed. Re-evaluate after cancelling a move because a third car may rely on it.
+static func prevent_convergence(order: Array, intents: Dictionary, length: float) -> void:
+	for iteration in range(order.size()):
+		var changed := false
+		for i in range(order.size()):
+			var a: Dictionary = intents[int(order[i].id)]
+			for j in range(i+1,order.size()):
+				var b: Dictionary = intents[int(order[j].id)]
+				if absf(float(a.lane)-float(b.lane))<WIDTH: continue
+				if float(a.next_lane)==float(a.lane) and float(b.next_lane)==float(b.lane): continue
+				var gap: float = MergeTraffic.relative_gap(float(order[i].progress),float(order[j].progress),length)
+				var projected: float = gap+(float(b.next)-float(order[j].progress)-float(a.next)+float(order[i].progress))*length
+				if gap*projected>0.0 and minf(absf(gap),absf(projected))>=LENGTH+0.25: continue
+				if not corridor_crosses(float(a.lane),float(a.next_lane),float(b.lane),float(b.next_lane)): continue
+				a.next_lane=float(a.lane)
+				b.next_lane=float(b.lane)
+				changed=true
+		if not changed: break
+
+# A pit-lane car may enter the active sporting set only with an actual opening.
+# Use frozen main-track plans, plus releases already reserved this tick.
+static func pit_exit_clear(exit_progress: float, order: Array, plan: Dictionary, released: Array, length: float) -> bool:
+	for other in order:
+		if not plan.has(int(other.id)): continue
+		var before: float = MergeTraffic.relative_gap(exit_progress,float(other.progress),length)
+		var after: float = before+(float(plan[int(other.id)].progress)-float(other.progress))*length
+		if before*after<=0.0 or minf(absf(before),absf(after))<LENGTH+1.0: return false
+	for position in released:
+		if absf(MergeTraffic.relative_gap(exit_progress,float(position),length))<LENGTH+1.0: return false
+	return true
+
 static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,shape: Dictionary, weather: Dictionary = {}, traffic_enabled: bool = true, soul3_enabled: bool = false,
 		overtaking_enabled: bool = false, competitive_start_enabled: bool = false,
-		start_clock_s: float = 0.0, merge_traffic_enabled: bool = false, traffic_hotfix_enabled: bool = false, following_enabled: bool = false, completion_enabled: bool = false, independent_enabled: bool = false, aero_wake_enabled: bool = false, aero_wake_corrected: bool = true) -> Dictionary:
+		start_clock_s: float = 0.0, merge_traffic_enabled: bool = false, traffic_hotfix_enabled: bool = false, following_enabled: bool = false, completion_enabled: bool = false, independent_enabled: bool = false, aero_wake_enabled: bool = false, aero_wake_corrected: bool = true, wake_stability: bool = false) -> Dictionary:
 	var length: float=shape.length
 	following_enabled = following_enabled and start_clock_s>=24.0
 	completion_enabled = completion_enabled and following_enabled
 	independent_enabled = independent_enabled and completion_enabled
 	aero_wake_enabled = aero_wake_enabled and independent_enabled
+	wake_stability = wake_stability and aero_wake_enabled
 	var hotfix: bool = merge_traffic_enabled and traffic_hotfix_enabled
 	# 06686: RaceEngine normally supplies a sorted frozen sporting snapshot.
 	# Filtering out inactive cars preserves its order. Avoid sorting 24
@@ -286,9 +320,14 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 			var m: Dictionary = metrics[id]
 			var leader: Dictionary = {}
 			var gap: float = INF
+			var wake_candidates: Array = []
+			var lap_km: float = float(track.get("lap_km",0.0))
+			var wake_range: float = AeroWake.MAX_RANGE_M*length/(lap_km*1000.0) if lap_km>0.3 else INF
 			for other in order:
 				if other.id==id: continue
 				var g: float = MergeTraffic.relative_gap(float(c.progress),float(other.progress),length)
+				if wake_stability and (wake_range==INF or (g>0.0 and g<=wake_range+0.000001)):
+					wake_candidates.append(other)
 				if g>0.000001 and g<gap and g<=38.0:
 					gap=g;leader=other
 			var limit: float = minf(lane_limit(track,float(c.progress),shape),lane_limit(track,float(c.progress)+LENGTH*2.0/length,shape))
@@ -296,12 +335,22 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 			var own: float = clampf(float(m.get("line_ratio",0.0)),-1.0,1.0)*limit
 			var load: float = float(m.get("line_load",1.0))
 			var memory: Dictionary = Independent.decide(c,a,leader,gap,own,limit,load,float(m.get("ahead_load",1.0)),wet,dt)
+			# Hold the actual lane in a non-tactical straight. A stable return
+			# resumes before the next curve or narrowing; never chase wake laterally.
+			if wake_stability and str(a.state) not in Independent.ATTACK and int(a.defending)<0:
+				var held: bool = str(c.get("racecraft_memory",{}).get("mode",""))=="STRAIGHT_HOLD"
+				var threshold: float = 0.18 if held else 0.12
+				if load<threshold and float(m.get("ahead_load",load))<0.22 and not bool(narrowing.get(id,false)) and absf(float(a.lane))<=limit:
+					memory.mode="STRAIGHT_HOLD"
+					memory.aim=float(a.lane)
+					memory.wanted=float(a.lane)
+					memory.velocity=0.0
 			a.goal=memory.aim
 			a["independent_memory"]=memory
 			if aero_wake_enabled:
 				# Replace 031 longitudinal aero, do not stack it. Direction and tactical
 				# judgement stay independent. Effects apply to attackers too.
-				var effect: Dictionary = AeroWake.choose(c,order,length,float(track.get("lap_km",0.0)),load,float(m.get("ahead_load",load)),wet,aero_wake_corrected)
+				var effect: Dictionary = AeroWake.choose(c,wake_candidates if wake_stability else order,length,lap_km,load,float(m.get("ahead_load",load)),wet,aero_wake_corrected)
 				a.pace=AeroWake.apply(float(a.pace),effect)
 				a["aero_wake_032"]=effect
 			elif not leader.is_empty() and str(a.state) not in Independent.ATTACK:
@@ -358,6 +407,8 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 			MergeTraffic.queue_027(order,intents,narrowing,length,LENGTH,WIDTH)
 		else:
 			MergeTraffic.queue(order,intents,narrowing,length,LENGTH,WIDTH)
+	if wake_stability:
+		prevent_convergence(order,intents,length)
 	# Resolve all same-corridor followers against already-resolved leaders,
 	# including a leader held by a third car. No resolution impulse exists.
 	var result := {}
@@ -399,7 +450,10 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 			for other in order:
 				if other.id==id:continue
 				var gap := fposmod(float(other.progress)-float(c.progress),1)
-				if gap>.25 or gap<.00000001:continue
+				if wake_stability and (gap<.00000001 or gap>1.0-.00000001):
+					if MergeTraffic.has_priority(c,other): continue
+					gap=0.0
+				elif gap>.25 or gap<.00000001:continue
 				var b: Dictionary=result[int(other.id)]
 				if completion_enabled and gap*length<LENGTH+2.2 and str(intents[id].state) not in ["preparing","attacking","duel"] and absf(float(c.get("race_lane",0))-float(other.get("race_lane",0)))>=WIDTH-0.01:
 					# Compare the leader's RESOLVED advance, not nominal lap time.
@@ -415,6 +469,12 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 				if not corridor_crosses(float(c.get("race_lane",0)),float(result[id].states.race_lane),float(other.get("race_lane",0)),float(b.states.race_lane)): continue
 				var offset := float(c.progress)+gap-float(other.progress)
 				var allowed := maxf(float(c.progress),float(b.progress)+offset-LENGTH/length)
+				# Use remaining headway progressively, not all at once. This is
+				# a one-sided speed cap; no minimum speed or collision override.
+				if wake_stability and gap*length<LENGTH+4.0:
+					var advance: float=maxf(0.0,float(b.progress)-float(other.progress))
+					var headroom: float=maxf(0.0,gap-LENGTH/length)
+					allowed=minf(allowed,float(c.progress)+advance+headroom*0.5)
 				if allowed<float(result[id].progress)-.000000001:
 					result[id].progress=allowed
 					result[id].states.race_space_blocked=true
