@@ -100,7 +100,10 @@ func ingest(race, player_team: String) -> bool:
 			if str(car.get("team", "")) == player_team:
 				communication.observe(car, weather, now, staff_context if not staff_context.is_empty() else race.prediction_staff)
 	for packet in communication.drain(now):
-		_push(float(packet.created), str(packet.sender), str(packet.text), true, "context_0922", int(packet.car_id), packet)
+		_push(float(packet.created), str(packet.sender), str(packet.text), true, str(packet.get("legacy_kind", "context_0922")), int(packet.car_id), packet)
+		var original: Dictionary = packet.get("radio3", {})
+		if not original.is_empty():
+			lines[-1]["radio3"] = original
 		changed = true
 	if race.running and not race.finished and float(race.clock) - _last_interlude > 115.0:
 		_last_interlude = float(race.clock)
@@ -222,7 +225,9 @@ func _event_line(event: Dictionary, race, player_team: String) -> bool:
 			# Administrative/diagnostic events remain in telemetry, not spoken radio.
 			return false
 		"radio":
-			role = "ENGENHEIRO" if is_ours else "ANALISTA"
+			if not is_ours:
+				return false
+			role = "ENGENHEIRO"
 			phrases = [source]
 		_:
 			if int(event.get("priority", 0)) < 60:
@@ -255,9 +260,12 @@ func _event_line(event: Dictionary, race, player_team: String) -> bool:
 		if int(_last_style.get(kind, -1)) == index:
 			index = (index + 1) % phrases.size()
 	_last_style[kind] = index
-	_push(t, role, phrases[index], is_ours, kind, car_id)
-	if not radio_packet.is_empty():
-		lines[-1]["radio3"] = radio_packet
+	if is_ours and role in ["PILOTO", "ENGENHEIRO"]:
+		var priority: int = 1 if int(event.get("priority", 0)) >= 85 else 2 if int(event.get("priority", 0)) >= 70 else 3
+		var metadata: Dictionary = {"source_event_id": int(event.get("event_id", -1)), "priority": priority, "radio3": radio_packet, "conversation_id": str(radio_packet.get("conversation_id", ""))}
+		communication.enqueue_legacy(t, role, phrases[index], kind, car_id, metadata)
+	else:
+		_push(t, role, phrases[index], is_ours, kind, car_id)
 	# Soul3 has no automatic engineer message; this is presentation-only
 	# acknowledgement of the already-verified request. The next real driver
 	# command remains under the existing manual/AI Pit Wall validation.
@@ -269,9 +277,8 @@ func _event_line(event: Dictionary, race, player_team: String) -> bool:
 			"conversation_id": str(radio_packet.get("conversation_id", ""))}
 		var answer: Dictionary = Radio3.engineer(car, str(radio_packet["intent"]), context)
 		if not answer.is_empty():
-			_push(t, "ENGENHEIRO", "RÁDIO FICTÍCIO | Engenheiro: " + str(answer["text"]),
-				is_ours, "radio3_ack", car_id)
-			lines[-1]["radio3"] = answer
+			communication.enqueue_legacy(t, "ENGENHEIRO", "RÁDIO FICTÍCIO | Engenheiro: " + str(answer["text"]), "radio3_ack", car_id,
+				{"source_event_id": int(event.get("event_id", -1)), "priority": 1 if int(event.get("priority", 0)) >= 85 else 2 if int(event.get("priority", 0)) >= 70 else 3, "radio3": answer, "conversation_id": str(answer.get("conversation_id", ""))})
 			_radio3_memory[car_id] = Radio3.remember(_radio3_memory.get(car_id, {}), answer)
 	return true
 
