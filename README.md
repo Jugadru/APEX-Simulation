@@ -1,8 +1,8 @@
-# APEX Motorsport Manager — Core 2 v0.6.6.9.20.1 (candidata)
+# APEX Motorsport Manager — Core 2 v0.6.6.9.21 (candidata)
 
-**Candidata:** Driver Traffic Intelligence 2.0 — percepção, grupos, DRS, conservação, bandeiras azuis, estratégia e rádio. Revisão esportiva 039, histórico 038 preservado. [Escopo](docs/APEX_RELEASE_v0.6.6.9.20.1_TRAFFIC_MEGA.md).
+**Candidata:** Driver Error & Recovery — risco contextual, seis tipos, recuperação, pressão, rádio e telemetria. Revisão 040. [Escopo](docs/APEX_RELEASE_v0.6.6.9.21_DRIVER_ERROR.md).
 
-**Versão integrada: v0.6.6.9.20.** [PR #130](https://github.com/Jugadru/APEX-Simulation/pull/130), merge `c552c9d9`. Sem redistribuição de ativos privados. Candidata até homologação.
+**Versão integrada: v0.6.6.9.20.1 REV3.** PR #131, merge `54d253f6`. Candidata até homologação.
 
 A convergência preventiva antes de estreitamentos eliminou as 7 amostras estacionárias esportivas observadas nos 24 cenários testados, sem diminuir as 25 ultrapassagens reais. O grid, a interpolação da 9.17.3, as regras de 2012 e a gravação de replay desligada por padrão permanecem. A frequência de carros lado a lado ainda requer melhorias futuras.
 

@@ -638,6 +638,35 @@
         }
       ],
       "checks": []
+    },
+    {
+      "id": "driver_error_0921",
+      "paths": [
+        "scripts/core/race_driver_error_0921.gd",
+        "scripts/race_engine.gd",
+        "scripts/core/race_space_0655.gd",
+        "scripts/core/race_replay_0660.gd",
+        "scripts/core/race_state_codec_0660.gd",
+        "tests/aero_wake_091711_test.gd",
+        "tests/driver_error_0921_test.gd",
+        "scripts/apex_telemetry.gd",
+        "scripts/apex_race_hud_0622.gd"
+      ],
+      "fast_tests": [
+        {
+          "script": "driver_error_0921_test.gd",
+          "marker": "DRIVER_ERROR_0921_PASS"
+        },
+        {
+          "script": "traffic_mega_09201_test.gd",
+          "marker": "TRAFFIC_MEGA_09201_PASS"
+        },
+        {
+          "script": "radio_0668101_booked_pit_advice_test.gd",
+          "marker": "RADIO_0668101_BOOKED_PIT_PASS"
+        }
+      ],
+      "checks": []
     }
   ]
 }

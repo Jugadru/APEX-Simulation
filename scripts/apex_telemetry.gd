@@ -170,6 +170,11 @@ func observe(cars: Array, now: float, dt: float) -> void:
 				sample["traffic_mode"]=str(pack.get("mode",""))
 				for key in ["reason","prepared_s","lift","save_kers","leader","gap_s","rear_s","group_size","drs_train","catch_s","rear_catch_s","tyre_hint","clear_s","congestion_s","estimated_lift_s","solver_delay_s","cancelled","opportunities","confirmed_passes","yield_samples","group_transfers","kers_skipped_ticks","lapping_traffic_s","lapping_delay_est_s","dirty_air_s","tow_s"]:
 					sample["traffic_"+key]=pack.get(key,"")
+			var error_state:Dictionary=car.get("driver_error_0921",{})
+			if not error_state.is_empty():
+				var error_sample:Dictionary=position_history[-1]
+				for key in ["mode","kind","phase","pressure","hazard","speed_fraction","count","planned_loss","event_loss","total_loss","interrupted_count"]:
+					error_sample["error_"+key]=error_state.get(key,"")
 		while _next_snapshot_at <= now + 0.000001:
 			_next_snapshot_at += SNAPSHOT_PERIOD
 
@@ -235,6 +240,11 @@ func export_files(folder: String, metadata: Dictionary = {}) -> Dictionary:
 		if sample.has("traffic_mode"):traffic_samples.append(sample)
 	if not traffic_samples.is_empty():
 		definitions.append(["trafego",PackedStringArray(["sample_at","car_id","driver","team","position","traffic_mode","traffic_reason","traffic_prepared_s","traffic_lift","traffic_save_kers","traffic_leader","traffic_gap_s","traffic_rear_s","traffic_group_size","traffic_drs_train","traffic_catch_s","traffic_rear_catch_s","traffic_tyre_hint","traffic_clear_s","traffic_congestion_s","traffic_estimated_lift_s","traffic_solver_delay_s","traffic_cancelled","traffic_opportunities","traffic_confirmed_passes","traffic_yield_samples","traffic_group_transfers","traffic_kers_skipped_ticks","traffic_lapping_traffic_s","traffic_lapping_delay_est_s","traffic_dirty_air_s","traffic_tow_s"]),traffic_samples])
+	var error_samples:Array=[]
+	for sample in position_history:
+		if sample.has("error_mode"):error_samples.append(sample)
+	if not error_samples.is_empty():
+		definitions.append(["erros_piloto",PackedStringArray(["sample_at","car_id","driver","team","position","error_mode","error_kind","error_phase","error_pressure","error_hazard","error_speed_fraction","error_count","error_planned_loss","error_event_loss","error_total_loss","error_interrupted_count"]),error_samples])
 	for item in definitions:
 		var path: String = folder.path_join(prefix + "_" + str(item[0]) + ".csv")
 		if not _csv_table(path, item[1], item[2]):
