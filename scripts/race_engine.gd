@@ -729,7 +729,7 @@ func _advance(dt: float) -> void:
 	var corrected_wake_rules: bool = aero_wake_corrected
 	var stability_rules: bool = aero_wake_stability and aero_wake_rules
 	var wet_line_rules: bool = aero_wet_line_stability and stability_rules
-	var coordination_rules: bool = tactical_coordination_enabled and independent_rules
+	var coordination_rules: bool = tactical_coordination_enabled and wet_line_rules
 	if command_session != null:
 		var attached_session: Object = command_session.get_ref()
 		if attached_session != null:

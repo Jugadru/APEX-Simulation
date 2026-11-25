@@ -26,15 +26,23 @@ static func resolve(order: Array, intents: Dictionary) -> void:
 		var a: Dictionary=intents[id]
 		goals[id]=float(a.get("committed_goal",a.goal)) if str(a.state) in ATTACK else float(a.goal)
 	var veto: Array[int]=[]
-	for car in order:
-		var id: int=int(car.id)
-		var a: Dictionary=intents[id]
-		if not str(a.state) in ATTACK: continue
-		var rival: int=int(a.defender_id)
-		if not goals.has(rival) or absf(float(goals[id])-float(goals[rival]))<WIDTH-0.004:
+	# Recheck after a front attack is cancelled. Each round can only
+	# remove commitments, so the number of rounds is bounded by the grid.
+	for iteration in range(order.size()):
+		var round_veto: Array[int]=[]
+		for car in order:
+			var id: int=int(car.id)
+			var a: Dictionary=intents[id]
+			if id in veto or not str(a.state) in ATTACK: continue
+			var rival: int=int(a.defender_id)
+			if not goals.has(rival) or absf(float(goals[id])-float(goals[rival]))<WIDTH-0.004:
+				round_veto.append(id)
+		if round_veto.is_empty(): break
+		for id in round_veto:
 			veto.append(id)
-		else:
-			a.goal=goals[id]
+			var a: Dictionary=intents[id]
+			goals[id]=float(a.defense_line) if int(a.defending)>=0 and str(a.get("defense_origin",""))!="attack" else float(a.lane)
+	veto.sort()
 	# Cancel only incompatible commitments. Costs/events are paired with
 	# the accepted attack; physical occupancy and blue flags remain intact.
 	for id in veto:

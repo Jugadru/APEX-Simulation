@@ -32,6 +32,9 @@ func run():
  var clear={0:intent(0,0),1:intent(0,-2.95,"preparing",0),2:intent(0,2.95,"preparing",1)}
  C.resolve(order,clear)
  check(clear[1].state=="preparing" and clear[2].state=="preparing","compatible chain survives")
+ var cascade={0:intent(0,0),1:intent(-2.95,0,"preparing",0),2:intent(0,-2.95,"preparing",1)}
+ C.resolve(order,cascade)
+ check(cascade[1].state=="closing" and cascade[2].state=="closing","cancelled front attack rechecks rear corridor")
  var blue={0:intent(0,0),1:intent(0,0,"preparing",0)}
  blue[0].defending=1;blue[0]["defense_origin"]="blue_flag"
  C.resolve(order.slice(0,2),blue)
