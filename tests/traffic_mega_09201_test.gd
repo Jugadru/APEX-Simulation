@@ -24,6 +24,11 @@ func run():
  var obs=Pack.observe(own,grid,metrics,1000,weather,.2)
  check(obs.group_size==4 and obs.drs_train and obs.rear_s>1.0,"physical group and actual DRS flags")
  check(var_to_bytes([grid,metrics,weather])==snapshot,"frozen input")
+ var rates:Dictionary=Pack.rate_frame(grid)
+ check(Pack.observe(own,grid,metrics,1000,weather,.2,rates)==obs,"frozen rate cache identical")
+ var unknown:Dictionary=own.duplicate(true);unknown.last_lap=0.0
+ var unknown_grid:Array=[unknown,a,b,c,rear]
+ check(Pack.observe(unknown,unknown_grid,metrics,1000,weather,.2,Pack.rate_frame(unknown_grid))==Pack.observe(unknown,unknown_grid,metrics,1000,weather,.2),"rate fallback identical without timing history")
  check(Pack.observe(own,[rear,c,b,a,own],metrics,1000,weather,.2)==obs,"order independent")
  check(not Pack.observe(own,grid,metrics,1000,{"wetness_factor":.8,"drs_allowed":false},.2).drs_train,"wet DRS train not armed")
  var fast=car(6,.1);fast.last_lap=80.0
@@ -134,6 +139,13 @@ func run():
  check(int(modes.get("CLEAN_AIR",0))>0,"native clean air exercised")
  # Real RaceEngine, not a substitute for the controlled Space fixture.
  var data:Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://data/season_2012.json"))
+ var historical=Race.new(data.teams,"Ferrari",42,{},data.tracks[0],{})
+ for flag in ["racing_line_enabled","following_enabled","pass_completion_enabled","independent_racecraft_enabled","aero_wake_enabled","aero_wake_stability","aero_wet_line_stability","tactical_coordination_enabled","corner_battle_enabled","traffic_intelligence_enabled","driver_traffic_enabled","traffic_pack_enabled"]:
+  historical.set(flag,false)
+  check(not historical._traffic_pack_active(),"dependency disables all 039 paths "+flag)
+  check(not historical._build_strategy_plan(historical.cars[0]).has("traffic_window_09201"),"historical strategy no extra state "+flag)
+  historical.set(flag,true)
+ check(historical._traffic_pack_active(),"039 full dependency chain active")
  var race=Race.new(data.teams,"Ferrari",42,{},data.tracks[0],{})
  race.configure_weather("Seco");race.running=true;race.clock=40.0
  var ai:Dictionary={}

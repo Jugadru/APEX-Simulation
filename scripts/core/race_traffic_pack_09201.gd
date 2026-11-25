@@ -14,11 +14,25 @@ static func rate(car:Dictionary, fallback:float)->float:
  var lap:float=float(car.get("last_lap",0.0))
  return 1.0/lap if lap>20.0 and lap<500.0 else fallback
 
-static func observe(car:Dictionary, grid:Array, metrics:Dictionary, length:float, weather:Dictionary, dt:float)->Dictionary:
+# Build once from the frozen field; 0 means no observed pace yet.
+# The observer-specific fallback is still used exactly as before.
+static func rate_frame(grid:Array)->Dictionary:
+ var rates:Dictionary={}
+ for car in grid:
+  if not bool(car.get("finished",false)) and float(car.get("pit_left",0.0))<=0.0:rates[int(car.id)]=rate(car,0.0)
+ return rates
+
+static func frame_rate(car:Dictionary,fallback:float,rates:Dictionary)->float:
+ var id:int=int(car.id)
+ if not rates.has(id):return rate(car,fallback)
+ var observed:float=float(rates[id])
+ return observed if observed>0.0 else fallback
+
+static func observe(car:Dictionary, grid:Array, metrics:Dictionary, length:float, weather:Dictionary, dt:float, rates:Dictionary={})->Dictionary:
  var own:Dictionary=metrics[int(car.id)]
  var prior:Dictionary=car.get(KEY,{})
  var fallback:float=1.0/maxf(20.0,float(own.get("decision_pace",own.target)))
- var v:float=rate(car,fallback)
+ var v:float=frame_rate(car,fallback,rates)
  var awareness:float=clampf(float(car.get("spatial_awareness",80.0))/100.0,0.0,1.0)
  var soul:Dictionary=car.get("driver_soul",{})
  var focus:float=clampf(float(soul.get("focus",.85)),0.0,1.0)
@@ -48,11 +62,11 @@ static func observe(car:Dictionary, grid:Array, metrics:Dictionary, length:float
   if g<0.0:
    if -seconds<rear_s or (-seconds==rear_s and int(other.id)<rear_id):
     rear_s=-seconds;rear_id=int(other.id)
-    var rear_closing:float=rate(other,fallback)-v
+    var rear_closing:float=frame_rate(other,fallback,rates)-v
     rear_catch=-g/(length*rear_closing) if rear_closing>0.000001 else -1.0
-   if Blue.lapping(other,car,-g,length):blue_behind+=1
+   if -g<=38.0 and Blue.lapping(other,car,-g,length):blue_behind+=1
   elif g>0.000001 and seconds<=horizon:
-   ahead.append({"id":int(other.id),"gap":g,"gap_s":seconds,"rate":rate(other,fallback),"lane":float(other.get("race_lane",0.0)),"drs":bool(other.get("drs_active",false)) or bool(other.get("drs_eligible",false)),"duel":str(other.get("combat_state","")) in ATTACK,"stint_age":int(other.get("stint_laps",-1)),"compound":str(other.get("tire","")),"mate":str(other.get("team",""))==str(car.get("team","")) and str(car.get("team",""))!="","lapping":Blue.lapping(car,other,g,length),"pit_approach":str(other.get("team",""))==str(car.get("team","")) and bool(other.get("pit_request",false)) and fposmod(float(other.progress),1.0)>.85})
+   ahead.append({"id":int(other.id),"gap":g,"gap_s":seconds,"rate":frame_rate(other,fallback,rates),"lane":float(other.get("race_lane",0.0)),"drs":bool(other.get("drs_active",false)) or bool(other.get("drs_eligible",false)),"duel":str(other.get("combat_state","")) in ATTACK,"stint_age":int(other.get("stint_laps",-1)),"compound":str(other.get("tire","")),"mate":str(other.get("team",""))==str(car.get("team","")) and str(car.get("team",""))!="","lapping":g<=38.0 and Blue.lapping(car,other,g,length),"pit_approach":str(other.get("team",""))==str(car.get("team","")) and bool(other.get("pit_request",false)) and fposmod(float(other.progress),1.0)>.85})
  ahead.sort_custom(func(a,b):return int(a.id)<int(b.id) if float(a.gap)==float(b.gap) else float(a.gap)<float(b.gap))
  var first:Dictionary=ahead[0] if not ahead.is_empty() else {}
  var gap_s:float=float(first.get("gap_s",999.0))

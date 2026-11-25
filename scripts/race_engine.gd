@@ -358,7 +358,9 @@ func _team_pit_busy(car: Dictionary) -> bool:
 	return false
 
 func _traffic_pack_active()->bool:
-	if not traffic_pack_enabled or not traffic_intelligence_enabled or not corner_battle_enabled or not driver_traffic_enabled:return false
+	# The strategy/radio/telemetry paths must follow the same dependency
+	# chain as the sporting step, including flag-only historical probes.
+	if not (traffic_pack_enabled and traffic_intelligence_enabled and corner_battle_enabled and tactical_coordination_enabled and aero_wet_line_stability and aero_wake_stability and aero_wake_enabled and independent_racecraft_enabled and pass_completion_enabled and following_enabled and racing_line_enabled and driver_traffic_enabled):return false
 	if command_session!=null:
 		var attached:Object=command_session.get_ref()
 		if attached!=null:return str(attached.get("recorded_simulation_revision"))==TRAFFIC_PACK_SIM_REVISION
@@ -750,7 +752,7 @@ func _advance(dt: float) -> void:
 	var coordination_rules: bool = tactical_coordination_enabled and wet_line_rules
 	var corner_battle_rules: bool = corner_battle_enabled and coordination_rules
 	var traffic_intelligence_rules: bool = traffic_intelligence_enabled and corner_battle_rules and driver_traffic_enabled
-	var traffic_pack_rules:bool=traffic_pack_enabled and traffic_intelligence_rules
+	var traffic_pack_rules:bool=_traffic_pack_active() and traffic_intelligence_rules
 	if command_session != null:
 		var attached_session: Object = command_session.get_ref()
 		if attached_session != null:

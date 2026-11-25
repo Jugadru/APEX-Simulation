@@ -174,8 +174,9 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 			narrowing[int(c.id)]=MergeTraffic.single_file(min_lane)
 	var traffic_observations:Dictionary={}
 	if traffic_pack_enabled:
+		var traffic_rates:Dictionary=TrafficPack.rate_frame(cars)
 		for c in order:
-			traffic_observations[int(c.id)]=TrafficPack.observe(c,cars,metrics,length,weather,dt)
+			traffic_observations[int(c.id)]=TrafficPack.observe(c,cars,metrics,length,weather,dt,traffic_rates)
 	# Decide from the same frozen start-of-tick positions. Only the corridor
 	# solver below changes sporting progress; tactics may not teleport a car.
 	for c in order:
