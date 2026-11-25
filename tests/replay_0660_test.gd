@@ -84,6 +84,17 @@ func run()->void:
 		var km:Array=[inventory.parts.one.km,inventory.parts.two.km,inventory.parts.one.history[-1].km,inventory.parts.two.history[-1].km]
 		if expected_km.is_empty():expected_km=km
 		else:assert(km==expected_km,"inventory distances independent of FPS/speed")
+	# Exercise saturation without relying on host wall-clock performance.
+	for speed in [10.0,16.0,32.0]:
+		var bounded=make_session()
+		bounded.race.running=true
+		var cap: int=Replay.interactive_backlog_steps(speed)
+		assert(cap=={10.0:6,16.0:8,32.0:12}[speed])
+		assert(bounded.advance(10.0,speed,Callable(),0,cap)==cap)
+		assert(bounded.cpu_limited and bounded.accumulator<Replay.STEP)
+		var reference=make_session()
+		for i in range(cap):assert(reference.step_tick())
+		assert(bounded.hashes==reference.hashes,"bounded scheduler cannot skip sporting ticks")
 	var backlog=make_session();backlog.race.running=true;backlog.advance(1,32)
 	assert(backlog.tick==16 and backlog.accumulator>20)
 	while backlog.accumulator>=Replay.STEP-0.00000001:backlog.advance(0,1)
