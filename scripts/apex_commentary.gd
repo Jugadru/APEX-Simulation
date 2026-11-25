@@ -4,6 +4,15 @@ extends RefCounted
 
 const MAX_LINES: int = 72
 const Radio3 = preload("res://scripts/presentation/race_radio_06695.gd")
+const Communication0922 = preload("res://scripts/presentation/race_communication_0922.gd")
+var communication = Communication0922.new()
+const Audio0922 = preload("res://scripts/presentation/race_radio_audio_0922.gd")
+const Career0922 = preload("res://scripts/core/race_engineer_career_0922.gd")
+var radio_audio = Audio0922.new()
+var radio_speed: float = 1.0
+var radio_subtitles: bool = true
+var staff_context: Dictionary = {}
+var career_bonds: Dictionary = {}
 const CAST := {
 	"NARRADOR": "#d9eaff",
 	"ANALISTA": "#75d8df",
@@ -34,9 +43,35 @@ func reset(race_seed: int) -> void:
 	_last_interlude = 0.0
 	_last_event_id = 0
 	_radio3_memory.clear()
+	communication.reset()
+	radio_audio.stop()
+	staff_context.clear()
+	career_bonds.clear()
+
+func configure_engineer(team: Dictionary, levels: Dictionary) -> void:
+	staff_context = Career0922.staff_context(team, levels)
+	career_bonds = Career0922.read_bonds(team)
+	communication.staff_context = staff_context.duplicate(true)
+	communication.career_bonds = career_bonds.duplicate(true)
 
 func ingest(race, player_team: String) -> bool:
 	var changed := false
+	var now: float = float(race.clock)
+	if now < communication.last_clock:
+		# Replay seek backwards: discard future radio and rebuild from current event stream.
+		communication.reset()
+		communication.staff_context = staff_context.duplicate(true)
+		communication.career_bonds = career_bonds.duplicate(true)
+		radio_audio.stop()
+		lines.clear()
+		_seen.clear()
+		_radio3_memory.clear()
+		_last_category_at.clear()
+		_last_style.clear()
+		_last_battle_pair_at.clear()
+		_last_event_id = 0
+		_last_interlude = 0.0
+		changed = true
 	# APEX telemetry is the canonical, unbounded event stream. Fall back to the
 	# short legacy ring only when working with older race engines.
 	var source_events: Array = race.events
@@ -58,15 +93,30 @@ func ingest(race, player_team: String) -> bool:
 		for event in race.events:
 			var sig := "%.3f|%s|%d|%s" % [float(event.get("time", 0.0)), str(event.get("type", "")), int(event.get("driver_id", -1)), str(event.get("message", ""))]
 			_seen[sig] = true
+	if race.running and not race.finished and now - communication.last_clock >= 2.0:
+		communication.last_clock = now
+		var weather: Dictionary = race.weather_snapshot()
+		for car in race.cars:
+			if str(car.get("team", "")) == player_team:
+				communication.observe(car, weather, now, staff_context if not staff_context.is_empty() else race.prediction_staff)
+	for packet in communication.drain(now):
+		_push(float(packet.created), str(packet.sender), str(packet.text), true, str(packet.get("legacy_kind", "context_0922")), int(packet.car_id), packet)
+		var original: Dictionary = packet.get("radio3", {})
+		if not original.is_empty():
+			lines[-1]["radio3"] = original
+		changed = true
 	if race.running and not race.finished and float(race.clock) - _last_interlude > 115.0:
 		_last_interlude = float(race.clock)
 		if _ambient_line(race):
 			changed = true
+	radio_audio.pump(radio_speed)
 	return changed
 
 func _event_line(event: Dictionary, race, player_team: String) -> bool:
 	var kind: String = str(event.get("type", ""))
 	var source: String = str(event.get("message", ""))
+	if Communication0922.is_system(source, kind):
+		return false
 	var car_id: int = int(event.get("driver_id", -1))
 	var car := _driver_by_id(race, car_id)
 	var name: String = str(car.get("name", "Piloto"))
@@ -87,6 +137,12 @@ func _event_line(event: Dictionary, race, player_team: String) -> bool:
 			role = "ANALISTA"
 			phrases = ["Disputa se formando: %s" % source]
 		"pass":
+			if is_ours:
+				communication.on_pass(car, event, staff_context if not staff_context.is_empty() else race.prediction_staff)
+			else:
+				for player in race.cars:
+					if str(player.get("team", "")) == player_team and not bool(player.get("finished", false)):
+						communication.on_rival_pass(player, car, event, float(race.clock), staff_context if not staff_context.is_empty() else race.prediction_staff)
 			phrases = ["%s ganha terreno: agora aparece na posição %d." % [name, int(car.get("position", 0))],
 				"Mudança na ordem! %s avança no pelotão." % name]
 		"lead":
@@ -127,6 +183,8 @@ func _event_line(event: Dictionary, race, player_team: String) -> bool:
 				return false
 			role = "PILOTO"
 			phrases = [source]
+			if source.contains("recuperei o ritmo"):
+				phrases = ["Pace is back now."]
 			var intent: String = Radio3.classify_source(source)
 			if intent != "":
 				var previous: Dictionary = _radio3_memory.get(car_id, {})
@@ -146,6 +204,8 @@ func _event_line(event: Dictionary, race, player_team: String) -> bool:
 				return false
 			role = "ENGENHEIRO"
 			phrases = [source]
+			if source.contains("estabilize o carro") and source.contains("Nenhuma ordem de box foi alterada"):
+				phrases = ["Copy. Settle the car and build the pace back."]
 			var prior: Dictionary = _radio3_memory.get(car_id, {})
 			var prior_kind: String = str(prior.get("last_pilot_kind", ""))
 			# Only pair with a confirmed driver report at the SAME sporting
@@ -161,8 +221,13 @@ func _event_line(event: Dictionary, race, player_team: String) -> bool:
 					"conversation_id": str(prior.get("last_conversation_id", ""))})
 				if not radio_packet.is_empty():
 					phrases = ["RÁDIO FICTÍCIO | Engenheiro: %s" % str(radio_packet["text"])]
+		"engineer_strategy", "engineer_command":
+			# Administrative/diagnostic events remain in telemetry, not spoken radio.
+			return false
 		"radio":
-			role = "ENGENHEIRO" if is_ours else "ANALISTA"
+			if not is_ours:
+				return false
+			role = "ENGENHEIRO"
 			phrases = [source]
 		_:
 			if int(event.get("priority", 0)) < 60:
@@ -195,9 +260,12 @@ func _event_line(event: Dictionary, race, player_team: String) -> bool:
 		if int(_last_style.get(kind, -1)) == index:
 			index = (index + 1) % phrases.size()
 	_last_style[kind] = index
-	_push(t, role, phrases[index], is_ours, kind, car_id)
-	if not radio_packet.is_empty():
-		lines[-1]["radio3"] = radio_packet
+	if is_ours and role in ["PILOTO", "ENGENHEIRO"]:
+		var priority: int = 1 if int(event.get("priority", 0)) >= 85 else 2 if int(event.get("priority", 0)) >= 70 else 3
+		var metadata: Dictionary = {"source_event_id": int(event.get("event_id", -1)), "priority": priority, "radio3": radio_packet, "conversation_id": str(radio_packet.get("conversation_id", ""))}
+		communication.enqueue_legacy(t, role, phrases[index], kind, car_id, metadata)
+	else:
+		_push(t, role, phrases[index], is_ours, kind, car_id)
 	# Soul3 has no automatic engineer message; this is presentation-only
 	# acknowledgement of the already-verified request. The next real driver
 	# command remains under the existing manual/AI Pit Wall validation.
@@ -209,9 +277,8 @@ func _event_line(event: Dictionary, race, player_team: String) -> bool:
 			"conversation_id": str(radio_packet.get("conversation_id", ""))}
 		var answer: Dictionary = Radio3.engineer(car, str(radio_packet["intent"]), context)
 		if not answer.is_empty():
-			_push(t, "ENGENHEIRO", "RÁDIO FICTÍCIO | Engenheiro: " + str(answer["text"]),
-				is_ours, "radio3_ack", car_id)
-			lines[-1]["radio3"] = answer
+			communication.enqueue_legacy(t, "ENGENHEIRO", "RÁDIO FICTÍCIO | Engenheiro: " + str(answer["text"]), "radio3_ack", car_id,
+				{"source_event_id": int(event.get("event_id", -1)), "priority": 1 if int(event.get("priority", 0)) >= 85 else 2 if int(event.get("priority", 0)) >= 70 else 3, "radio3": answer, "conversation_id": str(answer.get("conversation_id", ""))})
 			_radio3_memory[car_id] = Radio3.remember(_radio3_memory.get(car_id, {}), answer)
 	return true
 
@@ -241,8 +308,16 @@ func _driver_by_id(race, driver_id: int) -> Dictionary:
 			return car
 	return {}
 
-func _push(at: float, role: String, message: String, is_ours: bool, kind: String, car_id: int = -1) -> void:
-	lines.append({"time": at, "role": role, "message": message, "team": is_ours, "kind": kind, "car_id": car_id})
+func _push(at: float, role: String, message: String, is_ours: bool, kind: String, car_id: int = -1, delivered: Dictionary = {}) -> void:
+	var line: Dictionary = {"time": at, "role": role, "message": message, "team": is_ours, "kind": kind, "car_id": car_id}
+	if is_ours and role in ["PILOTO", "ENGENHEIRO", "CHEFE"]:
+		var packet: Dictionary = delivered if not delivered.is_empty() else communication.record_legacy(at, role, message, kind, car_id)
+		if packet.is_empty():
+			return
+		line["context_0922"] = packet
+		if radio_audio.enabled and role != "CHEFE":
+			radio_audio.enqueue(packet, radio_speed)
+	lines.append(line)
 	while lines.size() > MAX_LINES:
 		lines.pop_front()
 
@@ -299,5 +374,8 @@ func formatted(filter_mode: int = 0, selected_car_id: int = -1) -> String:
 		var clock_s: int = int(float(line["time"]))
 		var stamp := "%02d:%02d" % [clock_s / 60, clock_s % 60]
 		var safe: String = str(line["message"]).replace("[", "(").replace("]", ")")
+		var packet: Dictionary = line.get("context_0922", {})
+		if radio_subtitles and not str(packet.get("subtitle_pt", "")).is_empty() and str(packet.get("subtitle_pt", "")) != str(line["message"]):
+			safe += "\n" + str(packet.subtitle_pt).replace("[", "(").replace("]", ")")
 		output.append("[color=%s][b]%s · %s[/b][/color]  %s" % [str(CAST.get(role, "#e7efff")), stamp, role, safe])
 	return "\n\n".join(output) if not output.is_empty() else "Aguardando acontecimentos da corrida."

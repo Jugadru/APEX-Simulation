@@ -125,6 +125,8 @@ static func _commit_championship_result(host) -> void:
 	if host.replay_session != null and host.replay_session.playback: return
 	if not host.championship_race_active or host.championship_result_saved or host.race == null or not host.race.finished:
 		return
+	if host.commentary != null:
+		host.commentary.ingest(host.race, host.selected_team)
 	var outcome: Dictionary = host.championship.record_result(host.race.track, host.race.get_sorted(), host.race.clock)
 	if not bool(outcome.get("ok", false)):
 		push_error("APEX campeonato: " + str(outcome.get("error", "erro ao salvar")))
@@ -132,6 +134,13 @@ static func _commit_championship_result(host) -> void:
 		host.run_button.disabled = false
 		return
 	host.championship_result_saved = true
+	if host.commentary != null:
+		var career = preload("res://scripts/core/race_engineer_career_0922.gd")
+		var team: Dictionary = host.garage.get_team(host.selected_team)
+		var previous: Dictionary = (team.get("staff_soul", {}) as Dictionary).duplicate(true)
+		if career.settle(team, host.commentary.staff_context, host.race.player_cars(), host.commentary.communication.relationships, int(host.championship.state.get("serial", 0)), int(host.championship.state.get("round_index", 0))):
+			if not host.garage.save():
+				team["staff_soul"] = previous
 	host._reconcile_championship_rewards()
 	host.run_button.text = "▶ PRÓXIMO GP" if not host.championship.is_complete() else "🏆 CLASSIFICAÇÃO"
 	host.run_button.disabled = false
