@@ -3,7 +3,7 @@
 Base: v0.6.6.9.17.12 / 036, PR #127, merge f442d3b8. Uma funcionalidade principal: disponibilizar acertos climáticos reais no fluxo de preparação do GP.
 
 ## Escopo
-O modelo 015 já calcula ritmo e desgaste com asa, freios e suspensão a partir da umidade, carga lateral, tração e aderência observadas. A interface de preparação agora permite escolher separadamente para a dupla, com ordem estável por ID do cadastro e nomes no painel. Os presets são escolhas explícitas, não previsões perfeitas nem acertos automáticos de IA. Mantidos durante a prova; escolhas do menu permanecem até alteração manual, padrão neutro. Sem alteração de pneus, clima, estratégia, DRS/KERS, física de corrida ou RNG. Valores abstratos de balanceamento, não medições FIA.
+O modelo 015 já calcula ritmo e desgaste com asa, freios e suspensão a partir da umidade, carga lateral, tração e aderência observadas. A interface de preparação agora permite escolher separadamente para a dupla, com ordem estável por ID do cadastro e nomes no painel. Os presets são escolhas explícitas, não previsões perfeitas nem acertos automáticos de IA. Mantidos durante a prova; escolhas do menu permanecem na mesma equipe até alteração manual; mudança de equipe volta ao neutro. Sem alteração de pneus, clima, estratégia, DRS/KERS, física de corrida ou RNG. Valores abstratos de balanceamento, não medições FIA.
 
 | Acerto | Asa | Freio | Suspensão |
 |---|---:|---:|---:|

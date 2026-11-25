@@ -228,6 +228,7 @@ var weather_briefing_label: Label
 var weather_mode_picker: OptionButton
 var wet_setup_pickers: Array[OptionButton] = []
 var wet_setup_labels: Array[Label] = []
+var wet_setup_team: String = ""
 var weather_label: Label
 var weather_header: Label
 var portrait_manager

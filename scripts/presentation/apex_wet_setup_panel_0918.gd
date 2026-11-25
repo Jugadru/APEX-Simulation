@@ -15,12 +15,15 @@ static func build(host, parent: Node, white: Color, muted: Color) -> void:
 		picker.select(0)
 		picker.tooltip_text="Acerto fixo para o GP: asa, freio e suspensão. Não troca pneus nem altera a previsão."
 		host.wet_setup_pickers.append(picker)
-	var note: Label=host._label(parent,"Seco: precisão e suspensão firme. Misto: compromisso. Chuva: mais asa, freio conservador e suspensão macia; perde desempenho se secar. A escolha permanece até você alterá-la e é travada na largada.",12,muted)
+	var note: Label=host._label(parent,"Seco: precisão e suspensão firme. Misto: compromisso. Chuva: mais asa, freio conservador e suspensão macia; perde desempenho se secar. A escolha permanece para a mesma equipe até você alterá-la e é travada na largada.",12,muted)
 	note.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
 	refresh(host)
 
 static func refresh(host) -> void:
 	if host.wet_setup_labels.size()!=2: return
+	if host.wet_setup_team!=host.selected_team:
+		for picker in host.wet_setup_pickers: picker.select(0)
+		host.wet_setup_team=host.selected_team
 	for team in host.teams:
 		if str(team.get("name",""))!=host.selected_team: continue
 		var drivers: Array=team.get("drivers",[])

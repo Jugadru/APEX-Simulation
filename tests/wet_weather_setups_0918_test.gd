@@ -54,6 +54,8 @@ func run():
     a.step(.2);b.step(.2)
    for car in b.cars:check(float(car.progress)>=float(initial[car.id]),"no net reverse")
    check(Codec.sporting_hash(a,{})!=Codec.sporting_hash(b,{}),"configured sporting state differs")
+   var original_players:Array=Wet.roster(a)
+   check(absf(float(original_players[0].progress)-float(players[0].progress))>1e-9 or absf(float(original_players[0].wear)-float(players[0].wear))>1e-9,"setup actually affects movement or wear")
  var race=Race.new(data.teams,"Ferrari",42,{},data.tracks[0],{})
  race.configure_weather("Chuva intensa")
  check(Wet.apply(race,[3,2]),"apply before recording")
@@ -68,6 +70,13 @@ func run():
  await process_frame
  check(game.wet_setup_pickers.size()==2,"both native controls")
  if game.wet_setup_pickers.size()==2:
+  game.wet_setup_pickers[0].select(3)
+  var previous_team:String=game.selected_team
+  var alternative:int=1 if game.team_picker.selected==0 else 0
+  game._on_team_selected(alternative)
+  check(game.wet_setup_pickers[0].selected==0 and game.wet_setup_pickers[1].selected==0,"new team does not inherit another pair setup")
+  for i in range(game.teams.size()):
+   if str(game.teams[i].name)==previous_team:game._on_team_selected(i);break
   game.wet_setup_pickers[0].select(3)
   game.wet_setup_pickers[1].select(2)
   game._start_race()
