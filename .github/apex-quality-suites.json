@@ -301,12 +301,30 @@
         "tests/navigation_09176_test.gd"
       ],
       "fast_tests": [
-        {"script": "navigation_09176_test.gd", "marker": "NAVIGATION_09176_PASS"},
-        {"script": "front_menu_test.gd", "marker": "FRONT_MENU_PASS"},
-        {"script": "management_hud04_test.gd", "marker": "HUD04_PASS"},
-        {"script": "workshop_0656_integration.gd", "marker": "WORKSHOP_INTEGRATION_PASS"},
-        {"script": "core_0600_championship_smoke_test.gd", "marker": "PASS 0600"},
-        {"script": "driver_hud_identity_09175_test.gd", "marker": "DRIVER_HUD_IDENTITY_09175_PASS"}
+        {
+          "script": "navigation_09176_test.gd",
+          "marker": "NAVIGATION_09176_PASS"
+        },
+        {
+          "script": "front_menu_test.gd",
+          "marker": "FRONT_MENU_PASS"
+        },
+        {
+          "script": "management_hud04_test.gd",
+          "marker": "HUD04_PASS"
+        },
+        {
+          "script": "workshop_0656_integration.gd",
+          "marker": "WORKSHOP_INTEGRATION_PASS"
+        },
+        {
+          "script": "core_0600_championship_smoke_test.gd",
+          "marker": "PASS 0600"
+        },
+        {
+          "script": "driver_hud_identity_09175_test.gd",
+          "marker": "DRIVER_HUD_IDENTITY_09175_PASS"
+        }
       ],
       "checks": []
     },
@@ -324,9 +342,18 @@
         "scripts/apex_racecraft_0654.gd"
       ],
       "fast_tests": [
-        {"script": "race_traffic_hotfix_09177_test.gd", "marker": "TRAFFIC_09177_PASS"},
-        {"script": "traffic_road_width_09177_test.gd", "marker": "TRAFFIC_ROAD_WIDTH_09177_PASS"},
-        {"script": "sim_space_0655_test.gd", "marker": "SIM_SPACE_PASS"}
+        {
+          "script": "race_traffic_hotfix_09177_test.gd",
+          "marker": "TRAFFIC_09177_PASS"
+        },
+        {
+          "script": "traffic_road_width_09177_test.gd",
+          "marker": "TRAFFIC_ROAD_WIDTH_09177_PASS"
+        },
+        {
+          "script": "sim_space_0655_test.gd",
+          "marker": "SIM_SPACE_PASS"
+        }
       ],
       "checks": []
     },
@@ -338,9 +365,18 @@
         "tests/main_menu_09178_test.gd"
       ],
       "fast_tests": [
-        {"script": "main_menu_09178_test.gd", "marker": "MAIN_MENU_09178_PASS"},
-        {"script": "front_menu_test.gd", "marker": "FRONT_MENU_PASS"},
-        {"script": "navigation_09176_test.gd", "marker": "NAVIGATION_09176_PASS"}
+        {
+          "script": "main_menu_09178_test.gd",
+          "marker": "MAIN_MENU_09178_PASS"
+        },
+        {
+          "script": "front_menu_test.gd",
+          "marker": "FRONT_MENU_PASS"
+        },
+        {
+          "script": "navigation_09176_test.gd",
+          "marker": "NAVIGATION_09176_PASS"
+        }
       ],
       "checks": []
     },
@@ -354,10 +390,22 @@
         "tests/season_preparation_09179_test.gd"
       ],
       "fast_tests": [
-        {"script": "season_preparation_09179_test.gd", "marker": "SEASON_PREPARATION_09179_PASS"},
-        {"script": "front_menu_test.gd", "marker": "FRONT_MENU_PASS"},
-        {"script": "navigation_09176_test.gd", "marker": "NAVIGATION_09176_PASS"},
-        {"script": "core_0600_championship_smoke_test.gd", "marker": "PASS 0600"}
+        {
+          "script": "season_preparation_09179_test.gd",
+          "marker": "SEASON_PREPARATION_09179_PASS"
+        },
+        {
+          "script": "front_menu_test.gd",
+          "marker": "FRONT_MENU_PASS"
+        },
+        {
+          "script": "navigation_09176_test.gd",
+          "marker": "NAVIGATION_09176_PASS"
+        },
+        {
+          "script": "core_0600_championship_smoke_test.gd",
+          "marker": "PASS 0600"
+        }
       ],
       "checks": []
     },
@@ -376,11 +424,26 @@
         "scripts/core/race_pass_completion_091710.gd"
       ],
       "fast_tests": [
-        {"script": "racing_line_091710_test.gd", "marker": "RACING_LINE_091710_PASS"},
-        {"script": "racing_follow_091710_test.gd", "marker": "FOLLOW_091710_PASS"},
-        {"script": "racing_completion_091710_test.gd", "marker": "COMPLETION_091710_PASS"},
-        {"script": "sim_space_0655_test.gd", "marker": "SIM_SPACE_PASS"},
-        {"script": "radio_0668101_booked_pit_advice_test.gd", "marker": "RADIO_0668101_BOOKED_PIT_PASS"}
+        {
+          "script": "racing_line_091710_test.gd",
+          "marker": "RACING_LINE_091710_PASS"
+        },
+        {
+          "script": "racing_follow_091710_test.gd",
+          "marker": "FOLLOW_091710_PASS"
+        },
+        {
+          "script": "racing_completion_091710_test.gd",
+          "marker": "COMPLETION_091710_PASS"
+        },
+        {
+          "script": "sim_space_0655_test.gd",
+          "marker": "SIM_SPACE_PASS"
+        },
+        {
+          "script": "radio_0668101_booked_pit_advice_test.gd",
+          "marker": "RADIO_0668101_BOOKED_PIT_PASS"
+        }
       ],
       "checks": []
     },
@@ -393,7 +456,10 @@
         "tests/racing_independent_091710_test.gd"
       ],
       "fast_tests": [
-        {"script": "racing_independent_091710_test.gd", "marker": "INDEPENDENT_091710_PASS"}
+        {
+          "script": "racing_independent_091710_test.gd",
+          "marker": "INDEPENDENT_091710_PASS"
+        }
       ],
       "checks": []
     },
@@ -409,7 +475,29 @@
         "tests/aero_wake_091711_test.gd"
       ],
       "fast_tests": [
-        {"script": "aero_wake_091711_test.gd", "marker": "AERO_WAKE_091711_PASS"}
+        {
+          "script": "aero_wake_091711_test.gd",
+          "marker": "AERO_WAKE_091711_PASS"
+        }
+      ],
+      "checks": []
+    },
+    {
+      "id": "tactical_coordination_091712",
+      "paths": [
+        "scripts/core/race_tactical_coordination_091712.gd",
+        "scripts/core/race_space_0655.gd",
+        "scripts/race_engine.gd",
+        "scripts/core/race_replay_0660.gd",
+        "scripts/core/race_state_codec_0660.gd",
+        "tests/tactical_coordination_091712_test.gd",
+        "tests/aero_wake_091711_test.gd"
+      ],
+      "fast_tests": [
+        {
+          "script": "tactical_coordination_091712_test.gd",
+          "marker": "COORDINATION_091712_PASS"
+        }
       ],
       "checks": []
     }

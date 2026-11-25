@@ -1,8 +1,8 @@
-# APEX Motorsport Manager — Core 2 v0.6.6.9.17.11 REV4 (candidata)
+# APEX Motorsport Manager — Core 2 v0.6.6.9.17.12 (candidata)
 
-**Candidata desta branch:** Slipstream & Dirty Air 1.0 REV4. Revisão esportiva 035: linha própria contínua em baixa aderência, sem retirar proteções 034; 031–034 preservadas para replays. [Escopo e testes](docs/APEX_RELEASE_v0.6.6.9.17.11_AERO_WAKE.md).
+**Candidata desta branch:** Coordenação entre trajetória, ataque e defesa. Revisão esportiva 036; histórico 035 preservado. [Escopo e testes](docs/APEX_RELEASE_v0.6.6.9.17.12_COORDINATION.md).
 
-**Versão integrada: v0.6.6.9.17.10 — Racing Line Intelligence REV4.** [PR #125](https://github.com/Jugadru/APEX-Simulation/pull/125), merge `6293a5b1`. Retratos privados opcionais; não redistribuir fotografias sem licença. A 9.17.11 permanece candidata até homologação.
+**Versão integrada: v0.6.6.9.17.11 REV4 — Slipstream & Dirty Air.** [PR #126](https://github.com/Jugadru/APEX-Simulation/pull/126), merge `138bd30a`. Retratos privados opcionais; não redistribuir fotografias sem licença. A 9.17.12 permanece candidata até homologação.
 
 A convergência preventiva antes de estreitamentos eliminou as 7 amostras estacionárias esportivas observadas nos 24 cenários testados, sem diminuir as 25 ultrapassagens reais. O grid, a interpolação da 9.17.3, as regras de 2012 e a gravação de replay desligada por padrão permanecem. A frequência de carros lado a lado ainda requer melhorias futuras.
 
