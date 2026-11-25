@@ -1,4 +1,5 @@
 extends RefCounted
+const WetSetupPanel = preload("res://scripts/presentation/apex_wet_setup_panel_0918.gd")
 ## APEX 0.6.2.3 — extracted responsibility; main.gd remains the scene host.
 ## The wrapper preserves legacy signals and callbacks.
 
@@ -149,6 +150,7 @@ static func _build_menu(host) -> void:
 	host.weather_briefing_label = host._label(box, "", 13, MUTED)
 	host.weather_briefing_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	host._update_weather_briefing()
+	WetSetupPanel.build(host,box,WHITE,MUTED)
 	host._label(box, "04 / CONTROLE E ESTRATÉGIA", 15, GREEN)
 	host.pre_race_team_mode_picker = host._option(box, ["Manual — eu decido", "Automático — STAFF decide"], host._select_pre_race_team_mode)
 	host.pre_race_team_mode_picker.fit_to_longest_item = false
@@ -200,5 +202,6 @@ static func _build_menu(host) -> void:
 	host._button(host.menu_actions, "VOLTAR AO MENU PRINCIPAL", front.show_home)
 
 static func refresh_preparation(host) -> void:
+	WetSetupPanel.refresh(host)
 	var preview = Prep.find(host)
 	if is_instance_valid(preview): preview.refresh()

@@ -4,6 +4,7 @@ extends RefCounted
 
 const DirectorScript = preload("res://scripts/tv_director.gd")
 const RaceScript = preload("res://scripts/race_engine.gd")
+const WetSetup0918 = preload("res://scripts/core/race_wet_setup_0918.gd")
 const StrategyStaff066910 = preload("res://scripts/core/race_strategy_staff_intelligence_066910.gd")
 static func _start_race(host) -> void:
 	if host.replay_ui != null: host.replay_ui.leave()
@@ -48,6 +49,12 @@ static func _start_race(host) -> void:
 		host.race.set_rival_development(host.championship.get_rival_levels())
 	if host.weather_mode_picker != null:
 		host.race.configure_weather(host.weather_mode_picker.get_item_text(host.weather_mode_picker.selected))
+	# Explicit per-driver presets are applied BEFORE replay.attach captures tick 0.
+	# No automatic forecast-based choice or change to tyre/pit strategy.
+	if host.wet_setup_pickers.size()==2:
+		var choices: Array=[host.wet_setup_pickers[0].selected,host.wet_setup_pickers[1].selected]
+		if not WetSetup0918.apply(host.race,choices):
+			push_error("APEX: acerto climático pré-corrida inválido; mantido acerto neutro.")
 	# Only the explicit demo option forces failures. Ordinary races use low,
 	# seeded incident probabilities defined in race_engine.gd.
 	if host.pit_test_picker != null and host.pit_test_picker.selected > 0:

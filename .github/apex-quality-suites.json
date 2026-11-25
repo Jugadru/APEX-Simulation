@@ -500,6 +500,38 @@
         }
       ],
       "checks": []
+    },
+    {
+      "id": "wet_weather_setups_0918",
+      "paths": [
+        "scripts/core/race_wet_setup_0918.gd",
+        "scripts/presentation/apex_wet_setup_panel_0918.gd",
+        "scripts/main.gd",
+        "scripts/apex_menu_screen.gd",
+        "scripts/apex_race_session_controller.gd",
+        "tests/wet_weather_setups_0918_test.gd",
+        "scripts/core/race_weather_setup_15.gd",
+        "scripts/core/race_performance.gd"
+      ],
+      "fast_tests": [
+        {
+          "script": "wet_weather_setups_0918_test.gd",
+          "marker": "WET_SETUPS_0918_PASS"
+        },
+        {
+          "script": "weather_setup_15_test.gd",
+          "marker": "WEATHER_SETUP_15_PASS"
+        },
+        {
+          "script": "setup_track_066914_test.gd",
+          "marker": "SETUP_TRACK_066914_PASS"
+        },
+        {
+          "script": "front_menu_test.gd",
+          "marker": "FRONT_MENU_PASS"
+        }
+      ],
+      "checks": []
     }
   ]
 }
