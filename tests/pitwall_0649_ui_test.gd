@@ -9,9 +9,27 @@ func check(cond: bool, name: String) -> void:
 		printerr("PITWALL_0649_UI_FAIL ",name)
 func _capture(where: String) -> void:
 	for i in range(8): await process_frame
+	await RenderingServer.frame_post_draw
 	var pic: Image = root.get_texture().get_image()
-	check(pic.save_png(where) == OK,"save screenshot")
+	if pic == null or pic.is_empty():
+		check(false,"missing real rendered image "+where)
+		return
+	var status: Error = pic.save_png(where)
+	check(status == OK and FileAccess.file_exists(where),"save screenshot "+where)
+	if status == OK:
+		var saved: Image = Image.load_from_file(where)
+		check(saved != null and not saved.is_empty(),"readable screenshot "+where)
+		print("PITWALL_UI_CAPTURE ",where," image=",pic.get_width(),"x",pic.get_height())
 func _run() -> void:
+	if DisplayServer.get_name() == "headless":
+		printerr("PITWALL_0649_UI_FAIL real framebuffer required; run via xvfb")
+		quit(1)
+		return
+	var status: Error = DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://qa/stabilization_0667"))
+	if status != OK:
+		printerr("PITWALL_0649_UI_FAIL screenshot directory ",status)
+		quit(1)
+		return
 	root.size = Vector2i(1600,900)
 	var scene: PackedScene = load("res://scenes/main.tscn")
 	var game = scene.instantiate()
@@ -31,6 +49,7 @@ func _run() -> void:
 	check(hud.overlay_title.text.contains("PIT WALL 3.0"), "title")
 	check(str(hud.pitwall3_cards[0]["strategy"].text).length()>20,"dynamic strategy")
 	check(str(hud.pitwall3_cards[0]["scenarios"].text).contains("PIT" ) or str(hud.pitwall3_cards[0]["scenarios"].text).contains("Box"),"scenarios display")
+	check(str(hud.pitwall3_cards[0]["scenarios"].text).contains("TRÁFEGO PROJETADO"),"039 real traffic forecast displayed")
 	await _capture("res://qa/stabilization_0667/pitwall_1600.png")
 	var team: Array = game.race.player_cars()
 	var car: Dictionary = team[0]
@@ -45,6 +64,8 @@ func _run() -> void:
 	check(int(car.get("pit_scheduled_lap",0)) == 0, "queued command has not yet changed sports state")
 	check(game.replay_session.step_tick(), "schedule command processed next tick")
 	check(int(car.get("pit_scheduled_lap",0)) == next, "click schedules on motor")
+	hud._refresh_pitwall3_window()
+	check(str(hud.pitwall3_cards[0]["scenarios"].text).contains("ordem protegida"),"039 protected order displayed")
 	check(not bool(car.get("pit_request",false)), "schedule not immediate pit")
 	hud._pitwall3_schedule(id2,0)
 	check(game.replay_session.step_tick(), "companion command-processing tick")
