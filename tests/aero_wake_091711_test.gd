@@ -180,7 +180,7 @@ func drive(data:Dictionary,track:Dictionary,revision:int,climate:String,ticks:in
  for item in race.cars:
   var pack_state:Dictionary=item.get("traffic_pack_09201",{})
   if pack_state.is_empty():continue
-  for key in ["clear_s","congestion_s","estimated_lift_s","solver_delay_s","cancelled","opportunities","confirmed_passes","yield_samples","group_transfers","kers_skipped_ticks"]:
+  for key in ["clear_s","congestion_s","estimated_lift_s","solver_delay_s","cancelled","opportunities","confirmed_passes","yield_samples","group_transfers","kers_skipped_ticks","lapping_traffic_s","lapping_delay_est_s","dirty_air_s","tow_s"]:
    pack_totals[key]=float(pack_totals.get(key,0.0))+float(pack_state.get(key,0.0))
  var sorted:Array=race.get_sorted()
  for i in range(sorted.size()):

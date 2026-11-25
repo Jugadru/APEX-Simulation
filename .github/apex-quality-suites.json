@@ -627,6 +627,14 @@
         {
           "script": "team_radio_06689_advice_test.gd",
           "marker": "TEAM_RADIO_06689_PASS"
+        },
+        {
+          "script": "pitwall_0649_ui_test.gd",
+          "marker": "PITWALL_0667_QUEUE_AWARE_UI_PASS"
+        },
+        {
+          "script": "hud_pitwall_quick_panel_refactor_test.gd",
+          "marker": "HUD_PITWALL_QUICK_PANEL_REFACTOR_PASS"
         }
       ],
       "checks": []

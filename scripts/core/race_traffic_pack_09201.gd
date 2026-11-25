@@ -23,10 +23,15 @@ static func observe(car:Dictionary, grid:Array, metrics:Dictionary, length:float
  var soul:Dictionary=car.get("driver_soul",{})
  var focus:float=clampf(float(soul.get("focus",.85)),0.0,1.0)
  var risk:float=clampf(float(car.get("risk_tolerance",55.0))/100.0,0.0,1.0)
- var patience:float=clampf(.45*(1.0-risk)+.30*focus+.25*awareness,0.0,1.0)
- var horizon:float=3.0+2.0*awareness*focus
+ var confidence:float=clampf(float(soul.get("confidence",.55)),0.0,1.0)
+ var mental_pressure:float=clampf(float(soul.get("pressure",.15)),0.0,1.0)
+ var skill:float=clampf(float(car.get("skill",80.0))/100.0,0.0,1.0)
+ var patience:float=clampf(.35*(1.0-risk)+.20*focus+.20*awareness+.15*confidence+.10*(1.0-mental_pressure),0.0,1.0)
+ var horizon:float=2.5+1.5*awareness*focus+.8*skill
  var ahead:Array=[]
  var rear_s:float=999.0
+ var rear_id:int=-1
+ var rear_catch:float=-1.0
  var side:int=0
  var blue_behind:int=0
  var merge_ahead:int=0
@@ -41,10 +46,13 @@ static func observe(car:Dictionary, grid:Array, metrics:Dictionary, length:float
   var seconds:float=g/(length*v)
   if absf(g)<BODY+1.0 and absf(float(other.get("race_lane",0.0))-float(car.get("race_lane",0.0)))>=2.94:side+=1
   if g<0.0:
-   rear_s=minf(rear_s,-seconds)
+   if -seconds<rear_s or (-seconds==rear_s and int(other.id)<rear_id):
+    rear_s=-seconds;rear_id=int(other.id)
+    var rear_closing:float=rate(other,fallback)-v
+    rear_catch=-g/(length*rear_closing) if rear_closing>0.000001 else -1.0
    if Blue.lapping(other,car,-g,length):blue_behind+=1
   elif g>0.000001 and seconds<=horizon:
-   ahead.append({"id":int(other.id),"gap":g,"gap_s":seconds,"rate":rate(other,fallback),"lane":float(other.get("race_lane",0.0)),"drs":bool(other.get("drs_active",false)) or bool(other.get("drs_eligible",false)),"duel":str(other.get("combat_state","")) in ATTACK,"mate":str(other.get("team",""))==str(car.get("team","")) and str(car.get("team",""))!="","lapping":Blue.lapping(car,other,g,length),"pit_approach":str(other.get("team",""))==str(car.get("team","")) and bool(other.get("pit_request",false)) and fposmod(float(other.progress),1.0)>.85})
+   ahead.append({"id":int(other.id),"gap":g,"gap_s":seconds,"rate":rate(other,fallback),"lane":float(other.get("race_lane",0.0)),"drs":bool(other.get("drs_active",false)) or bool(other.get("drs_eligible",false)),"duel":str(other.get("combat_state","")) in ATTACK,"stint_age":int(other.get("stint_laps",-1)),"compound":str(other.get("tire","")),"mate":str(other.get("team",""))==str(car.get("team","")) and str(car.get("team",""))!="","lapping":Blue.lapping(car,other,g,length),"pit_approach":str(other.get("team",""))==str(car.get("team","")) and bool(other.get("pit_request",false)) and fposmod(float(other.progress),1.0)>.85})
  ahead.sort_custom(func(a,b):return int(a.id)<int(b.id) if float(a.gap)==float(b.gap) else float(a.gap)<float(b.gap))
  var first:Dictionary=ahead[0] if not ahead.is_empty() else {}
  var gap_s:float=float(first.get("gap_s",999.0))
@@ -74,9 +82,13 @@ static func observe(car:Dictionary, grid:Array, metrics:Dictionary, length:float
  var prepared:float=0.0
  if leader>=0 and float(first.gap)>38.0 and catch_s>=0.0 and catch_s<=10.0 and not bool(first.lapping):
   prepared=minf(3.0,float(prior.get("prepared_s",0.0))+dt) if same else dt
+ var tyre_age:int=int(first.get("stint_age",-1))
+ var own_age:int=int(car.get("stint_laps",-1))
+ var tyre_hint:String="UNKNOWN"
+ if tyre_age>=0 and own_age>=0:tyre_hint="FRESH" if tyre_age<=3 and own_age>5 else ("OLDER_STINT" if tyre_age>=own_age+7 else "SIMILAR")
  var high:float=float(Thermal.band(str(car.get("tire","Médio")))[1])
  var hot:bool=float(car.get("tyre_surface_c",high-10.0))>high
- return {"leader":leader,"gap_s":gap_s,"rear_s":rear_s,"side_count":side,"group_size":chain,"drs_train":train,"drs_count":drs_count,"front_duels":duels,"catch_s":catch_s,"closing":closing,"mode":mode,"prepared_s":prepared,"patience":patience,"pressure":clampf((1.5-rear_s)/1.5,0.0,1.0),"congestion_run_s":congestion_s,"hot":hot,"blue_behind":blue_behind,"merge_ahead":merge_ahead,"mate":bool(first.get("mate",false)),"lapping_ahead":bool(first.get("lapping",false)),"pit_approach":bool(first.get("pit_approach",false))}
+ return {"leader":leader,"gap_s":gap_s,"rear_s":rear_s,"rear_id":rear_id,"rear_catch_s":rear_catch,"side_count":side,"group_size":chain,"drs_train":train,"drs_count":drs_count,"front_duels":duels,"catch_s":catch_s,"closing":closing,"mode":mode,"prepared_s":prepared,"patience":patience,"pressure":clampf((1.5-rear_s)/1.5,0.0,1.0),"congestion_run_s":congestion_s,"hot":hot,"leader_tyre_age":tyre_age,"leader_compound":str(first.get("compound","")),"tyre_hint":tyre_hint,"leader_slower_observed":closing>0.00002,"blue_behind":blue_behind,"merge_ahead":merge_ahead,"mate":bool(first.get("mate",false)),"lapping_ahead":bool(first.get("lapping",false)),"pit_approach":bool(first.get("pit_approach",false))}
 
 static func preparation_bonus(car:Dictionary,rival:int,advantage:float)->float:
  var prior:Dictionary=car.get(KEY,{})
@@ -125,7 +137,7 @@ static func policy(car:Dictionary,obs:Dictionary,intent:Dictionary,load:float,we
  var result:Dictionary={"mode":str(obs.mode),"lift":0.0,"save_kers":false,"reason":"observe"}
  if str(intent.state) in ATTACK:
   result.mode="COMMIT";return result
- if int(intent.defending)>=0 or narrow or wet>=.65 or float(obs.rear_s)<.75 or str(car.get("pace","Normal"))=="Atacar":return result
+ if int(intent.defending)>=0 or narrow or wet>=.65 or float(obs.rear_s)<.75 or (float(obs.get("rear_catch_s",-1.0))>=0.0 and float(obs.get("rear_catch_s",-1.0))<1.0) or str(car.get("pace","Normal"))=="Atacar":return result
  var close:bool=float(obs.gap_s)<1.15
  var patient:bool=float(obs.patience)>=.60
  var prolonged:bool=float(obs.congestion_run_s)>=4.0
@@ -141,7 +153,7 @@ static func policy(car:Dictionary,obs:Dictionary,intent:Dictionary,load:float,we
   result.save_kers=true
   result.reason="conserve_in_group"
  elif float(obs.prepared_s)>0.0:
-  result.mode="PREPARE";result.reason="anticipated_catch"
+  result.mode="PREPARE";result.reason="older_stint_catch" if str(obs.get("tyre_hint",""))=="OLDER_STINT" else "anticipated_catch"
  elif int(obs.get("merge_ahead",0))>0 or bool(obs.get("pit_approach",false)):
   result.mode="ASSESSING";result.reason="pit_transition"
  elif int(obs.front_duels)>0 and close:
@@ -157,8 +169,17 @@ static func settle(car:Dictionary,obs:Dictionary,intent:Dictionary,next:float,dt
  out["rate"]=lerpf(rate(car,maxf(.0001,measured)),measured,.25)
  out["clear_s"]=float(old.get("clear_s",0.0))+(dt if str(out.mode) in ["FREE_AIR","CLEAR"] else 0.0)
  out["congestion_s"]=float(old.get("congestion_s",0.0))+(dt if int(obs.group_size)>=3 else 0.0)
- out["estimated_lift_s"]=float(old.get("estimated_lift_s",0.0))+dt*(1.0-1.0/(1.0+float(out.lift)))
- out["solver_delay_s"]=float(old.get("solver_delay_s",0.0))+minf(dt,maxf(0.0,float(intent.next)-next)*float(intent.pace))
+ var lift_loss:float=dt*(1.0-1.0/(1.0+float(out.lift)))
+ var solver_loss:float=minf(dt,maxf(0.0,float(intent.next)-next)*float(intent.pace))
+ out["estimated_lift_s"]=float(old.get("estimated_lift_s",0.0))+lift_loss
+ out["solver_delay_s"]=float(old.get("solver_delay_s",0.0))+solver_loss
+ # Associated local delay, NOT an experimentally established counterfactual.
+ out["lapping_traffic_s"]=float(old.get("lapping_traffic_s",0.0))+(dt if bool(obs.get("lapping_ahead",false)) else 0.0)
+ out["lapping_delay_est_s"]=float(old.get("lapping_delay_est_s",0.0))+(minf(dt,lift_loss+solver_loss) if bool(obs.get("lapping_ahead",false)) else 0.0)
+ var aero:Dictionary=intent.get("aero_wake_032",{})
+ out["dirty_air_s"]=float(old.get("dirty_air_s",0.0))+(dt if float(aero.get("dirty_fraction",0.0))>0.00001 else 0.0)
+ out["tow_s"]=float(old.get("tow_s",0.0))+(dt if float(aero.get("tow_fraction",0.0))>0.00001 else 0.0)
+ out["prior_group_size"]=int(old.get("group_size",1))
  out["cancelled"]=int(old.get("cancelled",0))+(1 if intent.has("pack_reason") and str(old.get("reason",""))!=str(intent.get("pack_reason","")) else 0)
  if intent.has("pack_reason"):out.reason=str(intent.pack_reason)
  out["opportunity"]=int(obs.front_duels)>0 and float(obs.closing)>0.00002
@@ -185,4 +206,4 @@ static func pit_reset(car:Dictionary)->Dictionary:
 static func conserve_kers(car:Dictionary,player:bool)->bool:
  # Explicit player KERS setting is never modified. AI skips only a burst;
  # per-zone quotas and 400kJ limit stay in RaceKers2012.
- return not player and str(car.get("kers_mode","Equilibrado"))=="Equilibrado" and bool(car.get(KEY,{}).get("save_kers",false))
+ return not player and str(car.get("pace","Normal"))!="Atacar" and str(car.get("combat_state","")) not in ATTACK and int(car.get("race_defending_against",-1))<0 and str(car.get("kers_mode","Equilibrado"))=="Equilibrado" and bool(car.get(KEY,{}).get("save_kers",false))

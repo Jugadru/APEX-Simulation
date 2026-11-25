@@ -2124,6 +2124,7 @@ func _refresh_pitwall3_window() -> void:
 				traffic_lines.append("V%d ~P%d · %d lentos · %s" % [int(option.lap),int(option.position),int(option.slower_ahead),str(option.risk)])
 			(ui["scenarios"] as Label).text+="\nTRÁFEGO PROJETADO | "+"  |  ".join(traffic_lines)+" · Confiança "+str(traffic_window.get("confidence","BAIXA"))
 			if bool(traffic_window.get("protected",false)):(ui["scenarios"] as Label).text+=" · ordem protegida"
+			elif int(traffic_window.get("recommended_extend",0))>0:(ui["scenarios"] as Label).text+=" · avaliar +%dV" % int(traffic_window.recommended_extend)
 		(ui["notes"] as Label).text = "%s\nEQUIPE: %s  |  COMP.: %s  |  PORTA: %s" % [
 			str(report.get("forecast_note", "")), str(report.get("stack_note", "")),
 			str(report.get("compound", "indefinido")), str(report.get("gate", ""))]

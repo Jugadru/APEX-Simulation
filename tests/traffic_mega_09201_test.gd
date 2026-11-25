@@ -28,8 +28,10 @@ func run():
  check(not Pack.observe(own,grid,metrics,1000,{"wetness_factor":.8,"drs_allowed":false},.2).drs_train,"wet DRS train not armed")
  var fast=car(6,.1);fast.last_lap=80.0
  var slow=car(7,.145);slow.last_lap=130.0
+ fast["stint_laps"]=2;slow["stint_laps"]=15
  var approach=Pack.observe(fast,[fast,slow],{6:metric(80),7:metric(130)},1000,weather,.2)
  check(approach.catch_s>0 and approach.catch_s<10 and approach.prepared_s>0,"anticipation beyond tactical range")
+ check(approach.tyre_hint=="OLDER_STINT" and approach.leader_slower_observed,"public tyre age plus measured slower pace")
  fast[Pack.KEY]=approach
  check(Pack.preparation_bonus(fast,7,1.0)>0 and Pack.preparation_bonus(fast,8,1.0)==0,"preparation target bound")
  var merging=car(8,.19);merging.pit_left=1.0;merging["pit_to"]=.211
@@ -64,7 +66,7 @@ func run():
  check(Pack.refine(early,front,[early,front,third],tm,tactic,{"group_size":3},15,1000)==tactic,"established duel untouched")
  early.combat_state="closing"
  check(Pack.refine(early,front,[early,front],tm,tactic,{"group_size":1,"merge_ahead":1},15,1000).pack_reason=="pit_transition","pit exit delays fresh commitment")
- var back=car(12,.4,-1.0);var previous=car(13,1.405);var next_fast=car(14,1.38)
+ var back=car(12,.4,-1.0);var previous=car(13,1.412);var next_fast=car(14,1.38)
  back[Pack.KEY]={"yield_to":13,"yield_goal":-1.25,"yield_grace":2.0}
  var context={"gap":20.0,"length":1000.0,"limit":2.95,"wet":0.0,"load":0.0,"ahead_load":0.0,"narrowing":false,"busy":false,"advantage":10.0,"passing_lane":-2.95}
  var blue=Pack.blue(next_fast,back,[previous,next_fast,back],{12:metric(100),13:metric(90),14:metric(90)},context)
@@ -72,6 +74,12 @@ func run():
  var group_obs=Pack.observe(back,[previous,next_fast,back],{12:metric(100)},1000,weather,.2)
  check(Pack.group_hold(back,group_obs,intent,2.95,false),"hold between leaders")
  check(not Pack.group_hold(back,group_obs,intent,2.95,true),"no group hold on narrowing")
+ var blue_track={"race_width_m":8.8,"lap_km":5.0,"overtake_zones":[[0.0,1.0]]}
+ var blue_metrics={12:metric(100),13:metric(90),14:metric(90)}
+ var native_blue=Space.plan([previous,next_fast,back],blue_metrics,.2,blue_track,{"length":1000.0},weather,true,false,true,false,40.0,true,true,true,true,true,true,true,true,true,true,true,true,true)
+ check(native_blue[12].states[Pack.KEY].yield_to==14 and int(native_blue[12].states[Pack.KEY].group_transfers)==1,"native blue reservation transferred")
+ check(float(native_blue[12].states.race_lane)<=0.0,"native stable side during handover")
+ check(float(native_blue[14].states[Pack.KEY].lapping_traffic_s)>0.0,"native leader records lapped traffic time")
  var pit=Pack.pit_reset(back);check(pit.yield_grace==0 and pit.mode=="PIT","pit clears stale reservation")
  var forecast_car=car(15,2.0);forecast_car.last_lap=90.0
  var rival=car(16,.78);rival.last_lap=100.0
@@ -135,7 +143,10 @@ func run():
   if ai.is_empty() and str(item.team)!="Ferrari" and bool(item.get("kers_equipped",false)):ai=item
  check(not ai.is_empty(),"native AI KERS participant")
  if not ai.is_empty():
-  ai.progress=3.15;ai.kers_mode="Equilibrado";Kers.reset_lap(ai);ai[Pack.KEY]={"save_kers":true,"mode":"WAIT","rate":.01}
+  var original_progress:float=float(ai.progress)
+  for item in race.cars:
+   if absf(float(item.progress)-3.154)<.00001 and int(item.id)!=int(ai.id):item.progress=original_progress;break
+  ai.progress=3.154;ai.kers_mode="Equilibrado";Kers.reset_lap(ai);ai[Pack.KEY]={"save_kers":true,"mode":"WAIT","rate":.01}
   var energy:float=float(ai.kers_remaining_kj)
   check(Kers.should_deploy(ai,float(ai.progress),1.0,race.track),"native burst eligible")
   var manual:Dictionary=race.player_cars()[0]

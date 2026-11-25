@@ -981,7 +981,7 @@ func _advance(dt: float) -> void:
 					memory.timer=1.2
 					car["racecraft_memory"]=memory
 				car["combat_passes"] = int(car.get("combat_passes",0))+confirmed
-				if traffic_pack_rules and car.has(TrafficPack09201.KEY) and int(car[TrafficPack09201.KEY].get("group_size",1))>=3:
+				if traffic_pack_rules and car.has(TrafficPack09201.KEY) and maxi(int(car[TrafficPack09201.KEY].get("group_size",1)),int(car[TrafficPack09201.KEY].get("prior_group_size",1)))>=3:
 					car[TrafficPack09201.KEY]["confirmed_passes"]=int(car[TrafficPack09201.KEY].get("confirmed_passes",0))+confirmed
 				_event("pass", int(car.id), "ULTRAPASSAGEM CONFIRMADA | %s consolidou P%d." % [str(car.name),i+1],85)
 				car["last_pass_event_at"] = clock
