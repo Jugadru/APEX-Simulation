@@ -144,6 +144,8 @@ static func _start_race(host) -> void:
 
 
 static func _end_to_menu(host) -> void:
+	if host.commentary != null:
+		host.commentary.radio_audio.stop()
 	if host.race != null:
 		host.race.running = false
 	host._show_menu()
