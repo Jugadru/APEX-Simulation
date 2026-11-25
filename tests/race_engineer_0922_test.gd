@@ -5,6 +5,9 @@ const Race = preload("res://scripts/race_engine.gd")
 const Codec = preload("res://scripts/core/race_state_codec_0660.gd")
 const Career = preload("res://scripts/core/race_engineer_career_0922.gd")
 const Audio = preload("res://scripts/presentation/race_radio_audio_0922.gd")
+const Radio3 = preload("res://scripts/presentation/race_radio_06695.gd")
+const PT = preload("res://scripts/presentation/race_radio_pt_0922.gd")
+const Replay = preload("res://scripts/core/race_replay_0660.gd")
 var failures: Array[String] = []
 var checks: int = 0
 func _initialize() -> void:
@@ -95,6 +98,27 @@ func run() -> void:
 		check(not audio.set_enabled(true), "headless speech unavailable without error")
 	audio.enqueue({"sender":"ENGENHEIRO","text":"Test","priority":3})
 	check(audio.queue.is_empty(), "disabled audio never queues")
+	for kind in Radio3.PILOT_LINES:
+		for words in Radio3.PILOT_LINES[kind]:
+			var sample: String = str(words) % 21 if str(words).contains("%d") else str(words)
+			check(not PT.translate(sample).is_empty(), "pilot translation " + str(kind))
+	for kind in Radio3.PRESSURED_LINES:
+		for words in Radio3.PRESSURED_LINES[kind]:
+			var sample: String = str(words) % 21 if str(words).contains("%d") else str(words)
+			check(not PT.translate(sample).is_empty(), "pressured translation " + str(kind))
+	for kind in Radio3.ENGINEER_LINES:
+		check(not PT.translate(str(Radio3.ENGINEER_LINES[kind]) + " Lap 21 remains booked; no change made.").is_empty(), "engineer translation " + str(kind))
+	check(PT.translate("Same issue. Tyres are starting to go.").begins_with("O mesmo problema."), "repeated complaint translation")
+	b.reset()
+	check(b.enqueue_legacy(20.0,"PILOTO","Copy.","driver_radio",5,{"priority":2,"source_event_id":42,"conversation_id":"paired"}), "legacy queue")
+	check(b.enqueue_legacy(20.0,"ENGENHEIRO","Copy.","engineer_reply",5,{"priority":2,"source_event_id":43,"conversation_id":"paired"}), "legacy paired queue")
+	var queued: Array = b.drain(20.0)
+	check(queued.size()==2 and queued[0].conversation_id == queued[1].conversation_id and int(queued[1].source_event_id)==43,"same structured conversation")
+	var recovering: Dictionary = {"id":7,"tire":"Médio","wear":20.0,"driver_error_0921":{"mode":"RECOVERY","kind":"LOCK_UP","count":1,"interrupted_count":0}}
+	b.observe(recovering,dry,30.0)
+	recovering.driver_error_0921 = {"mode":"NORMAL","count":1,"interrupted_count":1}
+	b.observe(recovering,dry,32.0)
+	check(b.drain(32.0).is_empty(), "no recovery completion if interrupted")
 	var data: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/season_2012.json"))
 	var track: Dictionary = data.tracks[0]
 	var track_code: String = OS.get_environment("APEX_ENGINEER_TRACK")
@@ -139,6 +163,12 @@ func run() -> void:
 	check(Codec.sporting_hash(a,{}) == Codec.sporting_hash(reference,{}), "presentation sporting hash parity")
 	check(a.rng.state == reference.rng.state, "RNG parity")
 	check(int(driver.pit_scheduled_lap) == 21, "BOX V21")
+	var recording = Replay.new()
+	recording.attach(Race.new(data.teams, "Ferrari", seed, {}, track, {}))
+	for i in range(160):
+		recording.step_tick()
+	var replay = Replay.new()
+	check(replay.load_data(recording.export_data()) and replay.seek(160) and replay.first_divergence < 0, "040 replay intact")
 	print("ENGINEER_0922_REPORT ", JSON.stringify({"checks":checks,"failures":failures,"track":str(track.get("code","")),"climate":climate,"seed":seed,"ticks":ticks,"engine_us":engine_us,"reference_us":reference_us,"observer_us":observer_us,"observer_overhead_percent":100.0 * float(observer_us) / maxf(1.0,float(engine_us))}))
 	if failures.is_empty():
 		print("ENGINEER_0922_PASS")
