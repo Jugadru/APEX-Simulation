@@ -293,11 +293,16 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 	var narrowing: Dictionary = {}
 	if merge_traffic_enabled:
 		for c in order:
+			var id: int = int(c.id)
 			var p: float = float(c.progress)
-			var min_lane: float = MAX_LANE
-			for offset in [0.0,LENGTH,2.0*LENGTH,3.0*LENGTH,4.0*LENGTH]:
+			# The frozen current and 2*LENGTH samples already exist.
+			# Keep the original min order and exact offsets (no quantization).
+			var min_lane: float = minf(MAX_LANE,float(lane_here[id]))
+			min_lane=minf(min_lane,lane_limit(track,p+LENGTH/length,shape))
+			min_lane=minf(min_lane,float(lane_ahead[id]))
+			for offset in [3.0*LENGTH,4.0*LENGTH]:
 				min_lane=minf(min_lane,lane_limit(track,p+float(offset)/length,shape))
-			narrowing[int(c.id)]=MergeTraffic.single_file(min_lane)
+			narrowing[id]=MergeTraffic.single_file(min_lane)
 	var traffic_observations:Dictionary={}
 	if traffic_pack_enabled:
 		var traffic_rates:Dictionary=TrafficPack.rate_frame(cars)
