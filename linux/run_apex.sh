@@ -1,5 +1,5 @@
 #!/bin/sh
-# Apex Motorsport Manager Godot 0.5.1 — launches a locally installed Godot 4.
+# APEX Motorsport Manager Core 2 — launches a locally installed Godot 4; 4.7.2 recommended.
 # Does not download anything or modify previous Apex releases.
 set -eu
 HERE=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)

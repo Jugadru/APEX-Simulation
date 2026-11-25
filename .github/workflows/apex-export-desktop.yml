@@ -3,9 +3,6 @@ name: APEX - Exportacao Linux e Windows
 on:
   workflow_dispatch:
   push:
-    branches: [main]
-    paths:
-      - 'docs/APEX_DISTRIBUTION_09174.md'
     tags:
       - 'v*'
   # Optional playtest export. Triggered ONLY by deliberately applying
@@ -28,8 +25,8 @@ jobs:
       - name: Baixar projeto
         uses: actions/checkout@v4
         with:
-          # Explicit one-time release request builds the exact approved merge.
-          ref: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && '603998ae31666d8f72cc4225a1396c0b49a2d739' || github.sha }}
+          # Export the exact commit selected by the workflow event.
+          ref: ${{ github.sha }}
 
       - name: Instalar Godot e export templates oficiais
         uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c # v3.0.1
@@ -125,15 +122,14 @@ jobs:
           assert version, 'Missing version number in application/config/name'
           description = re.search(r'^config/description="([^"]+)"', project, re.MULTILINE)
           assert description and version.group(0) in description.group(1), 'Version mismatch in project.godot'
-          old = b"APEX Motorsport Manager v0.6.6.9.3"
-          much_older = b"APEX Motorsport Manager v0.6.6.9.2"
+          native = re.search(r'^config/version="([^"]+)"', project, re.MULTILINE)
+          if native:
+              assert "v" + native.group(1) == version.group(0), "Native config/version mismatch"
           for platform in ("linux", "windows"):
               pck = Path("builds") / platform / "APEX_Motorsport_Manager.pck"
               data = pck.read_bytes()
               assert expected in data, f"{platform}: wrong application/config/name in PCK"
-              assert old not in data, f"{platform}: old 9.3 application/config/name in PCK"
-              assert much_older not in data, f"{platform}: old 9.2 application/config/name in PCK"
-              print(f"APEX_BUILD_ID_06694_PASS {platform} {expected.decode()}")
+              print(f"APEX_BUILD_ID_PASS {platform} {expected.decode()}")
           PY
 
       - name: Validar binarios e compactar
@@ -211,52 +207,3 @@ jobs:
             dist/error.txt
           retention-days: 14
           if-no-files-found: warn
-
-  publish-09174:
-    name: Publicar download permanente 9.17.4
-    needs: export-pc
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    env:
-      GH_TOKEN: ${{ github.token }}
-      RELEASE_TAG: v0.6.6.9.17.4
-      RELEASE_SOURCE: 603998ae31666d8f72cc4225a1396c0b49a2d739
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: apex-pc-linux-windows-godot-4-7-2
-          path: dist
-      - name: Confirmar origem e integridade
-        run: |
-          set -euo pipefail
-          test "$(cat dist/SOURCE_COMMIT.txt)" = "$RELEASE_SOURCE"
-          (cd dist && sha256sum --check SHA256SUMS.txt)
-          test -s dist/manifest.json
-          test -s dist/APEX_Motorsport_Manager_4.7.2-stable_linux_x86_64.zip
-          test -s dist/APEX_Motorsport_Manager_4.7.2-stable_windows_x86_64.zip
-      - name: Publicar pre-release jogavel sem substituir releases historicas
-        run: |
-          set -euo pipefail
-          cat > /tmp/apex-release.md <<'EOF'
-          # APEX Motorsport Manager v0.6.6.9.17.4 — Competitive Start & Traffic Intelligence
-
-          Código integrado e homologado: 603998ae31666d8f72cc4225a1396c0b49a2d739 (árvore idêntica ao SHA 7ed25d3 aprovado no PR #117).
-          FAST + Test Lab, regressões visuais e matriz esportiva: 26/26 jobs PASS.
-          24 cenários esportivos, 72 execuções A/B e repetição, 510 verificações esportivas.
-
-          - Convergência preventiva antes de curvas estreitas.
-          - Amostras estacionárias esportivas 7 → 0, 25 ultrapassagens em ambas versões, zero reversões ou congelamentos do pelotão nos cenários testados.
-          - Revisão 026; replay desligado por padrão, contratos históricos preservados.
-          - Grid, regras de 2012 e arquitetura visual da 9.17.3 preservados.
-          - Frequência de disputas lado a lado praticamente inalterada; racing line e vácuo são etapas futuras.
-
-          Linux e Windows x86_64: extraia o ZIP do seu sistema, mantenha o executável junto ao PCK. No Linux, se necessário, chmod +x APEX_Motorsport_Manager.x86_64.
-          Exportações, identificação dos PCKs, integridade ZIP/SHA-256 e inicialização Linux headless aprovadas neste workflow.
-          Pré-release jogável permanente para teste: Windows cross-exportado, execução nativa Windows e FPS/GPU em hardware do jogador não comprovados. Não é homologação de todos os GPs completos.
-          EOF
-          gh release create "$RELEASE_TAG" dist/*.zip dist/manifest.json dist/SHA256SUMS.txt dist/SOURCE_COMMIT.txt \
-            --repo "$GITHUB_REPOSITORY" --target "$RELEASE_SOURCE" --prerelease \
-            --title "APEX v0.6.6.9.17.4 — Competitive Start & Traffic Intelligence (Linux e Windows)" \
-            --notes-file /tmp/apex-release.md

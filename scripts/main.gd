@@ -267,7 +267,7 @@ func _ready() -> void:
 		preview.hide()
 	# Use the packaged project identity as the only source for the version label.
 	# Presentation metadata only; never changes sporting state or replay.
-	get_window().title = "%s / Core 2" % str(ProjectSettings.get_setting("application/config/name", "APEX Motorsport Manager"))
+	get_window().title = str(ProjectSettings.get_setting("application/config/name", "APEX Motorsport Manager"))
 	_load_season_data()
 	_load_hud_prefs()
 	garage = GarageScript.new()
