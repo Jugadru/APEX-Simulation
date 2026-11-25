@@ -99,7 +99,7 @@ func fixture():
  print("AERO_WAKE_FIXTURE ",JSON.stringify({"close":close,"far":far,"corner":corner,"wet":wet,"sporting_old":old[1].progress,"sporting_new":new[1].progress}))
 func drive(data:Dictionary,track:Dictionary,revision:int,climate:String,ticks:int,seed:int=42)->Dictionary:
  var race=Race.new(data.teams,"Ferrari",seed,{},track,{})
- race.aero_wake_enabled=revision>=32;race.aero_wake_corrected=revision>=33;race.aero_wake_stability=revision>=34;race.aero_wet_line_stability=revision>=35;race.tactical_coordination_enabled=revision>=36;race.corner_battle_enabled=revision>=37;race.traffic_intelligence_enabled=revision>=38;race.traffic_pack_enabled=revision>=39;race.configure_weather(climate);race.running=true
+ race.aero_wake_enabled=revision>=32;race.aero_wake_corrected=revision>=33;race.aero_wake_stability=revision>=34;race.aero_wet_line_stability=revision>=35;race.tactical_coordination_enabled=revision>=36;race.corner_battle_enabled=revision>=37;race.traffic_intelligence_enabled=revision>=38;race.traffic_pack_enabled=revision>=39;race.driver_error_enabled=revision>=40;race.configure_weather(climate);race.running=true
  var corner_reasons:Dictionary={}
  var pack_modes:Dictionary={}
  var steering_examples:Array=[]
@@ -176,6 +176,13 @@ func drive(data:Dictionary,track:Dictionary,revision:int,climate:String,ticks:in
      overlaps+=1
      if examples.size()<12:examples.append({"kind":"overlap","tick":tick,"a":active[i].id,"b":active[j].id,"gap":gap,"lane":lane})
     if gap<7.4 and lane>=2.94:side+=1
+ var error_totals:Dictionary={"count":0,"total_loss":0.0,"types":{}}
+ for item in race.cars:
+  var error_state:Dictionary=item.get("driver_error_0921",{})
+  error_totals.count+=int(error_state.get("count",0))
+  error_totals.total_loss+=float(error_state.get("total_loss",0.0))
+  for kind in error_state.get("counts",{}):
+   error_totals.types[kind]=int(error_totals.types.get(kind,0))+int(error_state.counts[kind])
  var pack_totals:Dictionary={}
  for item in race.cars:
   var pack_state:Dictionary=item.get("traffic_pack_09201",{})
@@ -187,7 +194,7 @@ func drive(data:Dictionary,track:Dictionary,revision:int,climate:String,ticks:in
   classification.append({"id":sorted[i].id,"position":sorted[i].position,"laps":sorted[i].get("finish_laps",0),"finished":sorted[i].finished})
   passes+=int(sorted[i].combat_passes)
   if int(initial[sorted[i].id])!=i+1:changed+=1
- return {"pack_totals":pack_totals,"pack_modes":pack_modes,"steering_examples":steering_examples,"corner_reasons":corner_reasons,"hash":Codec.sporting_hash(race,{}),"tow_samples":tow,"dirty_samples":dirty,"max_tow":max_tow,"max_dirty":max_dirty,"stopped":stops,"reversals":reverse,"overlaps":overlaps,"straight_reversals":reverse_steer,"side":side,"passes":passes,"changed_grid":changed,"elapsed_us":Time.get_ticks_usec()-start,"engine_us":engine_us,"ticks":actual_ticks,"peak_static_bytes_sampled":peak_memory,"pits":pits,"finished":race.finished,"leader_finished":race.first_finish_at>=0.0,"classification":classification,"driver_reversals":by_driver,"rapid_driver_reversals":rapid_by_driver,"release_overlaps":release_overlaps,"examples":examples,"wet_min":wet_min,"wet_max":wet_max,"engine_us_per_tick":float(engine_us)/maxi(1,actual_ticks)}
+ return {"error_totals":error_totals,"pack_totals":pack_totals,"pack_modes":pack_modes,"steering_examples":steering_examples,"corner_reasons":corner_reasons,"hash":Codec.sporting_hash(race,{}),"tow_samples":tow,"dirty_samples":dirty,"max_tow":max_tow,"max_dirty":max_dirty,"stopped":stops,"reversals":reverse,"overlaps":overlaps,"straight_reversals":reverse_steer,"side":side,"passes":passes,"changed_grid":changed,"elapsed_us":Time.get_ticks_usec()-start,"engine_us":engine_us,"ticks":actual_ticks,"peak_static_bytes_sampled":peak_memory,"pits":pits,"finished":race.finished,"leader_finished":race.first_finish_at>=0.0,"classification":classification,"driver_reversals":by_driver,"rapid_driver_reversals":rapid_by_driver,"release_overlaps":release_overlaps,"examples":examples,"wet_min":wet_min,"wet_max":wet_max,"engine_us_per_tick":float(engine_us)/maxi(1,actual_ticks)}
 func run():
  fixture()
  if "--fixture-only" in OS.get_cmdline_user_args():
@@ -204,12 +211,13 @@ func run():
  if full:ticks=60000
  check(not track.is_empty(),"track found")
  if track.is_empty():quit(1);return
- var mega:bool=OS.get_environment("APEX_TRAFFIC_MEGA")=="1"
- var traffic:bool=OS.get_environment("APEX_DRIVER_TRAFFIC")=="1" and not mega
- var corner:bool=OS.get_environment("APEX_CORNER_BATTLE")=="1" and not traffic and not mega
- var coordinated:bool=OS.get_environment("APEX_COORDINATION")=="1" and not corner and not traffic and not mega
- var old=drive(data,track,38 if mega else (37 if traffic else (36 if corner else (35 if coordinated else 31))),climate,ticks,seed)
- var new=drive(data,track,39 if mega else (38 if traffic else (37 if corner else (36 if coordinated else 35))),climate,ticks,seed)
+ var errors:bool=OS.get_environment("APEX_DRIVER_ERROR")=="1"
+ var mega:bool=OS.get_environment("APEX_TRAFFIC_MEGA")=="1" and not errors
+ var traffic:bool=OS.get_environment("APEX_DRIVER_TRAFFIC")=="1" and not mega and not errors
+ var corner:bool=OS.get_environment("APEX_CORNER_BATTLE")=="1" and not traffic and not mega and not errors
+ var coordinated:bool=OS.get_environment("APEX_COORDINATION")=="1" and not corner and not traffic and not mega and not errors
+ var old=drive(data,track,39 if errors else (38 if mega else (37 if traffic else (36 if corner else (35 if coordinated else 31)))),climate,ticks,seed)
+ var new=drive(data,track,40 if errors else (39 if mega else (38 if traffic else (37 if corner else (36 if coordinated else 35)))),climate,ticks,seed)
  print("AERO_WAKE_AB ",JSON.stringify({"track":code,"climate":climate,"ticks":ticks,"seed":seed,"full":full,"old":old,"new":new}))
  check(new.tow_samples>0 and new.dirty_samples>0,"both effects exercised")
  if mega:check(not new.pack_modes.is_empty() and old.pack_modes.is_empty(),"039 traffic states actually exercised")
@@ -234,25 +242,27 @@ func run():
    check(entry.finished,"classified car finished id="+str(entry.id))
   check(ids.size()==24 and ranks.size()==24,"unique final classification")
  if code=="ITA" and climate=="Seco" and seed==42:
-  if ticks==600 and not coordinated and not corner and not traffic and not mega:check(old.hash=="4f2d91a2a34de0c8e0bcf04fef7f84858fdc4aafbfcc2230909b5524a54b8514","independent 031 reference")
+  if ticks==600 and not coordinated and not corner and not traffic and not mega and not errors:check(old.hash=="4f2d91a2a34de0c8e0bcf04fef7f84858fdc4aafbfcc2230909b5524a54b8514","independent 031 reference")
   if ticks==1800 and coordinated:
    check(old.hash=="067ec801e8bef03f137cfcadd229f2662cc400f8ccdbbe17f8ed45ffa1fc9e85","historical CI 035 hash")
+  if ticks==1800 and errors:
+   check(old.hash=="9e3824534720489a637f11f8638e9ba04827bd71e38d63330abb5007f1dbea23","historical CI 039 hash")
   if ticks==1800 and mega:
    check(old.hash=="9190524493e933da0ce1268ebaaeea89d601f1ba6c1136dd1247643d684b440d","historical CI 038 hash")
   if ticks==1800 and traffic:
    check(old.hash=="9190524493e933da0ce1268ebaaeea89d601f1ba6c1136dd1247643d684b440d","historical CI 037 hash")
   if ticks==1800 and corner:
    check(old.hash=="e3eeb1189ffb049d65706b8c189dcc3e3b67111e42efed3383c7ec665de0ff53","historical CI 036 hash")
-  if ticks==1800 and not coordinated and not corner and not traffic and not mega:
+  if ticks==1800 and not coordinated and not corner and not traffic and not mega and not errors:
    check(old.hash=="0174f579e29d197c24df060340a95147407eb8bcaecc90f0e56ca0f3f265dab9","historical CI 031 hash")
    var historical=drive(data,track,32,climate,ticks,seed)
    check(historical.hash=="7d40eff8b5285682a7aa5165d96fb91b0f4dc7366c0ff17b9d367baa6e4bcbc9","historical CI 032 hash")
    print("AERO_WAKE_HISTORICAL_032 ",JSON.stringify(historical))
    var historical_034=drive(data,track,34,climate,ticks,seed)
    check(historical_034.hash=="067ec801e8bef03f137cfcadd229f2662cc400f8ccdbbe17f8ed45ffa1fc9e85","historical CI 034 hash")
-  var again=drive(data,track,39 if mega else (38 if traffic else (37 if corner else (36 if coordinated else 35))),climate,ticks,seed)
+  var again=drive(data,track,40 if errors else (39 if mega else (38 if traffic else (37 if corner else (36 if coordinated else 35)))),climate,ticks,seed)
   check(new.hash==again.hash,"deterministic selected revision")
-  for rev in [Replay.PRE_AERO_WAKE_SIMULATION_REVISION,Replay.PRE_WAKE_SOURCE_SIMULATION_REVISION,Replay.PRE_WAKE_STABILITY_SIMULATION_REVISION,Replay.PRE_WET_LINE_SIMULATION_REVISION,Replay.PRE_COORDINATION_SIMULATION_REVISION,Replay.PRE_CORNER_BATTLE_SIMULATION_REVISION,Replay.PRE_DRIVER_TRAFFIC_SIMULATION_REVISION,Replay.PRE_TRAFFIC_PACK_SIMULATION_REVISION,Replay.SIMULATION_REVISION]:
+  for rev in [Replay.PRE_AERO_WAKE_SIMULATION_REVISION,Replay.PRE_WAKE_SOURCE_SIMULATION_REVISION,Replay.PRE_WAKE_STABILITY_SIMULATION_REVISION,Replay.PRE_WET_LINE_SIMULATION_REVISION,Replay.PRE_COORDINATION_SIMULATION_REVISION,Replay.PRE_CORNER_BATTLE_SIMULATION_REVISION,Replay.PRE_DRIVER_TRAFFIC_SIMULATION_REVISION,Replay.PRE_TRAFFIC_PACK_SIMULATION_REVISION,Replay.PRE_DRIVER_ERROR_SIMULATION_REVISION,Replay.SIMULATION_REVISION]:
    var rec=Replay.new();rec.attach(Race.new(data.teams,"Ferrari",42,{},track,{}));rec.recorded_simulation_revision=rev
    for i in range(350):check(rec.step_tick(),"record tick")
    var play=Replay.new()

@@ -113,7 +113,7 @@ func _run() -> void:
 	var recording = Replay.new()
 	recording.attach(first)
 	check(recording.recorded_simulation_revision == Replay.SIMULATION_REVISION
-		and Replay.SIMULATION_REVISION == "039_traffic_pack_v1",
+		and Replay.SIMULATION_REVISION == "040_driver_error_recovery_v1",
 		"new race uses revision 028")
 	for i in range(120):
 		check(recording.step_tick(),"028 can simulate deterministic tick")

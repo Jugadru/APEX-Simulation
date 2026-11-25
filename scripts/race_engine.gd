@@ -27,6 +27,9 @@ const TACTICAL_COORDINATION_SIM_REVISION := "036_tactical_coordination_v1"
 const CORNER_BATTLE_SIM_REVISION := "037_corner_battle_v1"
 const DRIVER_TRAFFIC_SIM_REVISION := "038_driver_traffic_v2"
 const TRAFFIC_PACK_SIM_REVISION := "039_traffic_pack_v1"
+const DRIVER_ERROR_SIM_REVISION := "040_driver_error_recovery_v1"
+const DriverError0921=preload("res://scripts/core/race_driver_error_0921.gd")
+var driver_error_enabled:bool=true
 const TrafficPack09201=preload("res://scripts/core/race_traffic_pack_09201.gd")
 const TrafficStrategy09201=preload("res://scripts/core/race_traffic_strategy_09201.gd")
 var traffic_pack_enabled: bool = true
@@ -363,7 +366,14 @@ func _traffic_pack_active()->bool:
 	if not (traffic_pack_enabled and traffic_intelligence_enabled and corner_battle_enabled and tactical_coordination_enabled and aero_wet_line_stability and aero_wake_stability and aero_wake_enabled and independent_racecraft_enabled and pass_completion_enabled and following_enabled and racing_line_enabled and driver_traffic_enabled):return false
 	if command_session!=null:
 		var attached:Object=command_session.get_ref()
-		if attached!=null:return str(attached.get("recorded_simulation_revision"))==TRAFFIC_PACK_SIM_REVISION
+		if attached!=null:return str(attached.get("recorded_simulation_revision")) in [TRAFFIC_PACK_SIM_REVISION,DRIVER_ERROR_SIM_REVISION]
+	return true
+
+func _driver_error_active()->bool:
+	if not driver_error_enabled or not _traffic_pack_active():return false
+	if command_session!=null:
+		var attached:Object=command_session.get_ref()
+		if attached!=null:return str(attached.get("recorded_simulation_revision"))==DRIVER_ERROR_SIM_REVISION
 	return true
 
 func _build_strategy_plan(car: Dictionary, teammate_busy: bool = false) -> Dictionary:
@@ -753,28 +763,30 @@ func _advance(dt: float) -> void:
 	var corner_battle_rules: bool = corner_battle_enabled and coordination_rules
 	var traffic_intelligence_rules: bool = traffic_intelligence_enabled and corner_battle_rules and driver_traffic_enabled
 	var traffic_pack_rules:bool=_traffic_pack_active() and traffic_intelligence_rules
+	var error_rules:bool=_driver_error_active() and traffic_pack_rules
 	if command_session != null:
 		var attached_session: Object = command_session.get_ref()
 		if attached_session != null:
 			launch_legacy = bool(attached_session.get("legacy_launch_physics"))
 			var revision: String = str(attached_session.get("recorded_simulation_revision"))
-			overtaking_rules = overtaking_rules and revision in [OVERTAKING_SIM_REVISION, START20_SIM_REVISION, COMPETITIVE_SIM_REVISION, MERGE_TRAFFIC_SIM_REVISION, TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION, PASS_COMPLETION_SIM_REVISION, INDEPENDENT_SIM_REVISION, AERO_WAKE_SIM_REVISION, AERO_WAKE_CORRECTED_SIM_REVISION, AERO_WAKE_STABILITY_SIM_REVISION, AERO_WET_LINE_SIM_REVISION, TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION]
+			overtaking_rules = overtaking_rules and revision in [OVERTAKING_SIM_REVISION, START20_SIM_REVISION, COMPETITIVE_SIM_REVISION, MERGE_TRAFFIC_SIM_REVISION, TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION, PASS_COMPLETION_SIM_REVISION, INDEPENDENT_SIM_REVISION, AERO_WAKE_SIM_REVISION, AERO_WAKE_CORRECTED_SIM_REVISION, AERO_WAKE_STABILITY_SIM_REVISION, AERO_WET_LINE_SIM_REVISION, TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION, DRIVER_ERROR_SIM_REVISION]
 			start20_rules = start20_rules and revision in [START20_SIM_REVISION, COMPETITIVE_SIM_REVISION]
-			competitive_rules = competitive_rules and revision in [COMPETITIVE_SIM_REVISION, MERGE_TRAFFIC_SIM_REVISION, TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION, PASS_COMPLETION_SIM_REVISION, INDEPENDENT_SIM_REVISION, AERO_WAKE_SIM_REVISION, AERO_WAKE_CORRECTED_SIM_REVISION, AERO_WAKE_STABILITY_SIM_REVISION, AERO_WET_LINE_SIM_REVISION, TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION]
-			merge_rules = merge_rules and revision in [MERGE_TRAFFIC_SIM_REVISION, TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION, PASS_COMPLETION_SIM_REVISION, INDEPENDENT_SIM_REVISION, AERO_WAKE_SIM_REVISION, AERO_WAKE_CORRECTED_SIM_REVISION, AERO_WAKE_STABILITY_SIM_REVISION, AERO_WET_LINE_SIM_REVISION, TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION]
-			traffic_hotfix_rules = traffic_hotfix_rules and revision in [TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION, PASS_COMPLETION_SIM_REVISION, INDEPENDENT_SIM_REVISION, AERO_WAKE_SIM_REVISION, AERO_WAKE_CORRECTED_SIM_REVISION, AERO_WAKE_STABILITY_SIM_REVISION, AERO_WET_LINE_SIM_REVISION, TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION]
-			racing_line_rules = racing_line_rules and revision in [RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION, PASS_COMPLETION_SIM_REVISION, INDEPENDENT_SIM_REVISION, AERO_WAKE_SIM_REVISION, AERO_WAKE_CORRECTED_SIM_REVISION, AERO_WAKE_STABILITY_SIM_REVISION, AERO_WET_LINE_SIM_REVISION, TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION]
-			following_rules = following_rules and revision in [FOLLOWING_SIM_REVISION, PASS_COMPLETION_SIM_REVISION, INDEPENDENT_SIM_REVISION, AERO_WAKE_SIM_REVISION, AERO_WAKE_CORRECTED_SIM_REVISION, AERO_WAKE_STABILITY_SIM_REVISION, AERO_WET_LINE_SIM_REVISION, TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION]
-			completion_rules = completion_rules and revision in [PASS_COMPLETION_SIM_REVISION, INDEPENDENT_SIM_REVISION, AERO_WAKE_SIM_REVISION, AERO_WAKE_CORRECTED_SIM_REVISION, AERO_WAKE_STABILITY_SIM_REVISION, AERO_WET_LINE_SIM_REVISION, TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION]
-			independent_rules = independent_rules and revision in [INDEPENDENT_SIM_REVISION, AERO_WAKE_SIM_REVISION, AERO_WAKE_CORRECTED_SIM_REVISION, AERO_WAKE_STABILITY_SIM_REVISION, AERO_WET_LINE_SIM_REVISION, TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION]
-			aero_wake_rules = aero_wake_rules and revision in [AERO_WAKE_SIM_REVISION, AERO_WAKE_CORRECTED_SIM_REVISION, AERO_WAKE_STABILITY_SIM_REVISION, AERO_WET_LINE_SIM_REVISION, TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION]
-			corrected_wake_rules = corrected_wake_rules and revision in [AERO_WAKE_CORRECTED_SIM_REVISION, AERO_WAKE_STABILITY_SIM_REVISION, AERO_WET_LINE_SIM_REVISION, TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION]
-			stability_rules = stability_rules and revision in [AERO_WAKE_STABILITY_SIM_REVISION, AERO_WET_LINE_SIM_REVISION, TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION]
-			wet_line_rules = wet_line_rules and revision in [AERO_WET_LINE_SIM_REVISION, TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION]
-			coordination_rules = coordination_rules and revision in [TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION]
-			corner_battle_rules = corner_battle_rules and revision in [CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION]
-			traffic_intelligence_rules = traffic_intelligence_rules and revision in [DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION]
-			traffic_pack_rules=traffic_pack_rules and revision==TRAFFIC_PACK_SIM_REVISION
+			competitive_rules = competitive_rules and revision in [COMPETITIVE_SIM_REVISION, MERGE_TRAFFIC_SIM_REVISION, TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION, PASS_COMPLETION_SIM_REVISION, INDEPENDENT_SIM_REVISION, AERO_WAKE_SIM_REVISION, AERO_WAKE_CORRECTED_SIM_REVISION, AERO_WAKE_STABILITY_SIM_REVISION, AERO_WET_LINE_SIM_REVISION, TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION, DRIVER_ERROR_SIM_REVISION]
+			merge_rules = merge_rules and revision in [MERGE_TRAFFIC_SIM_REVISION, TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION, PASS_COMPLETION_SIM_REVISION, INDEPENDENT_SIM_REVISION, AERO_WAKE_SIM_REVISION, AERO_WAKE_CORRECTED_SIM_REVISION, AERO_WAKE_STABILITY_SIM_REVISION, AERO_WET_LINE_SIM_REVISION, TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION, DRIVER_ERROR_SIM_REVISION]
+			traffic_hotfix_rules = traffic_hotfix_rules and revision in [TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION, PASS_COMPLETION_SIM_REVISION, INDEPENDENT_SIM_REVISION, AERO_WAKE_SIM_REVISION, AERO_WAKE_CORRECTED_SIM_REVISION, AERO_WAKE_STABILITY_SIM_REVISION, AERO_WET_LINE_SIM_REVISION, TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION, DRIVER_ERROR_SIM_REVISION]
+			racing_line_rules = racing_line_rules and revision in [RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION, PASS_COMPLETION_SIM_REVISION, INDEPENDENT_SIM_REVISION, AERO_WAKE_SIM_REVISION, AERO_WAKE_CORRECTED_SIM_REVISION, AERO_WAKE_STABILITY_SIM_REVISION, AERO_WET_LINE_SIM_REVISION, TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION, DRIVER_ERROR_SIM_REVISION]
+			following_rules = following_rules and revision in [FOLLOWING_SIM_REVISION, PASS_COMPLETION_SIM_REVISION, INDEPENDENT_SIM_REVISION, AERO_WAKE_SIM_REVISION, AERO_WAKE_CORRECTED_SIM_REVISION, AERO_WAKE_STABILITY_SIM_REVISION, AERO_WET_LINE_SIM_REVISION, TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION, DRIVER_ERROR_SIM_REVISION]
+			completion_rules = completion_rules and revision in [PASS_COMPLETION_SIM_REVISION, INDEPENDENT_SIM_REVISION, AERO_WAKE_SIM_REVISION, AERO_WAKE_CORRECTED_SIM_REVISION, AERO_WAKE_STABILITY_SIM_REVISION, AERO_WET_LINE_SIM_REVISION, TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION, DRIVER_ERROR_SIM_REVISION]
+			independent_rules = independent_rules and revision in [INDEPENDENT_SIM_REVISION, AERO_WAKE_SIM_REVISION, AERO_WAKE_CORRECTED_SIM_REVISION, AERO_WAKE_STABILITY_SIM_REVISION, AERO_WET_LINE_SIM_REVISION, TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION, DRIVER_ERROR_SIM_REVISION]
+			aero_wake_rules = aero_wake_rules and revision in [AERO_WAKE_SIM_REVISION, AERO_WAKE_CORRECTED_SIM_REVISION, AERO_WAKE_STABILITY_SIM_REVISION, AERO_WET_LINE_SIM_REVISION, TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION, DRIVER_ERROR_SIM_REVISION]
+			corrected_wake_rules = corrected_wake_rules and revision in [AERO_WAKE_CORRECTED_SIM_REVISION, AERO_WAKE_STABILITY_SIM_REVISION, AERO_WET_LINE_SIM_REVISION, TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION, DRIVER_ERROR_SIM_REVISION]
+			stability_rules = stability_rules and revision in [AERO_WAKE_STABILITY_SIM_REVISION, AERO_WET_LINE_SIM_REVISION, TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION, DRIVER_ERROR_SIM_REVISION]
+			wet_line_rules = wet_line_rules and revision in [AERO_WET_LINE_SIM_REVISION, TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION, DRIVER_ERROR_SIM_REVISION]
+			coordination_rules = coordination_rules and revision in [TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION, DRIVER_ERROR_SIM_REVISION]
+			corner_battle_rules = corner_battle_rules and revision in [CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION, DRIVER_ERROR_SIM_REVISION]
+			traffic_intelligence_rules = traffic_intelligence_rules and revision in [DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION, DRIVER_ERROR_SIM_REVISION]
+			traffic_pack_rules=traffic_pack_rules and revision in [TRAFFIC_PACK_SIM_REVISION,DRIVER_ERROR_SIM_REVISION]
+			error_rules=error_rules and revision==DRIVER_ERROR_SIM_REVISION
 	var launch_clearance: float = 1.0
 	var launch_limit: float = RaceStart066917.CORNER_PHASE_SECONDS if start20_rules else RaceStart066911.PHASE_SECONDS
 	if race_start_intelligence_enabled and clock < launch_limit:
@@ -837,6 +849,13 @@ func _advance(dt: float) -> void:
 					var ahead_line: Dictionary = RacingLine.sample(racing_line_profile,old_progress+12.8/float(space_profile.length),float(current_weather.get("wetness_factor",0.0)),float(old_car.get("skill",80.0)))
 					metrics["ahead_load"] = float(ahead_line.load)
 					metrics["line_ratio"] = lerpf(float(line.lane_ratio),float(ahead_line.lane_ratio),0.25)
+		if error_rules and clock>=24.0:
+			var error_state:Dictionary=DriverError0921.advance(old_car,metrics,current_weather,dt,int(rng.seed),tick_counter,clock)
+			var fraction:float=float(error_state.speed_fraction)
+			metrics["driver_error_state"]=error_state
+			metrics["driver_error_suppress"]=bool(error_state.suppress_attack)
+			metrics.target=float(metrics.target)/fraction
+			if metrics.has("decision_pace"):metrics.decision_pace=float(metrics.decision_pace)/fraction
 		pace_metrics[int(old_car["id"])] = metrics
 	if Perf.enabled: Perf.end(&"race.pace_thermal_drs_kers",perf_pace)
 	var perf_space := Perf.begin() if Perf.enabled else 0
@@ -850,6 +869,7 @@ func _advance(dt: float) -> void:
 		if float(car["pit_left"]) > 0.0:
 			if aero_wake_rules: car.erase("aero_wake_032")
 			if traffic_pack_rules and car.has(TrafficPack09201.KEY):car[TrafficPack09201.KEY]=TrafficPack09201.pit_reset(car)
+			if error_rules and car.has(DriverError0921.KEY):car[DriverError0921.KEY]=DriverError0921.pit_reset(car)
 			var exit_clear: bool = true
 			if stability_rules:
 				exit_clear=RaceSpace.pit_exit_clear(float(car["pit_to"]),old_order,space_plan,released_pit_positions,float(space_profile.length))
@@ -870,6 +890,17 @@ func _advance(dt: float) -> void:
 		var contest: Dictionary = space_plan.get(int(car.id),{})
 		if contest.is_empty(): continue
 		car.merge(contest.states,true)
+		if error_rules and metrics.has("driver_error_state"):
+			var error_state:Dictionary=metrics.driver_error_state
+			car[DriverError0921.KEY]=error_state
+			DriverError0921.apply_soul(car,error_state)
+			if bool(error_state.started):
+				_event("incident",int(car.id),"ERRO | %s: %s; perda nominal %.2fs." % [str(car.name),DriverError0921.label(str(error_state.kind)),float(error_state.planned_loss)],115)
+				if str(car.team)==team_name:
+					_event("driver_radio",int(car.id),"RADIO FICTICIO | %s: %s" % [str(car.name),DriverError0921.radio(error_state)],72)
+					_event("engineer_reply",int(car.id),"ENGENHEIRO | %s: estabilize o carro. Nenhuma ordem de box foi alterada." % str(car.name),73)
+			if bool(error_state.completed) and str(car.team)==team_name:
+				_event("driver_radio",int(car.id),"RADIO FICTICIO | %s: recuperei o ritmo." % str(car.name),72)
 		var next: float = float(contest.progress)
 		var ahead: Variant = null
 		for old in old_order:
@@ -1617,12 +1648,14 @@ func _on_lap_cross(car: Dictionary) -> void:
 					str(car["name"]), str(advice.get("compound", "Médio")), str(advice.get("reason", "desgaste"))], 75)
 	var error_risk: float = 0.001 if car["pace"] == "Conservar" else (0.007 if car["pace"] == "Atacar" else 0.002)
 	error_risk += WetPhysics.weather_incident_risk(str(car["tire"]), float(weather_snapshot().get("wetness_factor", 0.0)))
+	# Keep legacy RNG draw cadence, but 040 uses its own counter-based
+	# error samples. Historical revisions retain the exact old behavior.
 	if rng.randf() < error_risk:
 		var extra := rng.randf_range(1.5, 3.5)
-		# Delaying forward motion (rather than rewinding across the finish line)
-		# avoids a second 2-4-second pseudo-lap from the same crossing.
-		car["combat_hesitation_s"] = float(car.get("combat_hesitation_s", 0.0)) + extra
-		_event("incident", int(car["id"]), "ERRO: %s perdeu %.1fs em %s (tempo de recuperacao)." % [car["name"], extra, track_name], 115)
+		if not _driver_error_active():
+			# Historical lap-boundary error only.
+			car["combat_hesitation_s"] = float(car.get("combat_hesitation_s", 0.0)) + extra
+			_event("incident", int(car["id"]), "ERRO: %s perdeu %.1fs em %s (tempo de recuperacao)." % [car["name"], extra, track_name], 115)
 	if str(car["team"]) == team_name and str(car.get("pit_control_mode", "Manual")) == "Manual":
 		var wear_now: float = float(car["wear"])
 		var warning_stage: int = 3 if wear_now >= 98.0 else (2 if wear_now >= 90.0 else (1 if wear_now >= 75.0 else 0))

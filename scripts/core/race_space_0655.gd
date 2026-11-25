@@ -260,6 +260,11 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 		if traffic_pack_enabled and not bool(traffic.lapping):
 			tactic=TrafficPack.refine(c,ahead,order,metrics,tactic,traffic_observations[id],gap,length)
 			if tactic.has("pack_reason"):a["pack_reason"]=tactic.pack_reason
+		# 040: veto a new commitment during stabilization; never force a
+		# lane change or cancel physical occupancy of an established duel.
+		if bool(metrics[id].get("driver_error_suppress",false)) and str(c.get("combat_state","")) not in Independent.ATTACK:
+			tactic.commit=false
+			tactic.defense=false
 		# A safely reserved blue-flag yield precedes a fresh attack on a
 		# different car. Already established battles never receive a reservation.
 		if traffic_intelligence_enabled and a.has("traffic_yield_to"):

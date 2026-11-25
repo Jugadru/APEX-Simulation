@@ -869,6 +869,9 @@ func _update_driver_context(slot: int) -> void:
 			var state_labels:Dictionary={"FREE_AIR":"Ar livre","APPROACHING":"Aproximando","ASSESSING":"Avaliando","FOLLOWING":"Seguindo","TRAIN":"Trem DRS","WAIT":"Conservando","PREPARE":"Preparando","COMMIT":"Ataque","CLEAN_AIR":"Gerindo distância","CLEAR":"Tráfego superado","PIT":"Boxes"}
 			traffic_label=str(state_labels.get(str(pack_state.get("mode","")),traffic_label))+" · %d carros" % int(pack_state.get("group_size",1))
 		var energy_line: String = "KERS %dkJ | DRS %s" % [int(energy.get("kers_remaining_kj", 0)), "ON" if bool(energy.get("drs_active", false)) else "OFF"]
+		var recovery:Dictionary=car.get("driver_error_0921",{})
+		if str(recovery.get("mode","NORMAL"))!="NORMAL":
+			traffic_label="Recuperação · %s · %.0f%%" % [str(recovery.get("kind","")),float(recovery.get("speed_fraction",1.0))*100.0]
 		values = [pace, reference, traffic_label, energy_line]
 		if card.has("pace_picker") and is_instance_valid(card["pace_picker"]):
 			var index: int = ["Conservar", "Normal", "Atacar"].find(pace)
