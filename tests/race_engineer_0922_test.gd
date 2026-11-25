@@ -3,6 +3,8 @@ const Bus = preload("res://scripts/presentation/race_communication_0922.gd")
 const Commentary = preload("res://scripts/apex_commentary.gd")
 const Race = preload("res://scripts/race_engine.gd")
 const Codec = preload("res://scripts/core/race_state_codec_0660.gd")
+const Career = preload("res://scripts/core/race_engineer_career_0922.gd")
+const Audio = preload("res://scripts/presentation/race_radio_audio_0922.gd")
 var failures: Array[String] = []
 var checks: int = 0
 func _initialize() -> void:
@@ -72,6 +74,27 @@ func run() -> void:
 	hot["tyre_surface_c"] = 95.0
 	b.observe(hot, dry, 144.0, {"Engenheiro":3})
 	check(b.drain(144.0).size() == 1, "condition follow-up")
+	var team: Dictionary = {"staff_roster":{"Engenheiro":{"id":"eng_c","name":"Davi Amaral","skill":91}},"staff_soul":{}}
+	var staff: Dictionary = Career.staff_context(team, {"Engenheiro":3})
+	check(staff.engineer_radio_style == "DEADPAN" and staff.engineer_contract_id == "eng_c", "contract voice mapping")
+	check(Career.settle(team, staff, [racer], {5:{"followups":2,"exchanges":1}}, 1, 1), "career bond saved")
+	check(int(Career.read_bonds(team).get("eng_c|5", 0)) == 53, "career pair value")
+	check(not Career.settle(team, staff, [racer], {5:{"followups":2}}, 1, 1), "career settlement idempotent")
+	check(Career.pair_key({"engineer_contract_id":"eng_b"}, racer) != Career.pair_key(staff, racer), "contract identity isolation")
+	var c = Commentary.new()
+	c.reset(42)
+	c.configure_engineer(team, {"Engenheiro":3})
+	c.add_team_question(20.0, "Pneus?", "Driver", "Pass confirmed. Build the gap now.", 5)
+	check(c.communication.history[5].size() == 2, "legacy consultations share packet history")
+	check(str(c.lines[-1].context_0922.voice_profile_id).contains("eng_c"), "contract linked delivery")
+	check(c.formatted(2,5).contains("Ultrapassagem confirmada"), "Portuguese subtitle")
+	c.radio_subtitles = false
+	check(not c.formatted(2,5).contains("Ultrapassagem confirmada"), "subtitle setting")
+	var audio = Audio.new()
+	if DisplayServer.get_name() == "headless":
+		check(not audio.set_enabled(true), "headless speech unavailable without error")
+	audio.enqueue({"sender":"ENGENHEIRO","text":"Test","priority":3})
+	check(audio.queue.is_empty(), "disabled audio never queues")
 	var data: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/season_2012.json"))
 	var track: Dictionary = data.tracks[0]
 	var track_code: String = OS.get_environment("APEX_ENGINEER_TRACK")
