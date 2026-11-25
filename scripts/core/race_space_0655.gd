@@ -11,6 +11,7 @@ const MAX_LANE := 2.95
 const AeroWake = preload("res://scripts/core/race_aero_wake_091711.gd")
 const Coordination = preload("res://scripts/core/race_tactical_coordination_091712.gd")
 const CornerBattle = preload("res://scripts/core/race_corner_battle_0919.gd")
+const Traffic0920 = preload("res://scripts/core/race_driver_traffic_0920.gd")
 const Independent = preload("res://scripts/core/race_independent_racecraft_091710.gd")
 const MergeTraffic = preload("res://scripts/core/race_merge_traffic_0669174.gd")
 
@@ -104,7 +105,7 @@ static func straight_hold_allowed(load: float, ahead_load: float, held: bool, na
 
 static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,shape: Dictionary, weather: Dictionary = {}, traffic_enabled: bool = true, soul3_enabled: bool = false,
 		overtaking_enabled: bool = false, competitive_start_enabled: bool = false,
-		start_clock_s: float = 0.0, merge_traffic_enabled: bool = false, traffic_hotfix_enabled: bool = false, following_enabled: bool = false, completion_enabled: bool = false, independent_enabled: bool = false, aero_wake_enabled: bool = false, aero_wake_corrected: bool = true, wake_stability: bool = false, wet_line_stability: bool = false, coordination_enabled: bool = false, corner_battle_enabled: bool = false) -> Dictionary:
+		start_clock_s: float = 0.0, merge_traffic_enabled: bool = false, traffic_hotfix_enabled: bool = false, following_enabled: bool = false, completion_enabled: bool = false, independent_enabled: bool = false, aero_wake_enabled: bool = false, aero_wake_corrected: bool = true, wake_stability: bool = false, wet_line_stability: bool = false, coordination_enabled: bool = false, corner_battle_enabled: bool = false, traffic_intelligence_enabled: bool = false) -> Dictionary:
 	var length: float=shape.length
 	following_enabled = following_enabled and start_clock_s>=24.0
 	completion_enabled = completion_enabled and following_enabled
@@ -113,6 +114,7 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 	wake_stability = wake_stability and aero_wake_enabled
 	coordination_enabled = coordination_enabled and independent_enabled
 	corner_battle_enabled = corner_battle_enabled and coordination_enabled
+	traffic_intelligence_enabled = traffic_intelligence_enabled and corner_battle_enabled and traffic_enabled
 	var hotfix: bool = merge_traffic_enabled and traffic_hotfix_enabled
 	# 06686: RaceEngine normally supplies a sorted frozen sporting snapshot.
 	# Filtering out inactive cars preserves its order. Avoid sorting 24
@@ -213,6 +215,12 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 		# Blue flags are decisions about a physical backmarker, not a sporting
 		# position override. A safe early yield uses the existing corridor solver.
 		var traffic: Dictionary = DriverTraffic.evaluate(c, ahead, gap, limit, weather, float(tactic.attack_goal)) if traffic_enabled else {"lapping": false, "yield_early": false}
+		if traffic_intelligence_enabled:
+			var tm: Dictionary=metrics[rival]
+			var own_load: float=float(tm.get("line_load",0.0))
+			var blue_limit: float=minf(limit,lane_limit(track,float(ahead.progress),shape))
+			traffic=Traffic0920.evaluate(c,ahead,order,metrics,{"gap":gap,"length":length,"limit":blue_limit,"wet":weather.get("wetness_factor",0.0),"load":own_load,"ahead_load":tm.get("ahead_load",own_load),"narrowing":bool(narrowing.get(id,false)) or bool(narrowing.get(rival,false)),"busy":int(d.defending)>=0 or str(d.state) in Independent.ATTACK or str(a.get("defense_origin",""))=="blue_flag","advantage":advantage,"passing_lane":tactic.attack_goal})
+			if bool(traffic.lapping): a["traffic_reason"]=traffic.reason
 		if bool(traffic.lapping):
 			tactic["defense"] = false
 			if bool(traffic.yield_early) and int(d.defending) < 0:
@@ -220,6 +228,7 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 				d.defending = id
 				d.defense_line = float(d.goal)
 				if coordination_enabled: d["defense_origin"]="blue_flag"
+				if traffic_intelligence_enabled: d["traffic_yield_to"]=id
 		# A player-approved order may suppress only an EARLY aggressive block.
 		# Already occupied lanes, overlap, third cars and safety still apply.
 		if int(ahead.get("team_yield_to_id", -1)) == id \
@@ -238,6 +247,11 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 			if tactic.has("corner_reason"):
 				a["corner_reason"]=tactic.corner_reason
 				a["corner_recovery_target"]=rival
+		# A safely reserved blue-flag yield precedes a fresh attack on a
+		# different car. Already established battles never receive a reservation.
+		if traffic_intelligence_enabled and a.has("traffic_yield_to"):
+			tactic.commit=false
+			tactic.defense=false
 		if independent_enabled:
 			var memory: Dictionary = c.get("racecraft_memory",{})
 			# Keep the chosen attacking side until the manoeuvre ends. A blocked
@@ -473,6 +487,11 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 				memory["coordination_reason"]=a.coordination_reason
 			if corner_battle_enabled and a.has("corner_reason"):
 				memory["corner_reason"]=a.corner_reason
+			if traffic_intelligence_enabled and a.has("traffic_reason"):
+				memory["traffic_reason"]=a.traffic_reason
+			if traffic_intelligence_enabled and a.has("traffic_yield_to") and str(a.get("defense_origin",""))=="blue_flag" and int(a.defending)==int(a.traffic_yield_to):
+				memory["traffic_yield_to"]=int(a.traffic_yield_to)
+				memory["traffic_yield_goal"]=float(a.defense_line)
 			if str(a.state) in Independent.ATTACK:
 				memory["attack_target"]=int(a.target)
 				memory["attack_side"]=str(a.side)
