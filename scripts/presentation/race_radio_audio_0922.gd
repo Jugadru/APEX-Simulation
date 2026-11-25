@@ -56,7 +56,7 @@ func pump(speed: float) -> void:
 		var p: Dictionary = queue.pop_front()
 		if Time.get_ticks_msec() > int(p.get("audio_deadline_ms", 0)) or (speed >= 10.0 and int(p.get("priority", 3)) > 1):
 			continue
-		var words: String = str(p.get("text", ""))
+		var words: String = str(p.get("speech_text", p.get("text", "")))
 		var locale: String = str(p.get("locale", "en"))
 		var matches: Array[Dictionary] = []
 		for voice in voices:
