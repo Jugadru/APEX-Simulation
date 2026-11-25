@@ -1,0 +1,48 @@
+name: APEX - Race Engineer 9.22 validation
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'scripts/apex_commentary.gd'
+      - 'scripts/apex_race_hud_0622.gd'
+      - 'scripts/presentation/race_communication_0922.gd'
+      - 'scripts/presentation/race_radio_06695.gd'
+      - 'tests/race_engineer_0922_test.gd'
+      - '.github/workflows/apex-race-engineer-0922.yml'
+permissions:
+  contents: read
+jobs:
+  contextual_radio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        track: [ITA, GBR, MON]
+        climate: [Seco, Chuva intensa]
+        seed: [42, 123]
+    env:
+      APEX_ENGINEER_TRACK: ${{ matrix.track }}
+      APEX_ENGINEER_CLIMATE: ${{ matrix.climate }}
+      APEX_ENGINEER_SEED: ${{ matrix.seed }}
+      APEX_ENGINEER_TICKS: '1800'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+        with:
+          version: 4.7.2-stable
+      - run: bash tools/apex_ci_import.sh import.log
+      - run: |
+          set -euo pipefail
+          bash tools/apex_ci_isolated_test.sh race_engineer_0922_test.gd 2>&1 | tee engineer.log
+          grep -Fq ENGINEER_0922_PASS engineer.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' engineer.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apex-engineer-${{ matrix.track }}-${{ matrix.climate }}-${{ matrix.seed }}
+          path: |
+            import.log
+            engineer.log
+          retention-days: 14
