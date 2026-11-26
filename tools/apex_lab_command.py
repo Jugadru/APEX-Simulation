@@ -15,11 +15,14 @@ import urllib.request
 REPO = "Jugadru/APEX-Simulation"
 OWNER = "Jugadru"
 HUB = 141
-COMMANDS = ("fast", "audit", "diagnose", "racecraft", "strategy", "replay", "performance", "report")
+COMMANDS = ("fast", "audit", "diagnose", "racecraft", "strategy", "replay", "performance", "report", "simulation")
 SHA = re.compile(r"[0-9a-f]{40}\Z")
 COMMAND = re.compile(r"/lab (" + "|".join(COMMANDS) + r") ([0-9a-f]{40})\Z")
 BAD = re.compile(r"^ERROR:|SCRIPT ERROR:|Parse Error:", re.M)
 TESTS = {
+    "simulation": (
+        ("apex_lab_sporting_scenario_12_test.gd", "APEX_LAB_SPORTING_12_PASS"),
+    ),
     "racecraft": (
         ("race_launch_14_test.gd", "RACE_LAUNCH_14_PASS"),
         ("overtaking_066912_test.gd", "OVERTAKING_066912_PASS"),
