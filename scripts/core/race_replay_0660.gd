@@ -226,6 +226,21 @@ func enqueue(method: String, args: Array, at_tick: int = -1, origin: String = "M
 static func interactive_backlog_steps(speed: float) -> int:
 	return 12 if speed >= 32.0 else (8 if speed >= 16.0 else (6 if speed >= 10.0 else 0))
 
+## Interactive transport only: a slower requested rate starts without whole
+## ticks of wall-clock debt accrued at the previous rate. Keep fractional
+## phase for smooth presentation. No sporting tick, command, RNG, hash or
+## checkpoint is advanced or discarded; only unsimulated time demand changes.
+## The unbudgeted advance() contract for tools/replays is unchanged.
+func rebase_interactive_speed(previous_speed: float, requested_speed: float) -> void:
+	if not is_finite(previous_speed) or not is_finite(requested_speed):
+		return
+	if requested_speed <= 0.0 or requested_speed >= previous_speed:
+		return
+	if accumulator + 0.000000001 >= STEP:
+		var whole_steps: int = floori((accumulator + 0.000000001) / STEP)
+		accumulator = maxf(0.0, accumulator - float(whole_steps) * STEP)
+	cpu_limited = false
+
 func advance(delta: float, speed: float, observer: Callable = Callable(), frame_budget_us: int = 0, max_backlog_steps: int = 0) -> int:
 	if not race.running or race.finished or first_divergence >= 0: return 0
 	if not is_finite(delta) or not is_finite(speed) or delta < 0 or speed < 0: return 0
