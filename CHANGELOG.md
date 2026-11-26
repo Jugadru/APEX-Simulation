@@ -1,11 +1,18 @@
 # Changelog — APEX Motorsport Manager Core 2
 
+## Unreleased — 9.23 Race Performance Engine 2.0 (same-tick setup reuse)
+
+- Compartilha a avaliação de acerto de asa/freio/suspensão entre o cálculo de ritmo e o modelo de erros do piloto, com a mesma entrada congelada do carro e clima do tick.
+- Sem cache entre carros/ticks, sem novos campos esportivos, sem alteração de fórmula, RNG, passo fixo ou revisão 040. APIs independentes conservam avaliação própria.
+- Contador opcional no profiler para avaliações redundantes evitadas em curva; regressão compara bytes exatos nos caminhos direto e compartilhado, clima/acertos válidos e inválidos/fases. FAST e Lab pendentes; redução de chamadas não é ganho medido de FPS.
+
+
 ## Unreleased — 9.23 Race Behaviour Polish (diagnostic increment)
 
 - Distingue sinais de ultrapassagem emitidos pelo rádio/eventos do incremento real de combat_passes no motor, sem modificar os contadores antigos.
 - Mede segmentos consecutivos de bloqueio observados, por piloto, duração máxima em ticks e lacunas; não estima tempo perdido nem impõe uma regra de ultrapassagem.
 - Mantém relatório separado, exportado no JSON de qualidade F8 sob demanda; preserva os diagnósticos em hot seek. Sem alterações esportivas, revisão 040 e saves/replays preservados.
-- Testes de injeção, observação, cobertura, identidade de hashes e paridade de replay; cenário hospedado curto Monza seco/Silverstone chuva. FAST pendente. Nenhuma correção de física alegada.
+- Testes de injeção, observação, cobertura, identidade de hashes e paridade de replay; cenário hospedado curto Monza seco/Silverstone chuva. FAST PASS no SHA 68cc6cb7a5e52fc7e438eea36fef0c06f17df89f (45883905530), 232/232 Quality, 27/27 F8, Simulation Lab PASS (45883909083), seis workflows esportivos adicionais PASS. PR #160 integrada em 4c315c8ce70c641f55702c6b2edaa6d980c83502. Nenhuma correção de física alegada.
 
 ## Unreleased — 9.23 Smart Graphics (runtime profiles)
 
