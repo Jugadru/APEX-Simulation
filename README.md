@@ -1,4 +1,4 @@
-# APEX Motorsport Manager — Core 2 v0.6.6.9.23
+# APEX Motorsport Manager — Core 2 v0.6.7
 
 Simulador de gerenciamento de equipes automobilísticas em **Godot 4.7.2**. O jogador administra pilotos, funcionários, estratégia, engenharia e operações; as corridas de 24 carros são simuladas pelo Core 2, com apresentação 2D/3D. Temporada histórica inicial: Fórmula 1 de 2012. O APEX 2 Next Engine continua experimental e separado.
 
@@ -6,17 +6,23 @@ Simulador de gerenciamento de equipes automobilísticas em **Godot 4.7.2**. O jo
 
 | Item | Versão / situação |
 | --- | --- |
-| Código integrado à main | **v0.6.6.9.23 — Integrated Engineering Update** (identificação proposta nesta consolidação) |
+| Código integrado à main | **v0.6.7 — Living Factory: integridade operacional** |
 | Motor esportivo / replay | Core 2, revisão 040 (preservada da 9.21) |
 | Integração dos 11 incrementos | PRs #154–[#164](https://github.com/Jugadru/APEX-Simulation/pull/164) · `841cf72b` |
-| FAST da base integrada | [PASS](https://github.com/Jugadru/APEX-Simulation/actions/runs/45892271212) |
+| Integração Living Factory | [PR #166](https://github.com/Jugadru/APEX-Simulation/pull/166) · `2abe40cf` |
+| FAST do candidato Living Factory | [PASS](https://github.com/Jugadru/APEX-Simulation/actions/runs/45896250747), 28 testes roteados e 23 verificações novas |
 | Validação específica do incremento 11 | [1.322 verificações PASS](https://github.com/Jugadru/APEX-Simulation/actions/runs/45891658057) |
 | Último binário permanente de teste | [v0.6.6.9.17.4 (pré-release)](https://github.com/Jugadru/APEX-Simulation/releases/tag/v0.6.6.9.17.4) |
 | Última release estável | [v0.6.6.9.9](https://github.com/Jugadru/APEX-Simulation/releases/tag/v0.6.6.9.9) |
 
-A versão integrada não é automaticamente uma release de executáveis. Os resultados acima referem-se aos SHAs testados, não a uma exportação da 9.23. FULL, hardware nativo e revisão independente ainda não comprovados.
+A versão integrada não é automaticamente uma release de executáveis. Os resultados acima referem-se aos SHAs testados, não a uma exportação da v0.6.7. FULL, desempenho nativo sustentado e revisão independente da v0.6.7 não comprovados.
 
-## O que há de novo — 9.23
+## O que há de novo — v0.6.7
+
+- Reserva exclusiva de destino de substituição, proteção de instalação manual, persistência e recuperação de ordens antigas com destino divergente. Sem novo schema ou mudança esportiva.
+- Nova numeração curta: v0.6.7, v0.6.8, v0.6.9, v0.7.0 e seguintes. [Roadmap Unificado 3.0](docs/APEX_ROADMAP_UNIFICADO_3_0.md) conserva todas as funcionalidades e sua ordem; números de versões históricas permanecem imutáveis. Próxima funcionalidade: Race Randomness & Simulation Integrity 1.0 (v0.6.8).
+
+## Funcionalidades preservadas — 9.23
 
 - Onze incrementos integrados: scheduler, diagnóstico de qualidade, F8, HUD, rádio, perfis gráficos, observação esportiva, reaproveitamento de setup, geometria espacial, política de revisões e Endurance Laboratory.
 - Revisão esportiva 040 e diretório estável de usuário preservados. O teste sintético observou 37,83x de throughput por tick; não comprova 32x sustentados no hardware real.
@@ -34,7 +40,7 @@ A versão integrada não é automaticamente uma release de executáveis. Os resu
 
 ## Downloads e execução
 
-- **Código-fonte dos 11 incrementos 9.23:** [ZIP da base integrada](https://github.com/Jugadru/APEX-Simulation/archive/841cf72b3aa6efb882b3c086706b60c4d5634f45.zip) (ainda com identificação 9.22) ou [código atual da main](https://github.com/Jugadru/APEX-Simulation/archive/refs/heads/main.zip). Não são executáveis.
+- **Código-fonte:** [main atual](https://github.com/Jugadru/APEX-Simulation/archive/refs/heads/main.zip); [base de código Living Factory homologada](https://github.com/Jugadru/APEX-Simulation/archive/2abe40cfdd86f161ef2dbe64fb2f12f8fd6f7822.zip) (antes da sincronização do identificador). Não são executáveis.
 - **Pré-release jogável 9.17.4:** [Linux e Windows x86_64, manifesto e hashes](https://github.com/Jugadru/APEX-Simulation/releases/tag/v0.6.6.9.17.4).
 - **Release estável 9.9:** [Linux e Windows x86_64](https://github.com/Jugadru/APEX-Simulation/releases/tag/v0.6.6.9.9).
 - **Todos os downloads:** [GitHub Releases](https://github.com/Jugadru/APEX-Simulation/releases). Para gerar uma prévia atual, consulte [exportação PC via CI](docs/EXPORTACAO_PC_CI.md); exportação é opcional e não equivale a publicação.
@@ -60,7 +66,8 @@ Extraia o ZIP específico do seu sistema e mantenha o executável e o arquivo `.
 | 9.20 / 9.20.1 | [Driver Traffic](docs/APEX_RELEASE_v0.6.6.9.20_DRIVER_TRAFFIC.md) / [Traffic Mega](docs/APEX_RELEASE_v0.6.6.9.20.1_TRAFFIC_MEGA.md) |
 | 9.21 | [Driver Error & Recovery](docs/APEX_RELEASE_v0.6.6.9.21_DRIVER_ERROR.md) |
 | 9.22 | [Race Engineer 4.0](docs/APEX_RELEASE_v0.6.6.9.22_RACE_ENGINEER.md) |
-| **9.23** | **[Integrated Engineering Update](docs/APEX_0923_ENGINEERING_PLAN.md)** |
+| 9.23 | [Integrated Engineering Update](docs/APEX_0923_ENGINEERING_PLAN.md) |
+| **0.6.7** | **[Living Factory — Integridade operacional](docs/APEX_0924_FACTORY_AUDIT.md)** |
 
 As notas históricas preservam o estado e os testes de cada versão. Consulte [CHANGELOG.md](CHANGELOG.md), [arquivo documental](docs/arquivo/README.md) e [README histórico anterior à sincronização](https://github.com/Jugadru/APEX-Simulation/blob/b295e467fc73fdb54d724dc1ee042a771a267f7a/README.md) para resultados, links antigos e instruções de rollback.
 
