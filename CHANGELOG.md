@@ -1,11 +1,19 @@
 # Changelog — APEX Motorsport Manager Core 2
 
+## Unreleased — 9.23 Race Quality Center (F8)
+
+- Evolui o painel F8 original com abas Desempenho e Integridade esportiva; mantém controles e exportação CPU compatíveis.
+- Mostra contadores, amostras, cobertura, lacunas e contexto do observador existente; distingue sem sessão, sem observações, desativado e cobertura parcial. Não inventa notas ou interpreta zero como certificação.
+- Exibe velocidade solicitada e última medição válida, demanda acumulada e limite do backlog; invalida amostra na mudança de velocidade ou sessão. Não apresenta aceleração ativa quando pausado/finalizado.
+- Exportação JSON de qualidade separada da original; atualização limitada à aba visível, sem novo observador por frame.
+- Fixture gráfica direcionada no FAST existente, usando software/Xvfb; sem alegação de GPU nativa ou ganho de FPS. Execução pendente.
+
 ## Unreleased — 9.23 Race Quality Analyzer (integrity observations)
 
 - Evolui o RacecraftAudit existente com observações limitadas: identidade/classificação, tamanho do grid, estado numérico não finito, desgaste fora de faixa, tempos de pit/gaps negativos e recuo em pista entre ticks consecutivos.
 - Registro de até 64 ocorrências recentes, contadores completos, seed/circuito, cobertura e ticks não observados. Sem nota artificial, reparo automático, mudanças esportivas ou alteração do formato de replay.
 - Preserva dados diagnósticos em hot seek RAM e reinicia a cobertura após checkpoint; exclui pit e carros finalizados da comparação de recuo.
-- Novo teste direcionado FAST: injeção controlada de anomalias, limites, ausência de falsos recuos em pit/seek, observador ligado/desligado e hashes idênticos em 24 carros. Execução pendente.
+- Novo teste direcionado FAST: 214/214 PASS no candidato 4ee2045bb30f007c839e6470e2c9558fb27dda6d (run 45874861005); /lab simulation PASS (45874864587). PR #155 integrada em 3a767267c24305e1c6f9df5c3a4b48a0c4c84270.
 
 ## Unreleased — 9.23 Adaptive Scheduler (speed transitions)
 

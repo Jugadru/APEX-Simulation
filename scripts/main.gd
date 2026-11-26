@@ -171,6 +171,7 @@ var replay_recording_enabled := false
 var sim_speed := 1.0 # 066721: start in real-time; 5x is an explicit choice
 # Diagnostic only: rolling actual simulated seconds / wall-clock seconds.
 var effective_speed_x: float = 0.0
+var effective_speed_sample_valid: bool = false
 var effective_speed_elapsed: float = 0.0
 var effective_speed_ticks: int = 0
 var manual_driver := -1
@@ -709,6 +710,7 @@ func _toggle_race() -> void:
 
 func _change_speed(index: int) -> void:
 	RaceViewController._change_speed(self, index)
+	effective_speed_sample_valid = false
 
 func _change_visual_setting(index: int) -> void:
 	RaceViewController._change_visual_setting(self, index)
@@ -770,6 +772,10 @@ func _process(delta: float) -> void:
 	if race == null or not game_root.visible:
 		return
 	if presentation_race != race:
+		effective_speed_sample_valid = false
+		effective_speed_x = 0.0
+		effective_speed_elapsed = 0.0
+		effective_speed_ticks = 0
 		presentation_race = race
 		presentation.reset()
 		presented_3d_revision = -1
@@ -799,6 +805,7 @@ func _process(delta: float) -> void:
 		effective_speed_ticks += maxi(0, replay_session.tick - tick_before)
 		if effective_speed_elapsed >= 0.75:
 			effective_speed_x = float(effective_speed_ticks) * replay_session.STEP / effective_speed_elapsed
+			effective_speed_sample_valid = true
 			effective_speed_ticks = 0
 			effective_speed_elapsed = 0.0
 		if race.finished:

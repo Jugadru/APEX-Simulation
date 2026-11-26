@@ -723,6 +723,20 @@
         }
       ],
       "checks": []
+    },
+    {
+      "id": "race_quality_center_0923",
+      "paths": [
+        "scripts/debug/apex_perf_panel_0657.gd",
+        "tests/race_quality_center_0923_ui_test.gd"
+      ],
+      "fast_tests": [
+        {
+          "script": "race_quality_center_0923_ui_test.gd",
+          "marker": "RACE_QUALITY_CENTER_0923_PASS"
+        }
+      ],
+      "checks": []
     }
   ]
 }

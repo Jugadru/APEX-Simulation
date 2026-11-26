@@ -30,7 +30,7 @@ echo "APEX_TEST_ISOLATION script=$script data=$XDG_DATA_HOME"
 # Use a software-rendered virtual display, NOT Godot's dummy headless renderer.
 # All other tests retain their original headless command.
 case "$script" in
-    pitwall_0649_ui_test.gd|race_engineer_0922_ui_test.gd)
+    pitwall_0649_ui_test.gd|race_engineer_0922_ui_test.gd|race_quality_center_0923_ui_test.gd)
         command -v xvfb-run >/dev/null || { echo "APEX_GRAPHICAL_TEST_BLOCKED: xvfb-run missing" >&2; exit 1; }
         echo "APEX_TEST_RENDERER script=$script mode=xvfb_gl_compatibility"
         # Graphical CI has no audio device; select Dummy explicitly, not headless video.
