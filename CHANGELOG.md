@@ -1,10 +1,17 @@
 # Changelog — APEX Motorsport Manager Core 2
 
+## Unreleased — 9.23 Radio Polish (local speech queue)
+
+- Limpa mensagens vencidas por relógio real e tempo esportivo antes de admitir/consumir fala; fila de oito preservada, prioridades maiores podem substituir a pior mensagem e empates mantêm a ordem anterior.
+- Em 10x+ elimina mensagens comuns pendentes e interrompe fala não urgente; idioma indisponível não interrompe mensagens válidas. Seleção estável por ID de voz, normalização de locale e tentativa explícita após indisponibilidade.
+- Reconstrução do histórico ao entrar, buscar ou sair do replay permanece textual, sem reproduzir mensagens arquivadas; falas futuras e consultas continuam usando a infraestrutura da 9.22.
+- Teste direcionado com backend de fala controlado, sem fingir reprodução sonora. A escuta real, efeitos de rádio e sincronização fonética permanecem não verificados; FAST pendente.
+
 ## Unreleased — 9.23 HUD Optimization (demand-driven proximity)
 
 - Calcula a proximidade física O(N²) somente quando DIST. PISTA está selecionado; limpa o resultado ao sair do indicador, recalcula imediatamente na seleção e conserva textos/tooltips originais.
 - Reutiliza a classificação já obtida no mesmo ciclo do apresentador, evitando uma ordenação redundante; callbacks independentes mantêm consulta própria. Nenhum cache esportivo ou alteração de frequência da HUD.
-- Regressão ampliada no teste existente de Race Gaps: sete métricas sem projeção em 1/16/32x, paridade dos 24 textos e tooltips, seleção pausada, limpeza e hash esportivo. FAST pendente; redução de trabalho demonstrável por contagem, não ganho de FPS medido.
+- Regressão ampliada no teste existente de Race Gaps: sete métricas sem projeção em 1/16/32x, paridade dos 24 textos e tooltips, seleção pausada, limpeza e hash esportivo. FAST PASS no SHA 55ba69441db20737e239c14f93eda1c450d068ca (run 45879382566), 105/105 Race Gaps, 13/13 jobs Race Engineer (45879382552); PR #157 integrada em bce1fe830e3a3d66a014012a53d705718ee82200. Redução de trabalho demonstrável por contagem, não ganho de FPS medido.
 
 ## Unreleased — 9.23 Race Quality Center (F8)
 

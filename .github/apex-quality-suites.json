@@ -737,6 +737,22 @@
         }
       ],
       "checks": []
+    },
+    {
+      "id": "radio_polish_0923",
+      "paths": [
+        "scripts/presentation/race_radio_audio_0922.gd",
+        "scripts/apex_commentary.gd",
+        "scripts/race_replay_panel_0660.gd",
+        "tests/radio_polish_0923_test.gd"
+      ],
+      "fast_tests": [
+        {
+          "script": "radio_polish_0923_test.gd",
+          "marker": "RADIO_POLISH_0923_PASS"
+        }
+      ],
+      "checks": []
     }
   ]
 }

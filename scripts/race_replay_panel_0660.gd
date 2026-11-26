@@ -77,7 +77,10 @@ func refresh_scene() -> void:
 		host.map_view.point_on_track(host.race.PIT_EXIT_FRACTION),host.map_view.direction_on_track(host.race.PIT_EXIT_FRACTION))
 	host._rebuild_player_cards()
 	host.commentary.reset(int(host.race.rng.seed));host.last_radio_count=0
+	# Reconstruct visible historical radio without playing archived speech.
+	host.commentary.suppress_radio_audio = true
 	host._update_game_ui()
+	host.commentary.suppress_radio_audio = false
 	host.next_ui=0.0
 
 func toggle() -> void:
