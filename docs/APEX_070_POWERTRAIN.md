@@ -1,0 +1,11 @@
+# v0.7.0 — Gearbox, Torque & Power Delivery: candidato inicial
+
+Base v0.6.9 integrada #172 em 8b5755279b134b051f3d237bdbbb517f9a6a721b; FAST 45908721308 PASS. Consolidação de identificação #173 em PR separada. Roadmap Godot + C++ preservado.
+
+- Revisão experimental 042_gearbox_torque_experimental_v1: V8 de referência de 2012, sete relações totais, curva interpolada de torque, RPM por velocidade/marcha, limite 18.000 rpm, potência T*omega e força nas rodas. Massa, relação, curva, raio, eficiência, carga de estrada de referência e tempo de troca são parâmetros experimentais, não telemetria.
+- Corte temporário de tração durante troca, retomada dentro do tick e histerese. A força líquida limita aceleração positiva já existente; não altera frenagem, alvo tático, ápice, grip, desgaste ou autoridade do solver. RPM acompanha velocidade efetivamente autorizada; potência é estimativa de entrega antes da restrição de tráfego, não medição. Sem dupla contagem KERS/DRS: efeitos antigos no ritmo preservados. Sem nova lógica de combustível, transferência de carga, motor por fornecedor, arrasto detalhado ou HUD.
+- 042 é opt-in pelo contrato de sessão/replay, não seleção de menu ou default. 041 permanece default. Estado por carro apenas em 042, reset nos boxes, sem nova RNG. Arquivos 040/041 conservam caminhos existentes; novos arquivos 042 experimentais podem exigir nova revisão se mudarem antes da entrega.
+- Referência normativa: FIA Formula One Technical Regulations, 9 March 2012, artigos 5 e 9: https://argent.fia.com/web/fia-public.nsf/13C06BF289E0E36FC12579C9003CB5B9/%24FILE/1-2012%20TECHNICAL%20REGULATIONS%2009-03-2012.pdf . Nenhuma curva proprietária utilizada. Módulo puro SI, apto para futura avaliação Native Core, não migração C++ agora.
+
+## QA
+Oráculos de torque, potência, marchas, RPM, corte/retomada, limite de aceleração, 24 carros Monza seco e Silverstone chuva, 041 default, isolamento ON/OFF e RNG, BOX V21 agendado, replay e seek 042. Novo teste roteado no FAST. Antes de ativar 042 como padrão: aprovar FAST no SHA exato, validar V21 contínuo, passagem real de volta e efeitos em perfis de marcha, revisar consumidores de revisão e calibrar os coeficientes com fontes verificáveis. Sem merge, FULL, exportação, calibração oficial ou benchmark nativo nesta entrega.

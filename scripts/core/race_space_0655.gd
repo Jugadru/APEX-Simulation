@@ -2,6 +2,7 @@ extends RefCounted
 ## Authoritative deterministic traffic in schematic circuit units, not FIA metres.
 const Combat = preload("res://scripts/core/race_combat.gd")
 const Longitudinal069 = preload("res://scripts/core/race_longitudinal_069.gd")
+const Powertrain070 = preload("res://scripts/core/race_powertrain_070.gd")
 const DriverDynamics = preload("res://scripts/core/race_driver_dynamics_0661.gd")
 const DriverTraffic = preload("res://scripts/core/race_driver_traffic_06693.gd")
 const Overtaking = preload("res://scripts/core/race_overtaking_intelligence_066912.gd")
@@ -711,4 +712,6 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 		if intents[id].has(Longitudinal069.KEY):
 			var actual_m: float = maxf(0.0,float(result[id].progress)-float(c.progress))*lap_km*1000.0
 			result[id].states[Longitudinal069.KEY] = Longitudinal069.settle(intents[id][Longitudinal069.KEY],actual_m,dt,float(intents[id].driving_dt))
+			if intents[id][Longitudinal069.KEY].has(Powertrain070.KEY):
+				result[id].states[Powertrain070.KEY]=Powertrain070.settle(intents[id][Longitudinal069.KEY][Powertrain070.KEY],float(result[id].states[Longitudinal069.KEY]))
 	return result

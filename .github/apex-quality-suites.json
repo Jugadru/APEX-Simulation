@@ -948,6 +948,20 @@
         }
       ],
       "checks": []
+    },
+    {
+      "id": "powertrain_070",
+      "paths": [
+        "scripts/core/race_powertrain_070.gd",
+        "tests/race_powertrain_070_test.gd"
+      ],
+      "fast_tests": [
+        {
+          "script": "race_powertrain_070_test.gd",
+          "marker": "POWERTRAIN_070_PASS"
+        }
+      ],
+      "checks": []
     }
   ]
 }
