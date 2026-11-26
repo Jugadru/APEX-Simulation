@@ -708,6 +708,21 @@
         }
       ],
       "checks": []
+    },
+    {
+      "id": "race_quality_0923",
+      "paths": [
+        "scripts/core/racecraft_audit_0662.gd",
+        "scripts/core/race_replay_0660.gd",
+        "tests/race_quality_0923_test.gd"
+      ],
+      "fast_tests": [
+        {
+          "script": "race_quality_0923_test.gd",
+          "marker": "RACE_QUALITY_0923_PASS"
+        }
+      ],
+      "checks": []
     }
   ]
 }

@@ -14,6 +14,100 @@ var recent_samples: Array = []
 var previous_states: Dictionary = {}
 var track_code: String = ""
 
+# 9.23: bounded integrity observations, not sporting decisions or a quality score.
+const QUALITY_SAMPLE_LIMIT := 64
+const QUALITY_EPSILON := 0.000000001
+const QUALITY_KEYS := ["grid_size_changed", "invalid_driver_id", "duplicate_driver_id",
+	"invalid_position", "duplicate_position", "nonfinite_state", "tyre_wear_out_of_range",
+	"negative_pit_time", "negative_gap", "reverse_on_track"]
+const QUALITY_FINITE_FIELDS := ["progress", "race_lane", "wear", "pit_left", "gap", "interval"]
+var quality_counts: Dictionary = {}
+var quality_samples: Array = []
+var quality_previous_progress: Dictionary = {}
+var quality_scratch_progress: Dictionary = {}
+var quality_observed_ticks: int = 0
+var quality_grid_size: int = 0
+var quality_seed: int = 0
+
+func _quality_reset(race) -> void:
+	quality_counts.clear()
+	for kind in QUALITY_KEYS:
+		quality_counts[kind] = 0
+	quality_samples.clear()
+	quality_previous_progress.clear()
+	quality_scratch_progress.clear()
+	quality_observed_ticks = 0
+	quality_grid_size = race.cars.size()
+	quality_seed = race.rng.seed
+	for car in race.cars:
+		var progress: float = float(car.get("progress", NAN))
+		if is_finite(progress) and float(car.get("pit_left", 0.0)) <= 0.0 and not bool(car.get("finished", false)):
+			quality_previous_progress[int(car.get("id", -1))] = progress
+
+func _quality_flag(kind: String, tick: int, id: int, condition: String, field: String, value: String) -> void:
+	quality_counts[kind] = int(quality_counts[kind]) + 1
+	if quality_samples.size() >= QUALITY_SAMPLE_LIMIT:
+		quality_samples.pop_front()
+	quality_samples.append({"kind": kind, "tick": tick, "driver_id": id, "condition": condition,
+		"field": field, "value": value})
+
+func _quality_observe_car(car: Dictionary, tick: int, condition: String, positions: Dictionary, grid_size: int) -> void:
+	var id: int = int(car.get("id", -1))
+	var position: int = int(car.get("position", -1))
+	if position < 1 or position > grid_size:
+		_quality_flag("invalid_position", tick, id, condition, "position", str(position))
+	elif positions.has(position):
+		_quality_flag("duplicate_position", tick, id, condition, "position", str(position))
+	positions[position] = true
+	for field in QUALITY_FINITE_FIELDS:
+		var value: float = float(car.get(field, NAN))
+		if not is_finite(value):
+			_quality_flag("nonfinite_state", tick, id, condition, field, str(value))
+	var wear: float = float(car.get("wear", NAN))
+	if is_finite(wear) and (wear < -QUALITY_EPSILON or wear > 100.0 + QUALITY_EPSILON):
+		_quality_flag("tyre_wear_out_of_range", tick, id, condition, "wear", str(wear))
+	var pit_left: float = float(car.get("pit_left", NAN))
+	if is_finite(pit_left) and pit_left < -QUALITY_EPSILON:
+		_quality_flag("negative_pit_time", tick, id, condition, "pit_left", str(pit_left))
+	for field in ["gap", "interval"]:
+		var gap: float = float(car.get(field, NAN))
+		if is_finite(gap) and gap < -QUALITY_EPSILON:
+			_quality_flag("negative_gap", tick, id, condition, field, str(gap))
+	var progress: float = float(car.get("progress", NAN))
+	# Grid positions can start negative; pit entry/exit and finishing are not
+	# comparable on-track samples. Never compare across unobserved ticks.
+	if is_finite(progress) and is_finite(pit_left) and pit_left <= 0.0 and not bool(car.get("finished", false)):
+		if quality_previous_progress.has(id) and not quality_scratch_progress.has(id):
+			var prior: float = float(quality_previous_progress[id])
+			if progress < prior - QUALITY_EPSILON:
+				_quality_flag("reverse_on_track", tick, id, condition, "progress", "%.12f -> %.12f" % [prior, progress])
+		quality_scratch_progress[id] = progress
+
+func quality_report() -> Dictionary:
+	var missed: int = maxi(0, last_tick - start_tick - quality_observed_ticks)
+	return {"schema": "APEX_RACE_QUALITY_0923", "seed": quality_seed, "track_code": track_code,
+		"start_tick": start_tick, "end_tick": last_tick, "observed_ticks": quality_observed_ticks,
+		"missed_ticks": missed, "coverage": "from_start" if start_tick == 0 and missed == 0 else "partial",
+		"grid_size_at_reset": quality_grid_size, "counts": quality_counts.duplicate(true),
+		"samples": quality_samples.duplicate(true),
+		"note": "Integrity observations only; zero findings do not certify race quality. Pit transitions and finished cars excluded from reverse check."}
+
+# Session-only seek state; never stored in exported archives or sporting hashes.
+func quality_snapshot() -> Dictionary:
+	return {"counts": quality_counts.duplicate(true), "samples": quality_samples.duplicate(true),
+		"previous_progress": quality_previous_progress.duplicate(true), "observed_ticks": quality_observed_ticks,
+		"grid_size": quality_grid_size, "seed": quality_seed}
+
+func restore_quality_snapshot(state: Dictionary) -> void:
+	quality_counts = state.counts.duplicate(true)
+	quality_samples = state.samples.duplicate(true)
+	quality_previous_progress = state.previous_progress.duplicate(true)
+	quality_scratch_progress.clear()
+	quality_observed_ticks = int(state.observed_ticks)
+	quality_grid_size = int(state.grid_size)
+	quality_seed = int(state.seed)
+
+
 func empty_counts() -> Dictionary:
 	var out: Dictionary = {}
 	for key in KEYS:
@@ -35,6 +129,7 @@ func reset(race, from_tick: int = 0) -> void:
 	recent_samples.clear()
 	previous_states.clear()
 	track_code = str(race.track.get("code", "unknown"))
+	_quality_reset(race)
 	for car in race.cars:
 		previous_states[int(car.get("id", -1))] = str(car.get("combat_state", "clear"))
 
@@ -77,9 +172,21 @@ func _event_kind(event: Dictionary) -> String:
 func observe(race, tick: int) -> void:
 	if tick <= last_tick: return
 	var by_id: Dictionary = {}
-	for car in race.cars:
-		by_id[int(car.get("id", -1))] = car
 	var condition: String = _bucket(race)
+	var grid_size: int = race.cars.size()
+	if tick != last_tick + 1:
+		quality_previous_progress.clear()
+	quality_scratch_progress.clear()
+	quality_observed_ticks += 1
+	if grid_size != quality_grid_size:
+		_quality_flag("grid_size_changed", tick, -1, condition, "cars", "%d -> %d" % [quality_grid_size, grid_size])
+	for car in race.cars:
+		var id: int = int(car.get("id", -1))
+		if id < 0:
+			_quality_flag("invalid_driver_id", tick, id, condition, "id", str(id))
+		if by_id.has(id):
+			_quality_flag("duplicate_driver_id", tick, id, condition, "id", str(id))
+		by_id[id] = car
 	# The event ring is chronological. Skip all already-seen events in O(1)
 	# on quiet ticks, but still process newly appended events in original order.
 	var start: int = race.events.size()
@@ -96,7 +203,9 @@ func observe(race, tick: int) -> void:
 		_increment(kind, by_id[id], condition)
 		if recent_samples.size() == SAMPLE_LIMIT: recent_samples.pop_front()
 		recent_samples.append({"tick": tick, "event_id": event_id, "driver_id": id, "type": kind, "condition": condition})
+	var positions: Dictionary = {}
 	for car in race.cars:
+		_quality_observe_car(car, tick, condition, positions, grid_size)
 		var id: int = int(car.get("id", -1))
 		var state: String = str(car.get("combat_state", "clear"))
 		var prior: String = str(previous_states.get(id, "clear"))
@@ -105,6 +214,9 @@ func observe(race, tick: int) -> void:
 		if bool(car.get("race_space_blocked", false)) and float(car.get("pit_left", 0.0)) <= 0.0 and not bool(car.get("finished", false)):
 			_increment("blocked_ticks", car, condition)
 		previous_states[id] = state
+	var previous: Dictionary = quality_previous_progress
+	quality_previous_progress = quality_scratch_progress
+	quality_scratch_progress = previous
 	last_tick = tick
 
 func summary() -> Dictionary:
@@ -114,4 +226,5 @@ func summary() -> Dictionary:
 		"counts": counts.duplicate(true), "drivers": per_driver.duplicate(true),
 		"weather_and_risk": per_condition.duplicate(true),
 		"sample_count": recent_samples.size(), "samples": recent_samples.duplicate(true),
+		"quality": quality_report(),
 		"note": "Signals only. Position gains outside combat are not overtakes; blocked_ticks are 0.2s observations. No FIA calibration."}
