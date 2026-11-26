@@ -97,6 +97,11 @@ func _ready() -> void:
 	light.shadow_enabled = true
 	light.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
 	light.directional_shadow_max_distance = 240.0
+	# Rendering-only profile, selected at launch; no engine/physics changes.
+	if OS.get_environment("APEX_GRAPHICS_PROFILE") == "gtx1650":
+		light.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS
+		light.directional_shadow_max_distance = 160.0
+		env.ssao_enabled = false
 	light.shadow_bias = 0.015
 	light.shadow_normal_bias = 0.7
 	light.light_angular_distance = 0.5

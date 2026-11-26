@@ -172,7 +172,7 @@ func _export_checkpoints() -> Array:
 		if state.is_empty():
 			return []
 		result.append({"tick": int(cp.tick), "cursor": int(cp.cursor),
-			"state": state.duplicate(true), "policy": cp.policy.duplicate(true)})
+			"state": state.duplicate(true) if cp.has("state") else state, "policy": cp.policy.duplicate(true)})
 	return result
 
 func valid_command(method: String, args: Array) -> bool:
@@ -221,6 +221,10 @@ func enqueue(method: String, args: Array, at_tick: int = -1, origin: String = "M
 	commands.append({"tick": target, "sequence": sequence, "actor": int(args[0]), "type": method, "payload": args.duplicate(true), "origin": origin})
 	commands.sort_custom(func(a,b): return a.tick < b.tick or (a.tick == b.tick and a.sequence < b.sequence))
 	return true
+
+## Shared policy for interactive acceleration and its deterministic tests.
+static func interactive_backlog_steps(speed: float) -> int:
+	return 12 if speed >= 32.0 else (8 if speed >= 16.0 else (6 if speed >= 10.0 else 0))
 
 func advance(delta: float, speed: float, observer: Callable = Callable(), frame_budget_us: int = 0, max_backlog_steps: int = 0) -> int:
 	if not race.running or race.finished or first_divergence >= 0: return 0

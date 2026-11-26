@@ -203,6 +203,24 @@ static func resolve_physical(order: Array, intents: Dictionary, result: Dictiona
 					changed=true
 		if not changed:break
 
+# Each triplet describes an already-resolved leader in insertion order:
+# upper corridor edge + WIDTH, lower edge - WIDTH, longitudinal cap.
+# Float64 preserves the scalar precision of the original dictionary scan.
+static func remember_resolved_leader(cache: PackedFloat64Array, lane: float,
+		next_lane: float, resolved_progress: float, clearance: float) -> void:
+	cache.append(maxf(lane,next_lane)+WIDTH)
+	cache.append(minf(lane,next_lane)-WIDTH)
+	cache.append(resolved_progress-clearance)
+
+static func leader_limit(next: float, lane: float, next_lane: float,
+		cache: PackedFloat64Array) -> float:
+	var lower: float=minf(lane,next_lane)
+	var upper: float=maxf(lane,next_lane)
+	for i in range(0,cache.size(),3):
+		if lower<cache[i] and upper>cache[i+1]:
+			next=minf(next,cache[i+2])
+	return next
+
 static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,shape: Dictionary, weather: Dictionary = {}, traffic_enabled: bool = true, soul3_enabled: bool = false,
 		overtaking_enabled: bool = false, competitive_start_enabled: bool = false,
 		start_clock_s: float = 0.0, merge_traffic_enabled: bool = false, traffic_hotfix_enabled: bool = false, following_enabled: bool = false, completion_enabled: bool = false, independent_enabled: bool = false, aero_wake_enabled: bool = false, aero_wake_corrected: bool = true, wake_stability: bool = false, wet_line_stability: bool = false, coordination_enabled: bool = false, corner_battle_enabled: bool = false, traffic_intelligence_enabled: bool = false, traffic_pack_enabled: bool = false) -> Dictionary:
@@ -244,6 +262,15 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 		var lane := float(c.get("race_lane",0))
 		var hold_grid_corridor: bool = competitive_start_enabled and CompetitiveStart.active(start_clock_s, float(c.progress))
 		intents[id]={"lane":lane,"goal":(lane if hold_grid_corridor else 0.0),"pace":float(metrics[id].target),"state":"clear","target":-1,"event":"","defender_id":-1,"charge":maxf(0,float(c.get("attack_charge",0))-dt*.12),"defending":-1,"defense_line":0.0,"defense_event":false,"side":"","margin":0.0,"hesitation":maxf(0,hesitation-dt),"driving_dt":maxf(0,dt-hesitation)}
+	# Geometry and start-of-tick positions are frozen throughout plan().
+	# Cache the two repeated lane-limit queries by stable car ID, not across ticks.
+	var lane_here: Dictionary = {}
+	var lane_ahead: Dictionary = {}
+	for c in order:
+		var cache_id: int = int(c.id)
+		var progress: float = float(c.progress)
+		lane_here[cache_id]=lane_limit(track,progress,shape)
+		lane_ahead[cache_id]=lane_limit(track,progress+LENGTH*2.0/length,shape)
 	# Voluntary line only in free air. Tactical attack/defense and the
 	# existing occupancy solver retain authority. No lateral teleport.
 	for c in order:
@@ -260,17 +287,22 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 				clear=false
 				break
 		if clear:
-			var limit: float=minf(lane_limit(track,float(c.progress),shape),lane_limit(track,float(c.progress)+LENGTH*2.0/length,shape))
+			var limit: float=minf(float(lane_here[id]),float(lane_ahead[id]))
 			intents[id].goal=clampf(float(metrics[id].line_ratio),-1.0,1.0)*limit
 	# Look ahead once per car; no new RNG or changes to the road geometry.
 	var narrowing: Dictionary = {}
 	if merge_traffic_enabled:
 		for c in order:
+			var id: int = int(c.id)
 			var p: float = float(c.progress)
-			var min_lane: float = MAX_LANE
-			for offset in [0.0,LENGTH,2.0*LENGTH,3.0*LENGTH,4.0*LENGTH]:
+			# The frozen current and 2*LENGTH samples already exist.
+			# Keep the original min order and exact offsets (no quantization).
+			var min_lane: float = minf(MAX_LANE,float(lane_here[id]))
+			min_lane=minf(min_lane,lane_limit(track,p+LENGTH/length,shape))
+			min_lane=minf(min_lane,float(lane_ahead[id]))
+			for offset in [3.0*LENGTH,4.0*LENGTH]:
 				min_lane=minf(min_lane,lane_limit(track,p+float(offset)/length,shape))
-			narrowing[int(c.id)]=MergeTraffic.single_file(min_lane)
+			narrowing[id]=MergeTraffic.single_file(min_lane)
 	var traffic_observations:Dictionary={}
 	if traffic_pack_enabled:
 		var traffic_rates:Dictionary=TrafficPack.rate_frame(cars)
@@ -306,8 +338,7 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 			a.charge = minf(2.50, previous_charge + dt * clampf(0.20 + advantage * 0.22, 0.20, 0.55))
 		else:
 			a.charge = maxf(0.0, previous_charge - dt * 0.22)
-		var limit: float = minf(lane_limit(track,float(c.progress),shape),
-				lane_limit(track,float(ahead.progress)+LENGTH*2.0/length,shape))
+		var limit: float = minf(float(lane_here[id]),float(lane_ahead[rival]))
 		var driver: Dictionary = c.duplicate()
 		driver["attack_charge"] = float(a.charge)
 		var tactic: Dictionary = DriverDynamics.choose(driver,ahead,gap,advantage,limit,track,weather,soul3_enabled,following_enabled)
@@ -326,7 +357,7 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 		if traffic_intelligence_enabled:
 			var tm: Dictionary=metrics[rival]
 			var own_load: float=float(tm.get("line_load",0.0))
-			var blue_limit: float=minf(limit,lane_limit(track,float(ahead.progress),shape))
+			var blue_limit: float=minf(limit,float(lane_here[rival]))
 			var blue_context:Dictionary={"gap":gap,"length":length,"limit":blue_limit,"wet":weather.get("wetness_factor",0.0),"load":own_load,"ahead_load":tm.get("ahead_load",own_load),"narrowing":bool(narrowing.get(id,false)) or bool(narrowing.get(rival,false)),"busy":int(d.defending)>=0 or str(d.state) in Independent.ATTACK or str(a.get("defense_origin",""))=="blue_flag","advantage":advantage,"passing_lane":tactic.attack_goal}
 			traffic=TrafficPack.blue(c,ahead,order,metrics,blue_context) if traffic_pack_enabled else Traffic0920.evaluate(c,ahead,order,metrics,blue_context)
 			if bool(traffic.lapping): a["traffic_reason"]=traffic.reason
@@ -491,7 +522,7 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 			var leader: Dictionary=observations.leader
 			var gap: float=float(observations.independent_gap)
 			var wake_candidates: Array=observations.wake_candidates
-			var limit: float = minf(lane_limit(track,float(c.progress),shape),lane_limit(track,float(c.progress)+LENGTH*2.0/length,shape))
+			var limit: float = minf(float(lane_here[id]),float(lane_ahead[id]))
 			var wet: float = clampf(float(weather.get("wetness_factor",0.0)),0.0,1.0)
 			var own: float = clampf(float(m.get("line_ratio",0.0)),-1.0,1.0)*limit
 			var load: float = float(m.get("line_load",1.0))
@@ -541,47 +572,51 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 	for c in order:
 		var id := int(c.id)
 		var a: Dictionary=intents[id]
+		var own_lane: float=float(a.lane)
+		var own_progress: float=float(c.progress)
 		for other in order:
 			if other.id==id: continue
 			# Reject same-lane neighbors before computing circular distance.
-			if absf(float(a.lane)-float(other.get("race_lane",0)))<WIDTH-.01: continue
-			var gap := absf(MergeTraffic.relative_gap(float(c.progress),float(other.progress),length)) if hotfix else absf(float(c.progress)-float(other.progress))*length
+			var other_lane: float=float(other.get("race_lane",0))
+			if absf(own_lane-other_lane)<WIDTH-.01: continue
+			var gap := absf(MergeTraffic.relative_gap(own_progress,float(other.progress),length)) if hotfix else absf(own_progress-float(other.progress))*length
 			if gap<LENGTH+1:
 				a.goal=a.lane
 				break
-		var limit := minf(lane_limit(track,float(c.progress),shape),lane_limit(track,float(c.progress)+LENGTH*2/length,shape))
-		var wanted := move_toward(float(a.lane),clampf(float(a.goal),-limit,limit),dt*1.8)
+		var limit := minf(float(lane_here[id]),float(lane_ahead[id]))
+		var wanted := move_toward(own_lane,clampf(float(a.goal),-limit,limit),dt*1.8)
 		if independent_enabled and a.has("independent_memory") and is_equal_approx(float(a.goal),float(a.independent_memory.aim)):
 			wanted = float(a.independent_memory.wanted)
 		# Do not enter a third car's occupied corridor.
 		for other in order:
 			# An unchanged lane cannot newly cross a separated corridor.
-			if wanted==float(a.lane): break
+			if wanted==own_lane: break
 			if other.id==id:continue
-			if absf(float(a.lane)-float(other.get("race_lane",0)))<WIDTH: continue
-			var gap := absf(MergeTraffic.relative_gap(float(c.progress),float(other.progress),length)) if hotfix else absf(float(c.progress)-float(other.progress))*length
-			if gap<LENGTH+2 and corridor_crosses(float(a.lane),wanted,float(other.get("race_lane",0)),float(other.get("race_lane",0))):
-				if absf(float(a.lane)-float(other.get("race_lane",0)))>=WIDTH:
-					wanted=float(a.lane)
+			var other_lane: float=float(other.get("race_lane",0))
+			if absf(own_lane-other_lane)<WIDTH: continue
+			var gap := absf(MergeTraffic.relative_gap(own_progress,float(other.progress),length)) if hotfix else absf(own_progress-float(other.progress))*length
+			if gap<LENGTH+2 and corridor_crosses(own_lane,wanted,other_lane,other_lane):
+				if absf(own_lane-other_lane)>=WIDTH:
+					wanted=own_lane
 					# Never freeze BOTH cars in an exact same-progress, narrow-lane
 					# tie. Stable ID order grants one car the forward turn while the
 					# other yields, keeping the original no-squeeze lane constraint.
 					# This is an experimental diagnostic for the Monaco seed case.
 					var ahead_progress: float = float(other.progress)
-					var our_progress: float = float(c.progress)
+					var our_progress: float = own_progress
 					if hotfix:
 						# A stopped lateral move is not a reason for a second brake.
 						# queue_027 applies the single longitudinal yield later.
 						var relative: float = MergeTraffic.relative_gap(our_progress,ahead_progress,length)
-						if absf(float(a.lane))>limit and (relative>0.000001 or (absf(relative)<=0.000001 and not MergeTraffic.has_priority(c,other))):
+						if absf(own_lane)>limit and (relative>0.000001 or (absf(relative)<=0.000001 and not MergeTraffic.has_priority(c,other))):
 							a.state="recovering"
-					elif absf(float(a.lane))>limit and (
+					elif absf(own_lane)>limit and (
 						our_progress < ahead_progress or (
 						our_progress == ahead_progress and int(c.id) > int(other.id))):
 						a.driving_dt=float(a.driving_dt)*0.55 if merge_traffic_enabled else 0.0
 						a.state="recovering"
 		a.next_lane=wanted
-		a.next=float(c.progress)+float(a.driving_dt)/maxf(1,float(a.pace))
+		a.next=own_progress+float(a.driving_dt)/maxf(1,float(a.pace))
 	# Before entering a single corridor, the trailing side yields gradually.
 	# Only the trailing car's existing proposed displacement is reduced.
 	if merge_traffic_enabled:
@@ -594,15 +629,12 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 	# Resolve all same-corridor followers against already-resolved leaders,
 	# including a leader held by a third car. No resolution impulse exists.
 	var result := {}
+	var resolved_leaders := PackedFloat64Array()
+	var leader_clearance: float=LENGTH/length
 	for c in order:
 		var id := int(c.id)
 		var a: Dictionary=intents[id]
-		var next := float(a.next)
-		for leader_id in result:
-			var leader: Dictionary=result[leader_id]
-			var old_leader: Dictionary=by_id[leader_id]
-			if corridor_crosses(float(a.lane),float(a.next_lane),float(old_leader.get("race_lane",0)),float(leader.states.race_lane)):
-				next=minf(next,float(leader.progress)-LENGTH/length)
+		var next: float=leader_limit(float(a.next),float(a.lane),float(a.next_lane),resolved_leaders)
 		next=maxf(float(c.progress),next)
 		var passed := false
 		if by_id.has(int(a.target)) and result.has(int(a.target)):
@@ -633,6 +665,7 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 		if aero_wake_enabled and a.has("aero_wake_032"):
 			states["aero_wake_032"]=a.aero_wake_032
 		result[id]={"progress":next,"states":states,"event":reaction,"defender_id":int(a.defender_id)}
+		remember_resolved_leader(resolved_leaders,float(c.get("race_lane",0)),float(states.race_lane),next,leader_clearance)
 	# Physical traffic also includes lapped cars; distance wraps at the line.
 	resolve_physical(order,intents,result,length,completion_enabled,wake_stability)
 	for c in order:
