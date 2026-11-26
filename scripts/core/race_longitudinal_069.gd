@@ -27,6 +27,26 @@ static func corner_speed(nominal: float, load: float, mean: float) -> float:
 static func braking_cap(future_speed: float, braking: float, distance_m: float) -> float:
 	return sqrt(maxf(0.0,future_speed*future_speed+2.0*maxf(0.0,braking)*maxf(0.0,distance_m)))
 
+## Constant-deceleration estimate in SI; zero if already at/below target.
+static func braking_distance(speed: float, target: float, braking: float) -> float:
+	return maxf(0.0, speed * speed - target * target) / (2.0 * maxf(0.000001, braking))
+
+## Existing schematic apices supply forward constraints, including across
+## the finish line. The local 60m preview remains an additional constraint.
+static func apex_braking_cap(curve: Dictionary, nominal: float, lap_m: float, traction: float, desired: float) -> float:
+	var cap: float = desired
+	var progress: float = float(curve.get("progress", 0.0))
+	for corner in curve.get("corners", []):
+		var distance_m: float = fposmod(float(corner.apex) - progress, 1.0) * lap_m
+		var apex_speed: float = corner_speed(nominal, float(corner.severity), float(curve.mean))
+		if apex_speed >= cap: continue
+		# Braking rate grows with speed in this model. Use the lower-speed
+		# endpoint as a conservative constant rate for the approach.
+		var braking: float = float(rates(apex_speed, traction).brake)
+		if distance_m <= braking_distance(cap, apex_speed, braking):
+			cap = minf(cap, braking_cap(apex_speed, braking, distance_m))
+	return cap
+
 static func integrate(speed: float, target: float, accel: float, brake: float, dt: float) -> Dictionary:
 	var start := clampf(speed,0.0,MAX_MPS)
 	var goal := clampf(target,0.0,MAX_MPS)
@@ -43,8 +63,10 @@ static func propose(car: Dictionary, curve: Dictionary, pace_s: float, lap_m: fl
 	var future := corner_speed(nominal,float(curve.ahead_load),float(curve.mean))
 	# Handover at 24s preserves the existing launch/first-corner model.
 	var previous := clampf(float(car.get(KEY,desired)),0.0,MAX_MPS)
-	var limits := rates(previous,grip(car,weather))
+	var traction: float = grip(car,weather)
+	var limits := rates(previous,traction)
 	var target := minf(desired,braking_cap(future,float(limits.brake),PREVIEW_M))
+	target = minf(target,apex_braking_cap(curve,nominal,lap_m,traction,desired))
 	return integrate(previous,target,float(limits.accel),float(limits.brake),driving_dt)
 
 static func settle(proposal: Dictionary, actual_m: float, dt: float, driving_dt: float) -> float:
