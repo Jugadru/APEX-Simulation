@@ -784,6 +784,28 @@
         }
       ],
       "checks": []
+    },
+    {
+      "id": "endurance_laboratory_0923",
+      "paths": [
+        "tests/endurance_laboratory_0923_test.gd",
+        "scripts/core/race_replay_0660.gd",
+        "scripts/core/race_state_codec_0660.gd",
+        "scripts/apex_telemetry.gd",
+        "scripts/race_engine.gd",
+        "tools/apex_endurance_ci.py"
+      ],
+      "fast_tests": [
+        {
+          "script": "endurance_laboratory_0923_test.gd",
+          "marker": "ENDURANCE_LAB_0923_PASS"
+        },
+        {
+          "script": "core_0642_save_migration_test.gd",
+          "marker": "APEX 0642 SAVE MIGRATION PASS"
+        }
+      ],
+      "checks": []
     }
   ]
 }
