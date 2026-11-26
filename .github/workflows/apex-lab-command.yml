@@ -1,0 +1,110 @@
+name: APEX Lab Command Bridge
+on:
+  issue_comment:
+    types: [created]
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/apex-lab-command.yml'
+      - 'tools/apex_lab_command.py'
+      - 'tools/tests/test_apex_lab_command.py'
+permissions:
+  contents: read
+jobs:
+  contracts:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - run: python3 -m unittest discover -s tools/tests -p test_apex_lab_command.py -v
+  authorize:
+    if: github.event_name == 'issue_comment' && github.actor == 'Jugadru' && startsWith(github.event.comment.body, '/lab ')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      command: ${{ steps.auth.outputs.command }}
+      head: ${{ steps.auth.outputs.head }}
+      base: ${{ steps.auth.outputs.base }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Validate trusted owner command and immutable revision
+        id: auth
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 -I tools/apex_lab_command.py authorize
+  receipt:
+    if: github.event_name == 'issue_comment' && needs.authorize.result == 'success'
+    needs: authorize
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Return run link to the requesting issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE: ${{ github.event.issue.number }}
+          COMMAND: ${{ needs.authorize.outputs.command }}
+          HEAD: ${{ needs.authorize.outputs.head }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$ISSUE" =~ ^[0-9]+$ ]]
+          [[ "$HEAD" =~ ^[0-9a-f]{40}$ ]]
+          case "$COMMAND" in
+            fast|audit|diagnose|racecraft|strategy|replay|performance|report) ;;
+            *) exit 2 ;;
+          esac
+          body="$(printf 'APEX Lab request accepted: %s at %s. Hosted diagnostic only; official FAST remains required.\nRun: https://github.com/%s/actions/runs/%s\n' "$COMMAND" "$HEAD" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID")"
+          gh api --method POST "repos/$GITHUB_REPOSITORY/issues/$ISSUE/comments" -f "body=$body" --jq .id
+  execute:
+    if: github.event_name == 'issue_comment' && needs.authorize.result == 'success'
+    needs: authorize
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    concurrency:
+      group: apex-lab-command-${{ github.event.issue.number }}
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ needs.authorize.outputs.head }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Install Godot 4.7.2
+        if: needs.authorize.outputs.command != 'audit' && needs.authorize.outputs.command != 'report'
+        uses: chickensoft-games/setup-godot@ac93246ea68518a384c1c280a496e5989341f2f6
+        with:
+          version: '4.7.2'
+          use-dotnet: false
+      - name: Software display for targeted UI fixtures
+        if: needs.authorize.outputs.command == 'fast' || needs.authorize.outputs.command == 'diagnose'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends xvfb xauth libgl1 libgl1-mesa-dri
+      - name: Execute bounded supplemental plan
+        env:
+          COMMAND: ${{ needs.authorize.outputs.command }}
+          BASE: ${{ needs.authorize.outputs.base }}
+          HEAD: ${{ needs.authorize.outputs.head }}
+        run: python3 tools/apex_lab_command.py execute --command "$COMMAND" --base "$BASE" --head "$HEAD" --output "${RUNNER_TEMP}/apex-lab-command"
+      - name: Publish command evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: apex-lab-command-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/apex-lab-command/
+          retention-days: 7
+          if-no-files-found: warn
