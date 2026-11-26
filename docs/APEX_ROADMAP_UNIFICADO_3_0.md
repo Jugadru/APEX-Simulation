@@ -26,7 +26,7 @@ Decisão do responsável: encerrar a sequência longa v0.6.6.9.* e usar v0.6.7, 
 | 9.22 | v0.6.6.9.22 | Race Engineer | Histórico do roadmap |
 | 9.23 | v0.6.6.9.23 | Race Quality & Performance | Histórico do roadmap |
 | 9.23.1 (PR #166 provisoriamente 9.24) | v0.6.7 | Living Factory — Integridade operacional | Código integrado, FAST PASS |
-| 9.24 | v0.6.8 | Race Randomness & Simulation Integrity 1.0 | Candidato em homologação FAST |
+| 9.24 | v0.6.8 | Race Randomness & Simulation Integrity 1.0 | Integrada #169, FAST PASS |
 
 ## Fase 3 — Física e dinâmica veicular
 | Referência anterior | Versão | Funcionalidade | Estado |
@@ -77,7 +77,7 @@ Decisão do responsável: encerrar a sequência longa v0.6.6.9.* e usar v0.6.7, 
 
 ## Regras de continuidade
 
-- Versão integrada mais recente de gameplay: v0.6.7, PR #166, merge 2abe40cfdd86f161ef2dbe64fb2f12f8fd6f7822, FAST 45896250747 PASS. Nome de fixtures e revisão esportiva 040 não mudam.
-- Próxima atualização: v0.6.8 — Race Randomness & Simulation Integrity 1.0. Candidato em homologação; ver [contrato técnico](APEX_068_RANDOMNESS_INTEGRITY.md).
+- Versão integrada mais recente de gameplay: v0.6.8, PR #169, merge 8e9046a0e2ab38af53e4898782e3458d8ae1149d, FAST 45905916295 PASS. Complemento 0.6.7 #170 integrado. Nome de fixtures e revisão esportiva 040 não mudam.
+- Próxima atualização: v0.6.9 — Braking & Acceleration Physics 1.0. [Contrato anterior e homologação](APEX_068_RANDOMNESS_INTEGRITY.md).
 - Uma funcionalidade por versão, PR própria, FAST exato e regressões direcionadas, preservar saves/replays/determinismo/2012. FULL e runner pessoal não são automáticos; seguir AGENTS.md.
 - Nenhum novo binário, tag ou release publicado pela mudança de identificação. Histórico e arquivos de referência do Plano Mestre permanecem intactos.
