@@ -6,7 +6,7 @@ Purpose: a durable entry point for agent-guided game development, not a second s
 
 | System | Source entry point | Existing evidence / relevant fixture |
 |---|---|---|
-| Sporting integration | scripts/race_engine.gd | tests/apex_lab_track_smoke.gd; tests/apex_lab_sporting_scenario_12_test.gd (1.2a candidate) |
+| Sporting integration | scripts/race_engine.gd | tests/apex_lab_track_smoke.gd; tests/apex_lab_sporting_scenario_12_test.gd (305 checks PASS in #150) |
 | Traffic and space | scripts/core/race_space_0655.gd | tests/overtaking_066912_test.gd; tests/traffic_mega_09201_test.gd |
 | Driver personality | scripts/core/race_driver_soul_06694.gd | tests/driver_soul_06694_test.gd |
 | Aerodynamic wake | scripts/core/race_aero_wake_091711.gd | tests/aero_wake_091711_test.gd |
@@ -25,7 +25,9 @@ Purpose: a durable entry point for agent-guided game development, not a second s
 - PR #147: literal dependency graph and registered fixture inventory; metrics not mandatory refactoring.
 - PR #148: on-demand failure/diff correlation; no automatic repair or all-CI failure listener.
 - Private Lab PR #22: analyzer 0.2.1 integrated after multiline lexer correction; actual command 45864200406 PASS, 161 scripts, zero scan errors. Private source remains private.
-- PR #149: observation collection passed and integrated; multi-run retrieval is not yet verified.
+- PR #149: observation collection passed and integrated; targeted artifact-only multi-run verification is available, result pending.
+- PR #150: two real-track scenarios, 305 checks PASS; #151: five hosted captures and three graphics fixtures PASS, visual review NOT_RUN.
+- PR #152: actual Linux export, adjacent PCK startup and archive verification PASS; no publication.
 
 ## New scenario contract (1.2a)
 
@@ -35,4 +37,4 @@ The new fixture exercises 90 fixed replay ticks on Monza dry and Silverstone hea
 
 For each meaningful feature, record its PR and exact validated SHA, modified system, intentional behavior change, regression fixture, actual result and unresolved limitation in the changelog or relevant design record. Link rather than duplicate code. Use existing roadmap and technical notes, and update this index only when ownership or test entry points change. Never claim a test passed from its filename or from an unexecuted plan.
 
-Graphics follow-up (1.2b): hosted software-rendered UI checks on demand, native real-GPU check only for relevant visual changes with owner authorization. Release Automation (1.3): verified test exports, checksums and separate official publication decision.
+Graphics: hosted software-rendered UI checks on demand. See [native graphics review](APEX_NATIVE_GRAPHICS_REVIEW.md) for historical REV1 evidence, current NOT_RUN status and focused owner-authorized review procedure. Release Automation: verified test exports, checksums and separate official publication decision. Performance history: optional artifact-only verification, no new Godot benchmark.
