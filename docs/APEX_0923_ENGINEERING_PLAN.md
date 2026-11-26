@@ -36,3 +36,10 @@ PR #155 merged at 3a767267c24305e1c6f9df5c3a4b48a0c4c84270; candidate 4ee2045bb3
 
 ## Increment 3 — Race Quality Center
 Extend existing F8 window, retaining CPU profiler and original JSON. New tab consumes existing bounded quality report; display explicitly inactive, not observed, disabled, partial and observed coverage. Requested and measured acceleration separated; measurement validity reset on session or speed change. New combined diagnostic export, no extra observer or scoring. Only active tab rebuilt on existing 0.5s interval. Acceptance: actual F8 window, both tabs, state/coverage and export correctness, exact sporting hash before/after panel operations, two fresh software-rendered frame captures and normal FAST on candidate SHA. No native GPU or visual review claim. Next: HUD Optimization after validation. Rollback: revert this increment; no save migration.
+
+
+## Increment 3 closure
+PR #156 merged at 626f8906965d5e78cbcb0e0d4ccf15e6c4a99667; exact candidate 3c3ee9a8cd1c09f25311c0abc433a332278bc658. FAST 45878241985 PASS, F8 fixture 26/26, software framebuffer captures at 1280 and 1600 saved, existing replay and Lab checks PASS. No independent submitted review before merge; no native GPU, human visual review or FULL.
+
+## Increment 4 — HUD Optimization
+Source evidence: HudRaceGaps066916.observe is quadratic and only consumed by ranking metric 7 (DIST. PISTA); previously runs every HUD refresh for all eight metrics. Gate the projection on that metric and clear stale data when leaving; use presenter-provided order only within the same synchronous refresh (no persistent cache). Keep independent callbacks, sporting behavior, update cadence, radio and all controls. Acceptance: existing race_gaps fixture expanded with zero unused projections at 1/16/32x, exact original 24-row radar/text/tooltip parity, immediate paused selection, clearing stale hints, no sporting hash changes, official FAST. No native or throughput claim; no new Lab/workflow. Other HUD optimization proposals require separate evidence; next Radio Polish after validation.

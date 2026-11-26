@@ -3,6 +3,7 @@ extends SceneTree
 const Radar = preload("res://scripts/presentation/apex_hud_race_gaps_066916.gd")
 const Race = preload("res://scripts/race_engine.gd")
 const Replay = preload("res://scripts/core/race_replay_0660.gd")
+const Codec = preload("res://scripts/core/race_state_codec_0660.gd")
 var checks: int = 0
 var errors: Array[String] = []
 
@@ -139,10 +140,27 @@ func _run() -> void:
 	await process_frame
 	game._start_race()
 	await process_frame
+	game.set_process(false)
+	game.race.running = false
 	var hud = game.race_hud_0620
-	hud.metric_index = 7
-	hud.refresh_hud()
+	var before_hash: String = Codec.sporting_hash(game.race, game.replay_session.policy)
+	var initial_calls: int = hud.proximity_refreshes_0923
 	var order: Array = game.race.get_sorted()
+	var order_before: PackedByteArray = var_to_bytes(order)
+	check(initial_calls == 0 and hud.race_gap_radar_066916.is_empty(),
+		"default HUD starts without proximity work")
+	for speed in [1.0, 16.0, 32.0]:
+		game.sim_speed = speed
+		for metric in range(7):
+			hud.metric_index = metric
+			hud.refresh_hud(order)
+			check(hud.proximity_refreshes_0923 == initial_calls and hud.race_gap_radar_066916.is_empty(),
+				"no proximity projection for metric %d at %.0fx" % [metric, speed])
+	# Switch via the actual metric callback while paused. It must compute a fresh
+	# radar on demand instead of waiting for the simulation or displaying stale values.
+	hud.metric_index = 6
+	hud._move_metric(1)
+	check(hud.proximity_refreshes_0923 == initial_calls + 1, "exactly one projection on selection")
 	check(str(hud.METRICS[7]) == "DIST. PISTA"
 		and hud.race_gap_radar_066916.size() == 24,
 		"native HUD includes new proximity metric for 24 drivers")
@@ -151,10 +169,26 @@ func _run() -> void:
 		"new metric uses the exact HUD observation snapshot")
 	check(str(hud.standing_rows[0]["detail"].tooltip_text).contains("NÃO é intervalo cronometrado"),
 		"visible ranking row explains schematic units, not time gap")
-	hud.metric_index = 0
-	hud.refresh_hud()
+	var expected_radar: Dictionary = Radar.observe(order,float(game.race.space_profile.get("length",1000.0)))
+	check(hud.race_gap_radar_066916 == expected_radar, "full 24-car radar matches original projection")
+	for i in range(order.size()):
+		var driver_id: int = int(order[i].id)
+		check(str(hud.standing_rows[i]["detail"].text) == Radar.label_for(expected_radar,driver_id),
+			"proximity text parity row %d" % i)
+		check(str(hud.standing_rows[i]["detail"].tooltip_text) == Radar.hint_for(expected_radar,driver_id),
+			"proximity tooltip parity row %d" % i)
+	hud.refresh_hud(order)
+	check(hud.proximity_refreshes_0923 == initial_calls + 2, "shared order refresh recomputes selected radar")
+	hud._move_metric(1)
+	check(hud.metric_index == 0 and hud.race_gap_radar_066916.is_empty(),
+		"leaving metric clears presentation-only radar")
+	check(str(hud.standing_rows[0]["detail"].tooltip_text).is_empty(), "old radar tooltip cleared")
 	check(str(hud._standing_value(order,0)) == "—",
 		"existing INTERVALO value remains untouched when switching back")
+	game._update_game_ui()
+	check(hud.proximity_refreshes_0923 == initial_calls + 2, "normal presenter also avoids unused radar")
+	check(var_to_bytes(order) == order_before and Codec.sporting_hash(game.race,game.replay_session.policy) == before_hash,
+		"HUD switches and shared order do not mutate sporting state")
 	game.queue_free()
 	await process_frame
 	_finish()

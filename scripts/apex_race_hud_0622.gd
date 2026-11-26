@@ -54,8 +54,9 @@ const SPEEDS := [1.0, 2.0, 5.0, 10.0, 16.0, 32.0]
 
 var host
 var metric_index: int = 0
-# HUD-only proximity; computed from the same frozen sorted snapshot.
+# HUD-only proximity; computed only when its ranking metric is requested.
 var race_gap_radar_066916: Dictionary = {}
+var proximity_refreshes_0923: int = 0
 var active_window: String = ""
 var race_card_panels: Array = []
 var standing_rows: Array = []
@@ -358,6 +359,8 @@ func begin_race() -> void:
 	if host.map_view != null:
 		minimap.set_track(host.map_view.route)
 	metric_index = 0
+	race_gap_radar_066916.clear()
+	proximity_refreshes_0923 = 0
 	ranking_field_writes = 0
 	ranking_refreshes = 0
 	team_mode_picker.select(1 if host.team_control_mode == "Automático" else 0)
@@ -700,7 +703,9 @@ func update_map(cars: Array, focused: int) -> void:
 	if visible:
 		minimap.set_cars(cars, focused)
 
-func refresh_hud() -> void:
+# The presenter may supply its current sorted order; independent UI callbacks
+# still obtain a fresh one. Never retain or mutate the supplied car array.
+func refresh_hud(current_order: Array = []) -> void:
 	if host == null or host.race == null or not visible:
 		return
 	var race = host.race
@@ -738,10 +743,16 @@ func refresh_hud() -> void:
 			str(weather.get("track_state", "—")), float(weather.get("track_c", 0.0)),
 			float(weather.get("water_mm", 0.0)), int(weather.get("surface_moisture_percent", 0)),
 			int(weather.get("rubber", 0)), str(weather.get("grip", "—"))])
-	var order: Array = race.get_sorted()
-	# 9.16: physical next-car distance is NOT a classification time interval.
-	race_gap_radar_066916 = HudRaceGaps066916.observe(order,
-		float(race.space_profile.get("length", 1000.0)), bool(race.finished))
+	var order: Array = race.get_sorted() if current_order.is_empty() else current_order
+	# The O(N²) physical proximity projection has exactly one consumer:
+	# DIST. PISTA. Other metrics use the normal classification data instead.
+	# Rebuild immediately when selected, including while paused or after seek.
+	if metric_index == 7:
+		race_gap_radar_066916 = HudRaceGaps066916.observe(order,
+			float(race.space_profile.get("length", 1000.0)), bool(race.finished))
+		proximity_refreshes_0923 += 1
+	elif not race_gap_radar_066916.is_empty():
+		race_gap_radar_066916.clear()
 	# A scheduled UI order may still be in the deterministic command queue
 	# until the next tick. Showing it as confirmed would mislead the player.
 	var pending_pits: Dictionary = ReBroadcast.pending_pit_by_driver(host.replay_session)

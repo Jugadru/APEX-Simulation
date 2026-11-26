@@ -167,7 +167,8 @@ static func _update_game_ui(host) -> void:
 	if host.telemetry_panel != null and host.telemetry_panel.is_visible_in_tree():
 		host._refresh_telemetry_panel()
 	if host.race_hud_0620 != null:
-		host.race_hud_0620.refresh_hud()
+		# Same synchronous presentation pass; reuse the existing classification.
+		host.race_hud_0620.refresh_hud(order)
 
 
 static func _set_pitwall_mode(host, index: int) -> void:

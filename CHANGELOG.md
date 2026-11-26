@@ -1,12 +1,18 @@
 # Changelog — APEX Motorsport Manager Core 2
 
+## Unreleased — 9.23 HUD Optimization (demand-driven proximity)
+
+- Calcula a proximidade física O(N²) somente quando DIST. PISTA está selecionado; limpa o resultado ao sair do indicador, recalcula imediatamente na seleção e conserva textos/tooltips originais.
+- Reutiliza a classificação já obtida no mesmo ciclo do apresentador, evitando uma ordenação redundante; callbacks independentes mantêm consulta própria. Nenhum cache esportivo ou alteração de frequência da HUD.
+- Regressão ampliada no teste existente de Race Gaps: sete métricas sem projeção em 1/16/32x, paridade dos 24 textos e tooltips, seleção pausada, limpeza e hash esportivo. FAST pendente; redução de trabalho demonstrável por contagem, não ganho de FPS medido.
+
 ## Unreleased — 9.23 Race Quality Center (F8)
 
 - Evolui o painel F8 original com abas Desempenho e Integridade esportiva; mantém controles e exportação CPU compatíveis.
 - Mostra contadores, amostras, cobertura, lacunas e contexto do observador existente; distingue sem sessão, sem observações, desativado e cobertura parcial. Não inventa notas ou interpreta zero como certificação.
 - Exibe velocidade solicitada e última medição válida, demanda acumulada e limite do backlog; invalida amostra na mudança de velocidade ou sessão. Não apresenta aceleração ativa quando pausado/finalizado.
 - Exportação JSON de qualidade separada da original; atualização limitada à aba visível, sem novo observador por frame.
-- Fixture gráfica direcionada no FAST existente, usando software/Xvfb; sem alegação de GPU nativa ou ganho de FPS. Execução pendente.
+- Fixture gráfica direcionada no FAST existente: 26/26 PASS em Xvfb no SHA 3c3ee9a8cd1c09f25311c0abc433a332278bc658 (run 45878241985), incluindo duas capturas. PR #156 integrada em 626f8906965d5e78cbcb0e0d4ccf15e6c4a99667. Sem alegação de GPU nativa ou ganho de FPS.
 
 ## Unreleased — 9.23 Race Quality Analyzer (integrity observations)
 
