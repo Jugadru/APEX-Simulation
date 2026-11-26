@@ -31,7 +31,7 @@ class CommandTests(unittest.TestCase):
             self.assertEqual(lab.authorize(e, lab.OWNER, HEAD, None)["command"], command)
 
     def test_bad_commands(self):
-        for body in ("/lab build " + HEAD, "/lab full " + HEAD, "/lab replay main",
+        for body in ("/lab publish " + HEAD, "/lab full " + HEAD, "/lab replay main",
                      "/lab replay " + HEAD + "; ls", "/lab replay " + HEAD + "\n/lab audit " + HEAD,
                      "/lab replay " + HEAD + " extra", "/lab performance-local " + HEAD):
             e = event()
@@ -80,6 +80,7 @@ class CommandTests(unittest.TestCase):
                 (root / "tests" / name).touch()
             self.assertEqual(lab.select_tests("replay", BASE, HEAD, root), list(lab.TESTS["replay"]))
             self.assertEqual(lab.select_tests("audit", BASE, HEAD, root), [])
+            self.assertEqual(lab.select_tests("build", BASE, HEAD, root), [])
             with patch.object(lab.subprocess, "check_output", return_value="bad|x\n"):
                 with self.assertRaises(ValueError):
                     lab.select_tests("fast", BASE, HEAD, root)

@@ -145,6 +145,20 @@ os resultados inconclusivos históricos permanecem preservados. A REV2
   FULL/benchmarks pesados para versões rotineiras sem motivo técnico.
   Não modificar critérios depois de ver os resultados para aprovar uma PR.
 
+### 5.2. Uso do Engineering Lab após sua expansão
+
+Consultar `docs/APEX_AUTONOMOUS_ENGINEERING_LAB.md` e
+`docs/APEX_LAB_KNOWLEDGE_INDEX.md` para comandos, escopo, evidências,
+decisões e limitações de cada ferramenta. O Hub #141 aceita comandos
+restritos ao proprietário e SHA exato; o analisador avançado permanece
+no Hub privado do Development Lab. Consultar o status efetivo, não
+inferir PASS pela existência de uma ferramenta.
+
+O Lab é complementar ao FAST. Usar apenas o diagnóstico necessário
+à mudança esportiva, visual ou técnica. Build de teste não é publicação;
+não distribuir binários/assets sem autorização e verificação de direitos.
+Não estender indefinidamente a infraestrutura em detrimento do jogo.
+
 ## 6. DESEMPENHO
 
 Otimizar com medições reais.
