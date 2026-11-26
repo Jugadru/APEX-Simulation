@@ -31,7 +31,7 @@ Decisão do responsável: encerrar a sequência longa v0.6.6.9.* e usar v0.6.7, 
 ## Fase 3 — Física e dinâmica veicular
 | Referência anterior | Versão | Funcionalidade | Estado |
 |---|---|---|---|
-| 9.25 | v0.6.9 | Braking & Acceleration Physics 1.0 | Planejada |
+| 9.25 | v0.6.9 | Braking & Acceleration Physics 1.0 | Candidato em homologação FAST |
 | 9.26 | v0.7.0 | Gearbox, Torque & Power Delivery | Planejada |
 | 9.27 | v0.7.1 | Tyre Grip & Load Transfer | Planejada |
 | 9.28 | v0.7.2 | Vehicle Dynamics Integration | Planejada |
@@ -78,6 +78,6 @@ Decisão do responsável: encerrar a sequência longa v0.6.6.9.* e usar v0.6.7, 
 ## Regras de continuidade
 
 - Versão integrada mais recente de gameplay: v0.6.8, PR #169, merge 8e9046a0e2ab38af53e4898782e3458d8ae1149d, FAST 45905916295 PASS. Complemento 0.6.7 #170 integrado. Nome de fixtures e revisão esportiva 040 não mudam.
-- Próxima atualização: v0.6.9 — Braking & Acceleration Physics 1.0. [Contrato anterior e homologação](APEX_068_RANDOMNESS_INTEGRITY.md).
+- Próxima atualização: v0.6.9 — Braking & Acceleration Physics 1.0, em homologação. [Contrato técnico 041](APEX_069_LONGITUDINAL_PHYSICS.md); [contrato anterior e homologação](APEX_068_RANDOMNESS_INTEGRITY.md).
 - Uma funcionalidade por versão, PR própria, FAST exato e regressões direcionadas, preservar saves/replays/determinismo/2012. FULL e runner pessoal não são automáticos; seguir AGENTS.md.
 - Nenhum novo binário, tag ou release publicado pela mudança de identificação. Histórico e arquivos de referência do Plano Mestre permanecem intactos.
