@@ -206,9 +206,49 @@ func leader_fixture()->void:
 	compare_leaders([],{},1000.0,"empty")
 	compare_leaders([chain[0]],intents,1000.0,"singleton")
 
+func shared_perception_fixture()->void:
+	var pack=preload("res://scripts/core/race_traffic_pack_09201.gd")
+	var cars:Array=[c(9,1.001),c(3,0.999,2.95),c(14,1.001),c(22,0.5),c(33,0.1)]
+	cars[4]["pit_left"]=1.0
+	cars[4]["pit_to"]=1.002
+	var metrics:Dictionary={}
+	for car in cars:metrics[int(car.id)]={"target":90.0,"decision_pace":90.0}
+	var rates:Dictionary=pack.rate_frame(cars)
+	var frozen:PackedByteArray=var_to_bytes([cars,metrics,rates])
+	var active:Array=cars.slice(0,4)
+	for car in active:
+		var row:Dictionary={}
+		var direct:Dictionary=pack.observe(car,cars,metrics,1000.0,{},0.2,rates)
+		var cached:Dictionary=pack.observe(car,cars,metrics,1000.0,{},0.2,rates,row)
+		check(var_to_bytes(direct)==var_to_bytes(cached),"traffic cache leaves perception unchanged")
+		check(not row.has(33) and not row.has(int(car.id)),"pit/self excluded from cache")
+		for other in active:
+			if other.id!=car.id:
+				check(float(row[other.id])==Merge.relative_gap(float(car.progress),float(other.progress),1000.0),"exact signed gap, no approximation")
+		for following in [false,true]:
+			for wake in [false,true]:
+				var expected:Dictionary=Space.tactical_neighbors(car,active,1000.0,following,wake,38.0)
+				var actual:Dictionary=Space.tactical_neighbors(car,active,1000.0,following,wake,38.0,row)
+				check(var_to_bytes(expected)==var_to_bytes(actual),"cached tactical perception including ties")
+	check(var_to_bytes([cars,metrics,rates])==frozen,"shared perception input frozen")
+	# Spread-out traffic: exercise sparse constraints and empty rows.
+	var sparse:Array=[]
+	var intents:Dictionary={}
+	var initial:Dictionary={}
+	for i in range(24):
+		var id:int=100+i*7
+		var p:float=float(i)/24.0
+		sparse.append(c(id,p,0.0 if i%2==0 else Space.WIDTH))
+		intents[id]={"state":"clear"}
+		initial[id]={"progress":p+0.002,"states":{"race_lane":float(sparse[-1].race_lane),"race_space_blocked":false}}
+	compare_physical(sparse,intents,initial,5300.0,"sparse stable IDs")
+	sparse.reverse()
+	compare_physical(sparse,intents,initial,5300.0,"sparse reverse order")
+
 func _initialize()->void:
 	physical_fixture()
 	leader_fixture()
+	shared_perception_fixture()
 	check(run_pair(8.8).passed,"open corridor permits natural pass")
 	check(not run_pair(4.2).passed,"narrow road blocks stronger attacker")
 	check(run_pair(8.8).defended,"defender protects a line")
