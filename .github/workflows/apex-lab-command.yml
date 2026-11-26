@@ -16,6 +16,8 @@ on:
       - 'tools/tests/test_apex_lab_correlation.py'
       - 'tools/apex_lab_graphics.py'
       - 'tools/tests/test_apex_lab_graphics.py'
+      - 'tools/apex_lab_release.py'
+      - 'tools/tests/test_apex_lab_release.py'
 permissions:
   contents: read
 jobs:
@@ -72,7 +74,7 @@ jobs:
           [[ "$ISSUE" =~ ^[0-9]+$ ]]
           [[ "$HEAD" =~ ^[0-9a-f]{40}$ ]]
           case "$COMMAND" in
-            fast|audit|diagnose|racecraft|strategy|replay|performance|report|simulation|graphics) ;;
+            fast|audit|diagnose|racecraft|strategy|replay|performance|report|simulation|graphics|build) ;;
             *) exit 2 ;;
           esac
           body="$(printf 'APEX Lab request accepted: %s at %s. Hosted diagnostic only; official FAST remains required.\nRun: https://github.com/%s/actions/runs/%s\n' "$COMMAND" "$HEAD" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID")"
@@ -99,6 +101,7 @@ jobs:
         with:
           version: '4.7.2'
           use-dotnet: false
+          include-templates: ${{ needs.authorize.outputs.command == 'build' }}
       - name: Software display for targeted UI fixtures
         if: needs.authorize.outputs.command == 'fast' || needs.authorize.outputs.command == 'diagnose' || needs.authorize.outputs.command == 'graphics'
         run: |
