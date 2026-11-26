@@ -769,6 +769,21 @@
         }
       ],
       "checks": []
+    },
+    {
+      "id": "revision_policy_0923",
+      "paths": [
+        "scripts/core/race_revision_policy_0923.gd",
+        "scripts/race_engine.gd",
+        "tests/race_revision_policy_0923_test.gd"
+      ],
+      "fast_tests": [
+        {
+          "script": "race_revision_policy_0923_test.gd",
+          "marker": "REVISION_POLICY_0923_PASS"
+        }
+      ],
+      "checks": []
     }
   ]
 }

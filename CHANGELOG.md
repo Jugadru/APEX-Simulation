@@ -1,10 +1,17 @@
 # Changelog — APEX Motorsport Manager Core 2
 
+## Unreleased — 9.23 Advanced Architecture (revision capability policy)
+
+- Centraliza as 18 regras de compatibilidade esportiva 023–040 em módulo puro, com máscara derivada de identificadores exatos; revisões desconhecidas não habilitam regras novas.
+- Mantém exceção de largada 024/025, flags individuais e aliases públicos do motor; preserva a cadeia de dependências e o caso de sessão não anexada.
+- Teste diferencial contra as listas literais pré-refatoração, revisões inválidas, flags e hash; FAST pendente. Sem mudança esportiva, cache persistente, threads ou C++.
+
+
 ## Unreleased — 9.23 Spatial Context Cache (local lane geometry)
 
 - Prepara uma vez por chamada de RaceSpace.plan a largura-base e os setores ordenados em Float64; reutiliza as referências somente de leitura do perfil para as cinco amostras de largura por carro.
 - Preserva a função direta lane_limit como referência, intervalos semiabertos, wrap, ordem e precisão; não compartilha progresso resolvido, pares, decisões nem cache entre ticks.
-- Regressão diferencial exata nos 20 circuitos, perfil ausente, setores sobrepostos, limites e offsets, mais testes esportivos existentes. FAST pendente. Sem alegação de ganho de FPS ou retomada da REV2 inconclusiva.
+- Regressão diferencial exata nos 20 circuitos, perfil ausente, setores sobrepostos, limites e offsets, mais testes esportivos existentes. FAST PASS no SHA 64c477fbd4fc4edb845f6d9a9986a29e5913ca29 (45887386446), 90.670 comparações exatas nos 20 circuitos e um sintético, Simulation Lab PASS (45887389075), seis workflows esportivos PASS. PR #162 integrada em df376c718472d7323da560fcf4935ecaf62900b3. Sem alegação de ganho de FPS ou retomada da REV2 inconclusiva.
 
 
 ## Unreleased — 9.23 Race Performance Engine 2.0 (same-tick setup reuse)
