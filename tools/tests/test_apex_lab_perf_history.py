@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import sys
 import unittest
+import tempfile
 from unittest.mock import patch
 import zipfile
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -52,6 +53,19 @@ class HistoryTests(unittest.TestCase):
         self.assertEqual(hist.archive_record(archive(record())), record())
         with self.assertRaises(ValueError):
             hist.archive_record(archive(record(), "../observation.json"))
+
+    def test_verify_existing_requires_distinct_revisions(self):
+        a, b = record(8), record(9)
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            with patch.object(hist, "collect", return_value=([a, b], [])):
+                self.assertEqual(hist.verify_existing(10, out), 2)
+            b["candidate"] = b["checkout"] = "c"*40
+            with patch.object(hist, "collect", return_value=([a, b], [])):
+                self.assertEqual(hist.verify_existing(10, out), 0)
+                self.assertEqual(json.loads((out / "verification.json").read_text())["distinct_commits"], 2)
+            with patch.object(hist, "collect", return_value=([a, b], ["retrieval error"])):
+                self.assertEqual(hist.verify_existing(10, out), 2)
 
     def test_history_collect_provenance(self):
         run = {"id": 9, "run_attempt": 1, "head_branch": "main", "event": "push",
