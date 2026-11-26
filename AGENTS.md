@@ -217,3 +217,7 @@ sem destruir funcionalidades anteriores.
 
 Consultar o Plano Mestre Unificado 2.0
 e o código-fonte real para orientar decisões.
+
+## 10. ACERVO VISUAL REUTILIZÁVEL
+
+Antes de recriar retratos de pilotos, fundos ou outros recursos visuais, consultar `docs/ASSET_LIBRARY.md`. Preservar os arquivos-mestre privados e criar variantes separadas. Não publicar fotografias sem verificar direitos de redistribuição. Não usar o backup histórico como substituto da main atual.
