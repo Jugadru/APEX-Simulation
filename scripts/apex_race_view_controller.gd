@@ -4,8 +4,11 @@ extends RefCounted
 
 const VISUAL_OPTIONS := ["Auto F1M", "Mapa estratégico", "Câmera 3D", "Aérea estratégica"]
 static func _change_speed(host, index: int) -> void:
-	var was_fast: bool = host.sim_speed >= 10.0
+	var previous_speed: float = host.sim_speed
+	var was_fast: bool = previous_speed >= 10.0
 	host.sim_speed = [1.0, 2.0, 5.0, 10.0, 16.0, 32.0][clampi(index, 0, 5)]
+	if host.replay_session != null and host.replay_session.race == host.race:
+		host.replay_session.rebase_interactive_speed(previous_speed, host.sim_speed)
 	# Do not label a newly selected 32x with the prior 16x rolling average.
 	host.effective_speed_x = 0.0
 	host.effective_speed_elapsed = 0.0

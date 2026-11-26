@@ -2,6 +2,19 @@ extends SceneTree
 const Race=preload("res://scripts/race_engine.gd")
 const Replay=preload("res://scripts/core/race_replay_0660.gd")
 const Codec=preload("res://scripts/core/race_state_codec_0660.gd")
+const ViewController=preload("res://scripts/apex_race_view_controller.gd")
+
+# Exercise the actual speed controller without creating a graphics viewport.
+class SpeedHost:
+	var race
+	var replay_session
+	var sim_speed: float = 32.0
+	var effective_speed_x: float = 14.0
+	var effective_speed_elapsed: float = 0.5
+	var effective_speed_ticks: int = 35
+	var visual_setting: int = 1
+	var speed_picker = null
+
 func _initialize()->void:call_deferred("run")
 func make_session():
 	var data:Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://data/season_2012.json"))
@@ -99,6 +112,49 @@ func run()->void:
 	assert(backlog.tick==16 and backlog.accumulator>20)
 	while backlog.accumulator>=Replay.STEP-0.00000001:backlog.advance(0,1)
 	assert(backlog.tick==160)
+	# Explicit speed reduction must not spend old whole-tick wall-clock debt.
+	# Set a deterministic saturated accumulator without depending on CPU speed.
+	var transition=make_session()
+	var reference=make_session()
+	var actor:int=transition.race.player_cars()[0].id
+	assert(transition.enqueue("schedule_pit",[actor,"Chuva",2],1))
+	assert(reference.enqueue("schedule_pit",[actor,"Chuva",2],1))
+	transition.race.running=true
+	reference.race.running=true
+	assert(transition.step_tick() and reference.step_tick())
+	transition.accumulator=2.47
+	transition.cpu_limited=true
+	var host=SpeedHost.new()
+	host.race=transition.race
+	host.replay_session=transition
+	var hash_before:String=Codec.sporting_hash(transition.race,transition.policy)
+	var rng_before:int=transition.race.rng.state
+	var tick_before:int=transition.tick
+	var commands_before:Array=transition.commands.duplicate(true)
+	var hashes_before:PackedStringArray=transition.hashes.duplicate()
+	ViewController._change_speed(host,0)
+	assert(host.sim_speed==1.0 and host.effective_speed_x==0.0)
+	assert(is_equal_approx(transition.accumulator,0.07) and not transition.cpu_limited,"downshift rebases only old wall-clock debt")
+	assert(transition.tick==tick_before and transition.race.rng.state==rng_before)
+	assert(Codec.sporting_hash(transition.race,transition.policy)==hash_before and transition.commands==commands_before and transition.hashes==hashes_before)
+	assert(transition.advance(0.0,1.0)==0,"no old accelerated ticks after downshift")
+	assert(transition.advance(0.12,1.0)==0)
+	assert(transition.advance(0.01,1.0)==1)
+	assert(reference.step_tick())
+	assert(transition.hashes==reference.hashes and transition.race.rng.state==reference.race.rng.state,"next sporting tick remains exact")
+	# Re-select and upshift retain phase/backlog. Fast-to-fast reduction also rebases.
+	transition.accumulator=1.25
+	ViewController._change_speed(host,0)
+	assert(is_equal_approx(transition.accumulator,1.25))
+	ViewController._change_speed(host,5)
+	assert(is_equal_approx(transition.accumulator,1.25))
+	transition.race.running=false
+	ViewController._change_speed(host,4)
+	assert(is_equal_approx(transition.accumulator,0.05))
+	assert(transition.advance(1.0,16.0)==0 and transition.tick==2,"paused change never advances race")
+	transition.accumulator=0.6
+	transition.rebase_interactive_speed(16.0,1.0)
+	assert(is_zero_approx(transition.accumulator),"exact step boundary")
 	var output:Dictionary={"pass":true,"ticks":200,"speeds":[1,2,5,10,16,32],"wall_s":(Time.get_ticks_usec()-start)/1000000.0,"checkpoint_bytes":var_to_bytes(cp).size(),"replay_bytes":var_to_bytes(s.export_data()).size()}
 	FileAccess.open("res://qa/replay_0660/unit.json",FileAccess.WRITE).store_string(JSON.stringify(output))
 	print("REPLAY_UNIT_PASS ",output)

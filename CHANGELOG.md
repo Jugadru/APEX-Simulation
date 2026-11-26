@@ -1,5 +1,12 @@
 # Changelog — APEX Motorsport Manager Core 2
 
+## Unreleased — 9.23 Adaptive Scheduler (speed transitions)
+
+- Ao reduzir explicitamente a velocidade interativa, descarta apenas a demanda de tempo de parede ainda não simulada em ticks inteiros; preserva a fase fracionária, o tick esportivo, comandos, RNG e hashes.
+- Não altera orçamento de 12 ms, backlog 6/8/12, limite de 16 ticks por quadro, reprodução de arquivos, nem o contrato de advance() sem orçamento. Aumentar/reselecionar velocidade não altera o backlog; pausa continua sem avanço.
+- Regressão no replay existente: transição real pelo controlador, saturação determinística, mudança pausada, paridade do próximo tick, preservação de comandos e fronteira de passo.
+- Revisão esportiva 040 e versão registrada 9.22 mantidas enquanto a 9.23 está em desenvolvimento. FAST + APEX Test Lab pendentes neste candidato; não constitui ganho de throughput ou nova release.
+
 ## Unreleased — Performance Recovery 3.3 (Race Space Leader Resolution)
 
 - Reutiliza limites laterais e longitudinais dos líderes já resolvidos, em cache Float64 local à chamada, mantendo a ordem original de inserção e as desigualdades estritas dos corredores.
