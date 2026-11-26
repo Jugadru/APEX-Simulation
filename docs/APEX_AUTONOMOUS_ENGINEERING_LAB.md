@@ -103,3 +103,7 @@ Graphics PR #151 merged at 430fba389d54a6058bf00f0a0ef98ee72d0e235d. Exact-head 
 ## Operational handoff after 1.3 validation
 
 The Lab expansion is bounded by this roadmap. Resume normal gameplay feature PRs after the builder validation, with FAST and only relevant supplemental checks. Use docs/APEX_LAB_KNOWLEDGE_INDEX.md, AGENTS.md and current game source as starting points; do not require all Lab tools on every change. Keep explicit NOT_RUN/BLOCKED/INCONCLUSIVE states. No automatic patch/merge or publication. Future Lab changes must be motivated by actual blockers, not an indefinite tooling roadmap.
+
+### 1.3 startup correction — first export evidence
+
+Run 45866939549 at dcd45c76254fd79e9c446b0a90518917911d4898: official Godot templates installed, actual Linux export and ELF/PCK verification passed (73,519,416-byte executable; 1,203,532-byte pack). Startup BLOCKED: artifact 15140208445 startup.log explicitly rejects --main-pack in official release template compiled without path overrides. The existing preset already creates an adjacent same-stem PCK. Remove unsupported --main-pack, require adjacent matching pack name, launch outside checkout with disposable user directories as before. Add regression contract prohibiting --main-pack and --path and rejecting wrong/remote pack names. Do not weaken startup or archive checks; first failed run remains blocked. New exact-head CI pending. No game code changed or binaries published.
