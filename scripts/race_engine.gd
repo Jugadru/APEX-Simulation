@@ -29,6 +29,8 @@ const CORNER_BATTLE_SIM_REVISION := RevisionPolicy.CORNER_BATTLE_SIM_REVISION
 const DRIVER_TRAFFIC_SIM_REVISION := RevisionPolicy.DRIVER_TRAFFIC_SIM_REVISION
 const TRAFFIC_PACK_SIM_REVISION := RevisionPolicy.TRAFFIC_PACK_SIM_REVISION
 const DRIVER_ERROR_SIM_REVISION := RevisionPolicy.DRIVER_ERROR_SIM_REVISION
+const LONGITUDINAL_SIM_REVISION := RevisionPolicy.LONGITUDINAL_SIM_REVISION
+const Longitudinal069 = preload("res://scripts/core/race_longitudinal_069.gd")
 const DriverError0921=preload("res://scripts/core/race_driver_error_0921.gd")
 var driver_error_enabled:bool=true
 const TrafficPack09201=preload("res://scripts/core/race_traffic_pack_09201.gd")
@@ -765,6 +767,10 @@ func _advance(dt: float) -> void:
 	var traffic_intelligence_rules: bool = traffic_intelligence_enabled and corner_battle_rules and driver_traffic_enabled
 	var traffic_pack_rules:bool=_traffic_pack_active() and traffic_intelligence_rules
 	var error_rules:bool=_driver_error_active() and traffic_pack_rules
+	# Raw engine callers remain on their legacy contract; live and replay
+	# sessions explicitly select the new sporting revision.
+	var longitudinal_rules: bool = false
+	var longitudinal_revision: bool = false
 	if command_session != null:
 		var attached_session: Object = command_session.get_ref()
 		if attached_session != null:
@@ -788,6 +794,11 @@ func _advance(dt: float) -> void:
 			traffic_intelligence_rules = traffic_intelligence_rules and (revision_mask & RevisionPolicy.DRIVER_TRAFFIC) != 0
 			traffic_pack_rules = traffic_pack_rules and (revision_mask & RevisionPolicy.TRAFFIC_PACK) != 0
 			error_rules = error_rules and (revision_mask & RevisionPolicy.DRIVER_ERROR) != 0
+			longitudinal_revision = following_rules and (revision_mask & RevisionPolicy.LONGITUDINAL) != 0
+			longitudinal_rules = longitudinal_revision and clock >= RacingLine.START_SECONDS
+	# Seed from the last actual legacy displacement, not a new target speed.
+	# The seed is stored in the sporting car state for deterministic seek.
+	var longitudinal_handover: bool = longitudinal_revision and not longitudinal_rules and clock + dt + 0.0000001 >= RacingLine.START_SECONDS
 	var launch_clearance: float = 1.0
 	var launch_limit: float = RaceStart066917.CORNER_PHASE_SECONDS if start20_rules else RaceStart066911.PHASE_SECONDS
 	if race_start_intelligence_enabled and clock < launch_limit:
@@ -845,6 +856,9 @@ func _advance(dt: float) -> void:
 					# Retain braking/recovery, but temper schematic curvature gradients.
 					line.pace_factor = lerpf(1.0,float(line.pace_factor),0.55)
 			metrics.target = float(metrics.target)*float(line.pace_factor)
+			if longitudinal_rules:
+				var preview: Dictionary = RacingLine.sample(racing_line_profile,old_progress+Longitudinal069.PREVIEW_M/maxf(1.0,lap_km*1000.0),float(current_weather.get("wetness_factor",0.0)),float(old_car.get("skill",80.0)))
+				metrics[Longitudinal069.KEY] = {"legacy_factor":float(line.pace_factor),"load":float(line.load),"mean":float(racing_line_profile.mean),"ahead_load":float(preview.load),"progress":old_progress,"corners":racing_line_profile.get("corners",[])}
 			# A pit-bound car retains existing pit approach behavior.
 			var fraction: float = fposmod(old_progress,1.0)
 			if fraction>0.04 and fraction<0.93:
@@ -873,6 +887,7 @@ func _advance(dt: float) -> void:
 		if bool(car["finished"]):
 			continue
 		if float(car["pit_left"]) > 0.0:
+			if longitudinal_rules: car.erase(Longitudinal069.KEY)
 			if aero_wake_rules: car.erase("aero_wake_032")
 			if traffic_pack_rules and car.has(TrafficPack09201.KEY):car[TrafficPack09201.KEY]=TrafficPack09201.pit_reset(car)
 			if error_rules and car.has(DriverError0921.KEY):car[DriverError0921.KEY]=DriverError0921.pit_reset(car)
@@ -880,6 +895,8 @@ func _advance(dt: float) -> void:
 			if stability_rules:
 				exit_clear=RaceSpace.pit_exit_clear(float(car["pit_to"]),old_order,space_plan,released_pit_positions,float(space_profile.length))
 			_advance_pit(car, dt, exit_clear)
+			if longitudinal_rules and float(car["pit_left"]) <= 0.0 and not bool(car["finished"]):
+				car[Longitudinal069.KEY] = Longitudinal069.PIT_EXIT_MPS
 			if stability_rules and float(car["pit_left"])<=0.0:
 				released_pit_positions.append(float(car["progress"]))
 			continue
@@ -974,9 +991,12 @@ func _advance(dt: float) -> void:
 				if scheduled_lap == exact_lap:
 					_event("strategy", int(car["id"]), "BOX AGENDADO V%d | %s: executando na entrada correta, sem antecipação." % [exact_lap, str(car["name"])], 76)
 				car["progress"] = entry_progress
+				if longitudinal_rules: car.erase(Longitudinal069.KEY)
 				_begin_pit(car, entry_progress)
 				continue
 		car["progress"] = maxf(prev, next)
+		if longitudinal_handover and lap_km > 0.3:
+			car[Longitudinal069.KEY] = Longitudinal069.handover_speed((float(car["progress"])-prev)*lap_km*1000.0,dt)
 		var wear_scale:float=1.0
 		if traffic_pack_rules:wear_scale-=minf(.04,float(car.get(TrafficPack09201.KEY,{}).get("lift",0.0))*1.5)
 		car["wear"] = RacePerformance.wear_after(wear, float(metrics["wear_factor"])*wear_scale, dt, target)

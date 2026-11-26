@@ -48,8 +48,10 @@ func run() -> void:
 			verify(((mask & int(gate[0])) != 0) == expected, "original membership %s / %s" % [revision,str(gate[0])])
 			if expected: expected_mask |= int(gate[0])
 		verify(mask == expected_mask, "no extra capabilities " + str(revision))
-	verify(Policy.REVISIONS.size() == 18, "18 exact revisions")
-	verify(Race.DRIVER_ERROR_SIM_REVISION == Replay.SIMULATION_REVISION and Replay.SIMULATION_REVISION == "040_driver_error_recovery_v1", "current revision unchanged")
+	verify(Policy.REVISIONS.size() == 19, "19 exact revisions including 041")
+	verify(Race.DRIVER_ERROR_SIM_REVISION == Replay.PRE_LONGITUDINAL_SIMULATION_REVISION and Replay.PRE_LONGITUDINAL_SIMULATION_REVISION == "040_driver_error_recovery_v1", "040 historical revision retained")
+	verify(Race.LONGITUDINAL_SIM_REVISION == Replay.SIMULATION_REVISION and Replay.SIMULATION_REVISION == "041_longitudinal_physics_v1", "041 new sporting revision")
+	verify(Policy.capability_mask(Replay.SIMULATION_REVISION) == (Policy.capability_mask(Replay.PRE_LONGITUDINAL_SIMULATION_REVISION) | Policy.LONGITUDINAL), "041 extends 040 only")
 	var season: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/season_2012.json"))
 	var track: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/apex_lab_track.json"))
 	var race = Race.new(season.teams,"Ferrari",923,{},track,{})
@@ -62,6 +64,7 @@ func run() -> void:
 		verify(race._traffic_pack_active() == (revision in ORIGINAL_GATES[16][1]), "real strategy gate " + str(revision))
 		verify(race._driver_error_active() == (revision in ORIGINAL_GATES[17][1]), "real error gate " + str(revision))
 	session.recorded_simulation_revision = Replay.SIMULATION_REVISION
+	verify(race._traffic_pack_active() and race._driver_error_active(), "041 retains all prior driver capabilities")
 	verify(before == Codec.sporting_hash(race,session.policy), "metadata queries never mutate sporting state")
 	var flags: Array = ["traffic_pack_enabled","traffic_intelligence_enabled","corner_battle_enabled","tactical_coordination_enabled","aero_wet_line_stability","aero_wake_stability","aero_wake_enabled","independent_racecraft_enabled","pass_completion_enabled","following_enabled","racing_line_enabled","driver_traffic_enabled"]
 	for flag in flags:

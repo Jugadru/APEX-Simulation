@@ -31,10 +31,25 @@ Decisão do responsável: encerrar a sequência longa v0.6.6.9.* e usar v0.6.7, 
 ## Fase 3 — Física e dinâmica veicular
 | Referência anterior | Versão | Funcionalidade | Estado |
 |---|---|---|---|
-| 9.25 | v0.6.9 | Braking & Acceleration Physics 1.0 | Planejada |
+| 9.25 | v0.6.9 | Braking & Acceleration Physics 1.0 | Candidato em homologação FAST |
 | 9.26 | v0.7.0 | Gearbox, Torque & Power Delivery | Planejada |
 | 9.27 | v0.7.1 | Tyre Grip & Load Transfer | Planejada |
 | 9.28 | v0.7.2 | Vehicle Dynamics Integration | Planejada |
+
+## Fase 3A — Native Core (Godot + C++), aprovada pelo responsável em 26/11/2026
+
+| Referência adicional | Versão | Funcionalidade | Estado |
+|---|---|---|---|
+| Nova | v0.7.2.1 | Native Core Research — auditoria, contratos, perfil e baseline | Aprovada para planejamento |
+| Nova | v0.7.2.2 | GDExtension Experimental — protótipo isolado C++ | Planejada |
+| Nova | v0.7.2.3 | Native Core Benchmark — equivalência e desempenho GDScript × C++ | Planejada |
+| Nova | v0.7.2.4 | Native Core Integration — migração seletiva com fallback | Condicional a homologação |
+
+Godot permanece como plataforma; GDScript, Core 2, HUD, carreira, fábrica, estratégia, IA, saves e replays são preservados. Não reescrever o jogo nem migrar para outra engine gráfica. Apenas gargalos medidos serão candidatos a C++, com chamadas em lote, contratos explícitos, mesmos workloads, hashes/revisão esportiva, testes Linux/Windows e rollback. Não introduzir paralelismo esportivo até comprovar equivalência; preferir ordem estável, controle de ponto flutuante e RNG autoritativo. Se o desempenho/equivalência não forem demonstrados, manter backend GDScript. Não desloca, remove ou renumera as fases posteriores.
+
+### Referência histórica: Next Engine
+
+Release [NEXT_ENGINE 1.3 RACECRAFT](https://github.com/Jugadru/APEX-Simulation/releases/tag/NEXT_ENGINE), tag em `a49f21de3bf99606f980d58a305dc64c3d848bc9`, contém ZIP experimental separado. O repositório atual ainda preserva `experimental/apex2/`, `tests/apex2/` e [relatório 1.0](arquivo/relatorios/APEX2_RELATORIO_TECNICO_1.0.md). Reutilizar conceitos de kernel, fila, adaptador, checkpoint e testes; não importar ZIP inteiro, integrador simplificado ou duplicar autoridades. O relatório 1.0 documenta benchmark com cobertura desigual de regras, portanto não prova superioridade. O ZIP 1.3 não foi extraído/auditado nesta alteração; verificar diferenças e licença antes de qualquer reutilização.
 
 ## Fase 4 — Inteligência competitiva avançada
 | Referência anterior | Versão | Funcionalidade | Estado |
@@ -78,6 +93,6 @@ Decisão do responsável: encerrar a sequência longa v0.6.6.9.* e usar v0.6.7, 
 ## Regras de continuidade
 
 - Versão integrada mais recente de gameplay: v0.6.8, PR #169, merge 8e9046a0e2ab38af53e4898782e3458d8ae1149d, FAST 45905916295 PASS. Complemento 0.6.7 #170 integrado. Nome de fixtures e revisão esportiva 040 não mudam.
-- Próxima atualização: v0.6.9 — Braking & Acceleration Physics 1.0. [Contrato anterior e homologação](APEX_068_RANDOMNESS_INTEGRITY.md).
+- Próxima atualização: v0.6.9 — Braking & Acceleration Physics 1.0, em homologação. [Contrato técnico 041](APEX_069_LONGITUDINAL_PHYSICS.md); [contrato anterior e homologação](APEX_068_RANDOMNESS_INTEGRITY.md).
 - Uma funcionalidade por versão, PR própria, FAST exato e regressões direcionadas, preservar saves/replays/determinismo/2012. FULL e runner pessoal não são automáticos; seguir AGENTS.md.
 - Nenhum novo binário, tag ou release publicado pela mudança de identificação. Histórico e arquivos de referência do Plano Mestre permanecem intactos.
