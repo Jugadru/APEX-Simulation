@@ -1,0 +1,82 @@
+name: APEX - impacto real da Largada 2.0
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tests/ci/apex_launch_impact_09171.gd'
+      - '.github/workflows/apex-launch-impact-09171.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  impact:
+    name: 8 cenarios de primeira volta / efeito real da regra
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: lihop/godot-setup@9828c040f75b0f51509f2fd9f5e0524989d1a97c
+        with:
+          version: 4.7.2-stable
+      - name: Importar Godot sem suprimir falha de script
+        shell: bash
+        run: |
+          set -euo pipefail
+          for i in 1 2 3; do
+            set +e
+            timeout 240s godot --headless --single-threaded-scene --path . --import > "impact-import-$i.log" 2>&1
+            status=$?
+            set -e
+            if grep -Eiq 'SCRIPT ERROR:|Parse Error:' "impact-import-$i.log"; then cat "impact-import-$i.log"; exit 1; fi
+            if ((status==0)); then break; fi
+            if ((status!=134 && status!=139)) || ((i==3)); then cat "impact-import-$i.log"; exit "$status"; fi
+            rm -rf .godot
+          done
+      - name: Primeira volta real Start20 ligado/desligado
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 840s godot --headless --single-threaded-scene --path . \
+            --script res://tests/ci/apex_launch_impact_09171.gd > impact.log 2>&1
+          grep -F 'APEX_START_IMPACT_REPORT ' impact.log
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          marker='APEX_START_IMPACT_REPORT '
+          log=Path('impact.log').read_text()
+          records=[json.loads(x.split(marker,1)[1]) for x in log.splitlines() if marker in x]
+          assert len(records)==1 and records[0]['status']=='PASS'
+          report=records[0]
+          Path('impact.json').write_text(json.dumps(report,indent=2,ensure_ascii=False))
+          import collections
+          summary=['# Largada 2.0 — impacto real na pista','',
+                   'Mesmo build/seed; start20 on vs 9.11-only; Godot 4.7.2',
+                   '| Pista | Clima | Tempo | Posições diferentes | Diferença avanço somado (voltas) | Tentativas 9.11→9.17 | Passes 9.11→9.17 |',
+                   '|---|---|---:|---:|---:|---|---|']
+          for case in report['results']:
+              for row in case['samples']:
+                  summary.append(f"| {case['track']} | {case['climate']} | {row['time_s']:.1f}s | "
+                      f"{row['changed_ranks_between_modes']} | {row['sum_progress_delta_laps']:+.6f} | "
+                      f"{row['attempts_baseline']}→{row['attempts_start20']} | "
+                      f"{row['passes_baseline']}→{row['passes_start20']} |")
+          Path('impact.md').write_text('\n'.join(summary)+'\n')
+          print('\n'.join(summary))
+          with open(__import__('os').environ['GITHUB_STEP_SUMMARY'],'a') as s:
+              s.write('\n'.join(summary)+'\n')
+          PY
+      - name: Evidencias
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apex-start20-impact-current
+          path: |
+            impact.log
+            impact.json
+            impact.md
+            impact-import-*.log
+          retention-days: 14
+          if-no-files-found: warn
