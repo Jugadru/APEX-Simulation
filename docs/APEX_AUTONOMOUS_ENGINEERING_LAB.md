@@ -51,3 +51,11 @@ Use the Actions run log and artifact report.json. Status PASS/FAIL/BLOCKED for t
 1.3: isolated test export, actual executable/PCK verification, checksums and explicit publication authorization. Do not distribute private information or unlicensed assets.
 
 All stages use separate PRs with exact revisions and explicit PASS/FAIL/NOT_RUN/INCONCLUSIVE/BLOCKED. Future feature development can proceed in parallel after routine FAST; do not make this roadmap a new mandatory release gate.
+
+## Increment 1.1a — failure diagnosis (candidate)
+
+The 1.0 live audit ran successfully at 01428c088a8848bdfc4c8de96c0660e939d1cd53: run 45856870928, authorize/receipt/execute PASS; exact receipt returned to Hub #141. Only audit was exercised end-to-end.
+
+1.1a adds deterministic classification of observed per-case failure evidence to every command execution: parse, resource, script-runtime, assertion, engine error, timeout, missing executable, missing success marker, nonzero exit and partial log. Existing success gates remain unchanged. A bounded prefix/tail scan returns at most eight project-relative locations, no arbitrary raw log excerpts, and explicit NOT_ESTABLISHED root cause. The full raw log remains in the existing artifact. No automatic correction or retries. Controlled subprocess failure and success are tested in contracts. These are not actual Godot fault injections.
+
+Next increments within 1.1: integrate reviewed static analyzer without exposing private repository contents or assuming a license; graph/cycle diagnostics and routing coverage; longitudinal hosted performance evidence with explicit noncomparability limits. Do not restart ABC. The complete 1.2 and 1.3 roadmap above remains unchanged.
