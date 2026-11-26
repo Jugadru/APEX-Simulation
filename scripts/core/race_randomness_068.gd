@@ -12,21 +12,21 @@ const DOMAIN_MECHANICAL := 2
 const DOMAIN_SPORTING := 3
 
 static func legacy_driver_sample(seed:int,id:int,tick:int,channel:int)->float:
- var x:int=posmod(seed,4294967296)
- x=(x ^ ((id*73856093)&0xffffffff) ^ ((tick*19349663)&0xffffffff) ^ ((channel*83492791)&0xffffffff))&0xffffffff
- # Two integer avalanche rounds: adjacent ticks/channels do not form
- # an affine sequence. Multiplication remains below signed 64-bit range.
- x=((x^(x>>16))*0x45d9f3b)&0xffffffff
- x=((x^(x>>16))*0x45d9f3b)&0xffffffff
- x=(x^(x>>16))&0xffffffff
- return float(x)/4294967296.0
+	var x:int=posmod(seed,4294967296)
+	x=(x ^ ((id*73856093)&0xffffffff) ^ ((tick*19349663)&0xffffffff) ^ ((channel*83492791)&0xffffffff))&0xffffffff
+	# Two integer avalanche rounds: adjacent ticks/channels do not form
+	# an affine sequence. Multiplication remains below signed 64-bit range.
+	x=((x^(x>>16))*0x45d9f3b)&0xffffffff
+	x=((x^(x>>16))*0x45d9f3b)&0xffffffff
+	x=(x^(x>>16))&0xffffffff
+	return float(x)/4294967296.0
 
 static func legacy_weather_seed(initial_seed: int, code: String) -> int:
-    # Fixed cross-platform mixing; independent of RNG used by cars and incidents.
-    var value: int = posmod(initial_seed, 2147483647) + 1
-    for i in range(code.length()):
-        value = posmod(value * 131 + code.unicode_at(i) + 37, 2147483647)
-    return maxi(1, value)
+	# Fixed cross-platform mixing; independent of RNG used by cars and incidents.
+	var value: int = posmod(initial_seed, 2147483647) + 1
+	for i in range(code.length()):
+		value = posmod(value * 131 + code.unicode_at(i) + 37, 2147483647)
+	return maxi(1, value)
 
 # New, stateless event key: five signed 64-bit little-endian words, SHA-256,
 # first unsigned 32-bit word / 2^32. Full seed bits are retained. No claim

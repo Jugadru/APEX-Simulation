@@ -17,20 +17,20 @@ func verify(ok: bool, label: String) -> void:
 
 # Independent literal oracles copied from the pre-refactor main.
 func old_driver(seed:int,id:int,tick:int,channel:int)->float:
- var x:int=posmod(seed,4294967296)
- x=(x ^ ((id*73856093)&0xffffffff) ^ ((tick*19349663)&0xffffffff) ^ ((channel*83492791)&0xffffffff))&0xffffffff
- # Two integer avalanche rounds: adjacent ticks/channels do not form
- # an affine sequence. Multiplication remains below signed 64-bit range.
- x=((x^(x>>16))*0x45d9f3b)&0xffffffff
- x=((x^(x>>16))*0x45d9f3b)&0xffffffff
- x=(x^(x>>16))&0xffffffff
- return float(x)/4294967296.0
+	var x:int=posmod(seed,4294967296)
+	x=(x ^ ((id*73856093)&0xffffffff) ^ ((tick*19349663)&0xffffffff) ^ ((channel*83492791)&0xffffffff))&0xffffffff
+	# Two integer avalanche rounds: adjacent ticks/channels do not form
+	# an affine sequence. Multiplication remains below signed 64-bit range.
+	x=((x^(x>>16))*0x45d9f3b)&0xffffffff
+	x=((x^(x>>16))*0x45d9f3b)&0xffffffff
+	x=(x^(x>>16))&0xffffffff
+	return float(x)/4294967296.0
 func old_weather(initial_seed: int, code: String) -> int:
-    # Fixed cross-platform mixing; independent of RNG used by cars and incidents.
-    var value: int = posmod(initial_seed, 2147483647) + 1
-    for i in range(code.length()):
-        value = posmod(value * 131 + code.unicode_at(i) + 37, 2147483647)
-    return maxi(1, value)
+	# Fixed cross-platform mixing; independent of RNG used by cars and incidents.
+	var value: int = posmod(initial_seed, 2147483647) + 1
+	for i in range(code.length()):
+		value = posmod(value * 131 + code.unicode_at(i) + 37, 2147483647)
+	return maxi(1, value)
 
 func make_session(data: Dictionary, climate: String, race_seed: int):
 	var track: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/apex_lab_track.json"))
