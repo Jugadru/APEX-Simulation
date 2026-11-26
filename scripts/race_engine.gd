@@ -770,6 +770,7 @@ func _advance(dt: float) -> void:
 	# Raw engine callers remain on their legacy contract; live and replay
 	# sessions explicitly select the new sporting revision.
 	var longitudinal_rules: bool = false
+	var longitudinal_revision: bool = false
 	if command_session != null:
 		var attached_session: Object = command_session.get_ref()
 		if attached_session != null:
@@ -793,7 +794,11 @@ func _advance(dt: float) -> void:
 			traffic_intelligence_rules = traffic_intelligence_rules and (revision_mask & RevisionPolicy.DRIVER_TRAFFIC) != 0
 			traffic_pack_rules = traffic_pack_rules and (revision_mask & RevisionPolicy.TRAFFIC_PACK) != 0
 			error_rules = error_rules and (revision_mask & RevisionPolicy.DRIVER_ERROR) != 0
-			longitudinal_rules = following_rules and (revision_mask & RevisionPolicy.LONGITUDINAL) != 0 and clock >= RacingLine.START_SECONDS
+			longitudinal_revision = following_rules and (revision_mask & RevisionPolicy.LONGITUDINAL) != 0
+			longitudinal_rules = longitudinal_revision and clock >= RacingLine.START_SECONDS
+	# Seed from the last actual legacy displacement, not a new target speed.
+	# The seed is stored in the sporting car state for deterministic seek.
+	var longitudinal_handover: bool = longitudinal_revision and not longitudinal_rules and clock + dt + 0.0000001 >= RacingLine.START_SECONDS
 	var launch_clearance: float = 1.0
 	var launch_limit: float = RaceStart066917.CORNER_PHASE_SECONDS if start20_rules else RaceStart066911.PHASE_SECONDS
 	if race_start_intelligence_enabled and clock < launch_limit:
@@ -990,6 +995,8 @@ func _advance(dt: float) -> void:
 				_begin_pit(car, entry_progress)
 				continue
 		car["progress"] = maxf(prev, next)
+		if longitudinal_handover and lap_km > 0.3:
+			car[Longitudinal069.KEY] = Longitudinal069.handover_speed((float(car["progress"])-prev)*lap_km*1000.0,dt)
 		var wear_scale:float=1.0
 		if traffic_pack_rules:wear_scale-=minf(.04,float(car.get(TrafficPack09201.KEY,{}).get("lift",0.0))*1.5)
 		car["wear"] = RacePerformance.wear_after(wear, float(metrics["wear_factor"])*wear_scale, dt, target)

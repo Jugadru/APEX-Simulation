@@ -910,12 +910,17 @@
         "tests/aero_wake_091711_test.gd",
         "tests/racing_independent_p15_091710_test.gd",
         "scripts/core/race_longitudinal_069.gd",
-        "tests/race_longitudinal_069_test.gd"
+        "tests/race_longitudinal_069_test.gd",
+        "tests/race_longitudinal_v21_069_test.gd"
       ],
       "fast_tests": [
         {
           "script": "race_longitudinal_069_test.gd",
           "marker": "LONGITUDINAL_069_PASS"
+        },
+        {
+          "script": "race_longitudinal_v21_069_test.gd",
+          "marker": "LONGITUDINAL_V21_PASS"
         },
         {
           "script": "race_revision_policy_0923_test.gd",

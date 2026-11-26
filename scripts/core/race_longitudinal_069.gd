@@ -69,6 +69,11 @@ static func propose(car: Dictionary, curve: Dictionary, pace_s: float, lap_m: fl
 	target = minf(target,apex_braking_cap(curve,nominal,lap_m,traction,desired))
 	return integrate(previous,target,float(limits.accel),float(limits.brake),driving_dt)
 
+## Legacy movement has no terminal velocity; the last observed mean is
+## the closest causal estimate. Safety and pit state still take priority.
+static func handover_speed(actual_m: float, dt: float) -> float:
+	return clampf(actual_m / dt,0.0,MAX_MPS) if dt>0.0 else 0.0
+
 static func settle(proposal: Dictionary, actual_m: float, dt: float, driving_dt: float) -> float:
 	# A collision-avoidance restriction or hesitation may require more
 	# braking than the free-air model. Never restore lost progress.

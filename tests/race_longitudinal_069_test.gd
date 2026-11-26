@@ -41,12 +41,25 @@ func run() -> void:
 	wet_car[P.KEY]=100.0
 	var wet_approach: Dictionary = P.propose(wet_car,approach,10.0,1000.0,0.2,{"grip_factor":0.7,"wetness_factor":0.8})
 	check(float(wet_approach.speed_mps)<100.0,"actual proposal brakes before apex despite clear 60m preview")
+	check(is_equal_approx(P.handover_speed(10.0,0.2),50.0),"handover uses actual last displacement")
+	check(P.handover_speed(0.0,0.2)==0.0 and P.handover_speed(10.0,0.0)==0.0,"stationary handover")
 	var dry := {"grip_factor":1.0,"wetness_factor":0.0}
 	var wet := {"grip_factor":0.7,"wetness_factor":0.8}
 	var slick := {"tire":"Médio","wear":0.0}
 	var rain_tyre := {"tire":"Chuva","wear":0.0}
 	check(P.grip(slick,wet)<P.grip(rain_tyre,wet) and P.grip(rain_tyre,wet)<P.grip(slick,dry),"conditional traction")
 	check(float(P.rates(80.0,1.0).accel)<float(P.rates(20.0,1.0).accel),"acceleration tapers")
+	# Separate equilibrium pace from transient grip. This is a factorial
+	# diagnostic, not a claim that the old pace model is calibrated.
+	var flat := {"legacy_factor":1.0,"load":0.0,"mean":0.0,"ahead_load":0.0}
+	var probe_car := {"tire":"Médio","wear":0.0}
+	probe_car[P.KEY]=30.0
+	var fast_dry: Dictionary = P.propose(probe_car,flat,80.0,6000.0,0.2,dry)
+	var fast_wet: Dictionary = P.propose(probe_car,flat,80.0,6000.0,0.2,wet)
+	var slow_dry: Dictionary = P.propose(probe_car,flat,120.0,6000.0,0.2,dry)
+	check(float(fast_wet.speed_mps)<float(fast_dry.speed_mps),"grip changes transient response at fixed pace")
+	check(is_equal_approx(float(slow_dry.speed_mps),float(fast_dry.speed_mps)),"target pace not extra acceleration multiplier")
+	print("LONGITUDINAL_069_GRIP_FACTORIAL ",JSON.stringify({"fast_dry":fast_dry,"fast_wet":fast_wet,"slow_dry":slow_dry}))
 	check(P.settle(up,0.0,0.2,0.2)==0.0 and P.settle(up,2.0,0.2,0.2)==10.0,"safety overrides free-air speed")
 	check(P.settle(up,float(up.distance_m),0.2,0.2)==float(up.speed_mps),"unrestricted end speed")
 	var data: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/season_2012.json"))
@@ -75,13 +88,29 @@ func run() -> void:
 		var changed_progress := false
 		var min_speed := P.MAX_MPS
 		var max_speed := 0.0
+		var handover_samples := 0
+		var live_usec: int = 0
+		var old_usec: int = 0
 		for i in range(330):
 			var before: Dictionary = {}
 			for car in first.cars: before[int(car.id)]=float(car.progress)
-			var ok: bool = rec.step_tick() and live.step_tick() and former.step_tick()
+			var ok: bool = rec.step_tick()
+			var started: int = Time.get_ticks_usec()
+			ok = live.step_tick() and ok
+			live_usec += Time.get_ticks_usec()-started
+			started = Time.get_ticks_usec()
+			ok = former.step_tick() and ok
+			old_usec += Time.get_ticks_usec()-started
 			check(ok,"three sessions advance")
 			if not ok: break
 			check(Codec.sporting_hash(first,rec.policy)==Codec.sporting_hash(second_race,live.policy),"recording isolation")
+			check(first.rng.state==second_race.rng.state,"recording isolation RNG state")
+			if float(first.clock)<24.0:
+				check(first.rng.state==old.rng.state,"legacy launch RNG state")
+				for car in first.cars:
+					if car.has(P.KEY):
+						handover_samples+=1
+						check(is_equal_approx(float(car[P.KEY]),P.handover_speed((float(car.progress)-float(before[int(car.id)]))*float(first.lap_km)*1000.0,Replay.STEP)),"actual displacement handover state")
 			for car in first.cars:
 				check(float(car.progress)>=float(before[int(car.id)])-0.00000001,"nonnegative progress")
 				if car.has(P.KEY):
@@ -91,11 +120,22 @@ func run() -> void:
 					max_speed=maxf(max_speed,speed)
 					active_ticks+=1
 			for car in old.cars: check(not car.has(P.KEY),"040 no new sporting state")
-			if i<119: check(rec.hashes[-1]==former.hashes[-1],"legacy launch parity")
+			if float(first.clock)<24.0:
+				for index in range(first.cars.size()):
+					check(is_equal_approx(float(first.cars[index].progress),float(old.cars[index].progress)),"legacy launch progress parity")
+				# The last legacy tick now contains the 041 handover seed.
+				if float(first.clock)+Replay.STEP+0.0000001<24.0:
+					check(rec.hashes[-1]==former.hashes[-1],"legacy launch parity before handover seed")
 			if i>130 and absf(float(first.player_cars()[0].progress)-float(old.player_cars()[0].progress))>0.000001: changed_progress=true
 		check(active_ticks>0 and changed_progress and max_speed>min_speed,"new physics actually affects progress")
 		check(first.player_cars()[0].pit_scheduled_lap==21,"manual V21 preserved")
-		check(first.rng.seed==old.rng.seed,"same seed; no new RNG call in longitudinal model")
+		check(first.rng.seed==old.rng.seed,"same initial seed (not post-divergence RNG equality)")
+		check(handover_samples>0,"041 handover seed observed")
+		var rng_before: int = first.rng.state
+		var actual_car: Dictionary = first.player_cars()[0]
+		var probe: Dictionary = P.propose(actual_car,flat,90.0,6000.0,0.2,dry)
+		check(is_finite(float(probe.speed_mps)) and first.rng.state==rng_before,"longitudinal proposal leaves race RNG state untouched")
+		print("LONGITUDINAL_069_TICK_OBSERVATION ",JSON.stringify({"track":code,"ticks":330,"rev041_live_usec":live_usec,"rev040_recorded_usec":old_usec,"comparable":false,"reason":"041 live vs 040 recording and different sporting outcomes; diagnostic only"}))
 		var play = Replay.new()
 		check(play.load_data(rec.export_data()) and play.seek(330) and play.seek(150) and play.seek(330),"041 replay and checkpoint seek")
 		check(play.first_divergence<0,"041 replay deterministic")

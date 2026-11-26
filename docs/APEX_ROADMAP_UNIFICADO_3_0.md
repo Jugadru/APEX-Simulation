@@ -36,6 +36,21 @@ Decisão do responsável: encerrar a sequência longa v0.6.6.9.* e usar v0.6.7, 
 | 9.27 | v0.7.1 | Tyre Grip & Load Transfer | Planejada |
 | 9.28 | v0.7.2 | Vehicle Dynamics Integration | Planejada |
 
+## Fase 3A — Native Core (Godot + C++), aprovada pelo responsável em 26/11/2026
+
+| Referência adicional | Versão | Funcionalidade | Estado |
+|---|---|---|---|
+| Nova | v0.7.2.1 | Native Core Research — auditoria, contratos, perfil e baseline | Aprovada para planejamento |
+| Nova | v0.7.2.2 | GDExtension Experimental — protótipo isolado C++ | Planejada |
+| Nova | v0.7.2.3 | Native Core Benchmark — equivalência e desempenho GDScript × C++ | Planejada |
+| Nova | v0.7.2.4 | Native Core Integration — migração seletiva com fallback | Condicional a homologação |
+
+Godot permanece como plataforma; GDScript, Core 2, HUD, carreira, fábrica, estratégia, IA, saves e replays são preservados. Não reescrever o jogo nem migrar para outra engine gráfica. Apenas gargalos medidos serão candidatos a C++, com chamadas em lote, contratos explícitos, mesmos workloads, hashes/revisão esportiva, testes Linux/Windows e rollback. Não introduzir paralelismo esportivo até comprovar equivalência; preferir ordem estável, controle de ponto flutuante e RNG autoritativo. Se o desempenho/equivalência não forem demonstrados, manter backend GDScript. Não desloca, remove ou renumera as fases posteriores.
+
+### Referência histórica: Next Engine
+
+Release [NEXT_ENGINE 1.3 RACECRAFT](https://github.com/Jugadru/APEX-Simulation/releases/tag/NEXT_ENGINE), tag em `a49f21de3bf99606f980d58a305dc64c3d848bc9`, contém ZIP experimental separado. O repositório atual ainda preserva `experimental/apex2/`, `tests/apex2/` e [relatório 1.0](arquivo/relatorios/APEX2_RELATORIO_TECNICO_1.0.md). Reutilizar conceitos de kernel, fila, adaptador, checkpoint e testes; não importar ZIP inteiro, integrador simplificado ou duplicar autoridades. O relatório 1.0 documenta benchmark com cobertura desigual de regras, portanto não prova superioridade. O ZIP 1.3 não foi extraído/auditado nesta alteração; verificar diferenças e licença antes de qualquer reutilização.
+
 ## Fase 4 — Inteligência competitiva avançada
 | Referência anterior | Versão | Funcionalidade | Estado |
 |---|---|---|---|
