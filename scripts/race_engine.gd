@@ -10,24 +10,25 @@ const RaceStart066917 = preload("res://scripts/core/race_start_spatial_066917.gd
 const CompetitiveStart = preload("res://scripts/core/race_start_competitive_0669172.gd")
 const RacingLine = preload("res://scripts/core/race_racing_line_091710.gd")
 const RaceSpace = preload("res://scripts/core/race_space_0655.gd")
-const OVERTAKING_SIM_REVISION := "023_overtaking_intelligence_v1"
-const START20_SIM_REVISION := "024_race_start_spatial_v1"
-const COMPETITIVE_SIM_REVISION := "025_competitive_grid_start_v1"
-const MERGE_TRAFFIC_SIM_REVISION := "026_competitive_traffic_v1"
-const TRAFFIC_HOTFIX_SIM_REVISION := "027_race_traffic_hotfix_v1"
-const RACING_LINE_SIM_REVISION := "028_racing_line_v1"
-const FOLLOWING_SIM_REVISION := "029_racing_line_following_v1"
-const PASS_COMPLETION_SIM_REVISION := "030_racing_line_completion_v1"
-const INDEPENDENT_SIM_REVISION := "031_independent_racecraft_v1"
-const AERO_WAKE_SIM_REVISION := "032_aero_wake_v1"
-const AERO_WAKE_CORRECTED_SIM_REVISION := "033_aero_wake_source_v2"
-const AERO_WAKE_STABILITY_SIM_REVISION := "034_aero_traffic_stability_v1"
-const AERO_WET_LINE_SIM_REVISION := "035_aero_wet_line_v1"
-const TACTICAL_COORDINATION_SIM_REVISION := "036_tactical_coordination_v1"
-const CORNER_BATTLE_SIM_REVISION := "037_corner_battle_v1"
-const DRIVER_TRAFFIC_SIM_REVISION := "038_driver_traffic_v2"
-const TRAFFIC_PACK_SIM_REVISION := "039_traffic_pack_v1"
-const DRIVER_ERROR_SIM_REVISION := "040_driver_error_recovery_v1"
+const RevisionPolicy = preload("res://scripts/core/race_revision_policy_0923.gd")
+const OVERTAKING_SIM_REVISION := RevisionPolicy.OVERTAKING_SIM_REVISION
+const START20_SIM_REVISION := RevisionPolicy.START20_SIM_REVISION
+const COMPETITIVE_SIM_REVISION := RevisionPolicy.COMPETITIVE_SIM_REVISION
+const MERGE_TRAFFIC_SIM_REVISION := RevisionPolicy.MERGE_TRAFFIC_SIM_REVISION
+const TRAFFIC_HOTFIX_SIM_REVISION := RevisionPolicy.TRAFFIC_HOTFIX_SIM_REVISION
+const RACING_LINE_SIM_REVISION := RevisionPolicy.RACING_LINE_SIM_REVISION
+const FOLLOWING_SIM_REVISION := RevisionPolicy.FOLLOWING_SIM_REVISION
+const PASS_COMPLETION_SIM_REVISION := RevisionPolicy.PASS_COMPLETION_SIM_REVISION
+const INDEPENDENT_SIM_REVISION := RevisionPolicy.INDEPENDENT_SIM_REVISION
+const AERO_WAKE_SIM_REVISION := RevisionPolicy.AERO_WAKE_SIM_REVISION
+const AERO_WAKE_CORRECTED_SIM_REVISION := RevisionPolicy.AERO_WAKE_CORRECTED_SIM_REVISION
+const AERO_WAKE_STABILITY_SIM_REVISION := RevisionPolicy.AERO_WAKE_STABILITY_SIM_REVISION
+const AERO_WET_LINE_SIM_REVISION := RevisionPolicy.AERO_WET_LINE_SIM_REVISION
+const TACTICAL_COORDINATION_SIM_REVISION := RevisionPolicy.TACTICAL_COORDINATION_SIM_REVISION
+const CORNER_BATTLE_SIM_REVISION := RevisionPolicy.CORNER_BATTLE_SIM_REVISION
+const DRIVER_TRAFFIC_SIM_REVISION := RevisionPolicy.DRIVER_TRAFFIC_SIM_REVISION
+const TRAFFIC_PACK_SIM_REVISION := RevisionPolicy.TRAFFIC_PACK_SIM_REVISION
+const DRIVER_ERROR_SIM_REVISION := RevisionPolicy.DRIVER_ERROR_SIM_REVISION
 const DriverError0921=preload("res://scripts/core/race_driver_error_0921.gd")
 var driver_error_enabled:bool=true
 const TrafficPack09201=preload("res://scripts/core/race_traffic_pack_09201.gd")
@@ -366,14 +367,14 @@ func _traffic_pack_active()->bool:
 	if not (traffic_pack_enabled and traffic_intelligence_enabled and corner_battle_enabled and tactical_coordination_enabled and aero_wet_line_stability and aero_wake_stability and aero_wake_enabled and independent_racecraft_enabled and pass_completion_enabled and following_enabled and racing_line_enabled and driver_traffic_enabled):return false
 	if command_session!=null:
 		var attached:Object=command_session.get_ref()
-		if attached!=null:return str(attached.get("recorded_simulation_revision")) in [TRAFFIC_PACK_SIM_REVISION,DRIVER_ERROR_SIM_REVISION]
+		if attached!=null:return (RevisionPolicy.capability_mask(str(attached.get("recorded_simulation_revision"))) & RevisionPolicy.TRAFFIC_PACK) != 0
 	return true
 
 func _driver_error_active()->bool:
 	if not driver_error_enabled or not _traffic_pack_active():return false
 	if command_session!=null:
 		var attached:Object=command_session.get_ref()
-		if attached!=null:return str(attached.get("recorded_simulation_revision"))==DRIVER_ERROR_SIM_REVISION
+		if attached!=null:return (RevisionPolicy.capability_mask(str(attached.get("recorded_simulation_revision"))) & RevisionPolicy.DRIVER_ERROR) != 0
 	return true
 
 func _build_strategy_plan(car: Dictionary, teammate_busy: bool = false) -> Dictionary:
@@ -768,25 +769,25 @@ func _advance(dt: float) -> void:
 		var attached_session: Object = command_session.get_ref()
 		if attached_session != null:
 			launch_legacy = bool(attached_session.get("legacy_launch_physics"))
-			var revision: String = str(attached_session.get("recorded_simulation_revision"))
-			overtaking_rules = overtaking_rules and revision in [OVERTAKING_SIM_REVISION, START20_SIM_REVISION, COMPETITIVE_SIM_REVISION, MERGE_TRAFFIC_SIM_REVISION, TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION, PASS_COMPLETION_SIM_REVISION, INDEPENDENT_SIM_REVISION, AERO_WAKE_SIM_REVISION, AERO_WAKE_CORRECTED_SIM_REVISION, AERO_WAKE_STABILITY_SIM_REVISION, AERO_WET_LINE_SIM_REVISION, TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION, DRIVER_ERROR_SIM_REVISION]
-			start20_rules = start20_rules and revision in [START20_SIM_REVISION, COMPETITIVE_SIM_REVISION]
-			competitive_rules = competitive_rules and revision in [COMPETITIVE_SIM_REVISION, MERGE_TRAFFIC_SIM_REVISION, TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION, PASS_COMPLETION_SIM_REVISION, INDEPENDENT_SIM_REVISION, AERO_WAKE_SIM_REVISION, AERO_WAKE_CORRECTED_SIM_REVISION, AERO_WAKE_STABILITY_SIM_REVISION, AERO_WET_LINE_SIM_REVISION, TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION, DRIVER_ERROR_SIM_REVISION]
-			merge_rules = merge_rules and revision in [MERGE_TRAFFIC_SIM_REVISION, TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION, PASS_COMPLETION_SIM_REVISION, INDEPENDENT_SIM_REVISION, AERO_WAKE_SIM_REVISION, AERO_WAKE_CORRECTED_SIM_REVISION, AERO_WAKE_STABILITY_SIM_REVISION, AERO_WET_LINE_SIM_REVISION, TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION, DRIVER_ERROR_SIM_REVISION]
-			traffic_hotfix_rules = traffic_hotfix_rules and revision in [TRAFFIC_HOTFIX_SIM_REVISION, RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION, PASS_COMPLETION_SIM_REVISION, INDEPENDENT_SIM_REVISION, AERO_WAKE_SIM_REVISION, AERO_WAKE_CORRECTED_SIM_REVISION, AERO_WAKE_STABILITY_SIM_REVISION, AERO_WET_LINE_SIM_REVISION, TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION, DRIVER_ERROR_SIM_REVISION]
-			racing_line_rules = racing_line_rules and revision in [RACING_LINE_SIM_REVISION, FOLLOWING_SIM_REVISION, PASS_COMPLETION_SIM_REVISION, INDEPENDENT_SIM_REVISION, AERO_WAKE_SIM_REVISION, AERO_WAKE_CORRECTED_SIM_REVISION, AERO_WAKE_STABILITY_SIM_REVISION, AERO_WET_LINE_SIM_REVISION, TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION, DRIVER_ERROR_SIM_REVISION]
-			following_rules = following_rules and revision in [FOLLOWING_SIM_REVISION, PASS_COMPLETION_SIM_REVISION, INDEPENDENT_SIM_REVISION, AERO_WAKE_SIM_REVISION, AERO_WAKE_CORRECTED_SIM_REVISION, AERO_WAKE_STABILITY_SIM_REVISION, AERO_WET_LINE_SIM_REVISION, TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION, DRIVER_ERROR_SIM_REVISION]
-			completion_rules = completion_rules and revision in [PASS_COMPLETION_SIM_REVISION, INDEPENDENT_SIM_REVISION, AERO_WAKE_SIM_REVISION, AERO_WAKE_CORRECTED_SIM_REVISION, AERO_WAKE_STABILITY_SIM_REVISION, AERO_WET_LINE_SIM_REVISION, TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION, DRIVER_ERROR_SIM_REVISION]
-			independent_rules = independent_rules and revision in [INDEPENDENT_SIM_REVISION, AERO_WAKE_SIM_REVISION, AERO_WAKE_CORRECTED_SIM_REVISION, AERO_WAKE_STABILITY_SIM_REVISION, AERO_WET_LINE_SIM_REVISION, TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION, DRIVER_ERROR_SIM_REVISION]
-			aero_wake_rules = aero_wake_rules and revision in [AERO_WAKE_SIM_REVISION, AERO_WAKE_CORRECTED_SIM_REVISION, AERO_WAKE_STABILITY_SIM_REVISION, AERO_WET_LINE_SIM_REVISION, TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION, DRIVER_ERROR_SIM_REVISION]
-			corrected_wake_rules = corrected_wake_rules and revision in [AERO_WAKE_CORRECTED_SIM_REVISION, AERO_WAKE_STABILITY_SIM_REVISION, AERO_WET_LINE_SIM_REVISION, TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION, DRIVER_ERROR_SIM_REVISION]
-			stability_rules = stability_rules and revision in [AERO_WAKE_STABILITY_SIM_REVISION, AERO_WET_LINE_SIM_REVISION, TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION, DRIVER_ERROR_SIM_REVISION]
-			wet_line_rules = wet_line_rules and revision in [AERO_WET_LINE_SIM_REVISION, TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION, DRIVER_ERROR_SIM_REVISION]
-			coordination_rules = coordination_rules and revision in [TACTICAL_COORDINATION_SIM_REVISION, CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION, DRIVER_ERROR_SIM_REVISION]
-			corner_battle_rules = corner_battle_rules and revision in [CORNER_BATTLE_SIM_REVISION, DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION, DRIVER_ERROR_SIM_REVISION]
-			traffic_intelligence_rules = traffic_intelligence_rules and revision in [DRIVER_TRAFFIC_SIM_REVISION, TRAFFIC_PACK_SIM_REVISION, DRIVER_ERROR_SIM_REVISION]
-			traffic_pack_rules=traffic_pack_rules and revision in [TRAFFIC_PACK_SIM_REVISION,DRIVER_ERROR_SIM_REVISION]
-			error_rules=error_rules and revision==DRIVER_ERROR_SIM_REVISION
+			var revision_mask: int = RevisionPolicy.capability_mask(str(attached_session.get("recorded_simulation_revision")))
+			overtaking_rules = overtaking_rules and (revision_mask & RevisionPolicy.OVERTAKING) != 0
+			start20_rules = start20_rules and (revision_mask & RevisionPolicy.START20) != 0
+			competitive_rules = competitive_rules and (revision_mask & RevisionPolicy.COMPETITIVE) != 0
+			merge_rules = merge_rules and (revision_mask & RevisionPolicy.MERGE_TRAFFIC) != 0
+			traffic_hotfix_rules = traffic_hotfix_rules and (revision_mask & RevisionPolicy.TRAFFIC_HOTFIX) != 0
+			racing_line_rules = racing_line_rules and (revision_mask & RevisionPolicy.RACING_LINE) != 0
+			following_rules = following_rules and (revision_mask & RevisionPolicy.FOLLOWING) != 0
+			completion_rules = completion_rules and (revision_mask & RevisionPolicy.PASS_COMPLETION) != 0
+			independent_rules = independent_rules and (revision_mask & RevisionPolicy.INDEPENDENT) != 0
+			aero_wake_rules = aero_wake_rules and (revision_mask & RevisionPolicy.AERO_WAKE) != 0
+			corrected_wake_rules = corrected_wake_rules and (revision_mask & RevisionPolicy.AERO_WAKE_CORRECTED) != 0
+			stability_rules = stability_rules and (revision_mask & RevisionPolicy.AERO_WAKE_STABILITY) != 0
+			wet_line_rules = wet_line_rules and (revision_mask & RevisionPolicy.AERO_WET_LINE) != 0
+			coordination_rules = coordination_rules and (revision_mask & RevisionPolicy.TACTICAL_COORDINATION) != 0
+			corner_battle_rules = corner_battle_rules and (revision_mask & RevisionPolicy.CORNER_BATTLE) != 0
+			traffic_intelligence_rules = traffic_intelligence_rules and (revision_mask & RevisionPolicy.DRIVER_TRAFFIC) != 0
+			traffic_pack_rules = traffic_pack_rules and (revision_mask & RevisionPolicy.TRAFFIC_PACK) != 0
+			error_rules = error_rules and (revision_mask & RevisionPolicy.DRIVER_ERROR) != 0
 	var launch_clearance: float = 1.0
 	var launch_limit: float = RaceStart066917.CORNER_PHASE_SECONDS if start20_rules else RaceStart066911.PHASE_SECONDS
 	if race_start_intelligence_enabled and clock < launch_limit:
