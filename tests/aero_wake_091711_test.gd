@@ -263,7 +263,7 @@ func run():
    check(historical_034.hash=="067ec801e8bef03f137cfcadd229f2662cc400f8ccdbbe17f8ed45ffa1fc9e85","historical CI 034 hash")
   var again=drive(data,track,40 if errors else (39 if mega else (38 if traffic else (37 if corner else (36 if coordinated else 35)))),climate,ticks,seed)
   check(new.hash==again.hash,"deterministic selected revision")
-  for rev in [Replay.PRE_AERO_WAKE_SIMULATION_REVISION,Replay.PRE_WAKE_SOURCE_SIMULATION_REVISION,Replay.PRE_WAKE_STABILITY_SIMULATION_REVISION,Replay.PRE_WET_LINE_SIMULATION_REVISION,Replay.PRE_COORDINATION_SIMULATION_REVISION,Replay.PRE_CORNER_BATTLE_SIMULATION_REVISION,Replay.PRE_DRIVER_TRAFFIC_SIMULATION_REVISION,Replay.PRE_TRAFFIC_PACK_SIMULATION_REVISION,Replay.PRE_DRIVER_ERROR_SIMULATION_REVISION,Replay.SIMULATION_REVISION]:
+  for rev in [Replay.PRE_AERO_WAKE_SIMULATION_REVISION,Replay.PRE_WAKE_SOURCE_SIMULATION_REVISION,Replay.PRE_WAKE_STABILITY_SIMULATION_REVISION,Replay.PRE_WET_LINE_SIMULATION_REVISION,Replay.PRE_COORDINATION_SIMULATION_REVISION,Replay.PRE_CORNER_BATTLE_SIMULATION_REVISION,Replay.PRE_DRIVER_TRAFFIC_SIMULATION_REVISION,Replay.PRE_TRAFFIC_PACK_SIMULATION_REVISION,Replay.PRE_DRIVER_ERROR_SIMULATION_REVISION,Replay.PRE_LONGITUDINAL_SIMULATION_REVISION,Replay.SIMULATION_REVISION]:
    var rec=Replay.new();rec.attach(Race.new(data.teams,"Ferrari",42,{},track,{}));rec.recorded_simulation_revision=rev
    for i in range(350):check(rec.step_tick(),"record tick")
    var play=Replay.new()

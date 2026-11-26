@@ -892,6 +892,57 @@
         }
       ],
       "checks": []
+    },
+    {
+      "id": "longitudinal_physics_069",
+      "paths": [
+        "scripts/core/race_revision_policy_0923.gd",
+        "scripts/core/race_replay_0660.gd",
+        "scripts/race_engine.gd",
+        "scripts/core/race_space_0655.gd",
+        "tests/race_revision_policy_0923_test.gd",
+        "tests/race_start_066917_test.gd",
+        "tests/race_start_competitive_0669172_test.gd",
+        "tests/setup_track_066914_test.gd",
+        "tests/race_gaps_066916_test.gd",
+        "tests/performance_polish_066915_test.gd",
+        "tests/driver_error_0921_test.gd",
+        "tests/aero_wake_091711_test.gd",
+        "tests/racing_independent_p15_091710_test.gd",
+        "scripts/core/race_longitudinal_069.gd",
+        "tests/race_longitudinal_069_test.gd"
+      ],
+      "fast_tests": [
+        {
+          "script": "race_longitudinal_069_test.gd",
+          "marker": "LONGITUDINAL_069_PASS"
+        },
+        {
+          "script": "race_revision_policy_0923_test.gd",
+          "marker": "REVISION_POLICY_0923_PASS"
+        },
+        {
+          "script": "race_live_without_replay_09173_test.gd",
+          "marker": "LIVE_WITHOUT_REPLAY_09173_PASS"
+        },
+        {
+          "script": "race_randomness_068_test.gd",
+          "marker": "RACE_RANDOMNESS_068_PASS"
+        },
+        {
+          "script": "driver_error_0921_test.gd",
+          "marker": "DRIVER_ERROR_0921_PASS"
+        },
+        {
+          "script": "wet_strategy_06698_test.gd",
+          "marker": "WET_STRATEGY_06698_PASS"
+        },
+        {
+          "script": "pit_coordination_06697_test.gd",
+          "marker": "PIT_COORD_06697_PASS"
+        }
+      ],
+      "checks": []
     }
   ]
 }

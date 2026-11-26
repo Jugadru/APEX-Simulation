@@ -176,6 +176,7 @@ func run():
  historical.following_enabled=false
  check(not historical._driver_error_active(),"historical flag chain")
  var rec=Replay.new();rec.attach(Race.new(data.teams,"Ferrari",42,{},data.tracks[0],{}))
+ rec.recorded_simulation_revision=Replay.PRE_LONGITUDINAL_SIMULATION_REVISION
  for i in range(200):check(rec.step_tick(),"record 040")
  var play=Replay.new()
  check(play.load_data(rec.export_data()) and play.seek(200) and play.first_divergence<0,"040 replay")

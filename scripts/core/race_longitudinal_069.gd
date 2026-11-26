@@ -1,0 +1,56 @@
+extends RefCounted
+## First longitudinal model: physical SI units on declared lap distance.
+## Experimental gameplay coefficients, not a calibrated 2012 vehicle model.
+## No RNG, rendering, gearbox, tyre thermal or lateral solver ownership.
+const KEY := "longitudinal_069_mps"
+const PREVIEW_M := 60.0
+const PIT_EXIT_MPS := 80.0 / 3.6
+const MAX_MPS := 100.0
+
+static func grip(car: Dictionary, weather: Dictionary) -> float:
+	var wet := clampf(float(weather.get("wetness_factor",0.0)),0.0,1.0)
+	var tyre := str(car.get("tire",""))
+	var mismatch := 0.58 if tyre not in ["Intermediário","Chuva"] else (0.24 if tyre=="Intermediário" else 0.12)
+	return clampf(float(weather.get("grip_factor",1.0))*(1.0-wet*mismatch)*(1.0-0.20*clampf(float(car.get("wear",0.0))/100.0,0.0,1.0)),0.28,1.05)
+
+static func rates(speed: float, traction: float) -> Dictionary:
+	# High-speed acceleration tapers; braking grows with speed as a
+	# simple downforce proxy. Detailed torque/load transfer follow later.
+	return {"accel":maxf(2.2,10.0-0.075*speed)*traction,
+		"brake":lerpf(12.0,25.0,clampf(speed/85.0,0.0,1.0))*traction}
+
+static func corner_speed(nominal: float, load: float, mean: float) -> float:
+	# Replace only the legacy local pace redistribution in movement, not
+	# tactical pace, wear, energy accounting or strategy predictions.
+	return clampf(nominal*clampf(1.0+0.24*(mean-load),0.76,1.16),0.0,MAX_MPS)
+
+static func braking_cap(future_speed: float, braking: float, distance_m: float) -> float:
+	return sqrt(maxf(0.0,future_speed*future_speed+2.0*maxf(0.0,braking)*maxf(0.0,distance_m)))
+
+static func integrate(speed: float, target: float, accel: float, brake: float, dt: float) -> Dictionary:
+	var start := clampf(speed,0.0,MAX_MPS)
+	var goal := clampf(target,0.0,MAX_MPS)
+	var time := maxf(0.0,dt)
+	var rate := maxf(0.000001,accel if goal>=start else brake)
+	var ramp := minf(time,absf(goal-start)/rate)
+	var end := move_toward(start,goal,rate*ramp)
+	# Exact constant-rate ramp, then cruise for the rest of the tick.
+	return {"speed_mps":end,"distance_m":(start+end)*0.5*ramp+end*(time-ramp)}
+
+static func propose(car: Dictionary, curve: Dictionary, pace_s: float, lap_m: float, driving_dt: float, weather: Dictionary) -> Dictionary:
+	var nominal := lap_m/maxf(1.0,pace_s)*float(curve.legacy_factor)
+	var desired := corner_speed(nominal,float(curve.load),float(curve.mean))
+	var future := corner_speed(nominal,float(curve.ahead_load),float(curve.mean))
+	# Handover at 24s preserves the existing launch/first-corner model.
+	var previous := clampf(float(car.get(KEY,desired)),0.0,MAX_MPS)
+	var limits := rates(previous,grip(car,weather))
+	var target := minf(desired,braking_cap(future,float(limits.brake),PREVIEW_M))
+	return integrate(previous,target,float(limits.accel),float(limits.brake),driving_dt)
+
+static func settle(proposal: Dictionary, actual_m: float, dt: float, driving_dt: float) -> float:
+	# A collision-avoidance restriction or hesitation may require more
+	# braking than the free-air model. Never restore lost progress.
+	if dt<=0.0: return 0.0
+	if actual_m+0.000001<float(proposal.distance_m) or driving_dt+0.000001<dt:
+		return clampf(minf(float(proposal.speed_mps),actual_m/dt),0.0,MAX_MPS)
+	return float(proposal.speed_mps)

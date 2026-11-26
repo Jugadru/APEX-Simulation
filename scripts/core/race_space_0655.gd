@@ -1,6 +1,7 @@
 extends RefCounted
 ## Authoritative deterministic traffic in schematic circuit units, not FIA metres.
 const Combat = preload("res://scripts/core/race_combat.gd")
+const Longitudinal069 = preload("res://scripts/core/race_longitudinal_069.gd")
 const DriverDynamics = preload("res://scripts/core/race_driver_dynamics_0661.gd")
 const DriverTraffic = preload("res://scripts/core/race_driver_traffic_06693.gd")
 const Overtaking = preload("res://scripts/core/race_overtaking_intelligence_066912.gd")
@@ -643,6 +644,12 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 						a.state="recovering"
 		a.next_lane=wanted
 		a.next=own_progress+float(a.driving_dt)/maxf(1,float(a.pace))
+		# New revision only. All tactical decisions are already resolved into
+		# the desired pace; existing occupancy solver retains final authority.
+		if metrics[id].has(Longitudinal069.KEY) and lap_km > 0.3:
+			var physical: Dictionary = Longitudinal069.propose(c,metrics[id][Longitudinal069.KEY],float(a.pace),lap_km*1000.0,float(a.driving_dt),weather)
+			a.next = own_progress+float(physical.distance_m)/(lap_km*1000.0)
+			a[Longitudinal069.KEY] = physical
 	# Before entering a single corridor, the trailing side yields gradually.
 	# Only the trailing car's existing proposed displacement is reduced.
 	if merge_traffic_enabled:
@@ -701,4 +708,7 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 		if result.has(target):passed=float(result[id].progress)>float(result[target].progress) and float(c.progress)<=float(by_id[target].progress)
 		result[id].states.combat_pass_pending=bool(c.get("combat_pass_pending",false)) or passed
 		if traffic_pack_enabled:result[id].states[TrafficPack.KEY]=TrafficPack.settle(c,traffic_observations[id],intents[id],float(result[id].progress),dt)
+		if intents[id].has(Longitudinal069.KEY):
+			var actual_m: float = maxf(0.0,float(result[id].progress)-float(c.progress))*lap_km*1000.0
+			result[id].states[Longitudinal069.KEY] = Longitudinal069.settle(intents[id][Longitudinal069.KEY],actual_m,dt,float(intents[id].driving_dt))
 	return result
