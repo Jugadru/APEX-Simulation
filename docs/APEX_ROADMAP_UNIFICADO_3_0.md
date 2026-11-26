@@ -1,6 +1,6 @@
 # APEX — Roadmap Unificado 3.0 / numeração simplificada
 
-Decisão do responsável: encerrar a sequência longa v0.6.6.9.* e usar v0.6.7, v0.6.8, v0.6.9, v0.7.0 e seguintes. Somente os números do planejamento futuro mudam; não há remoção, reordenação de funcionalidades ou reescrita de versões históricas. A nova numeração é uma convenção de desenvolvimento, não certificação de maturidade ou promessa de release. O Plano Mestre Unificado 2.0 continua como arquitetura e escopo. Este documento consolida a sequência de 40 atualizações (32 anteriores + 8 complementares) aprovada na conversa, incluindo as quatro atualizações 9.36–9.39. A ordem histórica de 9.17.5/9.17.6 é reproduzida conforme o roadmap informado, não como auditoria dos títulos reais de releases; consultar changelog para histórico efetivo.
+Decisão do responsável: encerrar a sequência longa v0.6.6.9.* e usar v0.6.7, v0.6.8, v0.6.9, v0.7.0 e seguintes. Somente os números do planejamento futuro mudam; não há remoção, reordenação de funcionalidades ou reescrita de versões históricas. A nova numeração é uma convenção de desenvolvimento, não certificação de maturidade ou promessa de release. O Plano Mestre Unificado 2.0 continua como arquitetura e escopo. Este documento consolida a sequência de 44 atualizações (40 anteriores + 4 etapas de pesquisa nativa) aprovada na conversa, incluindo as quatro atualizações 9.36–9.39. A ordem histórica de 9.17.5/9.17.6 é reproduzida conforme o roadmap informado, não como auditoria dos títulos reais de releases; consultar changelog para histórico efetivo.
 
 ## Fase 1 — Estabilização e refinamento
 | Referência anterior | Versão | Funcionalidade | Estado |
@@ -35,6 +35,14 @@ Decisão do responsável: encerrar a sequência longa v0.6.6.9.* e usar v0.6.7, 
 | 9.26 | v0.7.0 | Gearbox, Torque & Power Delivery | Planejada |
 | 9.27 | v0.7.1 | Tyre Grip & Load Transfer | Planejada |
 | 9.28 | v0.7.2 | Vehicle Dynamics Integration | Planejada |
+
+### Fase 3A — Pesquisa do núcleo nativo
+| Referência anterior | Versão | Funcionalidade | Estado |
+|---|---|---|---|
+| Nova etapa | v0.7.2.1 | Native Core Research — estudo de C++ | Planejada: pesquisa |
+| Nova etapa | v0.7.2.2 | GDExtension Experimental — protótipo isolado | Planejada: experimental |
+| Nova etapa | v0.7.2.3 | Native Core Benchmark — comparação GDScript × C++ | Planejada: avaliação |
+| Nova etapa | v0.7.2.4 | Native Core Integration — somente se aprovado | Condicional |
 
 ## Fase 4 — Inteligência competitiva avançada
 | Referência anterior | Versão | Funcionalidade | Estado |
@@ -150,6 +158,44 @@ interpolar snapshots, mas não inventar resultados. A versão 0.6.9 trata
 capacidade física de frear/acelerar; a 0.7.4 trata escolha do piloto, evitando
 a duplicação das responsabilidades. Perfis de velocidade e referências de
 tempo podem auxiliar calibração e previsão, não substituir o cálculo esportivo.
+
+## Fase 3A — Pesquisa e avaliação do núcleo nativo (0.7.2.1–0.7.2.4)
+
+Inserção aprovada no planejamento de 26/11/2026: quatro etapas entre
+Vehicle Dynamics Integration (0.7.2) e Overtaking Preparation (0.7.3).
+Nenhuma versão existente é removida, renumerada ou reordenada. O objetivo
+é investigar se uma extensão C++ beneficia gargalos reais da simulação,
+mantendo GDScript como implementação de referência e alternativa funcional.
+A existência de um protótipo não autoriza a integração.
+
+| Versão | Objetivo, entregáveis e dependência | Evidência esperada |
+|---|---|---|
+| v0.7.2.1 — Native Core Research | Após estabilizar 0.7.2, perfilar ticks e memória; localizar gargalos computacionais; estudar GDExtension, godot-cpp, compatibilidade com Godot 4.7.2, compilação Linux/Windows, licença, custo de manutenção e fronteira de API. Selecionar um candidato pequeno, de preferência cálculo puro em lote, sem UI, RNG próprio ou acesso à árvore de cenas. | Relatório com baseline exato, hotspot medido, alternativas GDScript e C++, riscos, plano de equivalência e critérios de benchmark definidos antes da medição. Sem alteração no motor de produção. |
+| v0.7.2.2 — GDExtension Experimental | Construir protótipo C++ isolado em ambiente/branch de pesquisa; interface de dados mínima, passagem em lote, unidades e ordem de operações documentadas. Não substituir o motor; manter o jogo executável sem biblioteca experimental. | Testes de entradas/saídas contra implementação GDScript, limites, erros, estabilidade, repetição determinística e prova de compilação/carregamento nas plataformas testadas; reportar plataformas não verificadas. |
+| v0.7.2.3 — Native Core Benchmark | Comparar GDScript e C++ equivalentes, com SHAs, hardware, build, sementes e workloads fixados; medir função isolada e simulação integrada de 24 carros, incluindo custo de conversão de dados e chamada à extensão. Aquecimento, repetições e dispersão; CPU por tick, tempo total, memória e estabilidade, em velocidades de simulação relevantes. | Relatório reproduzível com todos os resultados, equivalência esportiva e ganho global além do ruído e do custo de integração. Critérios de aprovação definidos antes dos testes; resultado negativo ou inconclusivo é legítimo. Não inferir FPS/GPU de headless. |
+| v0.7.2.4 — Native Core Integration | Somente após aprovação explícita do responsável e evidências suficientes de 0.7.2.3: integrar apenas módulos aprovados mediante adaptador, seleção de backend e fallback GDScript; empacotamento Linux/Windows, versionamento da ABI e testes de compatibilidade. Não reescrever o motor inteiro nem migrar UI/gestão por conveniência. | FAST no SHA exato, Test Lab, regressões direcionadas, equivalência entre backends conforme contrato, determinismo por revisão, saves/replays, execução sem extensão e rollback testado. Verificar binários antes de distribuição. Sem ganho comprovado ou com regressão essencial, não integrar; manter GDScript e seguir para 0.7.3. |
+
+### Contrato de integridade e decisão
+
+- Fixar o escopo e a referência GDScript da 0.7.2; não introduzir nova física
+  junto à tradução de código. Não usar C++ para mascarar um algoritmo ruim.
+- Preservar passo fixo, unidades, ordem estável, RNG esportivo e semântica de
+  comandos. Auditar precisão numérica, arredondamento, compilador e flags;
+  evitar otimizações que invalidem os contratos de determinismo.
+- Exigir equivalência dos resultados esportivos conforme o contrato da revisão;
+  qualquer tolerância numérica intermediária deve ser definida previamente e
+  não pode ocultar divergências em decisões, eventos ou classificação.
+  Não prometer igualdade binária de ponto flutuante entre plataformas sem prova.
+- Manter uma fonte de estado esportivo. O backend nativo calcula; não deve criar
+  estado paralelo incoerente, consumir RNG cosmético ou alterar save/replay
+  silenciosamente. Se a revisão exigir migração, documentar e testar antes.
+- Comparar primeiro otimizações algorítmicas em GDScript. O custo de manutenção,
+  compilação, depuração e distribuição da extensão entra na decisão.
+- FAST + APEX Test Lab e regressões direcionadas permanecem obrigatórios.
+  Benchmark pesado, FULL e runner pessoal seguem AGENTS.md e exigem
+  autorização quando aplicável; não executá-los automaticamente.
+- A etapa 0.7.2.4 pode terminar como não integrada, com justificativa registrada.
+  A continuidade de 0.7.3–0.9.0 não depende da adoção de C++.
 
 ## Fase 4 — Inteligência competitiva avançada
 
