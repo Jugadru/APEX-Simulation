@@ -1,5 +1,10 @@
 # Changelog — APEX Motorsport Manager Core 2
 
+## Unreleased — 9.24 Living Factory: reserva de destino
+
+- Auditoria da fábrica existente: inventário individual, oficina calendarizada, P&D ainda compartilhado por categoria. Corrige reserva de destino de substituição mesmo em slot vazio; instalações manuais respeitam a reserva e substituições antigas com destino alterado não deslocam outra peça silenciosamente.
+- Sem novo schema, peças fabricadas artificialmente, alteração esportiva ou alteração dos saves de corrida. FAST e regressões de oficina/inventário pendentes.
+
 ## 9.23 — Endurance Laboratory 1.0 (bounded FAST)
 
 - Reutiliza FAST e os contratos existentes de replay/telemetria: fixture LAB sintética de 320 ticks, saturação do rádio e cache de busca, checkpoint comprimido, fork, recuperação do arquivo principal com temporário interrompido e rejeição de checksum inválido.
