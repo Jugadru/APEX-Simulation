@@ -206,7 +206,47 @@ func leader_fixture()->void:
 	compare_leaders([],{},1000.0,"empty")
 	compare_leaders([chain[0]],intents,1000.0,"singleton")
 
+# Public direct lane_limit remains the unchanged oracle for the prepared
+# geometry path. Compare serialized scalar outputs at exact boundaries.
+func geometry_fixture()->void:
+	var season: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/season_2012.json"))
+	var tracks: Array = season.tracks.duplicate(true)
+	check(tracks.size()==20,"20 real calendar tracks")
+	tracks.append({"race_width_m":8.8,"racecraft_sectors":[{"start":0.0,"end":0.25,"width":5.0},{"start":0.2,"end":0.4,"width":4.2},{"start":0.9,"end":1.0,"width":3.8}]})
+	var comparisons: int=0
+	for track in tracks:
+		var shape: Dictionary=Space.profile(track)
+		var before: PackedByteArray=var_to_bytes([track,shape])
+		for profile in [shape,{"length":1000.0}]:
+			var geometry: Dictionary=Space.prepare_lane_geometry(track,profile)
+			var probes: Array[float]=[-1.0,-0.000000001,0.0,0.000000001,0.5,0.999999999,1.0,2.0]
+			for i in range(101):
+				probes.append(float(i)/100.0)
+			for sector in track.get("racecraft_sectors",[]):
+				for boundary in [float(sector.start),float(sector.end)]:
+					for epsilon in [-0.000000001,0.0,0.000000001]:
+						probes.append(float(boundary)+float(epsilon))
+			for distance in profile.get("distances",[]):
+				probes.append(float(distance)/float(profile.length))
+			for progress in probes:
+				for offset in [0.0,Space.LENGTH,Space.LENGTH*2.0,Space.LENGTH*3.0,Space.LENGTH*4.0]:
+					var sample: float=progress+float(offset)/float(profile.length)
+					var expected: float=Space.lane_limit(track,sample,profile)
+					var actual: float=Space.prepared_lane_limit(sample,geometry)
+					check(var_to_bytes(expected)==var_to_bytes(actual),"exact frozen geometry "+str(track.get("code","fixture"))+" "+str(sample))
+					comparisons+=1
+		check(before==var_to_bytes([track,shape]),"geometry inputs immutable")
+	var fixture: Dictionary={"race_width_m":8.8,"racecraft_sectors":[{"start":0.0,"end":0.5,"width":4.2}]}
+	var shape: Dictionary={"length":1000.0}
+	var first: Dictionary=Space.prepare_lane_geometry(fixture,shape)
+	fixture.racecraft_sectors[0].width=6.0
+	var second: Dictionary=Space.prepare_lane_geometry(fixture,shape)
+	check(Space.prepared_lane_limit(0.2,first)!=Space.prepared_lane_limit(0.2,second),"fresh context reflects changed sector")
+	check(Space.prepared_lane_limit(0.2,second)==Space.lane_limit(fixture,0.2,shape),"new context exact after change")
+	print("SPATIAL_GEOMETRY_0923_REPORT ",JSON.stringify({"tracks":20,"synthetic_tracks":1,"comparisons":comparisons,"precision":"exact bytes","persistent_cache":false}))
+
 func _initialize()->void:
+	geometry_fixture()
 	physical_fixture()
 	leader_fixture()
 	check(run_pair(8.8).passed,"open corridor permits natural pass")

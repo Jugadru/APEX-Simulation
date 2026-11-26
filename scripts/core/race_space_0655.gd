@@ -60,6 +60,31 @@ static func lane_limit(track: Dictionary,progress: float,shape: Dictionary = {})
 		if fraction>=float(sector.start) and fraction<float(sector.end): width=minf(width,float(sector.width))
 	return clampf(width*.5-1.45,0,MAX_LANE)
 
+# Per-plan read-only geometry context. Sector triples preserve source order,
+# Float64 precision and original half-open intervals. The profile arrays are
+# borrowed only during this synchronous call, never retained across ticks.
+static func prepare_lane_geometry(track: Dictionary, shape: Dictionary) -> Dictionary:
+	var sectors := PackedFloat64Array()
+	for sector in track.get("racecraft_sectors",[]):
+		sectors.append(float(sector.start))
+		sectors.append(float(sector.end))
+		sectors.append(float(sector.width))
+	return {"base_width":float(track.get("race_width_m",8.8)),
+		"has_widths":shape.has("widths"),"length":float(shape.get("length",1000.0)),
+		"distances":shape.get("distances",[]),"widths":shape.get("widths",[]),"sectors":sectors}
+
+static func prepared_lane_limit(progress: float, geometry: Dictionary) -> float:
+	var width: float = float(geometry.base_width)
+	var fraction: float = fposmod(progress,1)
+	if bool(geometry.has_widths):
+		var widths = geometry.widths
+		var index: int = clampi(geometry.distances.bsearch(fraction*float(geometry.length))-1,0,widths.size()-1)
+		width=minf(width,2*minf(float(widths[index]),float(widths[(index+1)%widths.size()])))
+	var sectors: PackedFloat64Array = geometry.sectors
+	for i in range(0,sectors.size(),3):
+		if fraction>=sectors[i] and fraction<sectors[i+1]: width=minf(width,sectors[i+2])
+	return clampf(width*.5-1.45,0,MAX_LANE)
+
 static func active(car: Dictionary) -> bool:
 	return not bool(car.get("finished",false)) and float(car.get("pit_left",0))<=0
 
@@ -266,11 +291,12 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 	# Cache the two repeated lane-limit queries by stable car ID, not across ticks.
 	var lane_here: Dictionary = {}
 	var lane_ahead: Dictionary = {}
+	var lane_geometry: Dictionary = prepare_lane_geometry(track,shape)
 	for c in order:
 		var cache_id: int = int(c.id)
 		var progress: float = float(c.progress)
-		lane_here[cache_id]=lane_limit(track,progress,shape)
-		lane_ahead[cache_id]=lane_limit(track,progress+LENGTH*2.0/length,shape)
+		lane_here[cache_id]=prepared_lane_limit(progress,lane_geometry)
+		lane_ahead[cache_id]=prepared_lane_limit(progress+LENGTH*2.0/length,lane_geometry)
 	# Voluntary line only in free air. Tactical attack/defense and the
 	# existing occupancy solver retain authority. No lateral teleport.
 	for c in order:
@@ -298,10 +324,10 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 			# The frozen current and 2*LENGTH samples already exist.
 			# Keep the original min order and exact offsets (no quantization).
 			var min_lane: float = minf(MAX_LANE,float(lane_here[id]))
-			min_lane=minf(min_lane,lane_limit(track,p+LENGTH/length,shape))
+			min_lane=minf(min_lane,prepared_lane_limit(p+LENGTH/length,lane_geometry))
 			min_lane=minf(min_lane,float(lane_ahead[id]))
 			for offset in [3.0*LENGTH,4.0*LENGTH]:
-				min_lane=minf(min_lane,lane_limit(track,p+float(offset)/length,shape))
+				min_lane=minf(min_lane,prepared_lane_limit(p+float(offset)/length,lane_geometry))
 			narrowing[id]=MergeTraffic.single_file(min_lane)
 	var traffic_observations:Dictionary={}
 	if traffic_pack_enabled:
