@@ -158,7 +158,7 @@ jobs:
           graphical=()
           remaining=()
           for entry in "${tests[@]}"; do
-            if [[ "${entry%%|*}" == "pitwall_0649_ui_test.gd" ]]; then
+            if [[ "${entry%%|*}" == "pitwall_0649_ui_test.gd" || "${entry%%|*}" == "race_engineer_0922_ui_test.gd" || "${entry%%|*}" == "race_quality_center_0923_ui_test.gd" ]]; then
               graphical+=("$entry")
             else
               remaining+=("$entry")
@@ -242,5 +242,6 @@ jobs:
             ci-results/lab-perf/
             qa/stabilization_0667/pitwall_1600.png
             qa/stabilization_0667/pitwall_1920.png
+            qa/quality_0923/center_*.png
           if-no-files-found: warn
           retention-days: 7
