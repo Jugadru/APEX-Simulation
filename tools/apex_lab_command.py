@@ -177,6 +177,18 @@ def execute(command, base, head, root, out):
         if inventory["status"] != "PASS":
             report["status"] = inventory["status"]
             return 1
+        if command in ("audit", "diagnose"):
+            architecture = run_case([sys.executable, "tools/apex_lab_architecture.py",
+                                     "--output", str(out / "architecture.json")],
+                                    out / "architecture.log", 90, root)
+            report["cases"].append({"name": "architecture", **architecture})
+            save()
+            if architecture["status"] != "PASS":
+                report["status"] = architecture["status"]
+                return 1
+            # Log a bounded, generated summary for connector-based diagnosis.
+            # The full graph and source locations remain in the artifact.
+            print((out / "architecture.log").read_text(encoding="utf-8")[:12000])
         if command == "audit":
             report["status"] = "PASS"
             return 0
