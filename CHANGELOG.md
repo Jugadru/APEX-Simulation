@@ -1,11 +1,18 @@
 # Changelog — APEX Motorsport Manager Core 2
 
+## Unreleased — 9.23 Race Quality Analyzer (integrity observations)
+
+- Evolui o RacecraftAudit existente com observações limitadas: identidade/classificação, tamanho do grid, estado numérico não finito, desgaste fora de faixa, tempos de pit/gaps negativos e recuo em pista entre ticks consecutivos.
+- Registro de até 64 ocorrências recentes, contadores completos, seed/circuito, cobertura e ticks não observados. Sem nota artificial, reparo automático, mudanças esportivas ou alteração do formato de replay.
+- Preserva dados diagnósticos em hot seek RAM e reinicia a cobertura após checkpoint; exclui pit e carros finalizados da comparação de recuo.
+- Novo teste direcionado FAST: injeção controlada de anomalias, limites, ausência de falsos recuos em pit/seek, observador ligado/desligado e hashes idênticos em 24 carros. Execução pendente.
+
 ## Unreleased — 9.23 Adaptive Scheduler (speed transitions)
 
 - Ao reduzir explicitamente a velocidade interativa, descarta apenas a demanda de tempo de parede ainda não simulada em ticks inteiros; preserva a fase fracionária, o tick esportivo, comandos, RNG e hashes.
 - Não altera orçamento de 12 ms, backlog 6/8/12, limite de 16 ticks por quadro, reprodução de arquivos, nem o contrato de advance() sem orçamento. Aumentar/reselecionar velocidade não altera o backlog; pausa continua sem avanço.
 - Regressão no replay existente: transição real pelo controlador, saturação determinística, mudança pausada, paridade do próximo tick, preservação de comandos e fronteira de passo.
-- Revisão esportiva 040 e versão registrada 9.22 mantidas enquanto a 9.23 está em desenvolvimento. FAST + APEX Test Lab pendentes neste candidato; não constitui ganho de throughput ou nova release.
+- Revisão esportiva 040 e versão registrada 9.22 mantidas enquanto a 9.23 está em desenvolvimento. FAST + APEX Test Lab e /lab replay PASS no candidato f5ecc0cd4e5da98b45f580f8dd5d42cf53d61e9d; PR #154 integrada em 6fe26c6557f47568f8998dc663467bf6ad8b4749. Não constitui ganho de throughput ou nova release.
 
 ## Unreleased — Performance Recovery 3.3 (Race Space Leader Resolution)
 

@@ -373,7 +373,7 @@ func _hot_audit_snapshot() -> Dictionary:
 		"per_condition": racecraft_audit.per_condition.duplicate(true),
 		"recent_samples": racecraft_audit.recent_samples.duplicate(true),
 		"previous_states": racecraft_audit.previous_states.duplicate(true),
-		"track_code": racecraft_audit.track_code}
+		"track_code": racecraft_audit.track_code, "quality": racecraft_audit.quality_snapshot()}
 
 func _restore_hot_audit(audit: Dictionary) -> void:
 	racecraft_audit.start_tick = int(audit.start_tick)
@@ -385,6 +385,7 @@ func _restore_hot_audit(audit: Dictionary) -> void:
 	racecraft_audit.recent_samples = audit.recent_samples.duplicate(true)
 	racecraft_audit.previous_states = audit.previous_states.duplicate(true)
 	racecraft_audit.track_code = str(audit.track_code)
+	racecraft_audit.restore_quality_snapshot(audit.quality)
 
 func _remember_hot_seek() -> void:
 	if not playback or tick <= 0 or tick > end_tick:
