@@ -43,11 +43,24 @@ func run() -> void:
 	var hud = game.race_hud_0620
 	var session = game.replay_session
 	var baseline: String = Codec.sporting_hash(game.race,session.policy)
+	# The production scene allocates live car models lazily in its first
+	# presentation pass. Automatic processing is disabled in this fixture,
+	# so run the real frame at zero delta with the race explicitly paused.
+	# Never synthesize car nodes or advance a sporting tick to satisfy QA.
+	var initial_tick: int = session.tick
+	game._process(0.0)
+	await settle()
+	verify(session.tick == initial_tick and Codec.sporting_hash(game.race,session.policy) == baseline, "initial presentation does not advance race")
 	var route_before: PackedVector2Array = world.route.duplicate()
 	var model_ids: Array = []
 	for node in world.car_root.get_children(): model_ids.append(node.get_instance_id())
 	var original_camera: Transform3D = world.camera_3d.transform
-	verify(game.race.cars.size() == 24 and model_ids.size() == 24, "24 actual cars/models")
+	verify(game.race.cars.size() == 24 and model_ids.size() == 24 and world.live_cars.size() == 24, "24 actual cars/models")
+	for car in game.race.cars:
+		var car_id: int = int(car.id)
+		var model: Node3D = world.live_cars.get(car_id)
+		verify(is_instance_valid(model) and model.get_parent() == world.car_root, "real model for driver %d" % car_id)
+	print("SMART_GRAPHICS_0923_GRID cars=%d models=%d live=%d tick=%d" % [game.race.cars.size(),model_ids.size(),world.live_cars.size(),session.tick])
 	hud._open_window("corrida")
 	await settle()
 	var picker: OptionButton = hud.overlay_content.find_child("GraphicsProfile0923",true,false) as OptionButton
@@ -85,7 +98,10 @@ func run() -> void:
 	game._process(0.0)
 	if DisplayServer.get_name() != "headless":
 		await capture("economy_3d")
-	verify(Codec.sporting_hash(game.race,session.policy) == baseline, "view transitions preserve sporting hash")
+	var resumed_ids: Array = []
+	for node in world.car_root.get_children(): resumed_ids.append(node.get_instance_id())
+	verify(resumed_ids == model_ids and world.live_cars.size() == 24, "2D/3D transition retains actual car models")
+	verify(session.tick == initial_tick and Codec.sporting_hash(game.race,session.policy) == baseline, "view transitions preserve sporting hash")
 	hud._open_window("corrida")
 	picker = hud.overlay_content.find_child("GraphicsProfile0923",true,false) as OptionButton
 	verify(picker != null and picker.selected == 2, "reopened control shows active profile")
