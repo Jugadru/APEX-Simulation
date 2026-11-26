@@ -1,9 +1,10 @@
 # Changelog — APEX Motorsport Manager Core 2
 
-## Unreleased — 9.24 Living Factory: reserva de destino
+## v0.6.7 — Living Factory: reserva de destino
 
 - Auditoria da fábrica existente: inventário individual, oficina calendarizada, P&D ainda compartilhado por categoria. Corrige reserva de destino de substituição mesmo em slot vazio; instalações manuais respeitam a reserva e substituições antigas com destino alterado não deslocam outra peça silenciosamente.
-- Sem novo schema, peças fabricadas artificialmente, alteração esportiva ou alteração dos saves de corrida. FAST e regressões de oficina/inventário pendentes.
+- Sem novo schema, peças fabricadas artificialmente, alteração esportiva ou alteração dos saves de corrida. FAST [45896250747](https://github.com/Jugadru/APEX-Simulation/actions/runs/45896250747) PASS no candidato d7a85d7972345f18fdd2ac7b425a12b524c01103; 28 testes selecionados, 23/23 verificações de fábrica, oficina, inventário, replay e migração de saves PASS. PR #166 integrada em 2abe40cfdd86f161ef2dbe64fb2f12f8fd6f7822. Sem FULL ou benchmark nativo desta versão.
+- Por decisão do responsável, a correção antes identificada como 9.24 provisória e 9.23.1 no roadmap passa a ser v0.6.7. Próxima versão v0.6.8 (antiga 9.24 Race Randomness). Nenhuma funcionalidade renumerada retroativamente; identificadores de fixtures e revisões internas preservados. [Roadmap 3.0](docs/APEX_ROADMAP_UNIFICADO_3_0.md).
 
 ## 9.23 — Endurance Laboratory 1.0 (bounded FAST)
 
