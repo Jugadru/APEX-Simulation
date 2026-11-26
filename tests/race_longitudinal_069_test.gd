@@ -41,6 +41,15 @@ func run() -> void:
 	wet_car[P.KEY]=100.0
 	var wet_approach: Dictionary = P.propose(wet_car,approach,10.0,1000.0,0.2,{"grip_factor":0.7,"wetness_factor":0.8})
 	check(float(wet_approach.speed_mps)<100.0,"actual proposal brakes before apex despite clear 60m preview")
+	# Exit under the same schematic conditions: no instant jump to the
+	# higher straight target, and lower grip reduces acceleration.
+	approach.progress=0.10
+	wet_car[P.KEY]=76.0
+	var exit_dry: Dictionary = P.propose(wet_car,approach,10.0,1000.0,0.2,{"grip_factor":1.0,"wetness_factor":0.0})
+	var exit_wet: Dictionary = P.propose(wet_car,approach,10.0,1000.0,0.2,{"grip_factor":0.7,"wetness_factor":0.8})
+	check(float(exit_dry.speed_mps)>76.0 and float(exit_dry.speed_mps)<100.0,"progressive acceleration on exit")
+	check(float(exit_wet.speed_mps)>76.0 and float(exit_wet.speed_mps)<float(exit_dry.speed_mps),"wet exit acceleration reduced")
+	print("LONGITUDINAL_069_PROFILE ",JSON.stringify({"type":"controlled_fixture_not_track_telemetry","wet_approach":wet_approach,"apex_target_mps":76.0,"dry_exit":exit_dry,"wet_exit":exit_wet}))
 	check(is_equal_approx(P.handover_speed(10.0,0.2),50.0),"handover uses actual last displacement")
 	check(P.handover_speed(0.0,0.2)==0.0 and P.handover_speed(10.0,0.0)==0.0,"stationary handover")
 	var dry := {"grip_factor":1.0,"wetness_factor":0.0}
@@ -90,17 +99,26 @@ func run() -> void:
 		var max_speed := 0.0
 		var handover_samples := 0
 		var live_usec: int = 0
+		var new_recorded_usec: int = 0
 		var old_usec: int = 0
+		var perf_ticks: int = 0
 		for i in range(330):
 			var before: Dictionary = {}
 			for car in first.cars: before[int(car.id)]=float(car.progress)
-			var ok: bool = rec.step_tick()
 			var started: int = Time.get_ticks_usec()
+			var ok: bool = rec.step_tick()
+			var new_elapsed: int = Time.get_ticks_usec()-started
+			started = Time.get_ticks_usec()
 			ok = live.step_tick() and ok
-			live_usec += Time.get_ticks_usec()-started
+			var live_elapsed: int = Time.get_ticks_usec()-started
 			started = Time.get_ticks_usec()
 			ok = former.step_tick() and ok
-			old_usec += Time.get_ticks_usec()-started
+			var old_elapsed: int = Time.get_ticks_usec()-started
+			if float(first.clock)>=24.0:
+				perf_ticks+=1
+				new_recorded_usec+=new_elapsed
+				live_usec+=live_elapsed
+				old_usec+=old_elapsed
 			check(ok,"three sessions advance")
 			if not ok: break
 			check(Codec.sporting_hash(first,rec.policy)==Codec.sporting_hash(second_race,live.policy),"recording isolation")
@@ -135,7 +153,7 @@ func run() -> void:
 		var actual_car: Dictionary = first.player_cars()[0]
 		var probe: Dictionary = P.propose(actual_car,flat,90.0,6000.0,0.2,dry)
 		check(is_finite(float(probe.speed_mps)) and first.rng.state==rng_before,"longitudinal proposal leaves race RNG state untouched")
-		print("LONGITUDINAL_069_TICK_OBSERVATION ",JSON.stringify({"track":code,"ticks":330,"rev041_live_usec":live_usec,"rev040_recorded_usec":old_usec,"comparable":false,"reason":"041 live vs 040 recording and different sporting outcomes; diagnostic only"}))
+		print("LONGITUDINAL_069_TICK_OBSERVATION ",JSON.stringify({"track":code,"climate":climate,"seed":42,"cars":first.cars.size(),"post_launch_ticks":perf_ticks,"rev041_recorded_usec_per_tick":float(new_recorded_usec)/maxi(1,perf_ticks),"rev040_recorded_usec_per_tick":float(old_usec)/maxi(1,perf_ticks),"rev041_live_usec_per_tick":float(live_usec)/maxi(1,perf_ticks),"same_recording_mode":true,"sporting_outcomes_equivalent":false,"diagnostic_only":true}))
 		var play = Replay.new()
 		check(play.load_data(rec.export_data()) and play.seek(330) and play.seek(150) and play.seek(330),"041 replay and checkpoint seek")
 		check(play.first_divergence<0,"041 replay deterministic")
