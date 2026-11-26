@@ -23,21 +23,20 @@ func _run() -> void:
 	# verify a coherent build name/description without freezing version labels.
 	var app_name: String = str(ProjectSettings.get_setting("application/config/name", ""))
 	var app_description: String = str(ProjectSettings.get_setting("application/config/description", ""))
-	var prefix: String = "APEX Motorsport Manager v0.6.6.9."
-	var suffix: String = " — Core 2"
-	var minor: String = ""
-	if app_name.begins_with(prefix) and app_name.ends_with(suffix):
-		minor = app_name.trim_prefix(prefix).trim_suffix(suffix)
-	# Keep the 9.8 minimum while accepting patch identities like 9.17.2.
-	var version_parts: PackedStringArray = minor.split(".")
-	var valid_name: bool = version_parts.size() >= 1 and version_parts.size() <= 2
-	for part in version_parts:
-		valid_name = valid_name and part.is_valid_int()
-	if valid_name:
-		valid_name = int(version_parts[0]) >= 8
-	check(valid_name, "supported Core 2 v9.8+ naming convention")
-	var identity_version: String = "v0.6.6.9." + minor if valid_name else ""
-	check(valid_name and app_description.begins_with(identity_version + ":"),
+	var version: String = str(ProjectSettings.get_setting("application/config/version",""))
+	var parts: PackedStringArray = version.split(".")
+	var numeric := true
+	for part in parts:
+		numeric = numeric and part.is_valid_int() and str(int(part)) == part and int(part) >= 0
+	# Historical 9.8+ (optional patch) OR the approved short sequence 0.6.7+.
+	var supported := false
+	if numeric and parts.size() in [5,6]:
+		supported = parts[0]=="0" and parts[1]=="6" and parts[2]=="6" and parts[3]=="9" and int(parts[4])>=8
+	elif numeric and parts.size()==3:
+		supported = parts[0]=="0" and (int(parts[1])>6 or (parts[1]=="6" and int(parts[2])>=7))
+	var valid_name: bool = supported and app_name == "APEX Motorsport Manager v"+version+" — Core 2"
+	check(valid_name, "supported Core 2 historical or short naming convention")
+	check(valid_name and app_description.begins_with("v"+version+":"),
 		"project description must match the Core 2 build identity")
 	var sample: Dictionary = {
 		"water_mm":1.12, "off_line_water_mm":1.40,

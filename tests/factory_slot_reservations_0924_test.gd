@@ -52,11 +52,44 @@ func run() -> void:
 	verify(W.create(s,stale).is_empty(),"prepare legacy fixture")
 	var t: Dictionary = s.workshop.tasks[-1]
 	t.old_part = ""
-	var stock_before := JSON.stringify(s.component_inventory)
+	# Persist stale reservation and a valid independent task for the same worker.
+	var stale_id: String = t.id
+	# Garage persists decimal hours using JSON.stringify's default precision.
+	# First validate the actual persisted representation, then require exact
+	# immutability of the entire loaded task during calendar advancement.
+	var persisted_expected: Dictionary = JSON.parse_string(JSON.stringify(t, "  "))
+	var initial_cost: int = int(t.cost)
+	var wing := I.installed(s.component_inventory,1,"Asa")
+	verify(W.create(s,{"car":1,"part":wing,"service":"Inspeção","staff":"mec_a"}).is_empty(),"independent valid task")
+	verify(g.save(),"save stale and valid orders")
+	g = Garage.new(path)
+	s = g.get_team("Ferrari")
+	t = s.workshop.tasks[-2]
+	verify(t.id==stale_id and not W.task_block_reason(s,t).is_empty(),"stale block survives reload")
+	verify(t==persisted_expected,"stale order matches serialized representation")
+	var initial_remaining: float = float(t.remaining)
+	var frozen_task: PackedByteArray = var_to_bytes(t)
+	verify(not t.has("started"),"loaded blocked order has not started")
+	var motor_before := JSON.stringify(s.component_inventory.parts[b])
+	var spare_before := JSON.stringify(s.component_inventory.parts[a])
+	var log_count: int = s.workshop.log.size()
+	var budget_before: int = int(s.budget)
 	W.advance(s,8)
+	verify(JSON.stringify(s.component_inventory.parts[b])==motor_before and JSON.stringify(s.component_inventory.parts[a])==spare_before,"stale task cannot mutate motor or spare")
+	verify(s.workshop.tasks[-1].status=="concluída","valid independent task can use same worker")
+	verify(float(t.remaining)==initial_remaining and not t.has("started") and var_to_bytes(t)==frozen_task,"blocked order consumes no work or task mutation")
+	verify(int(s.budget)==budget_before,"blocked order consumes no extra funds")
+	verify(s.workshop.log.size()==log_count+1,"only valid completion logged")
+	var stock_before := JSON.stringify(s.component_inventory)
+	var frozen_log: int = s.workshop.log.size()
+	W.advance(s,168)
+	verify(float(t.remaining)==initial_remaining and var_to_bytes(t)==frozen_task and s.workshop.log.size()==frozen_log,"long calendar advance no repeated retries or task mutation")
+	verify(JSON.stringify(s.component_inventory)==stock_before,"long advance no mutation")
+	var refund_before: int = int(s.budget)
 	verify(I.installed(s.component_inventory,1,"Motor")==b and JSON.stringify(s.component_inventory)==stock_before,"stale task cannot overwrite actual destination")
 	verify(W.active(t) and t.status!="concluída","stale task not completed")
 	verify(W.cancel(s,t.id).is_empty(),"stale task cancellable")
+	verify(int(s.budget)==refund_before+initial_cost,"unstarted blocked order refunds full reserved cost")
 	verify(not W.slot_locked(s,1,"Motor"),"stale cancellation releases slot")
 	for suffix in ["",".bak",".tmp"]:
 		if FileAccess.file_exists(path+suffix): DirAccess.remove_absolute(ProjectSettings.globalize_path(path+suffix))
