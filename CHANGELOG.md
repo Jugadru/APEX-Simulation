@@ -1,10 +1,17 @@
 # Changelog — APEX Motorsport Manager Core 2
 
+## Unreleased — 9.23 Spatial Context Cache (local lane geometry)
+
+- Prepara uma vez por chamada de RaceSpace.plan a largura-base e os setores ordenados em Float64; reutiliza as referências somente de leitura do perfil para as cinco amostras de largura por carro.
+- Preserva a função direta lane_limit como referência, intervalos semiabertos, wrap, ordem e precisão; não compartilha progresso resolvido, pares, decisões nem cache entre ticks.
+- Regressão diferencial exata nos 20 circuitos, perfil ausente, setores sobrepostos, limites e offsets, mais testes esportivos existentes. FAST pendente. Sem alegação de ganho de FPS ou retomada da REV2 inconclusiva.
+
+
 ## Unreleased — 9.23 Race Performance Engine 2.0 (same-tick setup reuse)
 
 - Compartilha a avaliação de acerto de asa/freio/suspensão entre o cálculo de ritmo e o modelo de erros do piloto, com a mesma entrada congelada do carro e clima do tick.
 - Sem cache entre carros/ticks, sem novos campos esportivos, sem alteração de fórmula, RNG, passo fixo ou revisão 040. APIs independentes conservam avaliação própria.
-- Contador opcional no profiler para avaliações redundantes evitadas em curva; regressão compara bytes exatos nos caminhos direto e compartilhado, clima/acertos válidos e inválidos/fases. FAST e Lab pendentes; redução de chamadas não é ganho medido de FPS.
+- Contador opcional no profiler para avaliações redundantes evitadas em curva; regressão compara bytes exatos nos caminhos direto e compartilhado, clima/acertos válidos e inválidos/fases. FAST PASS no SHA 93dd094efd3dd64b8f940e94e7aad5d4d81cdfb4 (45885487059), 15 comparações de ritmo e 60 de fases, seis workflows esportivos PASS, Simulation Lab PASS (45885489574). PR #161 integrada em 6cbf2a250cff207b18a760c893cdd7fd3dd2a1eb. Redução de chamadas não é ganho medido de FPS.
 
 
 ## Unreleased — 9.23 Race Behaviour Polish (diagnostic increment)
