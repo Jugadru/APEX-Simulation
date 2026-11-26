@@ -1,4 +1,4 @@
-# APEX Motorsport Manager — Core 2 v0.6.7
+# APEX Motorsport Manager — Core 2 v0.6.8
 
 Simulador de gerenciamento de equipes automobilísticas em **Godot 4.7.2**. O jogador administra pilotos, funcionários, estratégia, engenharia e operações; as corridas de 24 carros são simuladas pelo Core 2, com apresentação 2D/3D. Temporada histórica inicial: Fórmula 1 de 2012. O APEX 2 Next Engine continua experimental e separado.
 
@@ -6,7 +6,10 @@ Simulador de gerenciamento de equipes automobilísticas em **Godot 4.7.2**. O jo
 
 | Item | Versão / situação |
 | --- | --- |
-| Código integrado à main | **v0.6.7 — Living Factory: integridade operacional** |
+| Código integrado à main | **v0.6.8 — Race Randomness & Simulation Integrity 1.0** |
+| Integração 0.6.8 | [PR #169](https://github.com/Jugadru/APEX-Simulation/pull/169) · `8e9046a0` |
+| FAST 0.6.8 | [PASS](https://github.com/Jugadru/APEX-Simulation/actions/runs/45905916295), 40 testes roteados, 3.344 verificações de RNG |
+| Complemento Living Factory | [PR #170](https://github.com/Jugadru/APEX-Simulation/pull/170) · [FAST PASS 36 checks](https://github.com/Jugadru/APEX-Simulation/actions/runs/45904821800) |
 | Motor esportivo / replay | Core 2, revisão 040 (preservada da 9.21) |
 | Integração dos 11 incrementos | PRs #154–[#164](https://github.com/Jugadru/APEX-Simulation/pull/164) · `841cf72b` |
 | Integração Living Factory | [PR #166](https://github.com/Jugadru/APEX-Simulation/pull/166) · `2abe40cf` |
@@ -15,12 +18,18 @@ Simulador de gerenciamento de equipes automobilísticas em **Godot 4.7.2**. O jo
 | Último binário permanente de teste | [v0.6.6.9.17.4 (pré-release)](https://github.com/Jugadru/APEX-Simulation/releases/tag/v0.6.6.9.17.4) |
 | Última release estável | [v0.6.6.9.9](https://github.com/Jugadru/APEX-Simulation/releases/tag/v0.6.6.9.9) |
 
-A versão integrada não é automaticamente uma release de executáveis. Os resultados acima referem-se aos SHAs testados, não a uma exportação da v0.6.7. FULL, desempenho nativo sustentado e revisão independente da v0.6.7 não comprovados.
+A versão integrada não é automaticamente uma release de executáveis. Os resultados acima referem-se aos SHAs testados, não a uma exportação da v0.6.8. FULL, desempenho nativo sustentado e revisão independente da v0.6.8 não comprovados.
 
-## O que há de novo — v0.6.7
+## O que há de novo — v0.6.8
+
+- Seeds automáticas na preparação e regeneração manual; preservação das seeds de temporada, cenários e replays.
+- Contratos determinísticos centralizados de clima e erro, sequência legada preservada, API independente de eventos futuros (não ativa em novos incidentes).
+- [Contrato técnico e homologação](docs/APEX_068_RANDOMNESS_INTEGRITY.md). Próxima atualização: v0.6.9 — Braking & Acceleration Physics 1.0.
+
+## Funcionalidades preservadas — v0.6.7
 
 - Reserva exclusiva de destino de substituição, proteção de instalação manual, persistência e recuperação de ordens antigas com destino divergente. Sem novo schema ou mudança esportiva.
-- Nova numeração curta: v0.6.7, v0.6.8, v0.6.9, v0.7.0 e seguintes. [Roadmap Unificado 3.0](docs/APEX_ROADMAP_UNIFICADO_3_0.md) conserva todas as funcionalidades e sua ordem; números de versões históricas permanecem imutáveis. Próxima funcionalidade: Race Randomness & Simulation Integrity 1.0 (v0.6.8).
+- Nova numeração curta: v0.6.7, v0.6.8, v0.6.9, v0.7.0 e seguintes. [Roadmap Unificado 3.0](docs/APEX_ROADMAP_UNIFICADO_3_0.md) conserva todas as funcionalidades e sua ordem; números de versões históricas permanecem imutáveis. A sequência continua em v0.6.9.
 
 ## Funcionalidades preservadas — 9.23
 

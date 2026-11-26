@@ -24,3 +24,6 @@ Oráculos literais pré-refatoração para seed climática e amostra legada, inc
 - Reprodução de erro: comparar hash esportivo e RNG após o mesmo gatilho natural a partir do checkpoint pré-erro; além da recuperação, telemetria, rádio e ordem BOX V21 já testados.
 - Determinismo: seed real armazenada pelos formatos existentes, nenhum campo novo. Testes de menu, seed automática e restore somados às regressões anteriores.
 - REV1 importação resolvida e 12 jobs de Driver Error PASS (45902176680); FAST 45902176675 falhou no contrato histórico de nome de versão, não no RNG. REV2 aceita ambas as convenções e exige consistência do número com project.godot. Novo FAST necessário. Nenhuma aprovação antecipada.
+
+## Encerramento
+SHA combinado 0ad6fc9c1b1c6cfdd19332cd68404b2b0f88860a: FAST 45905916295 PASS, 40 testes selecionados, RACE_RANDOMNESS_068_PASS checks=3344, Driver Error 45905916460 e Race Engineer 45905916364 PASS, menu/preparação, profiler RNG, replay e migração PASS. PR #169 integrada após #170 em 8e9046a0e2ab38af53e4898782e3458d8ae1149d. Identificação 0.6.8 nesta consolidação, user dir estável e revisão 040 mantidos. Sem FULL, benchmark nativo, release ou calibração de probabilidades.
