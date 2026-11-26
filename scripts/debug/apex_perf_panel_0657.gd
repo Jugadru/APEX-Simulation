@@ -122,9 +122,13 @@ func session_snapshot(include_quality: bool = true) -> Dictionary:
 	return data
 
 func quality_export_snapshot() -> Dictionary:
+	var session_data: Dictionary = session_snapshot()
+	# Export on demand only; no extra work on the visible panel refresh.
+	if session_data.quality != null:
+		session_data["behaviour"] = host.replay_session.racecraft_audit.behaviour_report()
 	return {"schema":"APEX_QUALITY_CENTER_0923","game_version":ProjectSettings.get_setting("application/config/version"),
 		"simulation_revision":Replay.SIMULATION_REVISION,
-		"session":session_snapshot(),"profiler":Perf.snapshot(),
+		"session":session_data,"profiler":Perf.snapshot(),
 		"limitations":["Profiler is process-wide, not necessarily the current race.","Quality counts are observations, not unique incidents or certification.","Effective acceleration is the last completed measurement window; no GPU time or native benchmark."]}
 
 func open_panel(owner_host) -> void:

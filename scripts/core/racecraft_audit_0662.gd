@@ -28,6 +28,70 @@ var quality_scratch_progress: Dictionary = {}
 var quality_observed_ticks: int = 0
 var quality_grid_size: int = 0
 var quality_seed: int = 0
+# Diagnostic only: distinguish pass events from the engine's actual counter,
+# and count consecutive observed blocked runs rather than infer lost time.
+var behaviour_drivers: Dictionary = {}
+var behaviour_previous_passes: Dictionary = {}
+var behaviour_compared_ticks: int = 0
+
+func _behaviour_reset(race) -> void:
+	behaviour_drivers.clear()
+	behaviour_previous_passes.clear()
+	behaviour_compared_ticks = 0
+	for car in race.cars:
+		var id: int = int(car.get("id", -1))
+		if id >= 0:
+			behaviour_previous_passes[id] = int(car.get("combat_passes", 0))
+
+func _behaviour_observe(car: Dictionary, consecutive: bool) -> void:
+	var id: int = int(car.get("id", -1))
+	if id < 0: return
+	if not behaviour_drivers.has(id):
+		behaviour_drivers[id] = {"driver_id":id,"pass_delta":0,"pass_counter_resets":0,
+			"blocked_observed_ticks":0,"blocked_segments":0,"longest_blocked_run_ticks":0,"current_blocked_run_ticks":0}
+	var row: Dictionary = behaviour_drivers[id]
+	var passes: int = int(car.get("combat_passes", 0))
+	if consecutive and behaviour_previous_passes.has(id):
+		var delta: int = passes - int(behaviour_previous_passes[id])
+		if delta >= 0:
+			row.pass_delta += delta
+		else:
+			row.pass_counter_resets += 1
+	behaviour_previous_passes[id] = passes
+	if bool(car.get("race_space_blocked", false)) and float(car.get("pit_left", 0.0)) <= 0.0 and not bool(car.get("finished", false)) and not bool(car.get("disqualified", false)):
+		row.blocked_observed_ticks += 1
+		if int(row.current_blocked_run_ticks) == 0:
+			row.blocked_segments += 1
+		row.current_blocked_run_ticks += 1
+		row.longest_blocked_run_ticks = maxi(int(row.longest_blocked_run_ticks), int(row.current_blocked_run_ticks))
+	else:
+		row.current_blocked_run_ticks = 0
+
+func behaviour_report() -> Dictionary:
+	var total: int = 0
+	var blocked: int = 0
+	var longest: int = 0
+	var resets: int = 0
+	for row in behaviour_drivers.values():
+		total += int(row.pass_delta)
+		blocked += int(row.blocked_observed_ticks)
+		longest = maxi(longest,int(row.longest_blocked_run_ticks))
+		resets += int(row.pass_counter_resets)
+	return {"schema":"APEX_RACE_BEHAVIOUR_0923","track_code":track_code,"seed":quality_seed,
+		"start_tick":start_tick,"end_tick":last_tick,"observed_ticks":quality_observed_ticks,
+		"compared_ticks":behaviour_compared_ticks,"missed_ticks":maxi(0,last_tick-start_tick-quality_observed_ticks),
+		"pass_event_signals":int(counts.get("confirmed_passes",0)),"observed_pass_counter_delta":total,
+		"pass_counter_resets":resets,"blocked_driver_ticks":blocked,"longest_blocked_run_ticks":longest,
+		"drivers":behaviour_drivers.duplicate(true),
+		"note":"Counter deltas only between consecutive observations. Blocked runs are observed segments, not unique incidents or causal time loss. Missing ticks break continuity; pit, finished and disqualified cars excluded from blocked runs."}
+
+func behaviour_snapshot() -> Dictionary:
+	return {"drivers":behaviour_drivers.duplicate(true),"previous_passes":behaviour_previous_passes.duplicate(),"compared_ticks":behaviour_compared_ticks}
+
+func restore_behaviour_snapshot(state: Dictionary) -> void:
+	behaviour_drivers = state.drivers.duplicate(true)
+	behaviour_previous_passes = state.previous_passes.duplicate()
+	behaviour_compared_ticks = int(state.compared_ticks)
 
 func _quality_reset(race) -> void:
 	quality_counts.clear()
@@ -130,6 +194,7 @@ func reset(race, from_tick: int = 0) -> void:
 	previous_states.clear()
 	track_code = str(race.track.get("code", "unknown"))
 	_quality_reset(race)
+	_behaviour_reset(race)
 	for car in race.cars:
 		previous_states[int(car.get("id", -1))] = str(car.get("combat_state", "clear"))
 
@@ -174,7 +239,13 @@ func observe(race, tick: int) -> void:
 	var by_id: Dictionary = {}
 	var condition: String = _bucket(race)
 	var grid_size: int = race.cars.size()
-	if tick != last_tick + 1:
+	var consecutive: bool = tick == last_tick + 1
+	if consecutive:
+		behaviour_compared_ticks += 1
+	else:
+		behaviour_previous_passes.clear()
+		for row in behaviour_drivers.values():
+			row.current_blocked_run_ticks = 0
 		quality_previous_progress.clear()
 	quality_scratch_progress.clear()
 	quality_observed_ticks += 1
@@ -204,9 +275,13 @@ func observe(race, tick: int) -> void:
 		if recent_samples.size() == SAMPLE_LIMIT: recent_samples.pop_front()
 		recent_samples.append({"tick": tick, "event_id": event_id, "driver_id": id, "type": kind, "condition": condition})
 	var positions: Dictionary = {}
+	var behaviour_seen: Dictionary = {}
 	for car in race.cars:
 		_quality_observe_car(car, tick, condition, positions, grid_size)
 		var id: int = int(car.get("id", -1))
+		if not behaviour_seen.has(id):
+			_behaviour_observe(car, consecutive)
+			behaviour_seen[id] = true
 		var state: String = str(car.get("combat_state", "clear"))
 		var prior: String = str(previous_states.get(id, "clear"))
 		if state == "closing" and prior != "closing": _increment("approaches", car, condition)
@@ -214,6 +289,12 @@ func observe(race, tick: int) -> void:
 		if bool(car.get("race_space_blocked", false)) and float(car.get("pit_left", 0.0)) <= 0.0 and not bool(car.get("finished", false)):
 			_increment("blocked_ticks", car, condition)
 		previous_states[id] = state
+	# A driver absent from a frame cannot contribute a continuous run/delta.
+	for id in behaviour_previous_passes.keys():
+		if not behaviour_seen.has(id):
+			behaviour_previous_passes.erase(id)
+			if behaviour_drivers.has(id):
+				behaviour_drivers[id].current_blocked_run_ticks = 0
 	var previous: Dictionary = quality_previous_progress
 	quality_previous_progress = quality_scratch_progress
 	quality_scratch_progress = previous
@@ -226,5 +307,5 @@ func summary() -> Dictionary:
 		"counts": counts.duplicate(true), "drivers": per_driver.duplicate(true),
 		"weather_and_risk": per_condition.duplicate(true),
 		"sample_count": recent_samples.size(), "samples": recent_samples.duplicate(true),
-		"quality": quality_report(),
+		"quality": quality_report(), "behaviour": behaviour_report(),
 		"note": "Signals only. Position gains outside combat are not overtakes; blocked_ticks are 0.2s observations. No FIA calibration."}
