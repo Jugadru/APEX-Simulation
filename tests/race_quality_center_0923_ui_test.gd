@@ -72,6 +72,7 @@ func run() -> void:
 	verify(panel.export_quality() == OK, "quality JSON exported")
 	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string("user://apex_quality_0923.json"))
 	verify(data is Dictionary and data.schema == "APEX_QUALITY_CENTER_0923" and data.session.quality.counts.negative_gap == previous_gap+1, "JSON includes actual diagnosis")
+	verify(data is Dictionary and data.session.has("behaviour") and data.session.behaviour.schema == "APEX_RACE_BEHAVIOUR_0923", "on-demand behaviour report included")
 	panel.recording.button_pressed = true
 	Perf.add_sample(&"fixture.cpu",1234)
 	panel.tabs.current_tab = 0

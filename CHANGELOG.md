@@ -1,10 +1,17 @@
 # Changelog — APEX Motorsport Manager Core 2
 
+## Unreleased — 9.23 Race Behaviour Polish (diagnostic increment)
+
+- Distingue sinais de ultrapassagem emitidos pelo rádio/eventos do incremento real de combat_passes no motor, sem modificar os contadores antigos.
+- Mede segmentos consecutivos de bloqueio observados, por piloto, duração máxima em ticks e lacunas; não estima tempo perdido nem impõe uma regra de ultrapassagem.
+- Mantém relatório separado, exportado no JSON de qualidade F8 sob demanda; preserva os diagnósticos em hot seek. Sem alterações esportivas, revisão 040 e saves/replays preservados.
+- Testes de injeção, observação, cobertura, identidade de hashes e paridade de replay; cenário hospedado curto Monza seco/Silverstone chuva. FAST pendente. Nenhuma correção de física alegada.
+
 ## Unreleased — 9.23 Smart Graphics (runtime profiles)
 
 - Perfis gráficos 3D no Controle da Corrida: Padrão, GTX 1650 e Econômico. Padrão e GTX preservam as configurações anteriores, inclusive APEX_GRAPHICS_PROFILE=gtx1650; Econômico reduz MSAA/TAA e alcance de sombras, sem SSAO.
 - Perfil escolhido manualmente, válido durante a execução do jogo; não troca câmera, modo 2D/3D ou geometria, não reconstrói modelos e não modifica física. TAA somente Forward+; SSAO depende do renderizador.
-- Regressão direcionada FAST na cena real, configurações e retorno ao padrão, seleção na HUD, alternância 2D/3D, hash esportivo e capturas Xvfb. Sem ganho de FPS comprovado, teste nativo ou revisão visual humana; execução pendente.
+- Regressão direcionada FAST na cena real, configurações e retorno ao padrão, seleção na HUD, alternância 2D/3D, hash esportivo e capturas Xvfb. FAST PASS 66/66 no SHA bed0659d90c03f711b4f6545d43e1667b2e5402a (45882028944), 24 modelos no tick zero; Graphics Lab PASS (45882029558), Race Engineer PASS. PR #159 integrada em b6a09c9ae68690da6ad3f8b22b1e65d687221f98. Sem ganho de FPS comprovado, teste nativo ou revisão visual humana.
 
 ## Unreleased — 9.23 Radio Polish (local speech queue)
 

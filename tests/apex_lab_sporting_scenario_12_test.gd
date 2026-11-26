@@ -57,6 +57,11 @@ func scenario(season: Dictionary, code: String, climate: String) -> Dictionary:
 		ids[car_id] = true
 		verify(is_finite(float(car.progress)) and is_finite(float(car.wear)), code + " finite sporting state")
 	verify(ids.size() == 24, code + " classification retains 24 drivers")
+	var behaviour: Dictionary = session.racecraft_report().behaviour
+	var total_passes: int = 0
+	for car in race.cars:
+		total_passes += int(car.get("combat_passes",0))
+	verify(behaviour.observed_pass_counter_delta == total_passes and behaviour.compared_ticks == TICKS, code + " observed engine pass counts")
 	var saved: Dictionary = session.export_data()
 	var playback = Replay.new()
 	if not verify(playback.load_data(saved), code + " replay loads"):
@@ -67,7 +72,9 @@ func scenario(season: Dictionary, code: String, climate: String) -> Dictionary:
 		code + " exact sporting hash parity")
 	verify(playback.seek(30) and playback.seek(TICKS) and playback.first_divergence < 0,
 		code + " backward and forward replay seek")
+	verify(playback.racecraft_report().behaviour == behaviour, code + " behaviour replay parity")
 	return {"track": code, "weather": climate, "seed": SEED, "ticks": session.tick,
+		"behaviour": {"pass_event_signals":behaviour.pass_event_signals,"observed_pass_counter_delta":behaviour.observed_pass_counter_delta,"blocked_driver_ticks":behaviour.blocked_driver_ticks,"longest_blocked_run_ticks":behaviour.longest_blocked_run_ticks},
 		"cars": ids.size(), "sporting_hash": session.hashes[-1]}
 
 func _run() -> void:

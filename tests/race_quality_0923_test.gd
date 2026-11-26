@@ -71,6 +71,55 @@ func fixture_contract(race) -> void:
 	copy.restore_quality_snapshot(audit.quality_snapshot())
 	verify(copy.quality_snapshot() == audit.quality_snapshot(), "detached session snapshot")
 
+func behaviour_contract(race) -> void:
+	var audit = Audit.new()
+	var car: Dictionary = race.cars[0]
+	var original: Array = race.cars.duplicate(true)
+	var id: int = int(car.id)
+	car.combat_passes = 7
+	audit.reset(race)
+	car.combat_passes = 9
+	car.race_space_blocked = true
+	race._event("pass", id, "ULTRAPASSAGEM CONFIRMADA | Fixture", 85)
+	audit.observe(race, 1)
+	audit.observe(race, 2)
+	audit.observe(race, 3)
+	var r: Dictionary = audit.behaviour_report()
+	verify(r.pass_event_signals == 1 and r.observed_pass_counter_delta == 2, "one signal may represent two confirmed passes")
+	verify(r.drivers[id].blocked_segments == 1 and r.drivers[id].longest_blocked_run_ticks == 3, "three consecutive blocked ticks")
+	audit.observe(race, 3)
+	verify(audit.behaviour_report() == r, "same tick cannot duplicate behaviour")
+	car.combat_passes = 12
+	audit.observe(race, 5)
+	r = audit.behaviour_report()
+	verify(r.observed_pass_counter_delta == 2 and r.missed_ticks == 1 and r.compared_ticks == 3, "missing tick is not invented pass evidence")
+	verify(r.drivers[id].blocked_segments == 2 and r.drivers[id].current_blocked_run_ticks == 1, "gap breaks blocked run")
+	car.pit_left = 3.0
+	audit.observe(race, 6)
+	verify(audit.behaviour_report().drivers[id].current_blocked_run_ticks == 0, "pit terminates blocked run")
+	car.pit_left = 0.0
+	car.finished = true
+	audit.observe(race, 7)
+	verify(audit.behaviour_report().drivers[id].blocked_observed_ticks == 4, "finish excludes blocked tick")
+	car.finished = false
+	car.disqualified = true
+	audit.observe(race, 8)
+	verify(audit.behaviour_report().drivers[id].blocked_observed_ticks == 4, "disqualification excludes blocked tick")
+	car.disqualified = false
+	car.combat_passes = 1
+	audit.observe(race, 9)
+	r = audit.behaviour_report()
+	verify(r.pass_counter_resets == 1 and r.observed_pass_counter_delta == 2, "counter reset is not a negative overtake")
+	var snapshot: Dictionary = audit.behaviour_snapshot()
+	var copy = Audit.new()
+	copy.reset(race,9)
+	copy.restore_behaviour_snapshot(snapshot)
+	verify(copy.behaviour_snapshot() == snapshot, "behaviour snapshot round trip")
+	r.drivers[id].pass_delta = 999
+	verify(audit.behaviour_report().drivers[id].pass_delta == 2, "behaviour report detached")
+	verify(car.combat_passes == 1 and car.race_space_blocked, "diagnostics never repair sporting inputs")
+	race.cars = original
+
 func real_contract(season: Dictionary, track: Dictionary, climate: String) -> void:
 	var monitored = Replay.new()
 	var bare = Replay.new()
@@ -87,6 +136,11 @@ func real_contract(season: Dictionary, track: Dictionary, climate: String) -> vo
 			verify(false, climate + " step " + str(tick))
 			return
 		verify(monitored.hashes[-1] == bare.hashes[-1], climate + " exact hash " + str(tick))
+	var behaviour: Dictionary = monitored.racecraft_report().behaviour
+	var actual_passes: int = 0
+	for car in race.cars:
+		actual_passes += int(car.get("combat_passes",0))
+	verify(behaviour.observed_pass_counter_delta == actual_passes and behaviour.compared_ticks == 80, climate + " engine counter parity")
 	var q: Dictionary = monitored.racecraft_report().quality
 	verify(q.observed_ticks == 80 and q.missed_ticks == 0 and q.coverage == "from_start", climate + " coverage")
 	for kind in ["grid_size_changed", "invalid_driver_id", "duplicate_driver_id", "invalid_position", "duplicate_position", "nonfinite_state", "tyre_wear_out_of_range", "negative_pit_time", "negative_gap", "reverse_on_track"]:
@@ -97,10 +151,12 @@ func real_contract(season: Dictionary, track: Dictionary, climate: String) -> vo
 		return
 	verify(replay.seek(80), climate + " seek forward")
 	verify(replay.racecraft_report().quality == q, climate + " replay diagnostics parity")
+	verify(replay.racecraft_report().behaviour == behaviour, climate + " behaviour replay parity")
 	verify(replay.seek(0), climate + " seek rewind")
 	verify(replay.racecraft_report().quality.observed_ticks == 0, climate + " reset coverage")
 	verify(replay.seek(80), climate + " hot seek")
 	verify(replay.racecraft_report().quality == q, climate + " hot diagnostics parity")
+	verify(replay.racecraft_report().behaviour == behaviour, climate + " hot behaviour parity")
 	verify(Codec.sporting_hash(replay.race, replay.policy) == monitored.hashes[-1], climate + " final sporting parity")
 
 func run() -> void:
@@ -108,6 +164,8 @@ func run() -> void:
 	var track: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/apex_lab_track.json"))
 	var race = Race.new(season.teams, "Ferrari", 923, {}, track, {})
 	fixture_contract(race)
+	var behaviour_race = Race.new(season.teams, "Ferrari", 923, {}, track, {})
+	behaviour_contract(behaviour_race)
 	for climate in ["Seco", "Chuva intensa"]:
 		real_contract(season, track, climate)
 	print("RACE_QUALITY_0923_REPORT ", JSON.stringify({"checks": checks, "failures": failures, "synthetic_track": true, "ticks_per_climate": 80}))
