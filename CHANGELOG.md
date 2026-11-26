@@ -3,7 +3,8 @@
 ## Unreleased — v0.6.8 Race Randomness & Simulation Integrity 1.0
 
 - Centraliza os contratos legados de amostragem de erros e seed meteorológica, preservando operações, canais, resultados e RNG sequencial. API de eventos futuros por seed/ator/tick/domínio/canal, sem estado e com todos os 64 bits da seed. Não ativada para novas falhas nesta versão.
-- Testes diferenciais de fórmulas antigas, isolamento de consultas, sequência de boxes, restauração e replays seco/chuva. Sem mudança de revisão esportiva, schema, probabilidades existentes ou identificação até homologação. FAST pendente.
+- Seeds automáticas geradas na preparação de nova temporada ou GP avulso, com edição manual e botão de regeneração; presets e seeds de campeonato/replay preservados. Entropia apenas na preparação, nunca no tick esportivo.
+- Testes diferenciais de fórmulas antigas, isolamento de consultas, sequência de boxes, restauração e replays seco/chuva; reprodução de erro natural via checkpoint e teste real do menu. Corrige teste histórico de identidade para aceitar a numeração curta sem retirar validação de nome/descrição. Sem mudança de revisão esportiva, schema, probabilidades existentes ou identificação até homologação. FAST pendente.
 
 ## v0.6.7 — Living Factory: reserva de destino
 

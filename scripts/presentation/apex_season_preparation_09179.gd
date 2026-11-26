@@ -1,6 +1,7 @@
 extends VBoxContainer
 ## Presentation and explicit preparation intent. The championship controller
 ## alone creates seasons; team roster remains the existing 2012 data.
+const Randomness = preload("res://scripts/core/race_randomness_068.gd")
 const Portrait = preload("res://scripts/apex_portrait_local_2012.gd")
 const ORANGE := Color("#ff8126")
 const WHITE := Color("#f2f3f5")
@@ -68,14 +69,16 @@ func prepare_new() -> void:
 	drafting = true
 	host.track_picker.select(0)
 	host._on_track_selected(0)
-	host.seed_picker.value = 42
+	host.seed_picker.value = Randomness.automatic_seed(int(host.seed_picker.value))
 	host.weather_mode_picker.select(0)
 	host.pit_test_picker.select(0)
 	host._update_championship_menu()
 
-func prepare_gp() -> void:
+func prepare_gp(generate_seed: bool = true) -> void:
 	drafting = false
 	host._single_race_mode()
+	if generate_seed:
+		host.seed_picker.value = Randomness.automatic_seed(int(host.seed_picker.value))
 
 func confirm_new() -> void:
 	if not drafting: return
@@ -90,7 +93,7 @@ func refresh() -> void:
 	host.start_button.visible = not drafting
 	create_button.visible = drafting
 	if drafting:
-		host.championship_status.text = "NOVA TEMPORADA • escolha a equipe e a semente. O calendário começa em Melbourne. Nenhum save é alterado até confirmar."
+		host.championship_status.text = "NOVA TEMPORADA • semente gerada automaticamente; você pode editá-la. O calendário começa em Melbourne. Nenhum save é alterado até confirmar."
 	if roster_key != host.selected_team:
 		roster_key = host.selected_team
 		for team in host.teams:

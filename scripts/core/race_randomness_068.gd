@@ -45,3 +45,15 @@ static func event_sample(race_seed: int, actor_id: int, tick: int, domain: int, 
 	context.update(key)
 	var result: PackedByteArray = context.finish()
 	return float(result.decode_u32(0)) / 4294967296.0
+
+# Preparation-only entropy. Reserve room for 19 subsequent championship
+# offsets (7919 each) within the existing nine-digit SpinBox range.
+const AUTO_SEED_MAX := 999849538
+static func automatic_seed(previous: int = -1) -> int:
+	var generator := RandomNumberGenerator.new()
+	generator.randomize()
+	# Exclude the immediately previous displayed seed without unbounded retry.
+	if previous >= 0 and previous <= AUTO_SEED_MAX:
+		var candidate := generator.randi_range(0,AUTO_SEED_MAX-1)
+		return candidate + 1 if candidate >= previous else candidate
+	return generator.randi_range(0,AUTO_SEED_MAX)

@@ -89,6 +89,12 @@ func run() -> void:
 	var data: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/season_2012.json"))
 	var seeds: Array[int] = [0,1,42,-42,660,4294967338,-4294967338,9223372036854775807,-9223372036854775807]
 	var weather := Weather.new()
+	var last_seed: int = 42
+	for i in range(128):
+		var generated: int = Randomness.automatic_seed(last_seed)
+		verify(generated>=0 and generated<=Randomness.AUTO_SEED_MAX and generated!=last_seed,"automatic seed bounded, distinct from previous")
+		verify(generated+19*7919<=999999999,"season offsets fit existing picker")
+		last_seed=generated
 	for race_seed in seeds:
 		for track in data.tracks:
 			verify(weather._weather_seed(race_seed,str(track.code)) == old_weather(race_seed,str(track.code)),"legacy weather seed exact")
