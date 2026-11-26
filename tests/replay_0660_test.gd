@@ -20,6 +20,13 @@ func make_session():
 	race.configure_weather("Chuva intensa")
 	var replay=Replay.new();replay.attach(race)
 	return replay
+# Uncached REV1-equivalent hash oracle (ordered String keys).
+func reference_sporting_hash(session)->String:
+	var race=session.race
+	var e:Dictionary=Codec.fields(race,Codec.EXCLUDED,false)
+	e.erase("running")
+	return Codec.digest([e,race.rng.seed,race.rng.state,Codec.fields(race.weather,[],false),Codec.fields(race.track_dynamics,[],false),session.policy])
+
 func run()->void:
 	var s=make_session()
 	var id:int=s.race.player_cars()[0].id
@@ -30,7 +37,16 @@ func run()->void:
 	assert(not s.enqueue("set_pace",[9999,"Atacar"]))
 	assert(not s.enqueue("set_pace",[id,"INVALID"]))
 	var start:=Time.get_ticks_usec()
-	for i in range(200):assert(s.step_tick())
+	assert(Codec.sporting_hash(s.race,s.policy)==reference_sporting_hash(s))
+	for i in range(200):
+		assert(s.step_tick())
+		if i%10==0 or i==199:
+			assert(s.hashes[-1]==reference_sporting_hash(s),"cached sporting schema must preserve exact digest")
+	var old_running:bool=s.race.running
+	s.race.running=not old_running
+	assert(Codec.sporting_hash(s.race,s.policy)==reference_sporting_hash(s))
+	assert(Codec.sporting_hash(s.race,s.policy)==s.hashes[-1],"pause cannot change sporting digest")
+	s.race.running=old_running
 	var cp:Dictionary=s.checkpoint()
 	var restored=Codec.restore(cp.state)
 	assert(restored!=null)

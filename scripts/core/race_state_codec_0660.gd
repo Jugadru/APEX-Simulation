@@ -79,29 +79,42 @@ static func digest(value: Variant) -> String:
 # freshly on every tick, and the public fields()/checkpoint schema is untouched.
 # String (not StringName) keys and declaration order preserve var_to_bytes hashes.
 static var _sporting_property_names: Dictionary = {}
+static var _sporting_engine_names: Dictionary = {}
 
-static func _sporting_fields(obj: Object, excluded: Array = []) -> Dictionary:
+static func _sporting_fields(obj: Object, excluded: Array = [], engine_hash: bool = false) -> Dictionary:
 	var script_ref: Script = obj.get_script()
-	var script_id: int = script_ref.get_instance_id()
-	if not _sporting_property_names.has(script_id):
+	# Hold the script resource as the cache key; no reused instance ID risk.
+	if not _sporting_property_names.has(script_ref):
 		var names: Array[String] = []
 		for prop in script_ref.get_script_property_list():
 			if int(prop.usage) & PROPERTY_USAGE_SCRIPT_VARIABLE:
 				names.append(str(prop.name))
-		_sporting_property_names[script_id] = names
+		_sporting_property_names[script_ref] = names
+	var selected: Array = _sporting_property_names[script_ref]
+	if engine_hash:
+		# Only the fixed engine hash path uses this cache. Running was
+		# previously inserted and erased; removing it preserves key order.
+		if not _sporting_engine_names.has(script_ref):
+			var engine_names: Array[String] = []
+			for key in selected:
+				if key != "running" and key not in EXCLUDED:engine_names.append(key)
+			_sporting_engine_names[script_ref] = engine_names
+		selected = _sporting_engine_names[script_ref]
+	elif not excluded.is_empty():
+		var filtered: Array[String] = []
+		for key in selected:
+			if key not in excluded:filtered.append(key)
+		selected = filtered
 	var result: Dictionary = {}
-	for key in _sporting_property_names[script_id]:
-		if key in excluded: continue
+	for key in selected:
 		var value: Variant = obj.get(key)
 		assert(not value is Object, "Unregistered checkpoint object: " + key)
 		result[key] = value
 	return result
 
 static func sporting_hash(race, policy: Dictionary) -> String:
-	# Same ordered fields, same hashing input and digest as v0.6.6.9.1.
-	# This is an allocation/reflection optimization, not a replay revision.
-	var e := _sporting_fields(race, EXCLUDED)
-	e.erase("running")
+	# Same ordered fields and serialized bytes; values never cached.
+	var e := _sporting_fields(race, EXCLUDED, true)
 	return digest([e, race.rng.seed, race.rng.state, _sporting_fields(race.weather), _sporting_fields(race.track_dynamics), policy])
 
 static func canonical_hash(state: Dictionary) -> String:

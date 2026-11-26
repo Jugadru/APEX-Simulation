@@ -28,7 +28,7 @@ static func frame_rate(car:Dictionary,fallback:float,rates:Dictionary)->float:
  var observed:float=float(rates[id])
  return observed if observed>0.0 else fallback
 
-static func observe(car:Dictionary, grid:Array, metrics:Dictionary, length:float, weather:Dictionary, dt:float, rates:Dictionary={})->Dictionary:
+static func observe(car:Dictionary, grid:Array, metrics:Dictionary, length:float, weather:Dictionary, dt:float, rates:Dictionary={}, gap_output:Variant=null)->Dictionary:
  var own_id:int=int(car.id)
  var own_progress:float=float(car.progress)
  var own_lane:float=float(car.get("race_lane",0.0))
@@ -62,6 +62,8 @@ static func observe(car:Dictionary, grid:Array, metrics:Dictionary, length:float
     if merge_gap<1.5:merge_ahead+=1
    continue
   var g:float=Merge.relative_gap(own_progress,float(other.progress),length)
+  # Optional tick-local sidecar: same exact signed gap, no sporting fields.
+  if gap_output is Dictionary:gap_output[int(other.id)]=g
   var seconds:float=g/seconds_denominator
   if absf(g)<BODY+1.0 and absf(float(other.get("race_lane",0.0))-own_lane)>=2.94:side+=1
   if g<0.0:
