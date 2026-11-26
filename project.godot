@@ -10,9 +10,9 @@ config_version=5
 
 [application]
 
-config/name="APEX Motorsport Manager v0.6.7 — Core 2"
-config/description="v0.6.7: Living Factory — Integridade operacional (Godot 4.7.2)."
-config/version="0.6.7"
+config/name="APEX Motorsport Manager v0.6.8 — Core 2"
+config/description="v0.6.8: Race Randomness & Simulation Integrity 1.0 (Godot 4.7.2)."
+config/version="0.6.8"
 run/main_scene="res://scenes/main.tscn"
 config/use_custom_user_dir=true
 config/custom_user_dir_name="APEX_0650_SOUL_STAFF"

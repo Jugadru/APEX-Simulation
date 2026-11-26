@@ -1,12 +1,14 @@
 # Changelog — APEX Motorsport Manager Core 2
 
-## Unreleased — v0.6.8 Race Randomness & Simulation Integrity 1.0
+## v0.6.8 — Race Randomness & Simulation Integrity 1.0
 
 - Centraliza os contratos legados de amostragem de erros e seed meteorológica, preservando operações, canais, resultados e RNG sequencial. API de eventos futuros por seed/ator/tick/domínio/canal, sem estado e com todos os 64 bits da seed. Não ativada para novas falhas nesta versão.
 - Seeds automáticas geradas na preparação de nova temporada ou GP avulso, com edição manual e botão de regeneração; presets e seeds de campeonato/replay preservados. Entropia apenas na preparação, nunca no tick esportivo.
-- Testes diferenciais de fórmulas antigas, isolamento de consultas, sequência de boxes, restauração e replays seco/chuva; reprodução de erro natural via checkpoint e teste real do menu. Corrige teste histórico de identidade para aceitar a numeração curta sem retirar validação de nome/descrição. Sem mudança de revisão esportiva, schema, probabilidades existentes ou identificação até homologação. FAST pendente.
+- Testes diferenciais de fórmulas antigas, isolamento de consultas, sequência de boxes, restauração e replays seco/chuva; reprodução de erro natural via checkpoint e teste real do menu. Corrige teste histórico de identidade para aceitar a numeração curta sem retirar validação de nome/descrição. Sem mudança de revisão esportiva, schema ou probabilidades existentes. FAST [45905916295](https://github.com/Jugadru/APEX-Simulation/actions/runs/45905916295) PASS no SHA 0ad6fc9c1b1c6cfdd19332cd68404b2b0f88860a (40 testes, 3344/3344 checks), Driver Error 45905916460 e Race Engineer 45905916364 PASS. PR #169 integrada em 8e9046a0e2ab38af53e4898782e3458d8ae1149d. Sem FULL, exportação ou benchmark nativo.
 
 ## v0.6.7 — Living Factory: reserva de destino
+
+- Complemento #170: ordens bloqueadas sem consumo de trabalho, razão visível e reembolso preservado. FAST 45904821800 PASS (36 verificações), merge f3b9406a4d9d01aaf1649bf5a9851dd726a068c8.
 
 - Auditoria da fábrica existente: inventário individual, oficina calendarizada, P&D ainda compartilhado por categoria. Corrige reserva de destino de substituição mesmo em slot vazio; instalações manuais respeitam a reserva e substituições antigas com destino alterado não deslocam outra peça silenciosamente.
 - Sem novo schema, peças fabricadas artificialmente, alteração esportiva ou alteração dos saves de corrida. FAST [45896250747](https://github.com/Jugadru/APEX-Simulation/actions/runs/45896250747) PASS no candidato d7a85d7972345f18fdd2ac7b425a12b524c01103; 28 testes selecionados, 23/23 verificações de fábrica, oficina, inventário, replay e migração de saves PASS. PR #166 integrada em 2abe40cfdd86f161ef2dbe64fb2f12f8fd6f7822. Sem FULL ou benchmark nativo desta versão.
