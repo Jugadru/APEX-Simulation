@@ -51,6 +51,15 @@ def run(argv, cwd, log, timeout, env=None):
         require(code == 0 and not any(BAD.search(line) for line in stream),
                 "Process failed: " + log.name)
 
+def startup_args(exe, pck):
+    # Official release templates can disable path overrides. The adjacent
+    # same-stem PCK is loaded automatically, without --main-pack or --path.
+    require(exe.parent == pck.parent and exe.with_suffix(".pck") == pck,
+            "Expected adjacent same-stem PCK")
+    return [str(exe), "--headless", "--rendering-method", "gl_compatibility",
+            "--quit-after", "120"]
+
+
 def verify_archive(path, expected):
     with tarfile.open(path, "r:gz") as archive:
         members = archive.getmembers()
@@ -111,9 +120,7 @@ def build(root, out, head):
             runtime = subprocess.check_output([str(exe), "--headless", "--version"], cwd=package,
                                               env=env, text=True, timeout=20).strip()
             require(runtime == ENGINE, "Wrong exported runtime version")
-            run([str(exe), "--headless", "--rendering-method", "gl_compatibility",
-                 "--main-pack", str(pck), "--quit-after", "120"],
-                package, out / "startup.log", 90, env)
+            run(startup_args(exe, pck), package, out / "startup.log", 90, env)
             report["steps"].append("isolated_headless_startup")
             archive = work / ("APEX-" + match[1] + "-" + head[:12] + "-linux-test.tar.gz")
             with tarfile.open(archive, "w:gz") as tar:
