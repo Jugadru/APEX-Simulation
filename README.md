@@ -1,4 +1,4 @@
-# APEX Motorsport Manager — Core 2 v0.6.8
+# APEX Motorsport Manager — Core 2 v0.6.9
 
 Simulador de gerenciamento de equipes automobilísticas em **Godot 4.7.2**. O jogador administra pilotos, funcionários, estratégia, engenharia e operações; as corridas de 24 carros são simuladas pelo Core 2, com apresentação 2D/3D. Temporada histórica inicial: Fórmula 1 de 2012. O APEX 2 Next Engine continua experimental e separado.
 
@@ -6,11 +6,13 @@ Simulador de gerenciamento de equipes automobilísticas em **Godot 4.7.2**. O jo
 
 | Item | Versão / situação |
 | --- | --- |
-| Código integrado à main | **v0.6.8 — Race Randomness & Simulation Integrity 1.0** |
+| Código integrado à main | **v0.6.9 — Braking & Acceleration Physics 1.0** |
+| Integração 0.6.9 | [PR #172](https://github.com/Jugadru/APEX-Simulation/pull/172) · `8b575527` |
+| FAST 0.6.9 | [PASS](https://github.com/Jugadru/APEX-Simulation/actions/runs/45908721308), 56 testes, 50.220 checks longitudinais, BOX V21 no tick 11.801 |
 | Integração 0.6.8 | [PR #169](https://github.com/Jugadru/APEX-Simulation/pull/169) · `8e9046a0` |
 | FAST 0.6.8 | [PASS](https://github.com/Jugadru/APEX-Simulation/actions/runs/45905916295), 40 testes roteados, 3.344 verificações de RNG |
 | Complemento Living Factory | [PR #170](https://github.com/Jugadru/APEX-Simulation/pull/170) · [FAST PASS 36 checks](https://github.com/Jugadru/APEX-Simulation/actions/runs/45904821800) |
-| Motor esportivo / replay | Core 2, revisão 040 (preservada da 9.21) |
+| Motor esportivo / replay | Core 2, revisão 041; revisões 040 e anteriores preservadas |
 | Integração dos 11 incrementos | PRs #154–[#164](https://github.com/Jugadru/APEX-Simulation/pull/164) · `841cf72b` |
 | Integração Living Factory | [PR #166](https://github.com/Jugadru/APEX-Simulation/pull/166) · `2abe40cf` |
 | FAST do candidato Living Factory | [PASS](https://github.com/Jugadru/APEX-Simulation/actions/runs/45896250747), 28 testes roteados e 23 verificações novas |
@@ -18,18 +20,24 @@ Simulador de gerenciamento de equipes automobilísticas em **Godot 4.7.2**. O jo
 | Último binário permanente de teste | [v0.6.6.9.17.4 (pré-release)](https://github.com/Jugadru/APEX-Simulation/releases/tag/v0.6.6.9.17.4) |
 | Última release estável | [v0.6.6.9.9](https://github.com/Jugadru/APEX-Simulation/releases/tag/v0.6.6.9.9) |
 
-A versão integrada não é automaticamente uma release de executáveis. Os resultados acima referem-se aos SHAs testados, não a uma exportação da v0.6.8. FULL, desempenho nativo sustentado e revisão independente da v0.6.8 não comprovados.
+A versão integrada não é automaticamente uma release de executáveis. Os resultados acima referem-se aos SHAs testados, não a uma exportação da v0.6.9. FULL, calibração com telemetria de 2012, desempenho nativo sustentado e revisão independente da v0.6.9 não comprovados.
 
-## O que há de novo — v0.6.8
+## O que há de novo — v0.6.9
+
+- Velocidade longitudinal persistente em SI, frenagem antecipada dinâmica, alvo no ápice, aceleração progressiva e cronometragem por cruzamento real.
+- Largada preservada com handover de velocidade pelo deslocamento real; chuva, pneus, tráfego, BOX V21 e replay 040/041 testados. Coeficientes experimentais.
+- [Contrato técnico](docs/APEX_069_LONGITUDINAL_PHYSICS.md). Próxima versão: v0.7.0 Gearbox, Torque & Power Delivery. [Roadmap híbrido Godot + C++](docs/APEX_ROADMAP_UNIFICADO_3_0.md) preservado.
+
+## Funcionalidades preservadas — v0.6.8
 
 - Seeds automáticas na preparação e regeneração manual; preservação das seeds de temporada, cenários e replays.
 - Contratos determinísticos centralizados de clima e erro, sequência legada preservada, API independente de eventos futuros (não ativa em novos incidentes).
-- [Contrato técnico e homologação](docs/APEX_068_RANDOMNESS_INTEGRITY.md). Próxima atualização: v0.6.9 — Braking & Acceleration Physics 1.0.
+- [Contrato técnico e homologação](docs/APEX_068_RANDOMNESS_INTEGRITY.md). A sequência avançou para v0.6.9, integrada na PR #172.
 
 ## Funcionalidades preservadas — v0.6.7
 
 - Reserva exclusiva de destino de substituição, proteção de instalação manual, persistência e recuperação de ordens antigas com destino divergente. Sem novo schema ou mudança esportiva.
-- Nova numeração curta: v0.6.7, v0.6.8, v0.6.9, v0.7.0 e seguintes. [Roadmap Unificado 3.0](docs/APEX_ROADMAP_UNIFICADO_3_0.md) conserva todas as funcionalidades e sua ordem; números de versões históricas permanecem imutáveis. A sequência continua em v0.6.9.
+- Nova numeração curta: v0.6.7, v0.6.8, v0.6.9, v0.7.0 e seguintes. [Roadmap Unificado 3.0](docs/APEX_ROADMAP_UNIFICADO_3_0.md) conserva todas as funcionalidades e sua ordem; números de versões históricas permanecem imutáveis. A sequência continua em v0.7.0.
 
 ## Funcionalidades preservadas — 9.23
 
