@@ -149,12 +149,37 @@ def collect(current):
     return records, issues
 
 
+def verify_existing(run_id, out):
+    """Check cross-run retrieval without starting any simulation."""
+    records, issues = collect({"run_id": run_id})
+    distinct = len({record["checkout"] for record in records})
+    status = "PASS" if distinct >= 2 and not issues else "INCONCLUSIVE"
+    result = {"schema": 1, "status": status, "source": "successful_main_push_artifacts",
+              "distinct_commits": distinct, "records": [summary(r) for r in records],
+              "retrieval_issues": issues,
+              "limitations": ["No simulation executed by this check.",
+                              "PASS proves artifact retrieval and provenance checks, not performance improvement.",
+                              "Hosted observations are uncontrolled; no GPU or regression acceptance."]}
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "verification.json").write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n",
+                                           encoding="utf-8")
+    print("APEX_LAB_HISTORY_VERIFICATION " + json.dumps(result, ensure_ascii=False))
+    return 0 if status == "PASS" else 2
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("--log", type=Path, required=True)
+    p.add_argument("--log", type=Path)
+    p.add_argument("--verify-existing", action="store_true")
     p.add_argument("--out", type=Path, required=True)
     p.add_argument("--history", action="store_true")
     args = p.parse_args()
+    if args.verify_existing:
+        if args.log or args.history:
+            p.error("--verify-existing is a standalone artifact check")
+        return verify_existing(int(os.environ["GITHUB_RUN_ID"]), args.out)
+    if args.log is None:
+        p.error("--log is required for current observations")
     def git(*argv):
         return subprocess.check_output(["git", *argv], text=True, timeout=15).strip()
     try:
