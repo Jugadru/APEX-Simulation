@@ -8,7 +8,9 @@ const RaceLaunch14 = preload("res://scripts/core/race_launch_14.gd")
 const RaceStart066911 = preload("res://scripts/core/race_start_intelligence_066911.gd")
 const RaceStart066917 = preload("res://scripts/core/race_start_spatial_066917.gd")
 
-static func evaluate(car: Dictionary, context: Dictionary) -> Dictionary:
+# Optional same-car/same-tick setup result; direct callers retain old behaviour.
+# The supplied dictionary is read-only and never retained.
+static func evaluate(car: Dictionary, context: Dictionary, shared_setup: Dictionary = {}) -> Dictionary:
 	var gap: float = float(context.get("gap", 999.0))
 	var current_lap: int = int(context.get("lap", 0))
 	var race_laps: int = maxi(1, int(context.get("race_laps", 44)))
@@ -85,7 +87,7 @@ static func evaluate(car: Dictionary, context: Dictionary) -> Dictionary:
 	wear_factor *= float(crossover.get("wear_scale", 1.0))
 	var rain_penalty: float = WetPhysics.weather_time_penalty(rain_wetness, float(weather.get("rain_intensity", 0.0)))
 	# Pre-race setup responds to the authoritative track state without RNG.
-	var setup_effect: Dictionary = WeatherSetup15.evaluate(car.get("race_setup_15", {}), weather)
+	var setup_effect: Dictionary = WeatherSetup15.evaluate(car.get("race_setup_15", {}), weather) if shared_setup.is_empty() else shared_setup
 	wear_factor *= float(setup_effect["wear_scale"])
 	var track_grip: float = float(weather.get("grip_factor", 1.0))
 	var grip_cost: float = clampf((1.0 - track_grip) * 2.0, -0.35, 0.75)

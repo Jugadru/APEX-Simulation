@@ -25,7 +25,9 @@ static func sample(seed:int,id:int,tick:int,channel:int)->float:
  x=(x^(x>>16))&0xffffffff
  return float(x)/4294967296.0
 
-static func context(car:Dictionary,metrics:Dictionary,weather:Dictionary,dt:float)->Dictionary:
+# Optional read-only setup evaluation from the same frozen car/weather.
+# An empty argument preserves independent/legacy callers exactly.
+static func context(car:Dictionary,metrics:Dictionary,weather:Dictionary,dt:float,shared_setup:Dictionary={})->Dictionary:
  var old:Dictionary=car.get(KEY,{})
  var soul:Dictionary=car.get("driver_soul",{})
  var traffic:Dictionary=car.get("traffic_pack_09201",{})
@@ -53,7 +55,7 @@ static func context(car:Dictionary,metrics:Dictionary,weather:Dictionary,dt:floa
  var grip:float=clampf(1.0-float(weather.get("grip_factor",1.0)),0,1)
  var setup_cost:float=0.0
  if phase!="STRAIGHT":
-  var setup:Dictionary=Setup.evaluate(car.get("race_setup_15",{}),weather)
+  var setup:Dictionary=Setup.evaluate(car.get("race_setup_15",{}),weather) if shared_setup.is_empty() else shared_setup
   setup_cost=clampf((float(setup.brake_s)+float(setup.mechanical_s)+float(setup.aero_corner_s))/.55,-1,1)
  var pace:float=1.65 if str(car.get("pace","Normal"))=="Atacar" else (.55 if str(car.get("pace","Normal"))=="Conservar" else 1.0)
  var hazard:float=.00032*pace*(.65+.75*risk+.65*(1.0-consistency)+.50*(1.0-focus)+.25*(1.0-confidence)+1.2*pressure+1.4*wear*wear+thermal+1.5*grip+1.8*wet*(1.0-wet_skill)+3.2*mismatch+.45*setup_cost)
@@ -97,10 +99,10 @@ static func integral(t:float,duration:float,peak:float)->float:
  var r:float=x-plateau
  return peak*(plateau+r-r*r/(2.0*maxf(.00001,duration-plateau)))
 
-static func advance(car:Dictionary,metrics:Dictionary,weather:Dictionary,dt:float,seed:int,tick:int,clock:float)->Dictionary:
+static func advance(car:Dictionary,metrics:Dictionary,weather:Dictionary,dt:float,seed:int,tick:int,clock:float,shared_setup:Dictionary={})->Dictionary:
  var out:Dictionary=car.get(KEY,{}).duplicate(true)
  out["started"]=false;out["completed"]=false;out["interrupted"]=false
- var ctx:Dictionary=context(car,metrics,weather,dt)
+ var ctx:Dictionary=context(car,metrics,weather,dt,shared_setup)
  out["pressure"]=ctx.pressure;out["hazard"]=ctx.hazard;out["phase"]=ctx.phase
  out["mode"]=str(out.get("mode","NORMAL"))
  out["speed_fraction"]=1.0;out["suppress_attack"]=false;out["confidence_delta"]=0.0

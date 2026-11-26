@@ -1,5 +1,7 @@
 extends SceneTree
 const ErrorModel=preload("res://scripts/core/race_driver_error_0921.gd")
+const Setup=preload("res://scripts/core/race_weather_setup_15.gd")
+const PerformanceModel=preload("res://scripts/core/race_performance.gd")
 const Race=preload("res://scripts/race_engine.gd")
 const Replay=preload("res://scripts/core/race_replay_0660.gd")
 const Codec=preload("res://scripts/core/race_state_codec_0660.gd")
@@ -12,7 +14,39 @@ func check(ok:bool,label:String):
  if not ok:failures.append(label);printerr("DRIVER_ERROR_0921_FAIL ",label)
 func car()->Dictionary:
  return {"id":12,"skill":85,"spatial_awareness":85,"risk_tolerance":55,"pace":"Normal","tire":"Médio","wear":15.0,"tyre_surface_c":96.0,"progress":.4,"driver_soul":{"focus":.85,"confidence":.6,"pressure":.15}}
+# Direct old call path is the reference; test exact bytes, not tolerances.
+func shared_setup_contract():
+ var climate_samples:Array=[
+  {"wetness_factor":0.0,"grip_factor":1.0},
+  {"wetness_factor":.3,"grip_factor":.91,"surface_lateral_load":1.12,"surface_traction":.94},
+  {"wetness_factor":.85,"grip_factor":.7,"surface_lateral_load":.82,"surface_traction":.74}
+ ]
+ var settings:Array=[{},Setup.neutral(),{"wing":1.0,"brake":-.7,"suspension":.4},{"wing":-.9,"brake":.8,"suspension":-1.0},{"wing":2.0,"brake":0.0,"suspension":0.0}]
+ var phases:Array=[{},{"line_load":.3,"ahead_load":.7},{"line_load":.7,"ahead_load":.7},{"line_load":.7,"ahead_load":.3}]
+ var comparisons:int=0
+ for weather in climate_samples:
+  for setup in settings:
+   var driver:Dictionary=car()
+   driver.merge({"race_setup_15":setup,"car_rating":84.0,"laps_done":2,"team":"Ferrari"},true)
+   var pace_context:Dictionary={"weather":weather,"base_lap":90.0,"launch_enabled":false}
+   var shared:Dictionary=Setup.evaluate(setup,weather)
+   var original:PackedByteArray=var_to_bytes([driver,weather,shared])
+   var direct:Dictionary=PerformanceModel.evaluate(driver,pace_context)
+   var reused:Dictionary=PerformanceModel.evaluate(driver,pace_context,shared)
+   check(var_to_bytes(direct)==var_to_bytes(reused),"shared setup exact pace and wear")
+   for phase in phases:
+    var reference:Dictionary=ErrorModel.context(driver,phase,weather,.2)
+    var actual:Dictionary=ErrorModel.context(driver,phase,weather,.2,shared)
+    check(var_to_bytes(reference)==var_to_bytes(actual),"shared setup exact hazard "+str(reference.phase))
+    var old_step:Dictionary=ErrorModel.advance(driver,phase,weather,.2,42,127,40.0)
+    var new_step:Dictionary=ErrorModel.advance(driver,phase,weather,.2,42,127,40.0,shared)
+    check(var_to_bytes(old_step)==var_to_bytes(new_step),"shared setup exact recovery/decision")
+    comparisons+=1
+   check(var_to_bytes([driver,weather,shared])==original,"shared input remains immutable")
+ print("SETUP_REUSE_0923_REPORT ",JSON.stringify({"phase_comparisons":comparisons,"pace_comparisons":climate_samples.size()*settings.size(),"comparison":"direct vs shared exact bytes","native_benchmark":false}))
+
 func run():
+ shared_setup_contract()
  var dry={"wetness_factor":0.0,"grip_factor":1.0}
  var rain={"wetness_factor":.85,"grip_factor":.7}
  var entry={"line_load":.3,"ahead_load":.7}

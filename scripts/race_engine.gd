@@ -828,7 +828,10 @@ func _advance(dt: float) -> void:
 		context["kers_mode"] = str(live_car.get("kers_mode", "Equilibrado"))
 		context["drs_active"] = RaceDrs2012.update(live_car, old_progress, projected_progress,
 			float(context["gap"]), track, current_weather)
-		var metrics: Dictionary = RacePerformance.evaluate(old_car, context)
+		# Both consumers read the same frozen setup and weather in this tick.
+		# Do not carry the result across cars, ticks, weather or replay seeks.
+		var setup_effect: Dictionary = WeatherSetup15.evaluate(old_car.get("race_setup_15", {}), current_weather)
+		var metrics: Dictionary = RacePerformance.evaluate(old_car, context, setup_effect)
 		if traffic_pack_rules:metrics["traffic_kers_skipped"]=kers_skipped
 		if racing_line_rules and clock >= RacingLine.START_SECONDS and old_progress >= 0.0 and not racing_line_profile.is_empty():
 			var line: Dictionary = RacingLine.sample(racing_line_profile, old_progress, float(current_weather.get("wetness_factor",0.0)), float(old_car.get("skill",80.0)))
@@ -850,7 +853,9 @@ func _advance(dt: float) -> void:
 					metrics["ahead_load"] = float(ahead_line.load)
 					metrics["line_ratio"] = lerpf(float(line.lane_ratio),float(ahead_line.lane_ratio),0.25)
 		if error_rules and clock>=24.0:
-			var error_state:Dictionary=DriverError0921.advance(old_car,metrics,current_weather,dt,int(rng.seed),tick_counter,clock)
+			var error_state:Dictionary=DriverError0921.advance(old_car,metrics,current_weather,dt,int(rng.seed),tick_counter,clock,setup_effect)
+			if Perf.enabled and str(error_state.phase) != "STRAIGHT":
+				Perf.count(&"race.setup_evaluation_reused")
 			var fraction:float=float(error_state.speed_fraction)
 			metrics["driver_error_state"]=error_state
 			metrics["driver_error_suppress"]=bool(error_state.suppress_attack)
