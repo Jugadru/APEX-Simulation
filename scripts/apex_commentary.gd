@@ -11,6 +11,9 @@ const Career0922 = preload("res://scripts/core/race_engineer_career_0922.gd")
 var radio_audio = Audio0922.new()
 var radio_speed: float = 1.0
 var radio_subtitles: bool = true
+# Historical replay reconstruction is text-only, even with local speech enabled.
+var suppress_radio_audio: bool = false
+var _radio_ingest_clock: float = -1.0
 var staff_context: Dictionary = {}
 var career_bonds: Dictionary = {}
 const CAST := {
@@ -57,7 +60,10 @@ func configure_engineer(team: Dictionary, levels: Dictionary) -> void:
 func ingest(race, player_team: String) -> bool:
 	var changed := false
 	var now: float = float(race.clock)
+	var previous_suppression: bool = suppress_radio_audio
+	_radio_ingest_clock = now
 	if now < communication.last_clock:
+		suppress_radio_audio = true
 		# Replay seek backwards: discard future radio and rebuild from current event stream.
 		communication.reset()
 		communication.staff_context = staff_context.duplicate(true)
@@ -109,7 +115,10 @@ func ingest(race, player_team: String) -> bool:
 		_last_interlude = float(race.clock)
 		if _ambient_line(race):
 			changed = true
-	radio_audio.pump(radio_speed)
+	if not suppress_radio_audio:
+		radio_audio.pump(radio_speed, now)
+	_radio_ingest_clock = -1.0
+	suppress_radio_audio = previous_suppression
 	return changed
 
 func _event_line(event: Dictionary, race, player_team: String) -> bool:
@@ -315,8 +324,8 @@ func _push(at: float, role: String, message: String, is_ours: bool, kind: String
 		if packet.is_empty():
 			return
 		line["context_0922"] = packet
-		if radio_audio.enabled and role != "CHEFE":
-			radio_audio.enqueue(packet, radio_speed)
+		if radio_audio.enabled and not suppress_radio_audio and role != "CHEFE":
+			radio_audio.enqueue(packet, radio_speed, _radio_ingest_clock)
 	lines.append(line)
 	while lines.size() > MAX_LINES:
 		lines.pop_front()

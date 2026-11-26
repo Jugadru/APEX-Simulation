@@ -1232,7 +1232,7 @@ func _build_radio_window() -> void:
 	var voice_toggle := CheckButton.new()
 	voice_toggle.text = "VOZ LOCAL"
 	voice_toggle.button_pressed = host.commentary != null and host.commentary.radio_audio.enabled
-	voice_toggle.tooltip_text = "Voz sintética opcional do sistema operacional; se indisponível, use o texto."
+	voice_toggle.tooltip_text = "Voz sintética opcional do sistema operacional. Requer voz do idioma da mensagem; mensagens antigas são descartadas e em 10×+ só urgentes são faladas."
 	audio_row.add_child(voice_toggle)
 	voice_toggle.toggled.connect(func(value: bool):
 		if host.commentary == null:
@@ -1240,7 +1240,7 @@ func _build_radio_window() -> void:
 		var active: bool = host.commentary.radio_audio.set_enabled(value)
 		voice_toggle.set_pressed_no_signal(active)
 		if value and not active and radio_response_label != null:
-			radio_response_label.text = "Voz local indisponível. O rádio textual continua ativo.")
+			radio_response_label.text = "Voz local indisponível. Verifique as vozes do sistema e tente novamente. O rádio textual continua ativo.")
 	var volume := HSlider.new()
 	volume.min_value = 0
 	volume.max_value = 100
