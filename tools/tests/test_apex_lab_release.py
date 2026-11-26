@@ -5,7 +5,7 @@ import tarfile
 import tempfile
 import unittest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from apex_lab_release import inspect_file, verify_archive
+from apex_lab_release import inspect_file, verify_archive, startup_args
 
 class ReleaseTests(unittest.TestCase):
     def test_elf_pck_and_archive(self):
@@ -27,6 +27,19 @@ class ReleaseTests(unittest.TestCase):
             rows[0]["sha256"] = "0"*64
             with self.assertRaises(ValueError):
                 verify_archive(tar, {r["file"]: r for r in rows})
+
+    def test_release_startup_uses_adjacent_pack_without_path_override(self):
+        exe = Path("/test/APEX_Motorsport_Manager.x86_64")
+        pck = exe.with_suffix(".pck")
+        args = startup_args(exe, pck)
+        self.assertEqual(args[0], str(exe))
+        self.assertNotIn("--main-pack", args)
+        self.assertNotIn("--path", args)
+        self.assertIn("--quit-after", args)
+        with self.assertRaises(ValueError):
+            startup_args(exe, Path("/other/APEX_Motorsport_Manager.pck"))
+        with self.assertRaises(ValueError):
+            startup_args(exe, Path("/test/wrong.pck"))
 
     def test_reject_invalid_executable_and_pack(self):
         with tempfile.TemporaryDirectory() as tmp:
