@@ -109,6 +109,42 @@ Esta regra substitui instruções antigas de FULL obrigatório presentes
 em relatórios históricos. Referência detalhada:
 `docs/APEX_CI_INTELIGENTE_TRES_NIVEIS.md`.
 
+### 5.1. Integração operacional do agente com o Development Lab (26/11/2026)
+
+Base de desenvolvimento consolidada: REV1, PR #142, merge
+`abc8f8618c856c951decf15eadae09cdc036e13a`. As decisões anteriores e
+os resultados inconclusivos históricos permanecem preservados. A REV2
+(#143) não foi integrada.
+
+- Para cada versão comum, trabalhar no repositório APEX-Simulation,
+  abrir PR, consultar os workflows do SHA exato, ler os logs em caso
+  de falha, corrigir e validar novamente. O FAST e os testes direcionados
+  do APEX Test Lab já são disparados pelo GitHub; não pedir ao jogador
+  que abra o Lab ou baixe relatórios quando os logs já forem suficientes.
+- O Development Lab complementar fica no repositório
+  `Jugadru/apex-godot-simulation-architect`. Usar seu analisador estático
+  somente como diagnóstico, e seus testes de contrato e ferramentas de
+  investigação quando o risco da alteração justificar.
+- O ABC v1 é um estudo histórico de três SHAs fixos; não executá-lo
+  automaticamente para versões novas nem tratar o PASS de execução
+  como homologação de um candidato diferente.
+- Para nova comparação de desempenho, definir previamente baseline e
+  candidato exatos, workload e critérios, preservar todas as medições.
+  Benchmark em runner pessoal requer confirmação de ociosidade e
+  autorização do responsável; nunca simular essa confirmação, repetir
+  para obter verde ou executar código de PR não revisada no runner.
+- O conector GitHub permite ler PRs, logs e artefatos por run ID e editar
+  branches/PRs; não oferece dispatch geral de workflow. Se uma execução
+  manual for indispensável, fornecer o link e pedir somente a ação
+  necessária. Não solicitar token pessoal em chat nem instalar serviços
+  permanentes para contornar essa limitação.
+- Separar validação headless, inspeção gráfica e release. A aceleração
+  efetiva de aproximadamente 14x no ensaio GTX 1650 da REV1 é limitação
+  conhecida, não uma meta de 32x cumprida.
+- Manter a arquitetura do Lab estável. Não refatorar o Lab nem exigir
+  FULL/benchmarks pesados para versões rotineiras sem motivo técnico.
+  Não modificar critérios depois de ver os resultados para aprovar uma PR.
+
 ## 6. DESEMPENHO
 
 Otimizar com medições reais.
