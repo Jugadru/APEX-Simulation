@@ -1,5 +1,10 @@
 # Changelog — APEX Motorsport Manager Core 2
 
+## Unreleased — v0.6.8 Race Randomness & Simulation Integrity 1.0
+
+- Centraliza os contratos legados de amostragem de erros e seed meteorológica, preservando operações, canais, resultados e RNG sequencial. API de eventos futuros por seed/ator/tick/domínio/canal, sem estado e com todos os 64 bits da seed. Não ativada para novas falhas nesta versão.
+- Testes diferenciais de fórmulas antigas, isolamento de consultas, sequência de boxes, restauração e replays seco/chuva. Sem mudança de revisão esportiva, schema, probabilidades existentes ou identificação até homologação. FAST pendente.
+
 ## v0.6.7 — Living Factory: reserva de destino
 
 - Auditoria da fábrica existente: inventário individual, oficina calendarizada, P&D ainda compartilhado por categoria. Corrige reserva de destino de substituição mesmo em slot vazio; instalações manuais respeitam a reserva e substituições antigas com destino alterado não deslocam outra peça silenciosamente.

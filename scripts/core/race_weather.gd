@@ -1,6 +1,7 @@
 extends RefCounted
 ## APEX 0.6.4.3: independent rainfall, asphalt moisture and on/off racing-line standing water.
 ## This is NOT extracted from F1 2020/F1 Manager, nor official historical session odds.
+const Randomness = preload("res://scripts/core/race_randomness_068.gd")
 const PROFILES := ["Automático", "Seco", "Variável", "Chuva intensa"]
 # Approximate per-event gameplay priors, NOT measured historical probabilities.
 # Each track is independent; tropical and changeable venues have higher risk.
@@ -63,11 +64,7 @@ func setup(track_data: Dictionary, race_seed: int, selected_profile: String = "A
     state = _make_state(0.0, 0.0)
 
 func _weather_seed(initial_seed: int, code: String) -> int:
-    # Fixed cross-platform mixing; independent of RNG used by cars and incidents.
-    var value: int = posmod(initial_seed, 2147483647) + 1
-    for i in range(code.length()):
-        value = posmod(value * 131 + code.unicode_at(i) + 37, 2147483647)
-    return maxi(1, value)
+    return Randomness.legacy_weather_seed(initial_seed, code)
 
 func _create_showers(generator: RandomNumberGenerator, count: int, min_power: float, max_power: float) -> void:
     for i in range(count):

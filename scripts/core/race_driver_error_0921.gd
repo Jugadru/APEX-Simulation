@@ -1,6 +1,7 @@
 extends RefCounted
 ## 040: independent deterministic error hazard and positive-speed recovery.
 ## All coefficients are fictional gameplay calibration, not measured FIA data.
+const Randomness=preload("res://scripts/core/race_randomness_068.gd")
 const Thermal=preload("res://scripts/core/race_tyre_thermal.gd")
 const Setup=preload("res://scripts/core/race_weather_setup_15.gd")
 const KEY="driver_error_0921"
@@ -16,14 +17,7 @@ const SPECS={
 # Counter-based random draws: no access to RaceEngine.rng.state.
 # Arithmetic stays in signed 64-bit range; stable across replay seek.
 static func sample(seed:int,id:int,tick:int,channel:int)->float:
- var x:int=posmod(seed,4294967296)
- x=(x ^ ((id*73856093)&0xffffffff) ^ ((tick*19349663)&0xffffffff) ^ ((channel*83492791)&0xffffffff))&0xffffffff
- # Two integer avalanche rounds: adjacent ticks/channels do not form
- # an affine sequence. Multiplication remains below signed 64-bit range.
- x=((x^(x>>16))*0x45d9f3b)&0xffffffff
- x=((x^(x>>16))*0x45d9f3b)&0xffffffff
- x=(x^(x>>16))&0xffffffff
- return float(x)/4294967296.0
+ return Randomness.legacy_driver_sample(seed,id,tick,channel)
 
 # Optional read-only setup evaluation from the same frozen car/weather.
 # An empty argument preserves independent/legacy callers exactly.
@@ -108,8 +102,8 @@ static func advance(car:Dictionary,metrics:Dictionary,weather:Dictionary,dt:floa
  out["speed_fraction"]=1.0;out["suppress_attack"]=false;out["confidence_delta"]=0.0
  if str(out.mode)=="NORMAL":
   out["cooldown"]=maxf(0.0,float(out.get("cooldown",0.0))-dt)
-  if clock>=24.0 and float(car.get("progress",0.0))>=0.0 and float(out.cooldown)<=0.0 and not bool(car.get("pit_request",false)) and float(car.get("combat_hesitation_s",0.0))<=0.0 and float(ctx.hazard)>0.0 and sample(seed,int(car.id),tick,1)<1.0-exp(-float(ctx.hazard)*dt):
-   out=begin(out,classify(ctx,sample(seed,int(car.id),tick,2)),ctx,sample(seed,int(car.id),tick,3))
+  if clock>=24.0 and float(car.get("progress",0.0))>=0.0 and float(out.cooldown)<=0.0 and not bool(car.get("pit_request",false)) and float(car.get("combat_hesitation_s",0.0))<=0.0 and float(ctx.hazard)>0.0 and sample(seed,int(car.id),tick,Randomness.DRIVER_TRIGGER)<1.0-exp(-float(ctx.hazard)*dt):
+   out=begin(out,classify(ctx,sample(seed,int(car.id),tick,Randomness.DRIVER_KIND)),ctx,sample(seed,int(car.id),tick,Randomness.DRIVER_SEVERITY))
    out["confidence_delta"]=-float(out.confidence_hit)
  if str(out.mode) in ["ERROR","CONTROL","RECOVERY"]:
   var elapsed:float=float(out.elapsed)
