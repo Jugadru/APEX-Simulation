@@ -223,9 +223,23 @@ def execute(command, base, head, root, out):
         report["reason"] = str(error)
         return 2
     finally:
+        if command == "diagnose":
+            # Supplementary correlation must not rewrite the original outcome.
+            try:
+                from apex_lab_correlation import from_report
+                correlation = from_report(root, report, out)
+                (out / "correlation.json").write_text(
+                    json.dumps(correlation, indent=2) + "\n", encoding="utf-8")
+                report["correlation"] = {"status": "PASS", "state": correlation["state"],
+                                         "artifact": "correlation.json"}
+                print("APEX_LAB_CORRELATION " + json.dumps(correlation))
+            except (ValueError, OSError, KeyError, TypeError, subprocess.SubprocessError) as error:
+                report["correlation"] = {"status": "BLOCKED", "reason": type(error).__name__}
+                print("APEX_LAB_CORRELATION_BLOCKED " + type(error).__name__, file=sys.stderr)
         save()
         print("APEX_LAB_COMMAND " + json.dumps({"command": command, "head": head,
-              "status": report["status"], "cases": report["cases"]}))
+              "status": report["status"], "cases": report["cases"],
+              "correlation": report.get("correlation")}))
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)

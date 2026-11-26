@@ -12,6 +12,8 @@ on:
       - 'tools/tests/test_apex_lab_diagnosis.py'
       - 'tools/apex_lab_architecture.py'
       - 'tools/tests/test_apex_lab_architecture.py'
+      - 'tools/apex_lab_correlation.py'
+      - 'tools/tests/test_apex_lab_correlation.py'
 permissions:
   contents: read
 jobs:
