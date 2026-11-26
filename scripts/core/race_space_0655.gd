@@ -163,44 +163,65 @@ static func resolve_physical(order: Array, intents: Dictionary, result: Dictiona
 		low[i]=minf(lane,next_lane)
 		high[i]=maxf(lane,next_lane)
 		passive[i]=1 if completion_enabled and str(intents[id].state) not in ["preparing","attacking","duel"] else 0
+	# Frozen directed pair constraints, in original (i,j) order. Build
+	# lazily on the first sweep so the common single-sweep path does not
+	# pay for a second scan. Progress remains live on every iteration.
+	var pair_j:=PackedInt32Array()
+	var pair_offset:=PackedFloat64Array()
+	var pair_headroom:=PackedFloat64Array()
+	var pair_flags:=PackedByteArray()
+	var row_start:=PackedInt32Array()
+	row_start.resize(size+1)
 	for iteration in range(size):
 		var changed := false
 		for i in range(size):
-			var id: int=ids[i]
 			var p: float=positions[i]
-			var lane: float=lanes[i]
-			var lower: float=low[i]
-			var upper: float=high[i]
 			var a: Dictionary=rows[i]
 			var a_state: Dictionary=states[i]
-			for j in range(size):
-				if ids[j]==id:continue
-				var other_p: float=positions[j]
-				var gap: float=fposmod(other_p-p,1)
-				if wake_stability and (gap<.00000001 or gap>1.0-.00000001):
-					if MergeTraffic.has_priority(order[i],order[j]): continue
-					gap=0.0
-				elif gap>.25 or gap<.00000001:continue
-				var b: Dictionary=rows[j]
-				if passive[i]!=0 and gap*length<LENGTH+2.2 and absf(lane-lanes[j])>=WIDTH-0.01:
-					var leader_advance:float=maxf(0.0,float(b.progress)-other_p)
-					if leader_advance>0.00000001:
-						var voluntary_limit:float=p+leader_advance*0.88
-						if voluntary_limit<float(a.progress)-0.000000001:
-							a.progress=voluntary_limit
-							changed=true
-				# Same strict swept-corridor inequalities, with frozen bounds.
-				if not (lower<high[j]+WIDTH and upper>low[j]-WIDTH): continue
-				var offset: float=p+gap-other_p
-				var allowed: float=maxf(p,float(b.progress)+offset-clearance)
-				if wake_stability and gap*length<LENGTH+4.0:
-					var advance: float=maxf(0.0,float(b.progress)-other_p)
-					var headroom: float=maxf(0.0,gap-clearance)
-					allowed=minf(allowed,p+advance+headroom*0.5)
-				if allowed<float(a.progress)-.000000001:
-					a.progress=allowed
-					a_state.race_space_blocked=true
-					changed=true
+			var resolved: float=float(a.progress)
+			var before: float=resolved
+			var blocked: bool=false
+			if iteration==0:
+				row_start[i]=pair_j.size()
+				for j in range(size):
+					if ids[j]==ids[i]:continue
+					var other_p: float=positions[j]
+					var gap: float=fposmod(other_p-p,1)
+					if wake_stability and (gap<.00000001 or gap>1.0-.00000001):
+						if MergeTraffic.has_priority(order[i],order[j]):continue
+						gap=0.0
+					elif gap>.25 or gap<.00000001:continue
+					var distance: float=gap*length
+					var voluntary: bool=passive[i]!=0 and distance<LENGTH+2.2 and absf(lanes[i]-lanes[j])>=WIDTH-0.01
+					var corridor: bool=low[i]<high[j]+WIDTH and high[i]>low[j]-WIDTH
+					if not voluntary and not corridor:continue
+					var near: bool=corridor and wake_stability and distance<LENGTH+4.0
+					pair_j.append(j)
+					pair_flags.append((1 if voluntary else 0)|(2 if corridor else 0)|(4 if near else 0))
+					pair_offset.append(p+gap-other_p)
+					pair_headroom.append(maxf(0.0,gap-clearance) if near else 0.0)
+				row_start[i+1]=pair_j.size()
+			for k in range(row_start[i],row_start[i+1]):
+				var j: int=pair_j[k]
+				var flags: int=pair_flags[k]
+				var leader_progress: float=float(rows[j].progress)
+				var leader_advance: float=0.0
+				if flags & 5:leader_advance=maxf(0.0,leader_progress-positions[j])
+				if (flags & 1) and leader_advance>0.00000001:
+					var voluntary_limit: float=p+leader_advance*0.88
+					if voluntary_limit<resolved-0.000000001:
+						resolved=voluntary_limit
+				if not (flags & 2):continue
+				var allowed: float=maxf(p,leader_progress+pair_offset[k]-clearance)
+				if flags & 4:
+					allowed=minf(allowed,p+leader_advance+pair_headroom[k]*0.5)
+				if allowed<resolved-.000000001:
+					resolved=allowed
+					blocked=true
+			if resolved!=before:
+				a.progress=resolved
+				changed=true
+			if blocked:a_state.race_space_blocked=true
 		if not changed:break
 
 # Each triplet describes an already-resolved leader in insertion order:
