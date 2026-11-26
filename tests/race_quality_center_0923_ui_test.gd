@@ -43,7 +43,6 @@ func run() -> void:
 	var session = game.replay_session
 	verify(session.step_tick(), "one actual sporting tick")
 	game.race.running = false
-	var baseline: String = Codec.sporting_hash(game.race,session.policy)
 	panel.refresh()
 	var s: Dictionary = panel.session_snapshot()
 	verify(s.quality_state == "observed" and s.quality.observed_ticks == 1, "observer reused")
@@ -51,15 +50,28 @@ func run() -> void:
 	session.racecraft_audit_enabled = false
 	panel.refresh()
 	verify(panel.session_snapshot().quality_state == "disabled", "disabled observer distinct")
+	verify(session.step_tick(), "one deliberately unobserved tick")
+	game.race.running = false
 	session.racecraft_audit_enabled = true
+	panel.refresh()
+	verify(panel.session_snapshot().quality_state == "partial", "stale report explicitly partial")
+	verify(panel.quality_status.text.contains("Cobertura parcial"), "partial coverage visible")
+	game.replay_session = null
+	verify(panel.session_snapshot().quality_state == "unavailable", "missing session not certified")
+	game.replay_session = session
+	var baseline: String = Codec.sporting_hash(game.race,session.policy)
 	# Presentation fixture only: add a diagnostic sample without modifying sporting state.
+	var prior: Dictionary = session.racecraft_audit.quality_report()
+	var total: int = 1
+	for value in prior.counts.values(): total += int(value)
+	var previous_gap: int = int(prior.counts.negative_gap)
 	session.racecraft_audit._quality_flag("negative_gap",session.tick,int(game.race.cars[0].id),"dry","gap","-0.1")
 	panel.refresh()
-	verify(panel.quality_status.text.contains("1 ocorrências"), "observed counter shown")
-	verify(panel.quality_tree.get_root().get_child(1).get_child_count() == 1, "sample rendered")
+	verify(panel.quality_status.text.contains("%d ocorrências" % total), "observed counter shown")
+	verify(panel.quality_tree.get_root().get_child(1).get_child_count() == mini(64,prior.samples.size()+1), "sample rendered")
 	verify(panel.export_quality() == OK, "quality JSON exported")
 	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string("user://apex_quality_0923.json"))
-	verify(data is Dictionary and data.schema == "APEX_QUALITY_CENTER_0923" and data.session.quality.counts.negative_gap == 1, "JSON includes actual diagnosis")
+	verify(data is Dictionary and data.schema == "APEX_QUALITY_CENTER_0923" and data.session.quality.counts.negative_gap == previous_gap+1, "JSON includes actual diagnosis")
 	panel.recording.button_pressed = true
 	Perf.add_sample(&"fixture.cpu",1234)
 	panel.tabs.current_tab = 0
