@@ -15,7 +15,7 @@ import urllib.request
 REPO = "Jugadru/APEX-Simulation"
 OWNER = "Jugadru"
 HUB = 141
-COMMANDS = ("fast", "audit", "diagnose", "racecraft", "strategy", "replay", "performance", "report", "simulation", "graphics")
+COMMANDS = ("fast", "audit", "diagnose", "racecraft", "strategy", "replay", "performance", "report", "simulation", "graphics", "build")
 SHA = re.compile(r"[0-9a-f]{40}\Z")
 COMMAND = re.compile(r"/lab (" + "|".join(COMMANDS) + r") ([0-9a-f]{40})\Z")
 BAD = re.compile(r"^ERROR:|SCRIPT ERROR:|Parse Error:", re.M)
@@ -122,7 +122,7 @@ def select_tests(command, base, head, root):
         require(len(row) == 2 and re.fullmatch(r"[A-Za-z0-9_]+\.gd", row[0])
                 and re.fullmatch(r"[A-Za-z0-9_ .-]+", row[1]), "Invalid test plan")
         require((root / "tests" / row[0]).is_file(), "Missing test: " + row[0])
-    require(command == "audit" or bool(rows), "Empty test plan")
+    require(command in ("audit", "build") or bool(rows), "Empty test plan")
     return rows
 
 def run_case(argv, log, timeout, root, marker=None, check_godot=False):
@@ -209,6 +209,13 @@ def execute(command, base, head, root, out):
         if imported["status"] != "PASS":
             report["status"] = imported["status"]
             return 1
+        if command == "build":
+            from apex_lab_release import build
+            release = build(root, out, head)
+            report["release_test"] = {"status": release["status"], "artifact": "release-test.json",
+                                      "publication": "NOT_AUTHORIZED"}
+            report["status"] = "PASS"
+            return 0
         if command == "graphics":
             from apex_lab_graphics import prepare
             prepare(root.resolve())
