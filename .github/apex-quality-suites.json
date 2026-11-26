@@ -695,6 +695,19 @@
         }
       ],
       "checks": []
+    },
+    {
+      "id": "lab_sporting_scenario_12",
+      "paths": [
+        "tests/apex_lab_sporting_scenario_12_test.gd"
+      ],
+      "fast_tests": [
+        {
+          "script": "apex_lab_sporting_scenario_12_test.gd",
+          "marker": "APEX_LAB_SPORTING_12_PASS"
+        }
+      ],
+      "checks": []
     }
   ]
 }
