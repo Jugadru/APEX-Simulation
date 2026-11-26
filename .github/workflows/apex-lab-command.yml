@@ -8,6 +8,8 @@ on:
       - '.github/workflows/apex-lab-command.yml'
       - 'tools/apex_lab_command.py'
       - 'tools/tests/test_apex_lab_command.py'
+      - 'tools/apex_lab_diagnosis.py'
+      - 'tools/tests/test_apex_lab_diagnosis.py'
 permissions:
   contents: read
 jobs:
@@ -19,7 +21,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
-      - run: python3 -m unittest discover -s tools/tests -p test_apex_lab_command.py -v
+      - run: python3 -m unittest discover -s tools/tests -p 'test_apex_lab_*.py' -v
   authorize:
     if: github.event_name == 'issue_comment' && github.actor == 'Jugadru' && startsWith(github.event.comment.body, '/lab ')
     runs-on: ubuntu-latest
