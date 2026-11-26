@@ -806,6 +806,38 @@
         }
       ],
       "checks": []
+    },
+    {
+      "id": "factory_slot_reservations_0924",
+      "paths": [
+        "scripts/core/workshop_0656.gd",
+        "scripts/garage.gd",
+        "scripts/core/component_inventory_0651.gd",
+        "tests/factory_slot_reservations_0924_test.gd"
+      ],
+      "fast_tests": [
+        {
+          "script": "factory_slot_reservations_0924_test.gd",
+          "marker": "FACTORY_SLOT_0924_PASS"
+        },
+        {
+          "script": "workshop_0656_test.gd",
+          "marker": "WORKSHOP_PASS"
+        },
+        {
+          "script": "workshop_0656_edges.gd",
+          "marker": "WORKSHOP_EDGES_PASS"
+        },
+        {
+          "script": "component_inventory_0651_test.gd",
+          "marker": "INVENTORY_0651_PASS"
+        },
+        {
+          "script": "core_0642_save_migration_test.gd",
+          "marker": "APEX 0642 SAVE MIGRATION PASS"
+        }
+      ],
+      "checks": []
     }
   ]
 }

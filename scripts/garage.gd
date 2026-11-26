@@ -335,7 +335,10 @@ func component_action(team: String, id: String, action: String, car: int, contex
 	if inventory_locked: return "Oficina bloqueada durante a sessão, inclusive em pausa."
 	var state := get_team(team)
 	if Workshop.locked(state,id): return "Peça reservada na oficina. Cancele ou conclua o serviço."
-	if action == "install" and Workshop.locked(state, Inventory.installed(state.component_inventory,car,str(state.component_inventory.parts.get(id,{}).get("category","")))): return "Slot reservado na oficina."
+	if action == "install":
+		var category := str(state.component_inventory.parts.get(id,{}).get("category",""))
+		if Workshop.slot_locked(state,car,category) or Workshop.locked(state,Inventory.installed(state.component_inventory,car,category)):
+			return "Slot reservado na oficina."
 	var original: Dictionary = state.component_inventory
 	var candidate := original.duplicate(true)
 	var error := Inventory.operate(candidate, PARTS, id, action, car, context)

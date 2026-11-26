@@ -21,6 +21,16 @@ static func locked(state: Dictionary, id: String) -> bool:
 	for t in state.workshop.tasks:
 		if active(t) and (t.part == id or t.get("old_part","") == id): return true
 	return false
+# A replacement reserves its destination even when there is no installed old part.
+# Derived from persisted tasks and part category; no schema change or second ledger.
+static func slot_locked(state: Dictionary, car: int, category: String) -> bool:
+	if car not in [1,2] or category.is_empty(): return false
+	for t in state.get("workshop",{}).get("tasks",[]):
+		if not active(t) or t.service != "Substituição" or int(t.car) != car: continue
+		var part: Dictionary = state.component_inventory.parts.get(t.part,{})
+		if part.get("category","") == category: return true
+	return false
+
 static func create(state: Dictionary, args: Dictionary) -> String:
 	ensure(state)
 	var car := int(args.get("car",0))
@@ -38,6 +48,7 @@ static func create(state: Dictionary, args: Dictionary) -> String:
 	var old := ""
 	if service == "Substituição":
 		if p.status not in ["available","stored"]: return "Substituição exige peça em estoque."
+		if slot_locked(state,car,str(p.category)): return "Slot reservado na oficina."
 		old = Inventory.installed(inventory,car,str(p.category))
 	else:
 		if p.status != "installed" or int(p.car) != car: return "Selecione uma peça instalada neste carro."
@@ -81,7 +92,14 @@ static func complete(state: Dictionary, t: Dictionary) -> void:
 	var p: Dictionary = state.component_inventory.parts[t.part]
 	var quality := clampf(float(t.quality)/100.0,0,1)
 	if t.service == "Substituição":
-		var error := Inventory.operate(state.component_inventory,["Motor","Asa","Chassi"],t.part,"install",int(t.car),{"workshop_task":t.id})
+		# An older save may contain overlapping reservations. Never silently
+		# displace a part that was not the recorded replacement target.
+		var error := ""
+		var current := Inventory.installed(state.component_inventory,int(t.car),str(p.category))
+		if current != str(t.get("old_part","")):
+			error = "Destino da substituição mudou; cancele e planeje novamente."
+		else:
+			error = Inventory.operate(state.component_inventory,["Motor","Asa","Chassi"],t.part,"install",int(t.car),{"workshop_task":t.id})
 		if not error.is_empty():
 			t.status = "pendente"
 			t.remaining = 1.0
