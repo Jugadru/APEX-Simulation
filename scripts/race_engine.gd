@@ -853,7 +853,7 @@ func _advance(dt: float) -> void:
 			metrics.target = float(metrics.target)*float(line.pace_factor)
 			if longitudinal_rules:
 				var preview: Dictionary = RacingLine.sample(racing_line_profile,old_progress+Longitudinal069.PREVIEW_M/maxf(1.0,lap_km*1000.0),float(current_weather.get("wetness_factor",0.0)),float(old_car.get("skill",80.0)))
-				metrics[Longitudinal069.KEY] = {"legacy_factor":float(line.pace_factor),"load":float(line.load),"mean":float(racing_line_profile.mean),"ahead_load":float(preview.load)}
+				metrics[Longitudinal069.KEY] = {"legacy_factor":float(line.pace_factor),"load":float(line.load),"mean":float(racing_line_profile.mean),"ahead_load":float(preview.load),"progress":old_progress,"corners":racing_line_profile.get("corners",[])}
 			# A pit-bound car retains existing pit approach behavior.
 			var fraction: float = fposmod(old_progress,1.0)
 			if fraction>0.04 and fraction<0.93:
