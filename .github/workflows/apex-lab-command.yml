@@ -41,6 +41,32 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: python3 -I tools/apex_lab_command.py authorize
+  receipt:
+    if: github.event_name == 'issue_comment' && needs.authorize.result == 'success'
+    needs: authorize
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Return run link to the requesting issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE: ${{ github.event.issue.number }}
+          COMMAND: ${{ needs.authorize.outputs.command }}
+          HEAD: ${{ needs.authorize.outputs.head }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$ISSUE" =~ ^[0-9]+$ ]]
+          [[ "$HEAD" =~ ^[0-9a-f]{40}$ ]]
+          case "$COMMAND" in
+            fast|audit|diagnose|racecraft|strategy|replay|performance|report) ;;
+            *) exit 2 ;;
+          esac
+          body="$(printf 'APEX Lab request accepted: %s at %s. Hosted diagnostic only; official FAST remains required.\nRun: https://github.com/%s/actions/runs/%s\n' "$COMMAND" "$HEAD" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID")"
+          gh api --method POST "repos/$GITHUB_REPOSITORY/issues/$ISSUE/comments" -f "body=$body" --jq .id
   execute:
     if: github.event_name == 'issue_comment' && needs.authorize.result == 'success'
     needs: authorize
