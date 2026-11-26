@@ -17,6 +17,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: apex-core2-${{ github.workflow }}-${{ github.ref }}
@@ -38,6 +39,7 @@ jobs:
 
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Audit runtime resource inventory
         run: python3 tools/apex_source_inventory.py --check --output ci-results/source-inventory.json
@@ -47,6 +49,9 @@ jobs:
 
       - name: Validate LAB performance report contracts
         run: python3 -m unittest discover -s tools/tests -p 'test_apex_lab_perf_report.py' -v
+
+      - name: Validate optional performance history contracts
+        run: python3 -m unittest discover -s tools/tests -p 'test_apex_lab_perf_history.py' -v
 
       - name: Install Godot 4.7.2
         uses: chickensoft-games/setup-godot@ac93246ea68518a384c1c280a496e5989341f2f6 # v2.4.3
@@ -197,6 +202,31 @@ jobs:
             --log ci-results/apex_lab_performance_probe.log \
             --output ci-results/lab-perf
           cat ci-results/lab-perf/report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Record existing performance observation and recent history
+        continue-on-error: true
+        timeout-minutes: 3
+        env:
+          GH_TOKEN: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && github.token || '' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=()
+          if [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF" == "refs/heads/main" ]]; then
+            args+=(--history)
+          fi
+          python3 tools/apex_lab_perf_history.py --log ci-results/apex_lab_performance_probe.log \
+            --out ci-results/lab-perf "${args[@]}"
+
+      - name: Retain compact performance observation
+        if: always() && hashFiles('ci-results/lab-perf/observation.json') != ''
+        continue-on-error: true
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: apex-lab-observation-${{ github.run_attempt }}
+          path: ci-results/lab-perf/observation.json
+          retention-days: 30
+          if-no-files-found: warn
 
       - name: Publish logs for diagnosis
         if: always()
