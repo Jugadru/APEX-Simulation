@@ -753,6 +753,22 @@
         }
       ],
       "checks": []
+    },
+    {
+      "id": "smart_graphics_0923",
+      "paths": [
+        "scripts/track_3d.gd",
+        "scripts/apex_race_ui_legacy_builder.gd",
+        "scripts/apex_race_hud_0622.gd",
+        "tests/smart_graphics_0923_ui_test.gd"
+      ],
+      "fast_tests": [
+        {
+          "script": "smart_graphics_0923_ui_test.gd",
+          "marker": "SMART_GRAPHICS_0923_PASS"
+        }
+      ],
+      "checks": []
     }
   ]
 }

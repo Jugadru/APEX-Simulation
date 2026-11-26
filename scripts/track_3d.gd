@@ -41,6 +41,11 @@ var road_widths: Array[float] = []
 var road_outer_widths: Array[float] = []
 var road_distances: Array[float] = []
 
+# Render-only profiles. Index 0/1 reproduce the previous default/GTX launch
+# settings exactly; index 2 is an explicit economy option, not an auto downgrade.
+const GRAPHICS_PROFILES := ["Padrão", "GTX 1650", "Econômico"]
+var graphics_profile_index: int = 0
+var sun_light: DirectionalLight3D
 var world_environment_3d: WorldEnvironment
 var camera_3d: Camera3D
 var course_root: Node3D
@@ -62,8 +67,6 @@ var camera_look_target: Vector3 = Vector3.ZERO
 var free_camera_offset: Vector3 = Vector3(0.0, 110.0, 90.0)
 
 func _ready() -> void:
-	if RenderingServer.get_current_rendering_method() == "forward_plus":
-		get_viewport().use_taa = true
 	# Separate sub-viewport world with its own ambient and directional light.
 	var world_env := WorldEnvironment.new()
 	var env := Environment.new()
@@ -97,16 +100,13 @@ func _ready() -> void:
 	light.shadow_enabled = true
 	light.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
 	light.directional_shadow_max_distance = 240.0
-	# Rendering-only profile, selected at launch; no engine/physics changes.
-	if OS.get_environment("APEX_GRAPHICS_PROFILE") == "gtx1650":
-		light.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS
-		light.directional_shadow_max_distance = 160.0
-		env.ssao_enabled = false
 	light.shadow_bias = 0.015
 	light.shadow_normal_bias = 0.7
 	light.light_angular_distance = 0.5
 	light.rotation_degrees = Vector3(-57, -30, 0)
 	add_child(light)
+	sun_light = light
+	apply_graphics_profile(1 if OS.get_environment("APEX_GRAPHICS_PROFILE") == "gtx1650" else 0)
 	course_root = Node3D.new()
 	course_root.name = "Circuit3D"
 	add_child(course_root)
@@ -120,6 +120,26 @@ func _ready() -> void:
 	camera_3d.far = 1800.0
 	add_child(camera_3d)
 	_apply_camera()
+
+## Apply only renderer properties. No scene rebuilding, camera/route changes,
+## racing state, auto switching or persistent settings. The environment
+## variable remains a launch override for the historical benchmark contract.
+func apply_graphics_profile(index: int) -> void:
+	if sun_light == null or world_environment_3d == null:
+		return
+	graphics_profile_index = clampi(index, 0, GRAPHICS_PROFILES.size()-1)
+	var standard: bool = graphics_profile_index == 0
+	var economy: bool = graphics_profile_index == 2
+	var viewport: Viewport = get_viewport()
+	if viewport is SubViewport:
+		viewport.msaa_3d = Viewport.MSAA_4X if standard else (Viewport.MSAA_DISABLED if economy else Viewport.MSAA_2X)
+	# TAA is supported by Forward+ only. Keep the historical GTX preset
+	# unchanged; the economy option explicitly disables it.
+	if RenderingServer.get_current_rendering_method() == "forward_plus":
+		viewport.use_taa = not economy
+	sun_light.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS if standard else DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS
+	sun_light.directional_shadow_max_distance = 240.0 if standard else (100.0 if economy else 160.0)
+	world_environment_3d.environment.ssao_enabled = standard
 
 func set_track_data(track: PackedVector2Array, title: String, teams: Array = [],
 		entry_ref: Vector2 = Vector2.ZERO, entry_dir: Vector2 = Vector2.ZERO,

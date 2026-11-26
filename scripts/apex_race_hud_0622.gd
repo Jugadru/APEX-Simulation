@@ -1071,6 +1071,14 @@ func _build_race_window() -> void:
 	_btn(views, "MAPA 2D", _choose_view_window.bind(0), 124)
 	_btn(views, "AÉREA 3D", _choose_view_window.bind(1), 124)
 	_btn(views, "DIRETOR TV", _choose_view_window.bind(2), 128)
+	_text(overlay_content, "QUALIDADE GRÁFICA 3D", 12, ACCENT)
+	var graphics := _line(overlay_content, 8)
+	var profile_picker := _select(graphics, ["Padrão", "GTX 1650", "Econômico"], _choose_graphics_profile)
+	profile_picker.name = "GraphicsProfile0923"
+	profile_picker.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	profile_picker.select(int(host.world_view.graphics_profile_index))
+	profile_picker.tooltip_text = "Padrão: MSAA 4x, sombras 240u, SSAO. GTX 1650: MSAA 2x, sombras 160u, sem SSAO. Econômico: sem MSAA/TAA, sombras 100u, sem SSAO. TAA/SSAO dependem do renderizador. Somente visual; sessão atual."
+	_text(graphics, "Só visual • sem mudar a câmera ou a simulação", 11, MUTED)
 	_text(overlay_content, "CÂMERA", 12, ACCENT)
 	var cams := _line(overlay_content, 8)
 	_btn(cams, "LIVRE", _choose_camera_mode.bind(0), 125)
@@ -1085,6 +1093,10 @@ func _build_race_window() -> void:
 	var live_mode := _select(team_line, ["MANUAL", "AUTO"], _set_team_mode)
 	live_mode.select(1 if host.team_control_mode == "Automático" else 0)
 	_btn(team_line, "MENU PRINCIPAL", _menu, 145)
+
+func _choose_graphics_profile(index: int) -> void:
+	if host != null and host.world_view != null:
+		host.world_view.apply_graphics_profile(index)
 
 func _center_camera() -> void:
 	host._reset_camera()

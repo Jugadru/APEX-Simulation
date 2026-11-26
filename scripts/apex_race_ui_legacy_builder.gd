@@ -26,9 +26,7 @@ static func _build_game_ui(host) -> void:
 	host.world_viewport = SubViewport.new()
 	host.world_viewport.size = Vector2i(1920, 1080)
 	host.world_viewport.own_world_3d = true
-	# Explicit opt-in GPU profile; the existing visual default is unchanged.
-	var economical_graphics: bool = OS.get_environment("APEX_GRAPHICS_PROFILE") == "gtx1650"
-	host.world_viewport.msaa_3d = Viewport.MSAA_2X if economical_graphics else Viewport.MSAA_4X
+	# Track3D owns the render profile, including the original launch override.
 	host.world_viewport.render_target_update_mode = SubViewport.UPDATE_WHEN_VISIBLE
 	host.world_container.add_child(host.world_viewport)
 	host.world_view = Track3DScript.new()

@@ -1,11 +1,17 @@
 # Changelog — APEX Motorsport Manager Core 2
 
+## Unreleased — 9.23 Smart Graphics (runtime profiles)
+
+- Perfis gráficos 3D no Controle da Corrida: Padrão, GTX 1650 e Econômico. Padrão e GTX preservam as configurações anteriores, inclusive APEX_GRAPHICS_PROFILE=gtx1650; Econômico reduz MSAA/TAA e alcance de sombras, sem SSAO.
+- Perfil escolhido manualmente, válido durante a execução do jogo; não troca câmera, modo 2D/3D ou geometria, não reconstrói modelos e não modifica física. TAA somente Forward+; SSAO depende do renderizador.
+- Regressão direcionada FAST na cena real, configurações e retorno ao padrão, seleção na HUD, alternância 2D/3D, hash esportivo e capturas Xvfb. Sem ganho de FPS comprovado, teste nativo ou revisão visual humana; execução pendente.
+
 ## Unreleased — 9.23 Radio Polish (local speech queue)
 
 - Limpa mensagens vencidas por relógio real e tempo esportivo antes de admitir/consumir fala; fila de oito preservada, prioridades maiores podem substituir a pior mensagem e empates mantêm a ordem anterior.
 - Em 10x+ elimina mensagens comuns pendentes e interrompe fala não urgente; idioma indisponível não interrompe mensagens válidas. Seleção estável por ID de voz, normalização de locale e tentativa explícita após indisponibilidade.
 - Reconstrução do histórico ao entrar, buscar ou sair do replay permanece textual, sem reproduzir mensagens arquivadas; falas futuras e consultas continuam usando a infraestrutura da 9.22.
-- Teste direcionado com backend de fala controlado, sem fingir reprodução sonora. A escuta real, efeitos de rádio e sincronização fonética permanecem não verificados; FAST pendente.
+- Teste direcionado com backend de fala controlado, sem fingir reprodução sonora. A escuta real, efeitos de rádio e sincronização fonética permanecem não verificados. FAST PASS (22/22) no SHA 3c9b09bc6626b2e8d86847cbba5f31c7ba6b8b1f, run 45880337210; Race Engineer 13/13, run 45880337108; PR #158 integrada em 23bec7d48a25aa56a553f7fd4845658e84695f70.
 
 ## Unreleased — 9.23 HUD Optimization (demand-driven proximity)
 
