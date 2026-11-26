@@ -121,6 +121,8 @@ func refresh() -> void:
 			if not Model.active(t): continue
 			var card := UI.card(content,"%s / CAR %d / %s" % [t.id,t.car,t.service])
 			UI.label(card,"%s • %s • prioridade %d • %.1f / %.1f h restantes • R$ %d" % [t.status,t.staff_name,t.priority,float(t.remaining),float(t.estimated),t.cost],16)
+			var blocked := Model.task_block_reason(state,t)
+			if not blocked.is_empty(): UI.label(card,blocked,14,UI.ORANGE)
 			var progress := ProgressBar.new()
 			progress.value = 100*(1-float(t.remaining)/float(t.estimated))
 			card.add_child(progress)

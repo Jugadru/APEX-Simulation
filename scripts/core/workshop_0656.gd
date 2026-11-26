@@ -73,6 +73,24 @@ static func cancel(state: Dictionary, id: String) -> String:
 		state.workshop.log.append("%s cancelada pelo jogador; devolução R$ %d (trabalho consumido cobrado)." % [id,refund])
 		return ""
 	return "Tarefa não está ativa."
+# Derive blocking reason from the existing inventory and order, without a new
+# status or schema. An invalid destination must not consume staff time.
+static func task_block_reason(state: Dictionary, t: Dictionary) -> String:
+	if not active(t): return ""
+	var inventory: Dictionary = state.component_inventory
+	var error := Inventory.validate(inventory,["Motor","Asa","Chassi"])
+	if not error.is_empty(): return error
+	var p: Dictionary = inventory.parts.get(t.part,{})
+	if p.is_empty(): return "Componente inexistente; cancele e planeje novamente."
+	if t.service == "Substituição":
+		if p.status not in ["available","stored"]:
+			return "Peça de substituição indisponível; cancele e planeje novamente."
+		if Inventory.installed(inventory,int(t.car),str(p.category)) != str(t.get("old_part","")):
+			return "Destino da substituição mudou; cancele e planeje novamente."
+	elif p.status != "installed" or int(p.car) != int(t.car):
+		return "Componente não está instalado no carro da ordem; cancele e planeje novamente."
+	return ""
+
 static func schedule(state: Dictionary) -> void:
 	var people := staff(state)
 	var busy := {}
@@ -80,15 +98,20 @@ static func schedule(state: Dictionary) -> void:
 	queue.sort_custom(func(a,b): return a.priority>b.priority if a.priority!=b.priority else a.id<b.id)
 	for t in queue:
 		if t.status == "em execução":
-			if not people.has(t.staff):
+			if not people.has(t.staff) or not task_block_reason(state,t).is_empty():
 				t.status = "pendente"
 			else: busy[t.staff] = true
 	for t in queue:
 		if t.status != "pendente" or busy.has(t.staff) or not people.has(t.staff): continue
+		if not task_block_reason(state,t).is_empty(): continue
 		t.status = "em execução"
 		if not t.has("started"): t.started = state.workshop.hour
 		busy[t.staff] = true
 static func complete(state: Dictionary, t: Dictionary) -> void:
+	var blocked := task_block_reason(state,t)
+	if not blocked.is_empty():
+		t.status = "pendente"
+		return
 	var p: Dictionary = state.component_inventory.parts[t.part]
 	var quality := clampf(float(t.quality)/100.0,0,1)
 	if t.service == "Substituição":
