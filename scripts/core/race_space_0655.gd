@@ -648,7 +648,14 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 		# New revision only. All tactical decisions are already resolved into
 		# the desired pace; existing occupancy solver retains final authority.
 		if metrics[id].has(Longitudinal069.KEY) and lap_km > 0.3:
-			var physical: Dictionary = Longitudinal069.propose(c,metrics[id][Longitudinal069.KEY],float(a.pace),lap_km*1000.0,float(a.driving_dt),weather)
+			var curve: Dictionary = metrics[id][Longitudinal069.KEY]
+			if bool(curve.get(Powertrain070.KEY,false)):
+				# Reuse the chosen wake source; never search for another or change lanes.
+				var delivery: Dictionary = curve.get("power_delivery_070",{}).duplicate()
+				delivery["tow_fraction"]=float(a.get("aero_wake_032",{}).get("tow_fraction",0.0))
+				curve = curve.duplicate()
+				curve["power_delivery_070"]=delivery
+			var physical: Dictionary = Longitudinal069.propose(c,curve,float(a.pace),lap_km*1000.0,float(a.driving_dt),weather)
 			a.next = own_progress+float(physical.distance_m)/(lap_km*1000.0)
 			a[Longitudinal069.KEY] = physical
 	# Before entering a single corridor, the trailing side yields gradually.

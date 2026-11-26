@@ -13,6 +13,14 @@ const SHIFT_S := 0.06
 const WHEEL_RADIUS_M := 0.33
 const EFFICIENCY := 0.93
 const REFERENCE_MASS_KG := 700.0
+const Kers2012 = preload("res://scripts/core/race_kers_2012.gd")
+# 0.5 * 1.2 * 0.8 = the initial reference quadratic coefficient 0.48.
+const AIR_DENSITY := 1.2
+const REFERENCE_CDA := 0.8
+const ROLLING_FORCE_N := 150.0
+const DRS_DRAG_REDUCTION := 0.15
+const MAX_TOW_DRAG_REDUCTION := 0.08
+const REFERENCE_TOW_FRACTION := 0.014
 
 static func raw_rpm(speed_mps: float, gear: int) -> float:
 	return maxf(0.0,speed_mps)*float(RATIOS[clampi(gear,1,7)-1])/WHEEL_RADIUS_M*60.0/TAU
@@ -34,7 +42,15 @@ static func initial_gear(speed_mps: float) -> int:
 		if raw_rpm(speed_mps,gear)<=UPSHIFT_RPM: return gear
 	return 7
 
-static func advance(previous: Dictionary, speed_mps: float, throttle: float, dt: float, mass_kg: float = REFERENCE_MASS_KG) -> Dictionary:
+## Reference drag in SI; use only the existing authorized DRS and wake.
+## No lateral/aero grip or strategy ownership. Coefficients experimental.
+static func aerodynamic_drag_n(speed_mps: float, aero: Dictionary = {}) -> float:
+	var speed: float = maxf(0.0,speed_mps)
+	var tow: float = clampf(float(aero.get("tow_fraction",0.0))/REFERENCE_TOW_FRACTION,0.0,1.0)
+	var factor: float = (1.0-DRS_DRAG_REDUCTION if bool(aero.get("drs_active",false)) else 1.0)*(1.0-MAX_TOW_DRAG_REDUCTION*tow)
+	return 0.5*AIR_DENSITY*REFERENCE_CDA*factor*speed*speed
+
+static func advance(previous: Dictionary, speed_mps: float, throttle: float, dt: float, mass_kg: float = REFERENCE_MASS_KG, delivery: Dictionary = {}) -> Dictionary:
 	var step: float = maxf(0.0,dt)
 	var gear: int = clampi(int(previous.get("gear",initial_gear(speed_mps))),1,7)
 	var remaining: float = clampf(float(previous.get("shift_remaining_s",0.0)),0.0,SHIFT_S)
@@ -52,13 +68,30 @@ static func advance(previous: Dictionary, speed_mps: float, throttle: float, dt:
 	var rpm: float = clampf(raw,IDLE_RPM,LIMIT_RPM)
 	var request: float = clampf(throttle,0.0,1.0)
 	var torque: float = torque_nm(raw)*request
-	var force: float = torque*float(RATIOS[gear-1])*EFFICIENCY/WHEEL_RADIUS_M
-	# Reference road load only limits positive drive, never changes 041 braking.
-	# Detailed aero, fuel mass and tyre load integration are later versions.
-	var resistance: float = 150.0+0.48*maxf(0.0,speed_mps)*maxf(0.0,speed_mps)
+	var ratio: float = float(RATIOS[gear-1])
+	var v8_force: float = torque*ratio*EFFICIENCY/WHEEL_RADIUS_M
+	# RaceKers2012 already debits the authorized energy. Here we consume
+	# its current-tick power offer, never debit the reservoir a second time.
+	# Shaft coupling uses the reference clutch/idle approximation at low rpm.
+	var allocated_kw: float = clampf(float(delivery.get("kers_power_kw",0.0)),0.0,Kers2012.POWER_KW)
+	var kers_kw: float = allocated_kw*request if raw<=LIMIT_RPM else 0.0
+	var kers_torque: float = kers_kw*1000.0/maxf(1.0,rpm*TAU/60.0)
+	var kers_force: float = kers_torque*ratio*EFFICIENCY/WHEEL_RADIUS_M
+	var force: float = v8_force+kers_force
+	var drag: float = aerodynamic_drag_n(speed_mps,delivery)
+	var resistance: float = ROLLING_FORCE_N+drag
+	var v8_kw: float = power_kw(torque,rpm)
+	# Offered shaft power/energy before target/grip/traffic restrictions,
+	# not measured wheel work, fuel consumption or regenerated energy.
 	return {"gear":gear,"rpm":rpm,"shift_remaining_s":maxf(0.0,remaining-cut),"shift_cut_s":cut,
-		"throttle":request,"torque_nm":torque*drive_fraction,"power_kw":power_kw(torque,rpm)*drive_fraction,
+		"throttle":request,"torque_nm":torque*drive_fraction,"power_kw":v8_kw*drive_fraction,
+		"v8_power_kw":v8_kw*drive_fraction,"kers_allocated_kw":allocated_kw,"kers_power_kw":kers_kw*drive_fraction,
+		"total_power_kw":(v8_kw+kers_kw)*drive_fraction,
+		"v8_energy_offer_kj":v8_kw*maxf(0.0,step-cut),"kers_energy_offer_kj":kers_kw*maxf(0.0,step-cut),
+		"total_energy_offer_kj":(v8_kw+kers_kw)*maxf(0.0,step-cut),
 		"wheel_force_n":force*drive_fraction,"uncut_wheel_force_n":force,"road_load_n":resistance,
+		"aero_drag_n":drag,"rolling_force_n":ROLLING_FORCE_N,"drs_active":bool(delivery.get("drs_active",false)),
+		"tow_fraction":clampf(float(delivery.get("tow_fraction",0.0)),0.0,REFERENCE_TOW_FRACTION),
 		"uncut_accel_mps2":maxf(0.0,force-resistance)/maxf(1.0,mass_kg)}
 
 static func settle(proposal: Dictionary, actual_speed_mps: float) -> Dictionary:

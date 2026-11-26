@@ -69,9 +69,10 @@ static func propose(car: Dictionary, curve: Dictionary, pace_s: float, lap_m: fl
 	var target := minf(desired,braking_cap(future,float(limits.brake),PREVIEW_M))
 	target = minf(target,apex_braking_cap(curve,nominal,lap_m,traction,desired))
 	# 042 opt-in only. Braking and traffic remain authoritative.
-	# KERS/DRS already affect the target pace; do not add their power twice.
+	# The existing KERS/DRS/wake pace remains the target ceiling; the
+	# powertrain only supplies a force limit, never adds speed to the target.
 	if bool(curve.get(Powertrain070.KEY,false)):
-		var drive: Dictionary = Powertrain070.advance(car.get(Powertrain070.KEY,{}),previous,1.0 if target>previous else 0.0,driving_dt)
+		var drive: Dictionary = Powertrain070.advance(car.get(Powertrain070.KEY,{}),previous,1.0 if target>previous else 0.0,driving_dt,Powertrain070.REFERENCE_MASS_KG,curve.get("power_delivery_070",{}))
 		var movement: Dictionary
 		if target>previous:
 			var cut: float = float(drive.shift_cut_s)
