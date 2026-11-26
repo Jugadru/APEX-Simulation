@@ -23,6 +23,24 @@ func run() -> void:
 	check(is_equal_approx(float(second.speed_mps),float(up.speed_mps)) and is_equal_approx(float(half.distance_m)+float(second.distance_m),float(up.distance_m)),"constant-rate chunk invariant")
 	check(is_equal_approx(P.braking_cap(30.0,10.0,35.0),40.0),"braking distance relation")
 	check(P.corner_speed(70.0,0.9,0.2)<P.corner_speed(70.0,0.1,0.2),"corner target lower than straight")
+	check(is_equal_approx(P.braking_distance(40.0,30.0,10.0),35.0),"SI braking distance")
+	check(P.braking_distance(20.0,30.0,10.0)==0.0,"no braking below target")
+	var approach := {"progress":0.90,"mean":0.0,"corners":[{"apex":0.02,"severity":1.0}]}
+	var dry_cap: float = P.apex_braking_cap(approach,100.0,1000.0,1.0,100.0)
+	var wet_cap: float = P.apex_braking_cap(approach,100.0,1000.0,0.35,100.0)
+	check(is_equal_approx(dry_cap,100.0) and wet_cap<dry_cap and wet_cap>76.0,"wet braking starts beyond 60m across finish line")
+	approach.progress=0.02
+	check(is_equal_approx(P.apex_braking_cap(approach,100.0,1000.0,0.35,100.0),76.0),"explicit apex target")
+	approach.progress=0.03
+	check(is_equal_approx(P.apex_braking_cap(approach,100.0,1000.0,0.35,100.0),100.0),"release apex constraint on exit")
+	approach.progress=0.90
+	approach["load"]=0.0
+	approach["ahead_load"]=0.0
+	approach["legacy_factor"]=1.0
+	var wet_car := {"tire":"Médio","wear":0.0}
+	wet_car[P.KEY]=100.0
+	var wet_approach: Dictionary = P.propose(wet_car,approach,10.0,1000.0,0.2,{"grip_factor":0.7,"wetness_factor":0.8})
+	check(float(wet_approach.speed_mps)<100.0,"actual proposal brakes before apex despite clear 60m preview")
 	var dry := {"grip_factor":1.0,"wetness_factor":0.0}
 	var wet := {"grip_factor":0.7,"wetness_factor":0.8}
 	var slick := {"tire":"Médio","wear":0.0}
@@ -84,5 +102,17 @@ func run() -> void:
 		var legacy = Replay.new()
 		check(legacy.load_data(former.export_data()) and legacy.seek(330) and legacy.seek(150) and legacy.seek(330),"040 still replays")
 		print("LONGITUDINAL_069_CASE ",JSON.stringify({"track":code,"climate":climate,"ticks":rec.tick,"speed_samples":active_ticks,"min_mps":min_speed,"max_mps":max_speed,"progress_changed":changed_progress}))
+		# Existing short scenarios remain unchanged. Observe an actual Monza
+		# lap crossing in the unrecorded live session, not a target-time fixture.
+		if code=="ITA":
+			var timing_car: Dictionary = second_race.player_cars()[0]
+			var start_lap: int = int(timing_car.laps_done)
+			var start_clock: float = float(timing_car.lap_started)
+			for step in range(900):
+				if int(timing_car.laps_done)>start_lap: break
+				if not live.step_tick(): break
+				timing_car=second_race.player_cars()[0]
+			check(int(timing_car.laps_done)>start_lap,"041 actual Monza lap crossing")
+			check(is_equal_approx(float(timing_car.last_lap),float(second_race.clock)-start_clock),"041 lap time measured from actual crossing")
 	if failures.is_empty(): print("LONGITUDINAL_069_PASS checks=%d" % checks)
 	quit(0 if failures.is_empty() else 1)
