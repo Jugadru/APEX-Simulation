@@ -1,9 +1,9 @@
 # Changelog — APEX Motorsport Manager Core 2
 
-## Unreleased — v0.6.9 Braking & Acceleration Physics 1.0
+## v0.6.9 — Braking & Acceleration Physics 1.0
 
 - Revisão esportiva 041: integração longitudinal de velocidade e distância em SI, com aceleração/frenagem finitas, carga local de curva e preview, aderência condicionada a clima/pneus/desgaste. Movimento submetido ao solver existente; largada, pit-lane, estratégia e RNG preservados.
-- Replays 040 e anteriores conservam seu contrato; novos dados de velocidade apenas por carro em 041, sem schema novo. Testes de oráculos físicos, 24 carros em seco e chuva, reprodução/seek 040/041, gravação ON/OFF e BOX V21. Coeficientes experimentais; FAST pendente. [Contrato técnico](docs/APEX_069_LONGITUDINAL_PHYSICS.md).
+- Replays 040 e anteriores conservam seu contrato; novos dados de velocidade apenas por carro em 041, sem schema novo. Testes de oráculos físicos, 24 carros em seco e chuva, reprodução/seek 040/041, gravação ON/OFF e BOX V21. Coeficientes experimentais; FAST [45908721308](https://github.com/Jugadru/APEX-Simulation/actions/runs/45908721308) PASS no SHA `ee0e2dae54aad599fecab38e1c53837274d18edd` (56 testes, 50.220 checks longitudinais, BOX V21 real em Silverstone no tick 11.801). PR #172 integrada em `8b5755279b134b051f3d237bdbbb517f9a6a721b`. Seis regressões esportivas direcionadas PASS, seis workflows skipped; sem FULL, exportação ou calibração de telemetria. [Contrato técnico](docs/APEX_069_LONGITUDINAL_PHYSICS.md).
 
 ## v0.6.8 — Race Randomness & Simulation Integrity 1.0
 
