@@ -3,8 +3,11 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
+import json
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import apex_lab_correlation as corr
+import apex_lab_command as bridge
 
 HEAD = "a" * 40
 BASE = "b" * 40
@@ -50,6 +53,25 @@ class CorrelationTests(unittest.TestCase):
         self.assertTrue(all(len(chain) <= 4 for _, _, chain in paths))
         self.assertNotIn(("e", "literal_dependency", ["a","b","c","d","e"]), paths)
         self.assertFalse(any(target == "a" for target, _, _ in paths))
+
+    def test_bridge_preserves_failed_case(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            out = root / "output"
+            failing = {"status": "FAIL", "log": "inventory.log",
+                       "diagnosis": {"kind": "RESOURCE", "locations": [],
+                                     "next_action": "Inspect inventory"}}
+            with patch.object(bridge.subprocess, "check_output", return_value=HEAD), \
+                 patch.object(bridge, "select_tests", return_value=[("fixture.gd", "OK")]), \
+                 patch.object(bridge, "run_case", return_value=failing), \
+                 patch.object(corr, "change_context", return_value=context("scripts/a.gd")):
+                self.assertEqual(bridge.execute("diagnose", BASE, HEAD, root, out), 1)
+            report = json.loads((out / "report.json").read_text())
+            correlation = json.loads((out / "correlation.json").read_text())
+            self.assertEqual(report["status"], "FAIL")
+            self.assertEqual(report["correlation"]["status"], "PASS")
+            self.assertEqual(correlation["planned_not_executed"], ["fixture.gd"])
+            self.assertEqual(correlation["failures"][0]["kind"], "RESOURCE")
 
     def test_real_git_diff(self):
         with tempfile.TemporaryDirectory() as tmp:
