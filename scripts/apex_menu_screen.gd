@@ -1,4 +1,5 @@
 extends RefCounted
+const Randomness = preload("res://scripts/core/race_randomness_068.gd")
 const WetSetupPanel = preload("res://scripts/presentation/apex_wet_setup_panel_0918.gd")
 ## APEX 0.6.2.3 — extracted responsibility; main.gd remains the scene host.
 ## The wrapper preserves legacy signals and callbacks.
@@ -126,13 +127,18 @@ static func _build_menu(host) -> void:
 	var left := VBoxContainer.new()
 	left.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(left)
-	host._label(left, "Semente (base da temporada ou do GP)", 15, WHITE)
+	host._label(left, "Semente (automática ou manual)", 15, WHITE)
 	host.seed_picker = SpinBox.new()
 	host.seed_picker.min_value = 0
 	host.seed_picker.max_value = 999999999
 	host.seed_picker.value = 42
 	host.seed_picker.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	left.add_child(host.seed_picker)
+	var new_seed: Button = host._button(left, "GERAR NOVA SEMENTE", func():
+		if not host.championship_mode and host.seed_picker.editable:
+			host.seed_picker.value = Randomness.automatic_seed(int(host.seed_picker.value)))
+	new_seed.name = "GenerateSeed068"
+	new_seed.tooltip_text = "Gera uma nova semente antes da corrida. Copie ou edite o número para reproduzir a mesma configuração."
 	var right := VBoxContainer.new()
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(right)

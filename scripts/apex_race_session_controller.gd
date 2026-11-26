@@ -100,7 +100,7 @@ static func _start_race(host) -> void:
 	host.garage_root.hide()
 	host.staff_root.hide()
 	host.game_root.show()
-	host.commentary.reset(int(host.seed_picker.value))
+	host.commentary.reset(int(host.race.rng.seed))
 	host.commentary.configure_engineer(team_state, host.garage.effective_staff_levels(host.selected_team))
 	host.commentary.ingest(host.race, host.selected_team)
 	host._render_commentary()

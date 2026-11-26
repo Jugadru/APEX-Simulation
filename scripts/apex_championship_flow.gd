@@ -50,6 +50,8 @@ static func _update_championship_menu(host) -> void:
 	host.team_picker.disabled = host.championship_mode
 	host.track_picker.disabled = host.championship_mode
 	host.seed_picker.editable = not host.championship_mode
+	var new_seed: Button = host.menu_root.find_child("GenerateSeed068",true,false) as Button
+	if is_instance_valid(new_seed): new_seed.disabled = host.championship_mode
 	if not existing:
 		host.championship_status.text = "GP avulso • crie uma temporada para somar pontos de pilotos e construtores."
 	elif host.championship.is_complete():

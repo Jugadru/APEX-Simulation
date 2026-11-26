@@ -1,4 +1,5 @@
 extends SceneTree
+const Randomness=preload("res://scripts/core/race_randomness_068.gd")
 const Codec=preload("res://scripts/core/race_state_codec_0660.gd")
 const Portrait=preload("res://scripts/apex_portrait_local_2012.gd")
 var checks:=0
@@ -23,7 +24,15 @@ func run()->void:
 	host.set_process(false)
 	var front=host.menu_root.get_node("FrontDoor")
 	var preview=host.menu_root.find_child("SeasonPreparationPreview",true,false)
+	var previous_seed:int=int(host.seed_picker.value)
 	front.open_standard()
+	var generated:int=int(host.seed_picker.value)
+	check(generated>=0 and generated<=Randomness.AUTO_SEED_MAX and generated!=previous_seed,"automatic new season seed")
+	var seed_button:Button=host.menu_root.find_child("GenerateSeed068",true,false) as Button
+	check(seed_button!=null and not seed_button.disabled,"regenerate seed available")
+	if seed_button!=null:
+		seed_button.pressed.emit()
+		check(int(host.seed_picker.value)!=generated,"explicit regenerate")
 	check(preview.drafting and not host.championship_mode and not host.championship.has_season(),"Standard opens unsaved draft")
 	check(host.track_picker.disabled and host.selected_track_index==0 and host.seed_picker.editable,"first round locked, seed editable")
 	check(preview.create_button.is_visible_in_tree() and not host.start_button.is_visible_in_tree(),"distinct create action")
@@ -70,6 +79,7 @@ func run()->void:
 	await settle()
 	check(host.championship.has_season() and host.championship_mode and not preview.drafting,"create actual season")
 	check(host.championship.state.seed==99179 and host.championship.state.team==host.selected_team and host.championship.state.calendar.size()==20,"actual season data")
+	check(seed_button!=null and seed_button.disabled,"saved season seed locked")
 	check(host.team_picker.disabled and host.track_picker.disabled and not host.seed_picker.editable and host.start_button.visible and not preview.create_button.visible,"season locked, start visible")
 	var active_state:Dictionary=host.championship.state.duplicate(true)
 	var active_file:String=FileAccess.get_file_as_string(host.championship.save_path)
@@ -102,10 +112,12 @@ func run()->void:
 	check(host.race!=null and host.race.cars.size()==24 and host.championship_race_active,"launch real championship GP")
 	if host.race==null: quit(1);return
 	check(host.race.track.code==saved.calendar[0].code,"actual first circuit")
+	check(host.race.rng.seed==int(saved.seed) and host.replay_session.checkpoint().state.rng.seed==int(saved.seed),"saved season seed reaches engine and replay")
 	host.race.running=false
 	var race=host.race
 	var hash_before:String=Codec.sporting_hash(race,host.replay_session.policy)
 	host._show_menu();front.open_sandbox()
+	check(int(host.seed_picker.value)!=active_seed and int(host.seed_picker.value)<=Randomness.AUTO_SEED_MAX,"automatic standalone GP seed")
 	check(not preview.drafting and not host.championship_mode and not host.track_picker.disabled,"sandbox freely configurable")
 	front.apply_preset(1)
 	check(host.season_tracks[host.selected_track_index].code=="ITA" and preview.circuit.text==str(host.season_tracks[host.selected_track_index].name),"preset summary")

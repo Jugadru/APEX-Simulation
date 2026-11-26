@@ -157,7 +157,12 @@ func run():
  if trigger>=0:
   natural.tick_counter=trigger
   chosen["pit_scheduled_lap"]=21
+  var restored_natural=Codec.restore(Codec.capture(natural))
+  check(restored_natural!=null,"pre-error checkpoint restores")
   natural.step(.2)
+  if restored_natural!=null:
+   restored_natural.step(.2)
+   check(Codec.sporting_hash(restored_natural,{})==Codec.sporting_hash(natural,{}) and restored_natural.rng.state==natural.rng.state,"natural error reproduced exactly from checkpoint")
   check(int(chosen.get(ErrorModel.KEY,{}).get("count",0))==1,"natural engine error starts")
   check(bool(chosen.get(ErrorModel.KEY,{}).get("radio_announced",false)),"natural player radio announced")
   var incident:bool=false;var reply:bool=false

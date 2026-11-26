@@ -838,6 +838,60 @@
         }
       ],
       "checks": []
+    },
+    {
+      "id": "race_randomness_068",
+      "paths": [
+        "scripts/core/race_randomness_068.gd",
+        "scripts/core/race_driver_error_0921.gd",
+        "scripts/core/race_weather.gd",
+        "scripts/core/race_state_codec_0660.gd",
+        "scripts/race_engine.gd",
+        "tests/race_randomness_068_test.gd",
+        "scripts/presentation/apex_season_preparation_09179.gd",
+        "scripts/apex_front_menu.gd",
+        "scripts/apex_menu_screen.gd",
+        "scripts/apex_championship_flow.gd",
+        "scripts/apex_race_session_controller.gd",
+        "tests/wet_strategy_06698_test.gd",
+        "tests/season_preparation_09179_test.gd",
+        "tests/driver_error_0921_test.gd"
+      ],
+      "fast_tests": [
+        {
+          "script": "race_randomness_068_test.gd",
+          "marker": "RACE_RANDOMNESS_068_PASS"
+        },
+        {
+          "script": "driver_error_0921_test.gd",
+          "marker": "DRIVER_ERROR_0921_PASS"
+        },
+        {
+          "script": "wet_weather_setups_0918_test.gd",
+          "marker": "WET_SETUPS_0918_PASS"
+        },
+        {
+          "script": "perf_0657_rng.gd",
+          "marker": "PERF_RNG_PASS"
+        },
+        {
+          "script": "core_0642_save_migration_test.gd",
+          "marker": "APEX 0642 SAVE MIGRATION PASS"
+        },
+        {
+          "script": "wet_strategy_06698_test.gd",
+          "marker": "WET_STRATEGY_06698_PASS"
+        },
+        {
+          "script": "season_preparation_09179_test.gd",
+          "marker": "SEASON_PREPARATION_09179_PASS"
+        },
+        {
+          "script": "front_menu_test.gd",
+          "marker": "FRONT_MENU_PASS"
+        }
+      ],
+      "checks": []
     }
   ]
 }

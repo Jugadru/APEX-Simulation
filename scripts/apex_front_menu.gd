@@ -194,7 +194,7 @@ func apply_preset(index: int) -> void:
     if index < 0 or index >= PRESETS.size():
         return
     var preset: Dictionary = PRESETS[index]
-    Prep.find(host).prepare_gp()
+    Prep.find(host).prepare_gp(false)
     for track_index in range(host.season_tracks.size()):
         if str(host.season_tracks[track_index].get("code", "")) == str(preset["code"]):
             host.track_picker.select(track_index)
