@@ -15,11 +15,16 @@ import urllib.request
 REPO = "Jugadru/APEX-Simulation"
 OWNER = "Jugadru"
 HUB = 141
-COMMANDS = ("fast", "audit", "diagnose", "racecraft", "strategy", "replay", "performance", "report", "simulation")
+COMMANDS = ("fast", "audit", "diagnose", "racecraft", "strategy", "replay", "performance", "report", "simulation", "graphics")
 SHA = re.compile(r"[0-9a-f]{40}\Z")
 COMMAND = re.compile(r"/lab (" + "|".join(COMMANDS) + r") ([0-9a-f]{40})\Z")
 BAD = re.compile(r"^ERROR:|SCRIPT ERROR:|Parse Error:", re.M)
 TESTS = {
+    "graphics": (
+        ("pitwall_0649_ui_test.gd", "PITWALL_0667_QUEUE_AWARE_UI_PASS"),
+        ("race_engineer_0922_ui_test.gd", "ENGINEER_0922_UI_PASS"),
+        ("car_model_smoke_test.gd", "APEX CAR MODEL TEST OK"),
+    ),
     "simulation": (
         ("apex_lab_sporting_scenario_12_test.gd", "APEX_LAB_SPORTING_12_PASS"),
     ),
@@ -204,6 +209,9 @@ def execute(command, base, head, root, out):
         if imported["status"] != "PASS":
             report["status"] = imported["status"]
             return 1
+        if command == "graphics":
+            from apex_lab_graphics import prepare
+            prepare(root.resolve())
         for script, marker in rows:
             result = run_case(["bash", "tools/apex_ci_isolated_test.sh", script],
                               out / (script + ".log"), 260, root, marker, True)
@@ -212,6 +220,12 @@ def execute(command, base, head, root, out):
             if result["status"] != "PASS":
                 report["status"] = result["status"]
                 return 1
+        if command == "graphics":
+            from apex_lab_graphics import collect
+            graphics = collect(root, out)
+            report["graphics"] = {"status": graphics["status"], "visual_review": graphics["visual_review"],
+                                  "capture_count": len(graphics["captures"]), "artifact": "graphics.json"}
+            save()
         if command == "performance":
             result = run_case([sys.executable, "tools/apex_lab_perf_report.py", "--log",
                                str(out / "apex_lab_performance_probe.gd.log"), "--output",
