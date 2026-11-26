@@ -1,10 +1,16 @@
 # Changelog — APEX Motorsport Manager Core 2
 
+## Unreleased — 9.23 Endurance Laboratory 1.0 (bounded FAST)
+
+- Reutiliza FAST e os contratos existentes de replay/telemetria: fixture LAB sintética de 320 ticks, saturação do rádio e cache de busca, checkpoint comprimido, fork, recuperação do arquivo principal com temporário interrompido e rejeição de checksum inválido.
+- Relata amostras de memória, contagens, percentis reais por tick e throughput headless informativo; não limita telemetria histórica nem altera runtime, RNG, revisão ou saves.
+- FAST pendente; FULL e benchmark nativo não autorizados. Sem comprovação de 32x.
+
 ## Unreleased — 9.23 Advanced Architecture (revision capability policy)
 
 - Centraliza as 18 regras de compatibilidade esportiva 023–040 em módulo puro, com máscara derivada de identificadores exatos; revisões desconhecidas não habilitam regras novas.
 - Mantém exceção de largada 024/025, flags individuais e aliases públicos do motor; preserva a cadeia de dependências e o caso de sessão não anexada.
-- Teste diferencial contra as listas literais pré-refatoração, revisões inválidas, flags e hash; FAST pendente. Sem mudança esportiva, cache persistente, threads ou C++.
+- Teste diferencial contra as listas literais pré-refatoração, revisões inválidas, flags e hash; FAST PASS (45889067854, 606 checks); hosted replay PASS 5/5 (45889072674), seis workflows esportivos PASS. PR #163 integrada em 5e71ad8620d23f869cd189355c0c8f9466d42ab0. Sem mudança esportiva, cache persistente, threads ou C++.
 
 
 ## Unreleased — 9.23 Spatial Context Cache (local lane geometry)
