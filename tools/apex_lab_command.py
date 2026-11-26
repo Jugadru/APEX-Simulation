@@ -9,6 +9,9 @@ import subprocess
 import sys
 import urllib.request
 
+# Isolated authorize mode does not import candidate modules. Diagnosis is loaded
+# only during the read-only hosted execute job.
+
 REPO = "Jugadru/APEX-Simulation"
 OWNER = "Jugadru"
 HUB = 141
@@ -115,18 +118,35 @@ def select_tests(command, base, head, root):
     return rows
 
 def run_case(argv, log, timeout, root, marker=None, check_godot=False):
+    from apex_lab_diagnosis import diagnose
+    def result(status, reason="", code=None):
+        data = {"status": status, "log": log.name}
+        if reason:
+            data["reason"] = reason
+        if code is not None:
+            data["exit"] = code
+        data["diagnosis"] = diagnose(log, status=status, exit_code=code, reason=reason, marker=marker)
+        return data
     with log.open("w", encoding="utf-8") as stream:
         try:
             code = subprocess.run(argv, cwd=root, stdout=stream, stderr=subprocess.STDOUT,
                                   timeout=timeout, check=False).returncode
         except subprocess.TimeoutExpired:
-            return {"status": "BLOCKED", "reason": "timeout", "log": log.name}
+            return result("BLOCKED", "timeout")
         except OSError:
-            return {"status": "BLOCKED", "reason": "executable unavailable", "log": log.name}
-    output = log.read_text(encoding="utf-8", errors="replace")
-    if code or (check_godot and BAD.search(output)) or (marker and marker not in output):
-        return {"status": "FAIL", "reason": "exit/marker/engine error; inspect log", "exit": code, "log": log.name}
-    return {"status": "PASS", "log": log.name}
+            return result("BLOCKED", "executable unavailable")
+    # Preserve the original gate: inspect all lines for errors/marker, not just
+    # the bounded diagnostic sample. Stream instead of allocating the full log.
+    marker_seen = marker is None
+    bad_seen = False
+    with log.open(encoding="utf-8", errors="replace") as stream:
+        for line in stream:
+            marker_seen = marker_seen or (marker is not None and marker in line)
+            bad_seen = bad_seen or (check_godot and bool(BAD.search(line)))
+    if code or bad_seen or not marker_seen:
+        return result("FAIL", "exit/marker/engine error; inspect log", code)
+    return result("PASS", code=code)
+
 
 def execute(command, base, head, root, out):
     require(command in COMMANDS and SHA.fullmatch(head), "Invalid command or SHA")
