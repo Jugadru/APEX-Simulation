@@ -107,7 +107,7 @@ static func straight_hold_allowed(load: float, ahead_load: float, held: bool, na
 # Frozen signed-gap observations shared by the following and independent
 # tactical passes. Their eligibility and tie rules are intentionally distinct.
 static func tactical_neighbors(car: Dictionary, order: Array, length: float,
-		include_following: bool, wake_stability: bool, wake_range: float) -> Dictionary:
+		include_following: bool, wake_stability: bool, wake_range: float, signed_row: Dictionary = {}) -> Dictionary:
 	var id: int = int(car.id)
 	var progress: float = float(car.progress)
 	var nearest: Dictionary = {}
@@ -117,7 +117,7 @@ static func tactical_neighbors(car: Dictionary, order: Array, length: float,
 	var wake_candidates: Array = []
 	for other in order:
 		if other.id==id: continue
-		var g: float = MergeTraffic.relative_gap(progress,float(other.progress),length)
+		var g: float = float(signed_row[other.id]) if signed_row.has(other.id) else MergeTraffic.relative_gap(progress,float(other.progress),length)
 		if wake_stability and (wake_range==INF or (g>0.0 and g<=wake_range+0.000001)):
 			wake_candidates.append(other)
 		if g>0.000001 and g<independent_gap and g<=38.0:
@@ -325,10 +325,15 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 				min_lane=minf(min_lane,lane_limit(track,p+float(offset)/length,shape))
 			narrowing[id]=MergeTraffic.single_file(min_lane)
 	var traffic_observations:Dictionary={}
+	# Sidecar of exact signed gaps already evaluated by traffic perception.
+	# Exists only for this plan call; never enters sporting state or replay.
+	var signed_gaps: Dictionary={}
 	if traffic_pack_enabled:
 		var traffic_rates:Dictionary=TrafficPack.rate_frame(cars)
 		for c in order:
-			traffic_observations[int(c.id)]=TrafficPack.observe(c,cars,metrics,length,weather,dt,traffic_rates)
+			var signed_row: Dictionary={}
+			traffic_observations[int(c.id)]=TrafficPack.observe(c,cars,metrics,length,weather,dt,traffic_rates,signed_row)
+			signed_gaps[int(c.id)]=signed_row
 	# Decide from the same frozen start-of-tick positions. Only the corridor
 	# solver below changes sporting progress; tactics may not teleport a car.
 	for c in order:
@@ -432,9 +437,10 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 			if bool(tactic.commit):
 				# Short constant-nominal-pace forecast of third-car occupancy.
 				# A veto only; the existing sweep remains the final authority.
+				var signed_row: Dictionary=signed_gaps.get(id,{})
 				for third in order:
 					if third.id==id or third.id==rival: continue
-					var g: float=MergeTraffic.relative_gap(float(c.progress),float(third.progress),length)
+					var g: float=float(signed_row[third.id]) if signed_row.has(third.id) else MergeTraffic.relative_gap(float(c.progress),float(third.progress),length)
 					if absf(g)>40.0: continue
 					var predicted: float=g+0.8*length*(1.0/maxf(1.0,float(metrics[int(third.id)].target))-1.0/maxf(1.0,float(metrics[id].target)))
 					if (g*predicted<=0.0 or minf(absf(g),absf(predicted))<LENGTH+2.0) and absf(float(tactic.attack_goal)-float(third.get("race_lane",0.0)))<WIDTH-0.01:
@@ -501,7 +507,7 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 			var nearest:Dictionary={}
 			var gap:float=INF
 			if independent_enabled:
-				var observations: Dictionary=tactical_neighbors(c,order,length,not attacking,wake_stability,wake_range)
+				var observations: Dictionary=tactical_neighbors(c,order,length,not attacking,wake_stability,wake_range,signed_gaps.get(id,{}))
 				neighbor_cache[id]=observations
 				nearest=observations.nearest
 				gap=float(observations.following_gap)
@@ -595,12 +601,13 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 		var a: Dictionary=intents[id]
 		var own_lane: float=float(a.lane)
 		var own_progress: float=float(c.progress)
+		var signed_row: Dictionary=signed_gaps.get(id,{})
 		for other in order:
 			if other.id==id: continue
 			# Reject same-lane neighbors before computing circular distance.
 			var other_lane: float=float(other.get("race_lane",0))
 			if absf(own_lane-other_lane)<WIDTH-.01: continue
-			var gap := absf(MergeTraffic.relative_gap(own_progress,float(other.progress),length)) if hotfix else absf(own_progress-float(other.progress))*length
+			var gap := (absf(float(signed_row[other.id])) if signed_row.has(other.id) else absf(MergeTraffic.relative_gap(own_progress,float(other.progress),length))) if hotfix else absf(own_progress-float(other.progress))*length
 			if gap<LENGTH+1:
 				a.goal=a.lane
 				break
@@ -615,7 +622,7 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 			if other.id==id:continue
 			var other_lane: float=float(other.get("race_lane",0))
 			if absf(own_lane-other_lane)<WIDTH: continue
-			var gap := absf(MergeTraffic.relative_gap(own_progress,float(other.progress),length)) if hotfix else absf(own_progress-float(other.progress))*length
+			var gap := (absf(float(signed_row[other.id])) if signed_row.has(other.id) else absf(MergeTraffic.relative_gap(own_progress,float(other.progress),length))) if hotfix else absf(own_progress-float(other.progress))*length
 			if gap<LENGTH+2 and corridor_crosses(own_lane,wanted,other_lane,other_lane):
 				if absf(own_lane-other_lane)>=WIDTH:
 					wanted=own_lane
@@ -628,7 +635,7 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 					if hotfix:
 						# A stopped lateral move is not a reason for a second brake.
 						# queue_027 applies the single longitudinal yield later.
-						var relative: float = MergeTraffic.relative_gap(our_progress,ahead_progress,length)
+						var relative: float = float(signed_row[other.id]) if signed_row.has(other.id) else MergeTraffic.relative_gap(our_progress,ahead_progress,length)
 						if absf(own_lane)>limit and (relative>0.000001 or (absf(relative)<=0.000001 and not MergeTraffic.has_priority(c,other))):
 							a.state="recovering"
 					elif absf(own_lane)>limit and (
