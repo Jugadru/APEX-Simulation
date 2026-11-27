@@ -53,6 +53,16 @@ jobs:
       - name: Validate optional performance history contracts
         run: python3 -m unittest discover -s tools/tests -p 'test_apex_lab_perf_history.py' -v
 
+      - name: Validate Foundation contracts and legacy asset planning
+        if: ${{ hashFiles('tools/apex_foundation_registry.py') != '' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ci-results
+          python3 tools/apex_foundation_registry.py validate | tee ci-results/foundation-registry.log
+          python3 -m unittest discover -s tools/tests -p 'test_apex_foundation*.py' -v 2>&1 | tee ci-results/foundation-tests.log
+          python3 -m unittest discover -s tools/tests -p 'test_apex_asset_build.py' -v 2>&1 | tee ci-results/foundation-asset-tests.log
+
       - name: Install Godot 4.7.2
         uses: chickensoft-games/setup-godot@ac93246ea68518a384c1c280a496e5989341f2f6 # v2.4.3
         with:

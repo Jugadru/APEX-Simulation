@@ -14,3 +14,5 @@ Fonte: levantamento conversacional de 26/11/2026. 198 entradas, não 198 manager
 Prioridade: StintegyEVO (arquitetura), TUM Lap Time Simulation (física), VSE (estratégia), Global Racetrajectory Optimization (linha), Backseat Champions (autonomia), Automation (engenharia), WORKS (fábrica), Racing Series Manager (peças), Golden Lap (personalidade), Grand Prix World (administração), The Undercut (universo), F1 Dynasty (história), Team Principal (editor), F1 Manager 2024 (HUD), Motorsport Manager 2 (proposta anunciada).
 
 Método: estudar mecânicas observáveis e manuais; em código público ler contratos, algoritmos, testes e licença; em comerciais não supor acesso a código interno. Inspirar-se sem copiar. Identificar o que já existe no APEX antes de implementar. Nunca importar dados modernos como telemetria de 2012, nem monetização pay-to-win.
+
+- [Foundation v0.1.0: registry, contracts, compatibility and onboarding](../foundation/README.md).
