@@ -28,7 +28,9 @@ jobs:
   core2-smoke:
     name: Import and Core 2 regression tests
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    # Preserve all selected FAST checks; sequential tests can exceed 20 min.
+    # Per-script isolation retains its existing 240-second failure limit.
+    timeout-minutes: 35
     env:
       APEX_CI_TIER: ${{ github.event_name == 'workflow_dispatch' && inputs.tier == 'full' && 'full' || 'fast' }}
       APEX_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before || '' }}

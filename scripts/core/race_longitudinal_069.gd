@@ -60,7 +60,7 @@ static func integrate(speed: float, target: float, accel: float, brake: float, d
 	# Exact constant-rate ramp, then cruise for the rest of the tick.
 	return {"speed_mps":end,"distance_m":(start+end)*0.5*ramp+end*(time-ramp)}
 
-static func propose(car: Dictionary, curve: Dictionary, pace_s: float, lap_m: float, driving_dt: float, weather: Dictionary) -> Dictionary:
+static func motion_envelope(car: Dictionary, curve: Dictionary, pace_s: float, lap_m: float, weather: Dictionary) -> Dictionary:
 	var nominal := lap_m/maxf(1.0,pace_s)*float(curve.legacy_factor)
 	var desired := corner_speed(nominal,float(curve.load),float(curve.mean))
 	var future := corner_speed(nominal,float(curve.ahead_load),float(curve.mean))
@@ -96,6 +96,15 @@ static func propose(car: Dictionary, curve: Dictionary, pace_s: float, lap_m: fl
 			var apex_speed: float = Tyre071.corner_cap(corner_speed(nominal,float(corner.severity),float(curve.mean)),float(corner.severity)*Tyre071.CURVATURE_PER_M,float(tyre_state.lateral_capacity_mps2))
 			if apex_speed<target:
 				target=minf(target,braking_cap(apex_speed,float(limits.brake),distance_m))
+	return {"previous":previous,"target":target,"limits":limits,"mass_kg":mass_kg,"tyre_state":tyre_state}
+
+static func propose(car: Dictionary, curve: Dictionary, pace_s: float, lap_m: float, driving_dt: float, weather: Dictionary) -> Dictionary:
+	var envelope: Dictionary = motion_envelope(car,curve,pace_s,lap_m,weather)
+	var previous: float = float(envelope.previous)
+	var target: float = float(envelope.target)
+	var limits: Dictionary = envelope.limits
+	var mass_kg: float = float(envelope.mass_kg)
+	var tyre_state: Dictionary = envelope.tyre_state
 	# 042 opt-in only. Braking and traffic remain authoritative.
 	# The existing KERS/DRS/wake pace remains the target ceiling; the
 	# powertrain only supplies a force limit, never adds speed to the target.

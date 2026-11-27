@@ -1030,6 +1030,37 @@
         }
       ],
       "checks": []
+    },
+    {
+      "id": "vehicle_dynamics_072",
+      "paths": [
+        "scripts/core/race_vehicle_dynamics_072.gd",
+        "tests/race_vehicle_dynamics_072_test.gd",
+        "tests/race_vehicle_dynamics_v21_072_test.gd"
+      ],
+      "fast_tests": [
+        {
+          "script": "race_vehicle_dynamics_072_test.gd",
+          "marker": "VEHICLE_DYNAMICS_072_PASS"
+        },
+        {
+          "script": "race_vehicle_dynamics_v21_072_test.gd",
+          "marker": "VEHICLE_DYNAMICS_V21_072_PASS"
+        },
+        {
+          "script": "race_tyre_grip_071_test.gd",
+          "marker": "TYRE_GRIP_071_PASS"
+        },
+        {
+          "script": "race_powertrain_070_test.gd",
+          "marker": "POWERTRAIN_070_PASS"
+        },
+        {
+          "script": "race_fuel_mass_0701_test.gd",
+          "marker": "FUEL_MASS_0701_PASS"
+        }
+      ],
+      "checks": []
     }
   ]
 }
