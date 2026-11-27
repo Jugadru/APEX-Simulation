@@ -12,12 +12,74 @@ import subprocess
 import sys
 import threading
 import time
-import tarfile
 import psutil
 
 COUNT=100800
 MODES=("gdscript","scalar","batch1","batch24","batch48","batch240","pure_cpp")
 BASE="2171247db6824331b714dc2588cda15b4b60a496"
+
+
+RUNTIME_PATHS=("project.godot","scripts","data","assets","scenes","addons","tests/fixtures")
+PHASE_PATH="scripts/core/race_vehicle_dynamics_072.gd"
+PHASE_BLOB="696c81e0d16da2ff47e58c08754f4b8c802ddf5d"
+
+
+def blob_id(data):
+    return hashlib.sha1(b"blob "+str(len(data)).encode("ascii")+b"\0"+data).hexdigest()
+
+
+def materialize_git_blobs(repo, revision, dest, paths=RUNTIME_PATHS, expected=None):
+    """Copy immutable Git objects, never worktree/checkout/archive conversions."""
+    if dest.exists():
+        raise RuntimeError(f"baseline directory must not exist: {dest}")
+    dest.mkdir(parents=True)
+    raw=subprocess.check_output(["git","ls-tree","-r","-z",revision,"--",*paths],cwd=repo)
+    entries=[]
+    for item in raw.split(b"\0"):
+        if not item:
+            continue
+        meta,name=item.split(b"\t",1)
+        mode,kind,oid=meta.decode("ascii").split()
+        rel=name.decode("utf-8")
+        pieces=rel.split("/")
+        if kind!="blob" or mode not in ("100644","100755") or any(x in ("",".","..") or "\\" in x or ":" in x for x in pieces):
+            raise RuntimeError(f"unsupported tree entry: {rel} ({mode} {kind})")
+        entries.append((rel,oid,mode))
+    if not entries or len({rel.casefold() for rel,_,_ in entries})!=len(entries):
+        raise RuntimeError("empty or case-colliding Git tree")
+    manifest={}
+    # A single cat-file process avoids one process per file on Windows.
+    # Requests and responses are sequential, so neither pipe can fill.
+    with subprocess.Popen(["git","cat-file","--batch"],cwd=repo,stdin=subprocess.PIPE,stdout=subprocess.PIPE) as proc:
+        try:
+            for rel,oid,mode in entries:
+                proc.stdin.write(oid.encode("ascii")+b"\n")
+                proc.stdin.flush()
+                header=proc.stdout.readline().decode("ascii").strip().split()
+                if len(header)!=3 or header[:2]!=[oid,"blob"]:
+                    raise RuntimeError(f"invalid Git object response: {rel} {header}")
+                size=int(header[2])
+                data=proc.stdout.read(size)
+                if len(data)!=size or proc.stdout.read(1)!=b"\n" or blob_id(data)!=oid:
+                    raise RuntimeError(f"Git object integrity failure: {rel} {oid}")
+                target=dest.joinpath(*rel.split("/"))
+                target.parent.mkdir(parents=True,exist_ok=True)
+                target.write_bytes(data)
+                if blob_id(target.read_bytes())!=oid:
+                    raise RuntimeError(f"materialized blob mismatch: {rel} {oid}")
+                manifest[rel]={"blob":oid,"bytes":size,"mode":mode}
+            proc.stdin.close()
+            if proc.wait(timeout=30):
+                raise RuntimeError("git cat-file failed")
+        except BaseException:
+            proc.kill()
+            proc.wait()
+            raise
+    for rel,oid in (expected or {}).items():
+        actual=manifest.get(rel,{}).get("blob")
+        if actual!=oid:
+            raise RuntimeError(f"pinned baseline mismatch: {rel}; expected={oid}, actual={actual}")
+    return manifest
 
 
 def parse_rows(log, prefix):
@@ -102,6 +164,16 @@ def measured_run(args, cwd, log, marker, timeout=300):
         try:
             child.wait(timeout=timeout)
         except subprocess.TimeoutExpired:
+            # Stop only descendants belonging to this disposable probe.
+            try:
+                descendants=psutil.Process(child.pid).children(recursive=True)
+                for proc in reversed(descendants):
+                    try:
+                        proc.kill()
+                    except (psutil.NoSuchProcess,psutil.AccessDenied):
+                        pass
+            except (psutil.NoSuchProcess,psutil.AccessDenied):
+                pass
             child.kill()
             child.wait()
             raise
@@ -144,16 +216,12 @@ def run(godot, work, evidence, repo, platform_name):
         micro_stats[m]["speedup_vs_gdscript"]=micro_stats["gdscript"]["median"]/micro_stats[m]["median"]
     (evidence/"micro-summary.json").write_text(json.dumps({"rows":rows,"micro_us_per_phase":micro_stats,"fixture_sha256":hashlib.sha256(fixture).hexdigest()},indent=2),encoding="utf-8")
     print("APEX_MICRO_ALL_PASS",json.dumps(micro_stats),flush=True)
-    # Use exact base source, not an instrumented baseline or the checkout's
-    # editor cache. Extract only runtime resources to two disposable projects.
-    archive=work/"runtime.tar"
-    with archive.open("wb") as stream:
-        subprocess.run(["git","archive",BASE,"project.godot","scripts","data","assets","scenes","addons","tests/fixtures"],cwd=repo,stdout=stream,check=True)
+    # Read canonical Git blobs, independent of Windows CRLF or archive filters.
     baseline=work/"macro-baseline"
     candidate=work/"macro-candidate"
-    baseline.mkdir()
-    with tarfile.open(archive) as tf:
-        tf.extractall(baseline,filter="data")
+    manifest=materialize_git_blobs(repo,BASE,baseline,expected={PHASE_PATH:PHASE_BLOB})
+    (evidence/"baseline-manifest.json").write_text(json.dumps({"base":BASE,"files":manifest},indent=2),encoding="utf-8")
+    print(f"APEX_BASELINE_BLOBS_PASS files={len(manifest)} phase={PHASE_BLOB}",flush=True)
     # Keep user:// isolated from the official project even on local runs.
     cfg=baseline/"project.godot"
     text=cfg.read_text(encoding="utf-8")
@@ -166,9 +234,11 @@ def run(godot, work, evidence, repo, platform_name):
     shutil.copyfile(project/"phase.gdextension",candidate/"phase.gdextension")
     # Exact one-function experimental substitution, only inside scratch tree.
     vehicle=candidate/"scripts/core/race_vehicle_dynamics_072.gd"
-    original=vehicle.read_text(encoding="utf-8")
-    if hashlib.sha1(b"blob "+str(len(vehicle.read_bytes())).encode()+b"\0"+vehicle.read_bytes()).hexdigest()!="696c81e0d16da2ff47e58c08754f4b8c802ddf5d":
-        raise RuntimeError("unexpected baseline phase blob")
+    original_bytes=vehicle.read_bytes()
+    actual=blob_id(original_bytes)
+    if actual!=PHASE_BLOB:
+        raise RuntimeError(f"candidate source changed during copy: expected={PHASE_BLOB}, actual={actual}")
+    original=original_bytes.decode("utf-8")
     start=original.index("static func phase(")
     end=original.index("\n## Shared 044",start)
     signature=original[start:original.index("\n",start)]
@@ -177,7 +247,7 @@ def run(godot, work, evidence, repo, platform_name):
 \t\t_bench_backend = ClassDB.instantiate("ApexNativePhase0722")
 \tvar result: Dictionary = _bench_backend.call("phase",start_mps,target_mps,dt_s,mass_kg,road_n,max_drive_n,max_brake_n)\n\tassert(result.size()==8,"native phase rejected in benchmark")\n\treturn result
 """+original[end:]
-    vehicle.write_text(patched,encoding="utf-8")
+    vehicle.write_bytes(patched.encode("utf-8"))
     (evidence/"candidate-phase.gd.txt").write_text(patched,encoding="utf-8")
     # Real editor import outside measured sections: reuse the proven 0722
     # mitigation and verify the discovered extension before macro timing.
@@ -198,6 +268,7 @@ def run(godot, work, evidence, repo, platform_name):
             if len(runs)!=7 or any(len(r["samples_us"])!=500 or len(r["trace"])!=600 for r in runs):
                 raise RuntimeError("macro incomplete")
             results[mode]=(runs,rss)
+            print(f"APEX_MACRO_PROCESS_PASS rep={rep} mode={mode} scenarios={len(runs)} rss={rss}",flush=True)
         aa,ar=results["gdscript"];bb,br=results["scalar"]
         for a,b in zip(aa,bb):
             if a["scenario"]!=b["scenario"] or a["revision"]!=b["revision"] or a["vehicle_samples"]!=b["vehicle_samples"]:
