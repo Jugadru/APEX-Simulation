@@ -1,5 +1,6 @@
 """Offline policy regressions: changing a module never disables core safety."""
 import sys
+import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
@@ -8,10 +9,18 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from apex_ci_tiers import ALWAYS, CASES, categories_for, select, changed_files
 
 
+def populate(root):
+    (root / "tests").mkdir(exist_ok=True)
+    for script, _ in (*ALWAYS, *CASES.values()):
+        (root / "tests" / script).touch()
+
+
 class SmartCITests(unittest.TestCase):
     def test_docs_only_still_runs_invariants(self):
         with TemporaryDirectory() as tmp:
-            self.assertEqual(select(["README.md"], Path(tmp)), list(ALWAYS))
+            root = Path(tmp)
+            populate(root)
+            self.assertEqual(select(["README.md"], root), list(ALWAYS))
 
     def test_race_engine_activates_strategy_and_pit(self):
         tags = categories_for(["scripts/race_engine.gd"])
@@ -22,20 +31,42 @@ class SmartCITests(unittest.TestCase):
         self.assertIn("staff", tags)
         self.assertNotIn("hud", tags)
 
-    def test_optional_suite_only_if_file_exists(self):
+    def test_selected_test_missing_blocks_plan(self):
         with TemporaryDirectory() as tmp:
             root = Path(tmp)
+            populate(root)
             path = ["scripts/core/race_strategy_staff_intelligence_066910.gd"]
-            self.assertNotIn(CASES["staff"], select(path, root))
-            (root / "tests").mkdir()
-            (root / "tests" / CASES["staff"][0]).touch()
-            self.assertIn(CASES["staff"], select(path, root))
+            (root / "tests" / CASES["staff"][0]).unlink()
+            with self.assertRaisesRegex(ValueError, "Missing mandatory FAST"):
+                select(path, root)
+
+    def test_baseline_manifest_cannot_be_removed(self):
+        with TemporaryDirectory() as tmp, TemporaryDirectory() as prior:
+            root, trusted = Path(tmp), Path(prior)
+            populate(root)
+            (trusted / ".github").mkdir()
+            (trusted / ".github/apex-quality-suites.json").write_text(json.dumps({
+                "schema": 1, "suites": [{"id": "trusted_test", "paths": ["README.md"],
+                "fast_tests": [{"script": "legacy.gd", "marker": "LEGACY_PASS"}],
+                "checks": []}]}))
+            (root / "tests/legacy.gd").touch()
+            self.assertIn(("legacy.gd", "LEGACY_PASS"), select(["README.md"], root, trusted))
+            (root / "tests/legacy.gd").unlink()
+            with self.assertRaisesRegex(ValueError, "Missing mandatory FAST"):
+                select(["README.md"], root, trusted)
+
+    def test_missing_always_fixture_blocks_plan(self):
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            populate(root)
+            (root / "tests" / ALWAYS[0][0]).unlink()
+            with self.assertRaisesRegex(ValueError, "Missing mandatory FAST"):
+                select(["README.md"], root)
 
     def test_engine_and_replay_tests_deduplicated(self):
         with TemporaryDirectory() as tmp:
             root = Path(tmp)
-            (root / "tests").mkdir()
-            for case in CASES.values(): (root / "tests" / case[0]).touch()
+            populate(root)
             p = ["scripts/race_engine.gd", "scripts/core/race_replay_0660.gd"]
             plan = select(p, root)
             self.assertEqual(len(plan), len(set(plan)))
@@ -47,8 +78,7 @@ class SmartCITests(unittest.TestCase):
     def test_save_codec_selects_migration_regression(self):
         with TemporaryDirectory() as tmp:
             root = Path(tmp)
-            (root / "tests").mkdir()
-            (root / "tests" / CASES["save"][0]).touch()
+            populate(root)
             self.assertIn(CASES["save"], select(["scripts/core/race_state_codec_0660.gd"], root))
 
     def test_driver_traffic_is_selected_without_separate_version_workflow(self):
@@ -56,8 +86,7 @@ class SmartCITests(unittest.TestCase):
         self.assertIn("traffic", categories_for(["scripts/core/race_driver_traffic_06693.gd"]))
         with TemporaryDirectory() as tmp:
             root = Path(tmp)
-            (root / "tests").mkdir()
-            (root / "tests" / CASES["traffic"][0]).touch()
+            populate(root)
             self.assertIn(CASES["traffic"],
                           select(["scripts/core/race_driver_traffic_06693.gd"], root))
 
