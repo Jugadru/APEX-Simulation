@@ -37,18 +37,59 @@ def run(args, cwd, log=None, timeout=1800, allow_import_crash=False):
     return output
 
 
+def capture_editor_backtrace(command, project, work, evidence, label):
+    # Diagnostic only. Never use a successful debugger run to override a failed gate.
+    gdb = shutil.which("gdb")
+    if not gdb:
+        print("GDB unavailable; no backtrace collected", flush=True)
+        return
+    cache = project / ".godot"
+    if cache.exists():
+        shutil.rmtree(cache)
+    # Reproduce the actual failing cold import with the same flags. Official
+    # Godot may lack symbols; retain addresses and loaded libraries anyway.
+    args = [gdb, "--batch", "-ex", "set pagination off",
+            "-ex", "set debuginfod enabled off", "-ex", "run",
+            "-ex", "thread apply all bt", "-ex", "info sharedlibrary",
+            "--args", *command, "--disable-crash-handler"]
+    path = evidence / (label + "-gdb.log")
+    try:
+        result = subprocess.run(args, cwd=work, stdout=subprocess.PIPE,
+                                stderr=subprocess.STDOUT, timeout=150)
+        path.write_bytes(result.stdout)
+    except subprocess.TimeoutExpired as exc:
+        path.write_bytes((exc.stdout or b"") + b"\nGDB diagnostic timed out\n")
+    except OSError as exc:
+        path.write_text(str(exc), encoding="utf-8")
+
+
 def import_editor(godot, project, work, evidence, label):
-    command = [godot, "--headless", "--single-threaded-scene", "--path", str(project), "--import"]
-    # Match the existing Core 2 policy: one controlled retry only for
-    # native editor crashes, never for parse/resource errors.
-    result = run(command, work, evidence / (label + "-import-attempt1.log"), 240,
-                 allow_import_crash=True)
-    if result is None:
-        print("Native editor abort; retrying once with a clean editor cache", flush=True)
-        cache = project / ".godot"
-        if cache.exists():
-            shutil.rmtree(cache)
-        run(command, work, evidence / (label + "-import-attempt2.log"), 240)
+    # Godot upstream #111048 / #111645: cold import may quit while deferred
+    # extension documentation generation is still queued. Give the editor
+    # thread time to finish, without changing runtime timing or its tests.
+    command = [godot, "--headless", "--single-threaded-scene", "--verbose",
+               "--path", str(project), "--import"]
+    if label == "native":
+        command += ["--frame-delay", "800"]
+    try:
+        result = run(command, work, evidence / (label + "-import-attempt1.log"), 240,
+                     allow_import_crash=True)
+        if result is None:
+            print("Native editor abort; retrying once with a clean editor cache", flush=True)
+            cache = project / ".godot"
+            if cache.exists():
+                shutil.rmtree(cache)
+            run(command, work, evidence / (label + "-import-attempt2.log"), 240)
+    except RuntimeError:
+        # A repeat abort is a real failure. Collect a backtrace rather than
+        # endlessly retrying or accepting a different result under the debugger.
+        if sys.platform.startswith("linux") and label == "native":
+            capture_editor_backtrace(command, project, work, evidence, label)
+        raise
+    if label == "native":
+        listing = project / ".godot" / "extension_list.cfg"
+        if not listing.is_file() or "res://phase.gdextension" not in listing.read_text(encoding="utf-8").splitlines():
+            raise RuntimeError("editor did not discover the native extension")
 
 
 def main():
@@ -79,7 +120,8 @@ def main():
         configured = os.environ.get("GODOT") or shutil.which("godot")
         if not configured:
             raise FileNotFoundError("Godot executable not found; pass --godot")
-        executable = Path(configured).resolve()
+        installed = Path.home() / "godot" / "Godot_v4.7.2-stable_linux.x86_64"
+        executable = installed if installed.is_file() else Path(configured).resolve()
     if not executable.is_file() or (args.platform == "windows" and executable.suffix.lower() != ".exe"):
         raise FileNotFoundError(f"Godot executable not found: {executable}; pass --godot")
     godot = str(executable)
@@ -161,6 +203,13 @@ def main():
     shutil.copytree(saved_bin, project / "bin")
     descriptor.write_bytes(saved_descriptor)
     import_editor(godot, project, work, evidence, "native")
+    # Prove the editor-generated extension list is usable, not just the
+    # manually seeded runtime control. Require a second real numerical pass.
+    result = run([godot, "--headless", "--single-threaded-scene", "--path", str(project),
+                  "--script", "res://phase_probe.gd"],
+                 work, evidence / "post-editor-native-probe.log", 180)
+    if "APEX_NATIVE_0722_PASS" not in result:
+        raise RuntimeError("post-editor native PASS marker missing")
     print("APEX_NATIVE_0722_HOSTED_PASS")
 
 
