@@ -4,6 +4,7 @@ extends RefCounted
 ## No RNG, rendering, gearbox, tyre thermal or lateral solver ownership.
 const Powertrain070 = preload("res://scripts/core/race_powertrain_070.gd")
 const Fuel0701 = preload("res://scripts/core/race_fuel_mass_0701.gd")
+const Tyre071 = preload("res://scripts/core/race_tyre_grip_071.gd")
 const KEY := "longitudinal_069_mps"
 const PREVIEW_M := 60.0
 const PIT_EXIT_MPS := 80.0 / 3.6
@@ -75,8 +76,26 @@ static func propose(car: Dictionary, curve: Dictionary, pace_s: float, lap_m: fl
 		# Force-limited reference rates; detailed tyre load transfer is 0.7.1.
 		limits.accel=float(limits.accel)*mass_scale
 		limits.brake=float(limits.brake)*mass_scale
+	var tyre_state: Dictionary = {}
+	if bool(curve.get(Tyre071.KEY,false)):
+		var aero: Dictionary = curve.get("power_delivery_070",{})
+		var curvature: float = Tyre071.signed_curvature(curve)
+		var previous_ax: float = float(car.get(Tyre071.KEY,{}).get("ax_mps2",0.0))
+		tyre_state=Tyre071.evaluate(car,weather,mass_kg,previous,curvature,previous_ax,traction,aero)
+		limits.accel=minf(float(limits.accel),float(tyre_state.accel_limit_mps2))
+		limits.brake=minf(float(limits.brake),float(tyre_state.brake_limit_mps2))
+		desired=Tyre071.corner_cap(desired,curvature,float(tyre_state.lateral_capacity_mps2))
+		future=Tyre071.corner_cap(future,Tyre071.signed_curvature(curve,true),float(tyre_state.lateral_capacity_mps2))
 	var target := minf(desired,braking_cap(future,float(limits.brake),PREVIEW_M))
 	target = minf(target,apex_braking_cap(curve,nominal,lap_m,traction,desired,mass_scale))
+	if not tyre_state.is_empty():
+		# Apply the same physical lateral cap to the existing forward apices.
+		# Capacity sampled at current speed; conservative schematic lookahead.
+		for corner in curve.get("corners",[]):
+			var distance_m: float = fposmod(float(corner.apex)-float(curve.get("progress",0.0)),1.0)*lap_m
+			var apex_speed: float = Tyre071.corner_cap(corner_speed(nominal,float(corner.severity),float(curve.mean)),float(corner.severity)*Tyre071.CURVATURE_PER_M,float(tyre_state.lateral_capacity_mps2))
+			if apex_speed<target:
+				target=minf(target,braking_cap(apex_speed,float(limits.brake),distance_m))
 	# 042 opt-in only. Braking and traffic remain authoritative.
 	# The existing KERS/DRS/wake pace remains the target ceiling; the
 	# powertrain only supplies a force limit, never adds speed to the target.
@@ -92,6 +111,7 @@ static func propose(car: Dictionary, curve: Dictionary, pace_s: float, lap_m: fl
 		else:
 			movement = integrate(previous,target,float(limits.accel),float(limits.brake),driving_dt)
 		movement[Powertrain070.KEY]=drive
+		if not tyre_state.is_empty(): movement[Tyre071.KEY]=tyre_state
 		return movement
 	return integrate(previous,target,float(limits.accel),float(limits.brake),driving_dt)
 

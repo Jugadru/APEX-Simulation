@@ -35,6 +35,8 @@ const Powertrain070 = preload("res://scripts/core/race_powertrain_070.gd")
 const GEARBOX_SIM_REVISION := RevisionPolicy.GEARBOX_SIM_REVISION
 const Fuel0701 = preload("res://scripts/core/race_fuel_mass_0701.gd")
 const FUEL_SIM_REVISION := RevisionPolicy.FUEL_SIM_REVISION
+const Tyre071 = preload("res://scripts/core/race_tyre_grip_071.gd")
+const TYRE_GRIP_SIM_REVISION := RevisionPolicy.TYRE_GRIP_SIM_REVISION
 const DriverError0921=preload("res://scripts/core/race_driver_error_0921.gd")
 var driver_error_enabled:bool=true
 const TrafficPack09201=preload("res://scripts/core/race_traffic_pack_09201.gd")
@@ -777,6 +779,7 @@ func _advance(dt: float) -> void:
 	var longitudinal_revision: bool = false
 	var gearbox_rules: bool = false
 	var fuel_rules: bool = false
+	var tyre_grip_rules: bool = false
 	if command_session != null:
 		var attached_session: Object = command_session.get_ref()
 		if attached_session != null:
@@ -804,6 +807,7 @@ func _advance(dt: float) -> void:
 			longitudinal_rules = longitudinal_revision and clock >= RacingLine.START_SECONDS
 			gearbox_rules = longitudinal_rules and (revision_mask & RevisionPolicy.GEARBOX) != 0
 			fuel_rules = (revision_mask & RevisionPolicy.FUEL) != 0
+			tyre_grip_rules = gearbox_rules and fuel_rules and (revision_mask & RevisionPolicy.TYRE_GRIP) != 0
 	# Seed from the last actual legacy displacement, not a new target speed.
 	# The seed is stored in the sporting car state for deterministic seek.
 	var longitudinal_handover: bool = longitudinal_revision and not longitudinal_rules and clock + dt + 0.0000001 >= RacingLine.START_SECONDS
@@ -876,6 +880,9 @@ func _advance(dt: float) -> void:
 					# Read current authorization from live KERS/DRS, not last tick's snapshot.
 					metrics[Longitudinal069.KEY]["power_delivery_070"]={"kers_power_kw":float(context.kers_power_kw),"drs_active":bool(context.drs_active)}
 					if fuel_rules: metrics[Longitudinal069.KEY][Fuel0701.KEY]=Fuel0701.mass_kg(live_car[Fuel0701.KEY])
+					if tyre_grip_rules:
+						metrics[Longitudinal069.KEY][Tyre071.KEY]=true
+						metrics[Longitudinal069.KEY]["ahead_progress"]=old_progress+Longitudinal069.PREVIEW_M/maxf(1.0,lap_km*1000.0)
 			# A pit-bound car retains existing pit approach behavior.
 			var fraction: float = fposmod(old_progress,1.0)
 			if fraction>0.04 and fraction<0.93:
@@ -906,6 +913,7 @@ func _advance(dt: float) -> void:
 		if float(car["pit_left"]) > 0.0:
 			if longitudinal_rules: car.erase(Longitudinal069.KEY)
 			if gearbox_rules: car.erase(Powertrain070.KEY)
+			if tyre_grip_rules: car.erase(Tyre071.KEY)
 			if aero_wake_rules: car.erase("aero_wake_032")
 			if traffic_pack_rules and car.has(TrafficPack09201.KEY):car[TrafficPack09201.KEY]=TrafficPack09201.pit_reset(car)
 			if error_rules and car.has(DriverError0921.KEY):car[DriverError0921.KEY]=DriverError0921.pit_reset(car)
@@ -1022,6 +1030,7 @@ func _advance(dt: float) -> void:
 						continue
 				if longitudinal_rules: car.erase(Longitudinal069.KEY)
 				if gearbox_rules: car.erase(Powertrain070.KEY)
+				if tyre_grip_rules: car.erase(Tyre071.KEY)
 				_begin_pit(car, entry_progress)
 				continue
 		car["progress"] = maxf(prev, next)
@@ -1029,6 +1038,7 @@ func _advance(dt: float) -> void:
 			car[Longitudinal069.KEY] = Longitudinal069.handover_speed((float(car["progress"])-prev)*lap_km*1000.0,dt)
 		var wear_scale:float=1.0
 		if traffic_pack_rules:wear_scale-=minf(.04,float(car.get(TrafficPack09201.KEY,{}).get("lift",0.0))*1.5)
+		if tyre_grip_rules and car.has(Tyre071.KEY): wear_scale*=Tyre071.wear_scale(car[Tyre071.KEY])
 		car["wear"] = RacePerformance.wear_after(wear, float(metrics["wear_factor"])*wear_scale, dt, target)
 		# The thermal module writes tyre_heat on the live car. The old Core2
 		# heuristic is still returned for backwards compatibility only.
@@ -1483,6 +1493,7 @@ func _retire_fuel_0701(car: Dictionary) -> void:
 	car["pit_scheduled_lap"]=0
 	car.erase(Longitudinal069.KEY)
 	car.erase(Powertrain070.KEY)
+	if car.has(Tyre071.KEY): car.erase(Tyre071.KEY)
 	_event("incident",int(car.id),"ABANDONO | %s: combustível esgotado." % str(car.name),118)
 
 func _mark_finish(car: Dictionary) -> void:

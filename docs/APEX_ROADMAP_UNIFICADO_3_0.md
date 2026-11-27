@@ -33,8 +33,8 @@ Decisão do responsável: encerrar a sequência longa v0.6.6.9.* e usar v0.6.7, 
 |---|---|---|---|
 | 9.25 | v0.6.9 | Braking & Acceleration Physics 1.0 | Integrada #172, FAST PASS |
 | 9.26 | v0.7.0 | Gearbox, Torque & Power Delivery | Integrada #174, 042 experimental, FAST PASS |
-| Nova | v0.7.0.1 | Fuel Consumption & Mass Dynamics | Candidato 043, aprovado pelo responsável |
-| 9.27 | v0.7.1 | Tyre Grip & Load Transfer | Planejada |
+| Nova | v0.7.0.1 | Fuel Consumption & Mass Dynamics | Integrada #175, 043 experimental, FAST PASS |
+| 9.27 | v0.7.1 | Tyre Grip & Load Transfer | Candidato 044 experimental |
 | 9.28 | v0.7.2 | Vehicle Dynamics Integration | Planejada |
 
 ## Fase 3A — Native Core (Godot + C++), aprovada pelo responsável em 26/11/2026
@@ -94,6 +94,6 @@ Release [NEXT_ENGINE 1.3 RACECRAFT](https://github.com/Jugadru/APEX-Simulation/r
 ## Regras de continuidade
 
 - Versão integrada mais recente de gameplay: v0.6.8, PR #169, merge 8e9046a0e2ab38af53e4898782e3458d8ae1149d, FAST 45905916295 PASS. Complemento 0.6.7 #170 integrado. Nome de fixtures e revisão esportiva 040 não mudam.
-- v0.6.9 integrada #172; v0.7.0 integrada #174 em `381b2a7ed3e082f05367ff56fd5c629206f51074`, FAST 45913526730 PASS (57 testes, 83.441 checks de transmissão), revisão 042 experimental; 041 default. v0.7.0.1 — Fuel Consumption & Mass Dynamics em homologação experimental 043. [Contrato técnico 041](APEX_069_LONGITUDINAL_PHYSICS.md); [contrato anterior e homologação](APEX_068_RANDOMNESS_INTEGRITY.md).
+- v0.6.9 integrada #172; v0.7.0 integrada #174 em `381b2a7ed3e082f05367ff56fd5c629206f51074`, FAST 45913526730 PASS (57 testes, 83.441 checks de transmissão), revisão 042 experimental; 041 default. v0.7.0.1 integrada #175 em `1aabd4e2f5139487c05ec1f8332182d939e91786`, FAST 45916527432 PASS (59 testes, 64.045 checks combustível, 042 BOX V21). v0.7.1 — Tyre Grip & Load Transfer em homologação experimental 044; 041 permanece default. [Contrato técnico 041](APEX_069_LONGITUDINAL_PHYSICS.md); [contrato anterior e homologação](APEX_068_RANDOMNESS_INTEGRITY.md).
 - Uma funcionalidade por versão, PR própria, FAST exato e regressões direcionadas, preservar saves/replays/determinismo/2012. FULL e runner pessoal não são automáticos; seguir AGENTS.md.
 - Nenhum novo binário, tag ou release publicado pela mudança de identificação. Histórico e arquivos de referência do Plano Mestre permanecem intactos.

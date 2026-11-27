@@ -14,10 +14,14 @@ After the existing required tests and LAB report pass, compare planned/executed 
 
 ## Merge operation
 
-Follow AGENTS.md section 5.3. Recheck current main, head, base, draft, mergeability, review requirements, latest applicable FAST and targeted checks immediately before merge. Use expected_head_sha, never force or bypass. After merge, compare resulting tree and check main FAST. A failing post-merge result requires targeted diagnosis, not a blind rollback or new feature merge.
+Follow AGENTS.md section 5.4. Recheck current main, head, base, draft, mergeability, review requirements, latest applicable FAST and targeted checks immediately before merge. Use expected_head_sha, never force or bypass. After merge, compare resulting tree and check main FAST. A failing post-merge result requires targeted diagnosis, not a blind rollback or new feature merge.
 
 The read-only integration could not inspect branch protection settings in detail (HTTP 403). No ruleset or branch protection was changed. To enforce this policy at GitHub itself, an authorized administrator should require the existing **Import and Core 2 regression tests** check on main, require branches to be up to date before merging, retain any existing necessary checks, and avoid bypass where appropriate. Verify the actual check source and existing rules before editing; do not replace unrelated protections. Until configured/verified, the repository instructions and CI enforce the evidence during normal workflow execution, but do not guarantee an administrator cannot merge manually or that main cannot advance between API read and merge. There is no automatic merge. Native graphics, FULL, publication and performance comparison remain separate.
 
 ## Validation scope
 
 Offline contracts cover missing selected fixtures, removed baseline requirements, wrong merge parents, moved head/base, conflict, missing/inconsistent evidence and engine errors. Real candidate FAST must validate actual GitHub API provenance and receipt before the guard is integrated. Do not claim success until observed.
+
+## Synchronization with Preflight REV2 and identity separation
+
+Preserve PR #181 preflight unit tests and PR #182 project identity fixture; no changes to their sporting assertions. The local preflight tests now populate the required baseline files when constructing synthetic projects, so the stricter router and prior preflight contracts coexist. This does not alter runtime fixture selection. Permanent engineering priorities are recorded in AGENTS.md 5.5. Candidate FAST and receipt remain required; branch protection API is still restricted. No new workflow or matrix.

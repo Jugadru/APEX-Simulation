@@ -1,5 +1,17 @@
 # Changelog — APEX Motorsport Manager Core 2
 
+## Unreleased — v0.7.1 Tyre Grip & Load Transfer
+
+- Revisão experimental 044 acrescenta quatro cargas normais, transferência longitudinal/lateral, sensibilidade à carga, limite combinado de aderência, cap lateral em curvas e preview, influência de temperatura/desgaste/clima e downforce aproximado do wake/DRS. A física anterior, boxes, RNG e solver continuam proprietários dos respectivos sistemas. FAST pendente. [Contrato](docs/APEX_071_TYRE_GRIP.md).
+
+## v0.7.0.1 — Fuel Consumption & Mass Dynamics (043 experimental)
+
+- PR #175 integrada em 1aabd4e2f5139487c05ec1f8332182d939e91786; FAST 45916527432 PASS (59 testes, 64.045 checks de combustível, BOX V21 042 real). Massa e combustível em kg, trabalho estimado em kJ, DNF, ritmo, preservação de 042 e anteriores. Sem ativação como padrão ou release de binários. [Contrato](docs/APEX_0701_FUEL_MASS.md).
+
+## v0.7.0 — Gearbox, Torque & Power Delivery (042 experimental)
+
+- PR #174 integrada em 381b2a7ed3e082f05367ff56fd5c629206f51074; FAST 45913526730 PASS (57 testes, 83.441 checks de transmissão). V8, sete marchas, torque, KERS, DRS e arrasto. 041 permanece padrão. [Contrato](docs/APEX_070_POWERTRAIN.md).
+
 ## Unreleased — v0.6.9 Braking & Acceleration Physics 1.0
 
 - Revisão esportiva 041: integração longitudinal de velocidade e distância em SI, com aceleração/frenagem finitas, carga local de curva e preview, aderência condicionada a clima/pneus/desgaste. Movimento submetido ao solver existente; largada, pit-lane, estratégia e RNG preservados.

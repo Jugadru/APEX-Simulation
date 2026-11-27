@@ -52,8 +52,11 @@ jobs:
       - name: Audit runtime resource inventory
         run: python3 tools/apex_source_inventory.py --check --output ci-results/source-inventory.json
 
-      - name: Verify fast-tier test routing
-        run: python3 -m unittest discover -s tools/tests -p 'test_apex_ci_tiers.py' -v
+      - name: Verify fast-tier routing and preflight tool contracts
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s tools/tests -p 'test_apex_ci_tiers.py' -v
+          python3 -m unittest discover -s tools/tests -p 'test_apex_preflight.py' -v
 
       - name: Validate LAB performance report contracts
         run: python3 -m unittest discover -s tools/tests -p 'test_apex_lab_perf_report.py' -v
