@@ -41,12 +41,14 @@ Decisão do responsável: encerrar a sequência longa v0.6.6.9.* e usar v0.6.7, 
 
 | Referência adicional | Versão | Funcionalidade | Estado |
 |---|---|---|---|
-| Nova | v0.7.2.1 | Native Core Research — auditoria, contratos, perfil e baseline | Aprovada para planejamento |
-| Nova | v0.7.2.2 | GDExtension Experimental — protótipo isolado C++ | Planejada |
-| Nova | v0.7.2.3 | Native Core Benchmark — equivalência e desempenho GDScript × C++ | Planejada |
-| Nova | v0.7.2.4 | Native Core Integration — migração seletiva com fallback | Condicional a homologação |
+| Nova | v0.7.2.1 | Native Core Research — auditoria, contratos, perfil e baseline | Integrada #193 |
+| Nova | v0.7.2.2 | GDExtension Experimental — protótipo isolado C++ | Integrada #194 |
+| Nova | v0.7.2.3 | Native Core Benchmark — equivalência e desempenho GDScript × C++ | Integrada #195 |
+| Nova | v0.7.2.4 | Native Batch Optimization Experimental — dois lotes ordenados | Integrada #196; sem ativação C++ |
 
-Godot permanece como plataforma; GDScript, Core 2, HUD, carreira, fábrica, estratégia, IA, saves e replays são preservados. Não reescrever o jogo nem migrar para outra engine gráfica. Apenas gargalos medidos serão candidatos a C++, com chamadas em lote, contratos explícitos, mesmos workloads, hashes/revisão esportiva, testes Linux/Windows e rollback. Não introduzir paralelismo esportivo até comprovar equivalência; preferir ordem estável, controle de ponto flutuante e RNG autoritativo. Se o desempenho/equivalência não forem demonstrados, manter backend GDScript. Não desloca, remove ou renumera as fases posteriores.
+Ciclo experimental concluído: PR #196 merge f47472b7d8a20f1218204cc8d57536662e264464; FAST pós-merge 46078942400 PASS. Native 46076500066 PASS Linux/Windows; equivalência esportiva demonstrada na bateria limitada, mas ganho macro inferior à meta de 10% e alguns P99 acima do limite. Candidatos escalar e batch rejeitados para ativação. GDScript permanece oficial; preservar pesquisa. [Relatório](APEX_0724_NATIVE_BATCH_EXPERIMENTAL.md).
+
+Godot permanece como plataforma; GDScript, Core 2, HUD, carreira, fábrica, estratégia, IA, saves e replays são preservados. Não reescrever o jogo nem migrar para outra engine gráfica. Apenas gargalos medidos serão candidatos a C++, com chamadas em lote, contratos explícitos, mesmos workloads, hashes/revisão esportiva, testes Linux/Windows e rollback. Não introduzir paralelismo esportivo até comprovar equivalência; preferir ordem estável, controle de ponto flutuante e RNG autoritativo. Se o desempenho/equivalência não forem demonstrados, manter backend GDScript. O experimento nativo não deslocou as fases seguintes; a reorganização independente da Fase 4 está registrada abaixo.
 
 ### Referência histórica: Next Engine
 
@@ -56,12 +58,21 @@ Release [NEXT_ENGINE 1.3 RACECRAFT](https://github.com/Jugadru/APEX-Simulation/r
 | Referência anterior | Versão | Funcionalidade | Estado |
 |---|---|---|---|
 | 9.29 | v0.7.3 | Overtaking Preparation | Planejada |
-| 9.30 | v0.7.4 | Braking Intelligence | Planejada |
-| 9.31 | v0.7.5 | Side-by-Side Dynamics | Planejada |
-| 9.32 | v0.7.6 | Defensive Intelligence | Planejada |
-| 9.33 | v0.7.7 | Driver Mistakes & Recovery 2.0 | Planejada |
-| 9.34 | v0.7.8 | Tyre Thermal Dynamics | Planejada |
-| 9.35 | v0.7.9 | Racecraft Quality | Planejada |
+| 9.30 (antes v0.7.4) | v0.7.3.1 | Braking Intelligence | Planejada |
+| 9.31 (antes v0.7.5) | v0.7.4 | Side-by-Side Dynamics | Planejada |
+| 9.32 (antes v0.7.6) | v0.7.4.1 | Defensive Intelligence | Planejada |
+| 9.33 (antes v0.7.7) | v0.7.5 | Driver Mistakes & Recovery 2.0 | Planejada |
+| 9.34 (antes v0.7.8) | v0.7.6 | Tyre Thermal Dynamics | Planejada |
+| 9.35 (antes v0.7.9) | v0.7.7 | Racecraft Quality | Planejada |
+
+### Famílias de implementação — decisão do responsável
+- **v0.7.3.x — Overtaking Intelligence:** 0.7.3 prepara o ataque (ritmo, vácuo, posicionamento e oportunidade); 0.7.3.1 acrescenta pontos individuais de frenagem, frenagem tardia, avaliação de risco, habilidade e agressividade.
+- **v0.7.4.x — Battle Intelligence:** 0.7.4 trata disputas prolongadas lado a lado, ocupação física do espaço e trajetórias alternativas sem sobreposição artificial; 0.7.4.1 acrescenta defesa inteligente, proteção da trajetória interna, antecipação de ataques e decisão de ceder posição.
+- **v0.7.5 — Driver Mistakes & Recovery 2.0:** travamento de pneus, perda do ápice, erros de frenagem, escapadas e recuperação progressiva do controle.
+- **v0.7.6 — Tyre Thermal Dynamics:** temperatura dos pneus, janela ideal, aquecimento, resfriamento, superaquecimento, graining e blistering.
+- **v0.7.7 — Racecraft Quality:** consolidar as mecânicas competitivas, balanceamento, estabilidade, desempenho e testes com múltiplas sementes.
+
+Agrupar por família não significa implementar todos os sistemas na mesma PR. Manter sete entregas independentes, na mesma ordem, uma funcionalidade principal por versão/subversão, FAST e regressões dirigidas, determinismo e compatibilidade de saves/replays. Reservar v0.7.8 e v0.7.9 sem escopo novo atribuído; a Fase 5 continua em v0.8.0, sem alterações nas fases seguintes. A numeração de roadmap não é revisão esportiva.
 
 ## Fase 5 — Realismo mecânico, esportivo e estrutural
 | Referência anterior | Versão | Funcionalidade | Estado |
