@@ -962,6 +962,28 @@
         }
       ],
       "checks": []
+    },
+    {
+      "id": "fuel_mass_0701",
+      "paths": [
+        "scripts/core/race_fuel_mass_0701.gd",
+        "scripts/core/race_performance.gd",
+        "scripts/championship_2012.gd",
+        "scripts/presentation/race_standings_text.gd",
+        "tests/race_fuel_mass_0701_test.gd",
+        "tests/race_gearbox_v21_070_test.gd"
+      ],
+      "fast_tests": [
+        {
+          "script": "race_fuel_mass_0701_test.gd",
+          "marker": "FUEL_MASS_0701_PASS"
+        },
+        {
+          "script": "race_gearbox_v21_070_test.gd",
+          "marker": "GEARBOX_V21_070_PASS"
+        }
+      ],
+      "checks": []
     }
   ]
 }

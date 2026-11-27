@@ -3,6 +3,7 @@ extends RefCounted
 ## Experimental gameplay coefficients, not a calibrated 2012 vehicle model.
 ## No RNG, rendering, gearbox, tyre thermal or lateral solver ownership.
 const Powertrain070 = preload("res://scripts/core/race_powertrain_070.gd")
+const Fuel0701 = preload("res://scripts/core/race_fuel_mass_0701.gd")
 const KEY := "longitudinal_069_mps"
 const PREVIEW_M := 60.0
 const PIT_EXIT_MPS := 80.0 / 3.6
@@ -34,7 +35,7 @@ static func braking_distance(speed: float, target: float, braking: float) -> flo
 
 ## Existing schematic apices supply forward constraints, including across
 ## the finish line. The local 60m preview remains an additional constraint.
-static func apex_braking_cap(curve: Dictionary, nominal: float, lap_m: float, traction: float, desired: float) -> float:
+static func apex_braking_cap(curve: Dictionary, nominal: float, lap_m: float, traction: float, desired: float, mass_scale: float = 1.0) -> float:
 	var cap: float = desired
 	var progress: float = float(curve.get("progress", 0.0))
 	for corner in curve.get("corners", []):
@@ -43,7 +44,7 @@ static func apex_braking_cap(curve: Dictionary, nominal: float, lap_m: float, tr
 		if apex_speed >= cap: continue
 		# Braking rate grows with speed in this model. Use the lower-speed
 		# endpoint as a conservative constant rate for the approach.
-		var braking: float = float(rates(apex_speed, traction).brake)
+		var braking: float = float(rates(apex_speed, traction).brake)*mass_scale
 		if distance_m <= braking_distance(cap, apex_speed, braking):
 			cap = minf(cap, braking_cap(apex_speed, braking, distance_m))
 	return cap
@@ -66,13 +67,21 @@ static func propose(car: Dictionary, curve: Dictionary, pace_s: float, lap_m: fl
 	var previous := clampf(float(car.get(KEY,desired)),0.0,MAX_MPS)
 	var traction: float = grip(car,weather)
 	var limits := rates(previous,traction)
+	var mass_kg: float = Powertrain070.REFERENCE_MASS_KG
+	var mass_scale: float = 1.0
+	if curve.has(Fuel0701.KEY):
+		mass_kg = maxf(Fuel0701.DRY_MASS_KG,float(curve[Fuel0701.KEY]))
+		mass_scale = Powertrain070.REFERENCE_MASS_KG/mass_kg
+		# Force-limited reference rates; detailed tyre load transfer is 0.7.1.
+		limits.accel=float(limits.accel)*mass_scale
+		limits.brake=float(limits.brake)*mass_scale
 	var target := minf(desired,braking_cap(future,float(limits.brake),PREVIEW_M))
-	target = minf(target,apex_braking_cap(curve,nominal,lap_m,traction,desired))
+	target = minf(target,apex_braking_cap(curve,nominal,lap_m,traction,desired,mass_scale))
 	# 042 opt-in only. Braking and traffic remain authoritative.
 	# The existing KERS/DRS/wake pace remains the target ceiling; the
 	# powertrain only supplies a force limit, never adds speed to the target.
 	if bool(curve.get(Powertrain070.KEY,false)):
-		var drive: Dictionary = Powertrain070.advance(car.get(Powertrain070.KEY,{}),previous,1.0 if target>previous else 0.0,driving_dt,Powertrain070.REFERENCE_MASS_KG,curve.get("power_delivery_070",{}))
+		var drive: Dictionary = Powertrain070.advance(car.get(Powertrain070.KEY,{}),previous,1.0 if target>previous else 0.0,driving_dt,mass_kg,curve.get("power_delivery_070",{}))
 		var movement: Dictionary
 		if target>previous:
 			var cut: float = float(drive.shift_cut_s)

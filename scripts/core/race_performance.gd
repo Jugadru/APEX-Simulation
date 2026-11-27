@@ -58,6 +58,8 @@ static func evaluate(car: Dictionary, context: Dictionary, shared_setup: Diction
 	var mode_efficiency: float = 0.64 if mode_name == "Economizar" else (0.90 if mode_name == "Equilibrado" else 1.12)
 	var kers_bonus: float = -6.55 * (power_kw / 60.0) * mode_efficiency
 	var fuel: float = -1.25 * clampf(float(car["laps_done"]) / maxf(float(race_laps), 1.0), 0.0, 1.0)
+	# 043 substitutes physical mass for the synthetic lap-index bonus.
+	if bool(context.get("physical_fuel_0701",false)): fuel=0.0
 	var tyre_heat: float = float(car.get("tyre_heat", 0.0))
 	var wear_factor: float = float(tyre["wear"]) * float(pace["wear"]) * (1.0 - chassis * 0.045)
 	var trapped_air: float = clampf((1.8 - gap) / 1.8, 0.0, 1.0)
