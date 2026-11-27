@@ -20,14 +20,14 @@ def git(*args: str) -> str:
     return subprocess.check_output(["git", *args], cwd=ROOT).decode("utf-8")
 
 
-def contracts(root: Path, paths: list[str]) -> list[tuple[str, str]]:
-    """Include direct fixture edits even if routing does not select them."""
+def contracts(root: Path, paths: list[str], *, audit_all: bool = False) -> list[tuple[str, str]]:
+    """Native plan follows FAST plus direct edits; all-registry review is static only."""
     result = list(select(paths, root))
     all_pairs = list(ALWAYS) + list(CASES.values())
     all_pairs += [(t["script"], t["marker"]) for s in load_suites(root)
                   for t in s["fast_tests"]]
     for pair in all_pairs:
-        if str(FILE) in paths or "tests/" + pair[0] in paths:
+        if audit_all or "tests/" + pair[0] in paths:
             if pair not in result:
                 result.append(pair)
     return result
@@ -41,7 +41,10 @@ def marker_findings(root: Path, pairs: list[tuple[str, str]]) -> tuple[list[str]
             missing.append(f"Missing test: tests/{script}")
             continue
         source = path.read_text(encoding="utf-8")
-        if marker not in source:
+        # A substring inside another identifier is not the same contract.
+        # Literal presence remains advisory: only runtime output proves emission.
+        pattern = r"(?<![A-Za-z0-9_])" + re.escape(marker) + r"(?![A-Za-z0-9_])"
+        if not re.search(pattern, source):
             review.append(f"{script}: expected marker not found literally: {marker}")
     return missing, review
 
@@ -72,6 +75,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--base", default="origin/main", help="Fetched target ref or SHA")
     parser.add_argument("--native", action="store_true", help="Import and execute FAST fixtures locally")
+    parser.add_argument("--audit-registry", action="store_true", help="Review all registered marker contracts without running all fixtures")
     args = parser.parse_args()
     logs = Path(tempfile.mkdtemp(prefix="apex-preflight-"))
     print(f"Logs: {logs}")
@@ -90,7 +94,8 @@ def main() -> int:
                 for line in indentation_findings(diff):
                     print(f"REVIEW indentation {path}: {line[:100]!r}")
         pairs = contracts(ROOT, paths)
-        missing, review = marker_findings(ROOT, pairs)
+        audited = contracts(ROOT, paths, audit_all=args.audit_registry or FILE.as_posix() in paths)
+        missing, review = marker_findings(ROOT, audited)
         for finding in missing + review:
             print("REVIEW " + finding)
         if missing:
@@ -114,6 +119,10 @@ def main() -> int:
         # No deletion of developer files or automatic reformatting.
         run(["godot", "--headless", "--single-threaded-scene", "--path", ".", "--import"],
             logs / "godot-import.log", timeout=240, godot_log=True)
+        # Native validation is bounded to the selected plan. Unselected static
+        # findings need separate review; do not silently claim them validated.
+        _, native_review = marker_findings(ROOT, pairs)
+        unresolved = set(review) - set(native_review)
         for index, (script, marker) in enumerate(pairs):
             run(["bash", "tools/apex_ci_isolated_test.sh", script],
                 logs / f"{index:03d}-{script}.log", marker=marker, godot_log=True)
@@ -122,6 +131,9 @@ def main() -> int:
                      "bash", "tools/apex_ci_isolated_test.sh", script],
                     logs / f"{index:03d}-motion-developed.log",
                     marker="VISUAL_STUTTER_06672_BENCHMARK", godot_log=True)
+        if unresolved:
+            print("INCONCLUSIVE unselected registry marker contracts require review")
+            return 2
         print("APEX_PREFLIGHT_NATIVE_PASS (local candidate only; GitHub FAST still required)")
         return 0
     except (OSError, ValueError, subprocess.SubprocessError) as exc:
