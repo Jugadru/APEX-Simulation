@@ -46,7 +46,7 @@ class RegistryTest(unittest.TestCase):
     def test_strict_json(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "input.json"
-            for raw in ('{"a":1,"a":2}', '{"a":NaN}', ' ' * (f.LIMIT + 1)):
+            for raw in ('{"a":1,"a":2}', '{"a":NaN}', '{"a":1e999}', ' ' * (f.LIMIT + 1)):
                 path.write_text(raw)
                 with self.assertRaises(ValueError):
                     f.read(path)

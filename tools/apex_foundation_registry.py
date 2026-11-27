@@ -2,6 +2,7 @@
 """Read-only Foundation metadata; never dispatch commands or mutate runtime."""
 import argparse
 import json
+import math
 from pathlib import Path
 import re
 import sys
@@ -27,13 +28,19 @@ def pairs(rows):
 def bad_constant(value):
     raise ValueError("invalid JSON constant: " + value)
 
+def finite_float(value):
+    number = float(value)
+    if not math.isfinite(number):
+        raise ValueError("nonfinite JSON number")
+    return number
+
 def read(path):
     with Path(path).open("rb") as handle:
         raw = handle.read(LIMIT + 1)
     if len(raw) > LIMIT:
         raise ValueError("JSON size limit")
     return json.loads(raw.decode("utf-8"), object_pairs_hook=pairs,
-                      parse_constant=bad_constant)
+                      parse_constant=bad_constant, parse_float=finite_float)
 
 def schema_check(schema):
     if not isinstance(schema, dict) or set(schema) - KEYS or "type" not in schema:

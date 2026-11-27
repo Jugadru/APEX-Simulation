@@ -54,7 +54,6 @@ jobs:
         run: python3 -m unittest discover -s tools/tests -p 'test_apex_lab_perf_history.py' -v
 
       - name: Validate Foundation contracts and legacy asset planning
-        if: ${{ hashFiles('tools/apex_foundation_registry.py') != '' }}
         shell: bash
         run: |
           set -euo pipefail
