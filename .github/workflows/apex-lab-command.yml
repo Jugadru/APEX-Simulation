@@ -34,6 +34,16 @@ jobs:
       - run: python3 -m unittest discover -s tools/tests -p 'test_apex_lab_*.py' -v
       - name: Read-only architecture smoke on real project
         run: python3 tools/apex_lab_architecture.py --output "$RUNNER_TEMP/architecture.json"
+      - name: Orchestration smoke on checked-out revision
+        run: python3 tools/apex_lab_command.py execute --command orchestrate --head "$(git rev-parse HEAD)" --output "$RUNNER_TEMP/orchestration-smoke"
+      - name: Preserve orchestration smoke evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: orchestration-smoke
+          path: ${{ runner.temp }}/orchestration-smoke/
+          retention-days: 7
+          if-no-files-found: warn
   authorize:
     if: github.event_name == 'issue_comment' && github.actor == 'Jugadru' && startsWith(github.event.comment.body, '/lab ')
     runs-on: ubuntu-latest
