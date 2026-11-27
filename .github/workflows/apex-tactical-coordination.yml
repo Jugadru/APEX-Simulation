@@ -2,7 +2,7 @@ name: APEX - Tactical coordination validation
 on:
   pull_request:
     branches: [main]
-    types: [opened, synchronize, reopened, ready_for_review]
+    types: [opened, synchronize, reopened, ready_for_review, labeled]
     paths:
       - 'scripts/core/race_tactical_coordination_091712.gd'
       - 'scripts/core/race_space_0655.gd'
@@ -11,10 +11,13 @@ on:
       - 'tests/tactical_coordination_091712_test.gd'
       - 'tests/aero_wake_091711_test.gd'
       - '.github/workflows/apex-tactical-coordination.yml'
+      - 'tools/apex_ci_grouped_pilot.py'
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
   coordination:
+    if: github.event_name == 'pull_request' && (github.event.action != 'labeled' || github.event.label.name == 'ci:grouped-pilot')
     runs-on: ubuntu-latest
     timeout-minutes: 20
     strategy:
@@ -59,4 +62,42 @@ jobs:
             import.log
             fixture.log
             coordination.log
+          retention-days: 14
+
+  grouped-pilot:
+    # Opt-in evidence only. Existing production comparisons stay active.
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'ci:grouped-pilot') && (github.event.action != 'labeled' || github.event.label.name == 'ci:grouped-pilot'))
+    runs-on: ubuntu-latest
+    # Anchor worst-case: five independent 240s baselines + grouped 1200s
+    # + clean import/setup/artifact handling. Other cases retain 30 minutes.
+    timeout-minutes: ${{ matrix.track == 'ITA' && matrix.climate == 'Seco' && matrix.seed == 42 && 50 || 30 }}
+    strategy:
+      fail-fast: false
+      matrix:
+        track: [ITA, GBR, MON]
+        climate: [Seco, Chuva intensa]
+        seed: [42, 123]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: chickensoft-games/setup-godot@ac93246ea68518a384c1c280a496e5989341f2f6 # v2.4.3
+        with:
+          version: '4.7.2'
+          use-dotnet: false
+      - run: bash tools/apex_ci_import.sh import.log
+      - run: python3 tools/apex_ci_grouped_pilot.py --self-test
+      - name: Compare five isolated baselines with grouped pilot
+        env:
+          PILOT_TRACK: ${{ matrix.track }}
+          PILOT_CLIMATE: ${{ matrix.climate }}
+          PILOT_SEED: ${{ matrix.seed }}
+        run: |
+          set -euo pipefail
+          python3 tools/apex_ci_grouped_pilot.py --track "$PILOT_TRACK" --climate "$PILOT_CLIMATE" --seed "$PILOT_SEED" --output pilot-evidence
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: apex-grouped-pilot-${{ matrix.track }}-${{ matrix.climate }}-${{ matrix.seed }}
+          path: |
+            import.log
+            pilot-evidence/
           retention-days: 14
