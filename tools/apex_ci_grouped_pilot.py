@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -185,20 +186,79 @@ def validate_chain(candidate):
         require(left["result"]["new"] == right["result"]["old"], "shared sporting result mismatch")
 
 
-def run_fixtures(env, output):
+def run_fixtures(env, output, modes=tuple(MODES)):
     # Match the five old invariant gates. Never share their HOME/XDG or
     # silently skip a fixture when a previous fixture fails.
     passed = []
     failures = []
-    for mode, (script, marker) in FIXTURES.items():
+    for mode in modes:
+        script, marker = FIXTURES[mode]
         try:
             lines, _ = run_test(env, output / f"fixture-{mode}.log", script)
             require(lines.count(marker) == 1, f"{mode}: missing or repeated fixture PASS")
             passed.append(mode)
         except (OSError, ValueError, subprocess.SubprocessError) as error:
             failures.append(f"{mode}: {error}")
-    require(not failures and passed == list(MODES), f"fixture failure: {failures}")
+    require(not failures and passed == list(modes), f"fixture failure: {failures}")
     return passed
+
+
+ANCHOR = ("ITA", "Seco", 42)
+
+
+def digest(value):
+    return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False).encode("utf-8")).hexdigest()
+
+
+def evidence_for(cases):
+    return {mode: {"old": digest(case["result"]["old"]), "new": digest(case["result"]["new"]),
+                   "checks": case["report"]["checks"], "trace": case["trace"]["sha256"]}
+            for mode, case in cases.items()}
+
+
+def verify_production(records, checkout):
+    expected = {(track, climate, seed) for track in ("ITA", "GBR", "MON")
+                for climate in ("Seco", "Chuva intensa") for seed in (42, 123)}
+    seen = set()
+    anchor = {}
+    total_calls = 0
+    fixture_total = 0
+    for record in records:
+        require(record.get("checkout") == checkout and record.get("status") == "PASS", "wrong candidate or failed report")
+        require(record.get("godot", "").startswith("4.7.2."), "wrong Godot version")
+        scenario = record["scenario"]
+        key = (scenario["track"], scenario["climate"], scenario["seed"])
+        require(key in expected and scenario == dict(track=key[0], climate=key[1], seed=key[2], ticks=1800, full=False), "wrong scenario")
+        modes = record["comparisons"]
+        if key == ANCHOR:
+            require(len(modes) == 1 and modes[0] in MODES, "anchor must have one independent mode")
+            require(record["primary_calls"] == {"legacy": 2, "grouped": 0}, "wrong anchor primary count")
+            require(record["fixture_modes"] == modes, "missing anchor fixture")
+        else:
+            require(modes == list(MODES), "missing grouped modes")
+            require(record["primary_calls"] == {"legacy": 0, "grouped": 6}, "wrong grouped primary count")
+            require(record["fixture_modes"] == [], "unexpected non-anchor fixture")
+        evidence = record["mode_evidence"]
+        require(set(evidence) == set(modes), "missing mode evidence")
+        for mode in modes:
+            require((key, mode) not in seen, "duplicate scenario/mode")
+            seen.add((key, mode))
+            item = evidence[mode]
+            require(type(item["checks"]) is int and item["checks"] > 0, "missing assertions")
+            require(all(re.fullmatch(r"[0-9a-f]{64}", str(item[k])) for k in ("old", "new", "trace")), "invalid mode digest")
+            if key == ANCHOR:
+                anchor[mode] = item
+        if key != ANCHOR:
+            for left, right in zip(modes, modes[1:]):
+                require(evidence[left]["new"] == evidence[right]["old"], "grouped boundary mismatch")
+        total_calls += sum(record["primary_calls"].values())
+        fixture_total += len(record["fixture_modes"])
+    require(len(records) == 16 and seen == {(key, mode) for key in expected for mode in MODES}, "incomplete 60-comparison production matrix")
+    require(total_calls == 76 and fixture_total == 5, "primary or fixture coverage mismatch")
+    for left, right in zip(MODES, list(MODES)[1:]):
+        require(anchor[left]["new"] == anchor[right]["old"], f"independent historical boundary mismatch: {left}/{right}")
+    return {"jobs": 16, "comparisons": len(seen), "primary_calls": total_calls, "fixtures": fixture_total,
+            "anchor_boundaries": 4, "checkout": checkout}
 
 
 def self_test():
@@ -245,6 +305,31 @@ def self_test():
     else:
         raise AssertionError("missed shared sporting mismatch")
     check_routing()
+    records = []
+    for track in ("ITA", "GBR", "MON"):
+        for climate in ("Seco", "Chuva intensa"):
+            for seed in (42, 123):
+                historical = (track, climate, seed) == ANCHOR
+                batches = [[mode] for mode in MODES] if historical else [list(MODES)]
+                for modes in batches:
+                    records.append({"checkout": "candidate", "status": "PASS", "godot": "4.7.2.test",
+                                    "scenario": dict(track=track, climate=climate, seed=seed, ticks=1800, full=False),
+                                    "comparisons": modes, "primary_calls": {"legacy": 2 if historical else 0, "grouped": 0 if historical else 6},
+                                    "fixture_modes": modes if historical else [],
+                                    "mode_evidence": {mode: {"old": digest(list(MODES).index(mode)), "new": digest(list(MODES).index(mode) + 1),
+                                                            "checks": 1, "trace": digest("trace")} for mode in modes}})
+    verify_production(records, "candidate")
+    mutations = [records[:-1], records + [records[0]], deepcopy(records), deepcopy(records), deepcopy(records)]
+    mutations[2][0]["mode_evidence"]["coordination"]["new"] = digest("wrong boundary")
+    mutations[3][0]["fixture_modes"] = []
+    mutations[4][0]["checkout"] = "stale"
+    for broken in mutations:
+        try:
+            verify_production(broken, "candidate")
+        except ValueError:
+            pass
+        else:
+            raise AssertionError("matrix gate accepted invalid evidence")
     print("APEX_GROUPED_PILOT_SELF_TEST_PASS")
 
 
@@ -255,13 +340,29 @@ def main():
     parser.add_argument("--seed", type=int, choices=[42, 123])
     parser.add_argument("--output", type=Path)
     parser.add_argument("--self-test", action="store_true")
-    parser.add_argument("--grouped-only", action="store_true", help="production matrix: fixtures and five grouped comparisons, no redundant baselines")
+    mode_group = parser.add_mutually_exclusive_group()
+    mode_group.add_argument("--grouped-only", action="store_true", help="production: five grouped comparisons outside historical anchor")
+    mode_group.add_argument("--anchor-mode", choices=list(MODES), help="one historical comparison and its dedicated fixture")
+    mode_group.add_argument("--verify-production", type=Path, help="verify all production artifacts for the current checkout")
     args = parser.parse_args()
     if args.self_test:
         self_test()
         return 0
+    if args.verify_production:
+        try:
+            paths = sorted(args.verify_production.rglob("summary.json"))
+            records = [json.loads(path.read_text(encoding="utf-8")) for path in paths]
+            checkout = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+            print("APEX_HYBRID_MATRIX_PASS", json.dumps(verify_production(records, checkout), sort_keys=True))
+            return 0
+        except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError) as error:
+            print(f"APEX_HYBRID_MATRIX_FAIL: {error}", file=sys.stderr)
+            return 1
     if None in (args.track, args.climate, args.seed, args.output):
         parser.error("track, climate, seed and output required")
+    is_anchor = (args.track, args.climate, args.seed) == ANCHOR
+    if (args.anchor_mode and not is_anchor) or (args.grouped_only and is_anchor):
+        parser.error("historical production anchor must use exactly one --anchor-mode")
     args.output.mkdir(parents=True, exist_ok=False)
     expected = {"track": args.track, "climate": args.climate, "seed": args.seed, "ticks": 1800, "full": False}
     env = os.environ.copy()
@@ -274,38 +375,44 @@ def main():
         baseline_seconds = {}
         fixture_modes = []
         fixture_error = None
-        if args.grouped_only:
-            if (args.track, args.climate, args.seed) == ("ITA", "Seco", 42):
-                try:
-                    fixture_modes = run_fixtures(env, args.output)
-                except (OSError, ValueError, subprocess.SubprocessError) as error:
-                    fixture_error = str(error)
-        else:
-            for mode, flag in MODES.items():
-                lines, duration = run_test(dict(env, **{flag: "1"}), args.output / f"legacy-{mode}.log")
-                baseline[mode] = read_case(lines, expected)
-                baseline_seconds[mode] = duration
-        lines, grouped_seconds = run_test(dict(env, APEX_AERO_GROUPED_PILOT="1"), args.output / "grouped.log")
-        candidate = grouped_cases(lines, expected)
-        validate_chain(candidate)
-        if args.grouped_only:
+        grouped_seconds = 0.0
+        if args.anchor_mode:
+            mode = args.anchor_mode
+            try:
+                fixture_modes = run_fixtures(env, args.output, (mode,))
+            except (OSError, ValueError, subprocess.SubprocessError) as error:
+                fixture_error = str(error)
+            lines, duration = run_test(dict(env, **{MODES[mode]: "1"}), args.output / f"legacy-{mode}.log")
+            candidate = {mode: read_case(lines, expected)}
+            baseline_seconds[mode] = duration
             require(fixture_error is None, fixture_error)
+            primary_calls = {"legacy": 2, "grouped": 0}
         else:
-            compare(baseline, candidate)
+            if not args.grouped_only:
+                for mode, flag in MODES.items():
+                    lines, duration = run_test(dict(env, **{flag: "1"}), args.output / f"legacy-{mode}.log")
+                    baseline[mode] = read_case(lines, expected)
+                    baseline_seconds[mode] = duration
+            lines, grouped_seconds = run_test(dict(env, APEX_AERO_GROUPED_PILOT="1"), args.output / "grouped.log")
+            candidate = grouped_cases(lines, expected)
+            validate_chain(candidate)
+            if not args.grouped_only:
+                compare(baseline, candidate)
+            primary_calls = {"legacy": 0 if args.grouped_only else 10, "grouped": 6}
         summary = {
-            "scenario": expected, "status": "PASS", "comparisons": list(MODES),
-            "primary_calls": {"legacy": 0 if args.grouped_only else 10, "grouped": 6},
+            "scenario": expected, "status": "PASS", "comparisons": list(candidate),
+            "primary_calls": primary_calls,
             "legacy_seconds": baseline_seconds, "grouped_seconds": grouped_seconds,
-            "fixture_modes": fixture_modes,
-            "scope": ("production grouped native assertions and shared result integrity"
-                      if args.grouped_only else
+            "fixture_modes": fixture_modes, "mode_evidence": evidence_for(candidate),
+            "scope": ("hybrid production native assertions and shared result integrity"
+                      if args.grouped_only or args.anchor_mode else
                       "same job, native isolated processes, all reported sporting fields and assertion trace; not a controlled performance benchmark"),
             "excluded_volatile_fields": sorted(NONSPORTING),
             "checkout": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
             "godot": subprocess.check_output(["godot", "--version"], text=True).strip(),
         }
         (args.output / "summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
-        print("APEX_GROUPED_PRODUCTION_PASS" if args.grouped_only else "APEX_GROUPED_PILOT_PASS", json.dumps(summary, ensure_ascii=False))
+        print("APEX_GROUPED_PRODUCTION_PASS" if args.grouped_only or args.anchor_mode else "APEX_GROUPED_PILOT_PASS", json.dumps(summary, ensure_ascii=False))
         return 0
     except (OSError, ValueError, subprocess.SubprocessError) as error:
         print(f"APEX_GROUPED_PILOT_FAIL: {error}", file=sys.stderr)
