@@ -37,6 +37,8 @@ const Fuel0701 = preload("res://scripts/core/race_fuel_mass_0701.gd")
 const FUEL_SIM_REVISION := RevisionPolicy.FUEL_SIM_REVISION
 const Tyre071 = preload("res://scripts/core/race_tyre_grip_071.gd")
 const TYRE_GRIP_SIM_REVISION := RevisionPolicy.TYRE_GRIP_SIM_REVISION
+const Vehicle072 = preload("res://scripts/core/race_vehicle_dynamics_072.gd")
+const VEHICLE_DYNAMICS_SIM_REVISION := RevisionPolicy.VEHICLE_DYNAMICS_SIM_REVISION
 const DriverError0921=preload("res://scripts/core/race_driver_error_0921.gd")
 var driver_error_enabled:bool=true
 const TrafficPack09201=preload("res://scripts/core/race_traffic_pack_09201.gd")
@@ -780,6 +782,7 @@ func _advance(dt: float) -> void:
 	var gearbox_rules: bool = false
 	var fuel_rules: bool = false
 	var tyre_grip_rules: bool = false
+	var vehicle_dynamics_rules: bool = false
 	if command_session != null:
 		var attached_session: Object = command_session.get_ref()
 		if attached_session != null:
@@ -808,6 +811,7 @@ func _advance(dt: float) -> void:
 			gearbox_rules = longitudinal_rules and (revision_mask & RevisionPolicy.GEARBOX) != 0
 			fuel_rules = (revision_mask & RevisionPolicy.FUEL) != 0
 			tyre_grip_rules = gearbox_rules and fuel_rules and (revision_mask & RevisionPolicy.TYRE_GRIP) != 0
+			vehicle_dynamics_rules = tyre_grip_rules and (revision_mask & RevisionPolicy.VEHICLE_DYNAMICS) != 0
 	# Seed from the last actual legacy displacement, not a new target speed.
 	# The seed is stored in the sporting car state for deterministic seek.
 	var longitudinal_handover: bool = longitudinal_revision and not longitudinal_rules and clock + dt + 0.0000001 >= RacingLine.START_SECONDS
@@ -883,6 +887,7 @@ func _advance(dt: float) -> void:
 					if tyre_grip_rules:
 						metrics[Longitudinal069.KEY][Tyre071.KEY]=true
 						metrics[Longitudinal069.KEY]["ahead_progress"]=old_progress+Longitudinal069.PREVIEW_M/maxf(1.0,lap_km*1000.0)
+						if vehicle_dynamics_rules: metrics[Longitudinal069.KEY][Vehicle072.KEY]=true
 			# A pit-bound car retains existing pit approach behavior.
 			var fraction: float = fposmod(old_progress,1.0)
 			if fraction>0.04 and fraction<0.93:
@@ -914,6 +919,7 @@ func _advance(dt: float) -> void:
 			if longitudinal_rules: car.erase(Longitudinal069.KEY)
 			if gearbox_rules: car.erase(Powertrain070.KEY)
 			if tyre_grip_rules: car.erase(Tyre071.KEY)
+			if vehicle_dynamics_rules: car.erase(Vehicle072.KEY)
 			if aero_wake_rules: car.erase("aero_wake_032")
 			if traffic_pack_rules and car.has(TrafficPack09201.KEY):car[TrafficPack09201.KEY]=TrafficPack09201.pit_reset(car)
 			if error_rules and car.has(DriverError0921.KEY):car[DriverError0921.KEY]=DriverError0921.pit_reset(car)
@@ -1031,6 +1037,7 @@ func _advance(dt: float) -> void:
 				if longitudinal_rules: car.erase(Longitudinal069.KEY)
 				if gearbox_rules: car.erase(Powertrain070.KEY)
 				if tyre_grip_rules: car.erase(Tyre071.KEY)
+				if vehicle_dynamics_rules: car.erase(Vehicle072.KEY)
 				_begin_pit(car, entry_progress)
 				continue
 		car["progress"] = maxf(prev, next)
@@ -1475,7 +1482,15 @@ func _burn_fuel_0701(car: Dictionary, previous_progress: float, dt: float) -> vo
 	# Use the chosen 042 aero load when available, no second wake search.
 	road_load=float(drive.get("road_load_n",road_load))
 	var work_kj: float = Fuel0701.shaft_work_kj(Fuel0701.mass_kg(state),float(state.last_speed_mps),end_speed,distance_m,road_load,Powertrain070.EFFICIENCY,float(drive.get("kers_energy_offer_kj",0.0)))
-	car[Fuel0701.KEY]=Fuel0701.advance(state,str(car.pace),dt,work_kj,end_speed)
+	if car.has(Vehicle072.KEY):
+		var accepted: Dictionary = Vehicle072.account(car[Vehicle072.KEY],distance_m,end_speed,dt)
+		work_kj=float(accepted.accepted_v8_kj)
+		car[Fuel0701.KEY]=Fuel0701.advance(state,str(car.pace),dt,work_kj,end_speed)
+		accepted["fuel_burn_kg"]=float(car[Fuel0701.KEY].last_burn_kg)
+		accepted["mass_after_kg"]=float(car[Fuel0701.KEY].mass_kg)
+		car[Vehicle072.KEY]=accepted
+	else:
+		car[Fuel0701.KEY]=Fuel0701.advance(state,str(car.pace),dt,work_kj,end_speed)
 
 func _retire_fuel_0701(car: Dictionary) -> void:
 	if bool(car.finished): return
@@ -1494,6 +1509,7 @@ func _retire_fuel_0701(car: Dictionary) -> void:
 	car.erase(Longitudinal069.KEY)
 	car.erase(Powertrain070.KEY)
 	if car.has(Tyre071.KEY): car.erase(Tyre071.KEY)
+	if car.has(Vehicle072.KEY): car.erase(Vehicle072.KEY)
 	_event("incident",int(car.id),"ABANDONO | %s: combustível esgotado." % str(car.name),118)
 
 func _mark_finish(car: Dictionary) -> void:

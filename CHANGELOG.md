@@ -1,5 +1,9 @@
 # Changelog — APEX Motorsport Manager Core 2
 
+## Unreleased — v0.7.2 Vehicle Dynamics Integration (045 experimental)
+
+- Contrato único de proposta, movimento autorizado e contabilidade de energia: envelope compartilhado 044, motor/câmbio/KERS, freios, pneus, massa, arrasto em tração/corte/frenagem, estratégia e trajetória. Trabalho estimado limitado por oferta, distância efetiva e demanda; combustível e KERS mantêm seus proprietários. Sem novo RNG ou mudança das revisões anteriores. FAST pendente. [Contrato](docs/APEX_072_VEHICLE_DYNAMICS.md).
+
 ## Unreleased — v0.7.1 Tyre Grip & Load Transfer
 
 - Revisão experimental 044 acrescenta quatro cargas normais, transferência longitudinal/lateral, sensibilidade à carga, limite combinado de aderência, cap lateral em curvas e preview, influência de temperatura/desgaste/clima e downforce aproximado do wake/DRS. A física anterior, boxes, RNG e solver continuam proprietários dos respectivos sistemas. FAST pendente. [Contrato](docs/APEX_071_TYRE_GRIP.md).

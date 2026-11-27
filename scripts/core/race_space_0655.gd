@@ -4,6 +4,7 @@ const Combat = preload("res://scripts/core/race_combat.gd")
 const Longitudinal069 = preload("res://scripts/core/race_longitudinal_069.gd")
 const Powertrain070 = preload("res://scripts/core/race_powertrain_070.gd")
 const Tyre071 = preload("res://scripts/core/race_tyre_grip_071.gd")
+const Vehicle072 = preload("res://scripts/core/race_vehicle_dynamics_072.gd")
 const DriverDynamics = preload("res://scripts/core/race_driver_dynamics_0661.gd")
 const DriverTraffic = preload("res://scripts/core/race_driver_traffic_06693.gd")
 const Overtaking = preload("res://scripts/core/race_overtaking_intelligence_066912.gd")
@@ -657,7 +658,11 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 				if bool(curve.get(Tyre071.KEY,false)): delivery["dirty_fraction"]=float(a.get("aero_wake_032",{}).get("dirty_fraction",0.0))
 				curve = curve.duplicate()
 				curve["power_delivery_070"]=delivery
-			var physical: Dictionary = Longitudinal069.propose(c,curve,float(a.pace),lap_km*1000.0,float(a.driving_dt),weather)
+			var physical: Dictionary
+			if bool(curve.get(Vehicle072.KEY,false)):
+				physical=Vehicle072.propose(c,curve,float(a.pace),lap_km*1000.0,float(a.driving_dt),weather)
+			else:
+				physical=Longitudinal069.propose(c,curve,float(a.pace),lap_km*1000.0,float(a.driving_dt),weather)
 			a.next = own_progress+float(physical.distance_m)/(lap_km*1000.0)
 			a[Longitudinal069.KEY] = physical
 	# Before entering a single corridor, the trailing side yields gradually.
@@ -725,4 +730,6 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 				result[id].states[Powertrain070.KEY]=Powertrain070.settle(intents[id][Longitudinal069.KEY][Powertrain070.KEY],float(result[id].states[Longitudinal069.KEY]))
 			if intents[id][Longitudinal069.KEY].has(Tyre071.KEY):
 				result[id].states[Tyre071.KEY]=Tyre071.settle(intents[id][Longitudinal069.KEY][Tyre071.KEY],c,weather,float(result[id].states[Longitudinal069.KEY]),dt)
+			if intents[id][Longitudinal069.KEY].has(Vehicle072.KEY):
+				result[id].states[Vehicle072.KEY]=Vehicle072.settle(intents[id][Longitudinal069.KEY][Vehicle072.KEY],actual_m,float(result[id].states[Longitudinal069.KEY]),dt)
 	return result
