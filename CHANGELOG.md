@@ -1,5 +1,9 @@
 # Changelog — APEX Motorsport Manager Core 2
 
+## Unreleased — v0.7.2.1 Native Core Research (documental)
+
+- Auditoria estática de 045, contrato de fase pura, dependência candidata godot-cpp fixada, protocolo de equivalência e benchmark. Sem alterações de runtime, C++ ou CI. FAST da candidata pendente; preflight local BLOCKED, perfil 045 e compilação NOT_RUN. [Pesquisa e contrato](docs/APEX_0721_NATIVE_CORE_RESEARCH.md).
+
 ## Unreleased — v0.7.2 Vehicle Dynamics Integration (045 experimental)
 
 - Contrato único de proposta, movimento autorizado e contabilidade de energia: envelope compartilhado 044, motor/câmbio/KERS, freios, pneus, massa, arrasto em tração/corte/frenagem, estratégia e trajetória. Trabalho estimado limitado por oferta, distância efetiva e demanda; combustível e KERS mantêm seus proprietários. Sem novo RNG ou mudança das revisões anteriores. FAST pendente. [Contrato](docs/APEX_072_VEHICLE_DYNAMICS.md).
