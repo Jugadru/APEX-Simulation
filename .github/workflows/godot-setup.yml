@@ -5,7 +5,7 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
-    types: [opened, reopened, synchronize]
+    types: [opened, reopened, synchronize, ready_for_review]
   workflow_dispatch:
     inputs:
       tier:
@@ -18,6 +18,7 @@ on:
 permissions:
   contents: read
   actions: read
+  pull-requests: read
 
 concurrency:
   group: apex-core2-${{ github.workflow }}-${{ github.ref }}
@@ -27,7 +28,7 @@ jobs:
   core2-smoke:
     name: Import and Core 2 regression tests
     runs-on: ubuntu-latest
-    # Preserve all selected FAST checks; the sequential 61-test suite can exceed 20 min.
+    # Preserve all selected FAST checks; sequential tests can exceed 20 min.
     # Per-script isolation retains its existing 240-second failure limit.
     timeout-minutes: 35
     env:
@@ -43,11 +44,21 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: Verify exact PR merge candidate
+        if: github.event_name == 'pull_request'
+        run: python3 tools/apex_ci_merge_guard.py preflight
+
+      - name: Verify pre-merge guard contracts
+        run: python3 -m unittest discover -s tools/tests -p 'test_apex_ci_merge_guard.py' -v
+
       - name: Audit runtime resource inventory
         run: python3 tools/apex_source_inventory.py --check --output ci-results/source-inventory.json
 
-      - name: Verify fast-tier test routing
-        run: python3 -m unittest discover -s tools/tests -p 'test_apex_ci_tiers.py' -v
+      - name: Verify fast-tier routing and preflight tool contracts
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s tools/tests -p 'test_apex_ci_tiers.py' -v
+          python3 -m unittest discover -s tools/tests -p 'test_apex_preflight.py' -v
 
       - name: Validate LAB performance report contracts
         run: python3 -m unittest discover -s tools/tests -p 'test_apex_lab_perf_report.py' -v
@@ -150,7 +161,7 @@ jobs:
               APEX_BASE_SHA="$(git rev-parse "$APEX_HEAD_SHA^")"
             fi
             python3 tools/apex_ci_tiers.py \
-              --base-sha "$APEX_BASE_SHA" --head-sha "$APEX_HEAD_SHA" \
+              --base-sha "$APEX_BASE_SHA" --head-sha "$(git rev-parse HEAD)" \
               --project . > ci-results/fast-plan.tsv
             mapfile -t tests < ci-results/fast-plan.tsv
           fi
@@ -230,6 +241,12 @@ jobs:
           retention-days: 30
           if-no-files-found: warn
 
+      - name: Verify complete FAST evidence and live PR identity
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 tools/apex_ci_merge_guard.py finish
+
       - name: Publish logs for diagnosis
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -241,6 +258,7 @@ jobs:
             ci-results/fast-plan.tsv
             ci-results/source-inventory.json
             ci-results/test-plan.txt
+            ci-results/premerge-*.json
             ci-results/lab-perf/
             qa/stabilization_0667/pitwall_1600.png
             qa/stabilization_0667/pitwall_1920.png

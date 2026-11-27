@@ -1017,6 +1017,21 @@
       "checks": []
     },
     {
+      "id": "project_build_identity",
+      "paths": [
+        "project.godot",
+        "tests/project_identity_test.gd",
+        "tests/wet_strategy_06698_test.gd"
+      ],
+      "fast_tests": [
+        {
+          "script": "project_identity_test.gd",
+          "marker": "PROJECT_IDENTITY_PASS"
+        }
+      ],
+      "checks": []
+    },
+    {
       "id": "vehicle_dynamics_072",
       "paths": [
         "scripts/core/race_vehicle_dynamics_072.gd",

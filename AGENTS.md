@@ -159,6 +159,78 @@ O Lab é complementar ao FAST. Usar apenas o diagnóstico necessário
 não distribuir binários/assets sem autorização e verificação de direitos.
 Não estender indefinidamente a infraestrutura em detrimento do jogo.
 
+### 5.3. Prevenção de falhas antes do envio
+
+Antes de criar commits/push, preparar uma alteração coerente e executar
+`python3 tools/apex_preflight.py --base origin/main` com arquivos revisados
+no índice. Quando houver ambiente local, executar também `--native` com
+Godot 4.7.2 e regressões direcionadas. Verificar os contratos dos marcadores,
+a inicialização de fixtures, a separação entre versão e comportamento e a
+precisão da serialização. Revisar referências do inventário e usar o
+analisador existente quando pertinente. Declarar NOT_RUN ou BLOCKED se
+não houver ambiente de execução. O preflight local não substitui o FAST,
+não cria condição nova de merge e não autoriza reduzir cobertura.
+Referência: `docs/APEX_PREFLIGHT_DEVELOPMENT.md`.
+
+### 5.4. Pre-Merge Integrity Guard — procedimento obrigatório
+
+Antes de qualquer merge, consultar novamente a PR e a main pelo GitHub:
+
+1. Confirmar PR aberta, não draft, destino main, repositório correto,
+   ausência de conflitos, bloqueios de revisão e pendências relevantes.
+   `mergeable=true` sozinho NÃO significa que os testes passaram.
+2. Registrar SHA atual da main, SHA da candidata e SHA de merge temporário.
+   O FAST valida a árvore de integração, não somente a branch isolada.
+   Exigir a execução mais recente aplicável à combinação exata, concluída
+   com sucesso, incluindo importação, Test Lab, regressões e
+   `APEX_PREMERGE_PASS` / `premerge-receipt.json`. Conferir PR, run,
+   tentativa, base, head, merge, tree e lista de testes do comprovante.
+   Uma aprovação anterior a novo commit ou mudança da base não vale.
+3. Conferir também todos os testes direcionados obrigatórios do escopo.
+   Falha, cancelamento, teste necessário ausente, execução em andamento
+   ou evidência inconclusiva bloqueia o merge. Skipped só é aceitável
+   quando o teste é realmente opcional e não aplicável; explicar.
+   Não repetir até ficar verde, não diminuir critérios e não ignorar
+   regressões. FULL continua manual, não é condição universal.
+4. Se a main avançou, resolver conflitos/sincronizar a candidata de forma
+   não destrutiva e obter nova validação da integração. Não usar força,
+   bypass de proteção, aprovação de outro SHA ou merge de draft.
+5. Imediatamente antes do merge, consultar novamente main, PR e checks.
+   Usar `expected_head_sha` igual ao candidato aprovado e merge normal.
+   Se a API negar a operação ou o estado mudar, parar e investigar,
+   sem contornar regras. O head protegido não torna a base atômica:
+   a proteção estrita de branch é recomendada para fechar essa janela.
+6. Confirmar resposta merged=true, SHA resultante e árvore do commit
+   integrado; acompanhar o FAST de main. Se a árvore divergir ou o
+   pós-merge falhar, não promover nem iniciar uma cadeia de novas versões
+   a partir de uma base não validada; abrir correção direcionada e
+   preservar evidências. Não reverter automaticamente trabalho alheio.
+
+O comprovante do FAST atesta os testes executados, não a inexistência de
+bugs, aprovação humana ou homologação FULL. O gate não faz merge, não
+muda a proteção do GitHub, não usa runner pessoal e não publica releases.
+Manter a main estável; uma integração de cada vez quando houver mudanças
+concorrentes. Consultar `docs/APEX_PREMERGE_INTEGRITY_GUARD.md`.
+
+### 5.5. Prioridades permanentes de engenharia (autorizadas pelo responsável)
+
+- Prevenir falhas antes do push; usar o código real, a referência atual de main,
+  contratos, dependências e ferramentas já existentes. Uma mudança principal por versão.
+- Investigar causas com logs e reprodução, não repetir até obter verde. Registrar
+  falhas de primeira tentativa, commits corretivos, tempo de CI e falhas detectadas
+  antes do push por uma janela de 20 PRs; separar runs, jobs, tentativas e cancelamentos.
+- Não criar workflows ou matrizes automáticas redundantes; manter cobertura de
+  cada cenário, seed, clima, duração, modo e renderer quando consolidar. FULL e
+  matrizes ampliadas não são requisitos universais. Não reduzir assertivas para passar.
+- Preservar hashes/replays, saves, determinismo e desempenho; medir antes/depois
+  de otimizar. Não modificar critérios após o resultado.
+- A infraestrutura é meio, não produto: priorizar física causal, inteligência dos
+  pilotos, estratégia, engenharia/fábrica e carreira após estabilizar a base.
+- O responsável autorizou correções e merges necessários que satisfaçam a política
+  existente. Não pedir confirmação a cada correção rotineira. Não interpretar isso
+  como permissão para ignorar falhas, usar runner pessoal sem confirmar ociosidade,
+  publicar assets/binários ou contornar permissões do GitHub.
+
 ## 6. DESEMPENHO
 
 Otimizar com medições reais.
