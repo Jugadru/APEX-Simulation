@@ -159,6 +159,46 @@ O Lab é complementar ao FAST. Usar apenas o diagnóstico necessário
 não distribuir binários/assets sem autorização e verificação de direitos.
 Não estender indefinidamente a infraestrutura em detrimento do jogo.
 
+### 5.3. Pre-Merge Integrity Guard — procedimento obrigatório
+
+Antes de qualquer merge, consultar novamente a PR e a main pelo GitHub:
+
+1. Confirmar PR aberta, não draft, destino main, repositório correto,
+   ausência de conflitos, bloqueios de revisão e pendências relevantes.
+   `mergeable=true` sozinho NÃO significa que os testes passaram.
+2. Registrar SHA atual da main, SHA da candidata e SHA de merge temporário.
+   O FAST valida a árvore de integração, não somente a branch isolada.
+   Exigir a execução mais recente aplicável à combinação exata, concluída
+   com sucesso, incluindo importação, Test Lab, regressões e
+   `APEX_PREMERGE_PASS` / `premerge-receipt.json`. Conferir PR, run,
+   tentativa, base, head, merge, tree e lista de testes do comprovante.
+   Uma aprovação anterior a novo commit ou mudança da base não vale.
+3. Conferir também todos os testes direcionados obrigatórios do escopo.
+   Falha, cancelamento, teste necessário ausente, execução em andamento
+   ou evidência inconclusiva bloqueia o merge. Skipped só é aceitável
+   quando o teste é realmente opcional e não aplicável; explicar.
+   Não repetir até ficar verde, não diminuir critérios e não ignorar
+   regressões. FULL continua manual, não é condição universal.
+4. Se a main avançou, resolver conflitos/sincronizar a candidata de forma
+   não destrutiva e obter nova validação da integração. Não usar força,
+   bypass de proteção, aprovação de outro SHA ou merge de draft.
+5. Imediatamente antes do merge, consultar novamente main, PR e checks.
+   Usar `expected_head_sha` igual ao candidato aprovado e merge normal.
+   Se a API negar a operação ou o estado mudar, parar e investigar,
+   sem contornar regras. O head protegido não torna a base atômica:
+   a proteção estrita de branch é recomendada para fechar essa janela.
+6. Confirmar resposta merged=true, SHA resultante e árvore do commit
+   integrado; acompanhar o FAST de main. Se a árvore divergir ou o
+   pós-merge falhar, não promover nem iniciar uma cadeia de novas versões
+   a partir de uma base não validada; abrir correção direcionada e
+   preservar evidências. Não reverter automaticamente trabalho alheio.
+
+O comprovante do FAST atesta os testes executados, não a inexistência de
+bugs, aprovação humana ou homologação FULL. O gate não faz merge, não
+muda a proteção do GitHub, não usa runner pessoal e não publica releases.
+Manter a main estável; uma integração de cada vez quando houver mudanças
+concorrentes. Consultar `docs/APEX_PREMERGE_INTEGRITY_GUARD.md`.
+
 ## 6. DESEMPENHO
 
 Otimizar com medições reais.
