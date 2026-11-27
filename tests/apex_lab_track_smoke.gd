@@ -4,6 +4,7 @@ extends SceneTree
 const Race = preload("res://scripts/race_engine.gd")
 const Codec = preload("res://scripts/core/race_state_codec_0660.gd")
 const RaceSpace = preload("res://scripts/core/race_space_0655.gd")
+const Tyres = preload("res://scripts/core/race_tyres_2012.gd")
 
 var checks: int = 0
 var failures: Array[String] = []
@@ -32,6 +33,19 @@ func _run() -> void:
     require(str(track.get("code", "")) == "LAB" and
         not season["tracks"].any(func(t): return str(t.get("code", "")) == "LAB"),
         "test track must never enter the real season")
+    var catalog: Dictionary = Tyres.catalog()
+    var official: Dictionary = catalog.get("tracks", {})
+    require(official.size() == 20 and not official.has("LAB"),
+        "synthetic nomination must not pollute historical tyre catalog")
+    var lab_profile: Dictionary = Tyres.track_profile(catalog, "LAB")
+    require(lab_profile == {"dry": ["Médio", "Duro"], "severity": 1.0},
+        "LAB nomination preserves prior fallback exactly")
+    lab_profile["dry"].clear()
+    require(Tyres.available(catalog, "LAB") == ["Médio", "Duro"],
+        "synthetic nomination returns isolated values")
+    for code in official:
+        require(Tyres.track_profile(catalog, str(code)) == official[code],
+            "historical nomination preserved: " + str(code))
     require(track["points"].size() >= 16 and track["points"][0] == track["points"][-1],
         "synthetic 2D path must close")
     var shape: Dictionary = RaceSpace.profile(track)
@@ -52,7 +66,8 @@ func _run() -> void:
             require(race.set_pit_control_mode(id, "Manual"),
                 "manual pit control works on synthetic track")
             var nominated: Array = race.available_pit_compounds()
-            require(nominated.size() >= 2, "laboratory track has two legal dry compounds")
+            require(nominated == ["Médio", "Duro", "Intermediário", "Chuva"],
+                "laboratory legal compound order unchanged")
             var initial: String = str(car.get("tire", ""))
             var target: String = str(nominated[0]) if initial != str(nominated[0]) else str(nominated[1])
             require(race.schedule_pit(id, target, 3),
