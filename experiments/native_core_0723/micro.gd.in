@@ -1,0 +1,107 @@
+extends SceneTree
+const V = preload("res://scripts/core/race_vehicle_dynamics_072.gd")
+const KEYS = ["speed_mps","distance_m","drive_force_n","brake_force_n","road_load_n","net_force_n","duration_s","drive_work_kj"]
+const COUNT := 100800
+const WARM := 10000
+const REPS := 10
+const MODES = ["gdscript","scalar","batch1","batch24","batch48","batch240"]
+var backend: Object
+var cases: Array
+func _initialize() -> void:
+    call_deferred("run")
+
+func sample(mode: String, count: int) -> Dictionary:
+    var checksum: float = 0.0
+    var begin: int = Time.get_ticks_usec()
+    if mode == "gdscript" or mode == "scalar":
+        for i in range(count):
+            var a: Array = cases[i % cases.size()]
+            var d: Dictionary
+            if mode == "gdscript":
+                d = V.phase(a[0],a[1],a[2],a[3],a[4],a[5],a[6])
+            else:
+                d = backend.call("phase",a[0],a[1],a[2],a[3],a[4],a[5],a[6])
+            if d.size() != 8:
+                return {}
+            for k in KEYS:
+                checksum += float(d[k])
+    else:
+        var size: int = int(mode.trim_prefix("batch"))
+        for offset in range(0,count,size):
+            var n: int = mini(size,count-offset)
+            var input := PackedFloat64Array()
+            for i in range(n):
+                input.append_array(PackedFloat64Array(cases[(offset+i) % cases.size()]))
+            var output: PackedFloat64Array = backend.call("phase_batch",input)
+            if output.size() != n*8:
+                return {}
+            # Consume all eight outputs, in identical order.
+            for v in output:
+                checksum += v
+    return {"mode":mode,"phases":count,"elapsed_us":maxi(1,Time.get_ticks_usec()-begin),
+        "checksum_bits":PackedFloat64Array([checksum]).to_byte_array().hex_encode(),"checksum_finite":is_finite(checksum),"static_bytes":int(Performance.get_monitor(Performance.MEMORY_STATIC))}
+
+func run() -> void:
+    var bytes := FileAccess.get_file_as_bytes("res://phase-fixtures.f64")
+    if bytes.size() != 4108*7*8:
+        printerr("APEX_MICRO_FAIL wrong binary fixture size")
+        quit(1)
+        return
+    var values := bytes.to_float64_array()
+    cases = []
+    for i in range(4108):
+        cases.append(Array(values.slice(i*7,(i+1)*7)))
+    if cases.size() != 4108 or not ClassDB.class_exists("ApexNativePhase0722"):
+        printerr("APEX_MICRO_FAIL invalid fixtures or missing backend")
+        quit(1)
+        return
+    backend = ClassDB.instantiate("ApexNativePhase0722")
+    # Exact per-field oracles, outside all measured sections.
+    var oracle := PackedFloat64Array()
+    for a in cases:
+        var result: Dictionary = V.phase(a[0],a[1],a[2],a[3],a[4],a[5],a[6])
+        var native: Dictionary = backend.call("phase",a[0],a[1],a[2],a[3],a[4],a[5],a[6])
+        if result.size()!=8 or native.size()!=8:
+            printerr("APEX_MICRO_FAIL oracle schema")
+            quit(1)
+            return
+        for k in KEYS:
+            if not result.has(k) or not native.has(k) or not is_finite(float(result[k])) or PackedFloat64Array([float(result[k])]).to_byte_array()!=PackedFloat64Array([float(native[k])]).to_byte_array():
+                printerr("APEX_MICRO_FAIL oracle field ",k," case ",oracle.size()/8)
+                quit(1)
+                return
+            oracle.append(float(result[k]))
+    var out := FileAccess.open("res://phase-oracle.f64",FileAccess.WRITE)
+    if out == null:
+        printerr("APEX_MICRO_FAIL oracle file")
+        quit(1)
+        return
+    out.store_buffer(oracle.to_byte_array())
+    out.close()
+    for mode in MODES:
+        if sample(mode,WARM).is_empty():
+            quit(1)
+            return
+    var rows: Array = []
+    var expected: String = ""
+    for rep in range(REPS):
+        var order: Array = MODES.duplicate()
+        if rep % 2:
+            order.reverse()
+        for mode in order:
+            var row: Dictionary = sample(mode,COUNT)
+            if row.is_empty():
+                printerr("APEX_MICRO_FAIL empty result")
+                quit(1)
+                return
+            if rows.is_empty():
+                expected = str(row.checksum_bits)
+            if str(row.checksum_bits) != expected or not bool(row.checksum_finite):
+                printerr("APEX_MICRO_FAIL checksum ",mode," rep=",rep," expected=",expected," actual=",row.checksum_bits)
+                quit(1)
+                return
+            row["rep"] = rep
+            rows.append(row)
+            print("APEX_MICRO_ROW ",JSON.stringify(row,"",true,true))
+    print("APEX_MICRO_PASS rows=",rows.size())
+    quit(0)

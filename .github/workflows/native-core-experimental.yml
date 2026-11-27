@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'experiments/native_core_0722/**'
+      - 'experiments/native_core_0723/**'
       - '.github/workflows/native-core-experimental.yml'
       - 'scripts/core/race_vehicle_dynamics_072.gd'
       - 'scripts/core/race_longitudinal_069.gd'
@@ -29,24 +30,32 @@ jobs:
           - os: windows-latest
             platform: windows
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 35
+    timeout-minutes: 50
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
+          fetch-depth: 0
       - uses: chickensoft-games/setup-godot@ac93246ea68518a384c1c280a496e5989341f2f6
         with:
           version: '4.7.2'
           use-dotnet: false
           # Windows cache stores only the GUI executable; require full archive.
           cache: false
-      - name: Install SCons
-        run: python -m pip install scons==4.10.1
+      - name: Install pinned build and measurement tools
+        run: python -m pip install scons==4.10.1 psutil==7.2.2
+      - name: Validate benchmark transport and diagnostics before compilation
+        run: python -m unittest discover -s experiments/native_core_0723 -p test_benchmark.py -v
+      - name: Verify real baseline blobs before expensive native build
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -c 'import sys,tempfile; from pathlib import Path; sys.path.insert(0,"experiments/native_core_0723"); from benchmark import materialize_git_blobs,BASE,PHASE_PATH,PHASE_BLOB; tmp=tempfile.TemporaryDirectory(); manifest=materialize_git_blobs(Path.cwd(),BASE,Path(tmp.name)/"baseline",expected={PHASE_PATH:PHASE_BLOB}); print("APEX_BASELINE_PREFLIGHT_PASS",len(manifest)); tmp.cleanup()'
       - name: Build and compare with original GDScript
         shell: bash
         run: |
           set -euo pipefail
-          python experiments/native_core_0722/run_probe.py --platform ${{ matrix.platform }} --work "$RUNNER_TEMP/apex-native-0722" --evidence "ci-results/native-0722"
+          python experiments/native_core_0722/run_probe.py --platform ${{ matrix.platform }} --work "$RUNNER_TEMP/apex-native-0722" --evidence "ci-results/native-0722" --benchmark
       - name: Retain evidence only (no binaries)
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9

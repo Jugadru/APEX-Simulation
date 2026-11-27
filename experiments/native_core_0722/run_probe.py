@@ -96,6 +96,7 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--platform", choices=("linux", "windows"), required=True)
     p.add_argument("--godot", type=Path, help="Explicit Godot executable (console exe on Windows)")
+    p.add_argument("--benchmark", action="store_true", help="Run 0723 bounded benchmark after 0722 gates")
     p.add_argument("--work", type=Path, required=True)
     p.add_argument("--evidence", type=Path, required=True)
     args = p.parse_args()
@@ -140,6 +141,8 @@ def main():
         (core / name).write_bytes(data)
     for name in ("phase.hpp", "extension.cpp", "SConstruct"):
         shutil.copyfile(here / name, work / name)
+    if args.benchmark:
+        shutil.copyfile(here.parent / "native_core_0723" / "pure.cpp", work / "pure.cpp")
     shutil.copyfile(here / "phase_probe.gd.in", project / "phase_probe.gd")
     (project / "project.godot").write_text(
         '[application]\nconfig/name="APEX Native 0722 isolated"\n'
@@ -185,6 +188,7 @@ def main():
     if "APEX_NATIVE_0722_PASS" not in result:
         raise RuntimeError("native PASS marker missing")
     shutil.copyfile(project / "phase-fixtures.json", evidence / "phase-fixtures.json")
+    shutil.copyfile(project / "phase-fixtures.f64", evidence / "phase-fixtures.f64")
     saved_descriptor = descriptor.read_bytes()
     saved_bin = work / "native-bin-backup"
     shutil.copytree(project / "bin", saved_bin)
@@ -210,7 +214,11 @@ def main():
                  work, evidence / "post-editor-native-probe.log", 180)
     if "APEX_NATIVE_0722_PASS" not in result:
         raise RuntimeError("post-editor native PASS marker missing")
-    print("APEX_NATIVE_0722_HOSTED_PASS")
+    print("APEX_NATIVE_0722_HOSTED_PASS", flush=True)
+    if args.benchmark:
+        sys.path.insert(0, str(here.parent / "native_core_0723"))
+        from benchmark import run as run_benchmark
+        run_benchmark(godot, work, evidence, repo, args.platform)
 
 
 if __name__ == "__main__":

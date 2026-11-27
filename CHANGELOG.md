@@ -1,5 +1,9 @@
 # Changelog — APEX Motorsport Manager Core 2
 
+## Unreleased — v0.7.2.3 Native Core Benchmark (bounded candidate)
+
+- Reuse 0722 native workflow; measure original GDScript, scalar bridge, batches 1/24/48/240 and standalone C++, plus exact-source disposable 045/legacy race A/B with per-tick hashes/RNG/events. No activation, no performance claim before measurements. [Protocol and scope](docs/APEX_0723_NATIVE_CORE_BENCHMARK.md).
+
 ## Unreleased — v0.7.2.2 GDExtension Experimental (isolated)
 
 - C++ phase prototype, scalar/batch API, isolated build and original GDScript oracle; targeted hosted Linux/Windows checks and fallback without binary. No sporting/runtime activation, benchmark gain or release. Candidate tests pending; local preflight BLOCKED. [Contract](docs/APEX_0722_GDEXTENSION_EXPERIMENTAL.md).
