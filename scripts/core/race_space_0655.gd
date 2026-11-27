@@ -252,7 +252,7 @@ static func leader_limit(next: float, lane: float, next_lane: float,
 
 static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,shape: Dictionary, weather: Dictionary = {}, traffic_enabled: bool = true, soul3_enabled: bool = false,
 		overtaking_enabled: bool = false, competitive_start_enabled: bool = false,
-		start_clock_s: float = 0.0, merge_traffic_enabled: bool = false, traffic_hotfix_enabled: bool = false, following_enabled: bool = false, completion_enabled: bool = false, independent_enabled: bool = false, aero_wake_enabled: bool = false, aero_wake_corrected: bool = true, wake_stability: bool = false, wet_line_stability: bool = false, coordination_enabled: bool = false, corner_battle_enabled: bool = false, traffic_intelligence_enabled: bool = false, traffic_pack_enabled: bool = false) -> Dictionary:
+		start_clock_s: float = 0.0, merge_traffic_enabled: bool = false, traffic_hotfix_enabled: bool = false, following_enabled: bool = false, completion_enabled: bool = false, independent_enabled: bool = false, aero_wake_enabled: bool = false, aero_wake_corrected: bool = true, wake_stability: bool = false, wet_line_stability: bool = false, coordination_enabled: bool = false, corner_battle_enabled: bool = false, traffic_intelligence_enabled: bool = false, traffic_pack_enabled: bool = false, preparation_enabled: bool = false) -> Dictionary:
 	var length: float=shape.length
 	following_enabled = following_enabled and start_clock_s>=24.0
 	completion_enabled = completion_enabled and following_enabled
@@ -263,6 +263,7 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 	corner_battle_enabled = corner_battle_enabled and coordination_enabled
 	traffic_intelligence_enabled = traffic_intelligence_enabled and corner_battle_enabled and traffic_enabled
 	traffic_pack_enabled = traffic_pack_enabled and traffic_intelligence_enabled and start_clock_s>=24.0
+	preparation_enabled = preparation_enabled and independent_enabled and overtaking_enabled
 	var hotfix: bool = merge_traffic_enabled and traffic_hotfix_enabled
 	# 06686: RaceEngine normally supplies a sorted frozen sporting snapshot.
 	# Filtering out inactive cars preserves its order. Avoid sorting 24
@@ -368,6 +369,8 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 			a.charge = minf(2.50, previous_charge + dt * clampf(0.20 + advantage * 0.22, 0.20, 0.55))
 		else:
 			a.charge = maxf(0.0, previous_charge - dt * 0.22)
+		if preparation_enabled:
+			a[Overtaking.PREPARATION_KEY] = Overtaking.prepare(c,ahead,gap,advantage,float(metrics[id].get("decision_pace",a.pace)),track,weather,dt)
 		var limit: float = minf(float(lane_here[id]),float(lane_ahead[rival]))
 		var driver: Dictionary = c.duplicate()
 		driver["attack_charge"] = float(a.charge)
@@ -449,6 +452,12 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 					if (g*predicted<=0.0 or minf(absf(g),absf(predicted))<LENGTH+2.0) and absf(float(tactic.attack_goal)-float(third.get("race_lane",0.0)))<WIDTH-0.01:
 						tactic.commit=false
 						break
+		# 046: only gate a fresh sporting attack; blue flags and established
+		# overlap remain governed by the existing safety and traffic rules.
+		if preparation_enabled and not bool(traffic.lapping) and bool(tactic.commit) and not Overtaking.preparation_allows(a[Overtaking.PREPARATION_KEY],tactic,float(weather.get("wetness_factor",0.0))):
+			tactic.commit=false
+			tactic.defense=false
+			a[Overtaking.PREPARATION_KEY]["reason"]="wait_confirmation"
 		var rival_attacking: bool=coordination_enabled and str(d.state) in Independent.ATTACK
 		if int(d.defending) < 0 and not rival_attacking:
 			# Once the cars approach overlap, the defender must HOLD its actual
@@ -710,6 +719,8 @@ static func plan(cars: Array,metrics: Dictionary,dt: float,track: Dictionary,sha
 				memory["attack_side"]=str(a.side)
 			memory.velocity=(float(a.next_lane)-float(a.lane))/maxf(dt,0.00001)
 			states["racecraft_memory"]=memory
+		if preparation_enabled:
+			states[Overtaking.PREPARATION_KEY]=a.get(Overtaking.PREPARATION_KEY,{})
 		if aero_wake_enabled and a.has("aero_wake_032"):
 			states["aero_wake_032"]=a.aero_wake_032
 		result[id]={"progress":next,"states":states,"event":reaction,"defender_id":int(a.defender_id)}

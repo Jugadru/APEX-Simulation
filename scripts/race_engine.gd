@@ -783,6 +783,7 @@ func _advance(dt: float) -> void:
 	var fuel_rules: bool = false
 	var tyre_grip_rules: bool = false
 	var vehicle_dynamics_rules: bool = false
+	var preparation_rules: bool = false
 	if command_session != null:
 		var attached_session: Object = command_session.get_ref()
 		if attached_session != null:
@@ -812,6 +813,7 @@ func _advance(dt: float) -> void:
 			fuel_rules = (revision_mask & RevisionPolicy.FUEL) != 0
 			tyre_grip_rules = gearbox_rules and fuel_rules and (revision_mask & RevisionPolicy.TYRE_GRIP) != 0
 			vehicle_dynamics_rules = tyre_grip_rules and (revision_mask & RevisionPolicy.VEHICLE_DYNAMICS) != 0
+			preparation_rules = independent_rules and (revision_mask & RevisionPolicy.OVERTAKING_PREPARATION) != 0
 	# Seed from the last actual legacy displacement, not a new target speed.
 	# The seed is stored in the sporting car state for deterministic seek.
 	var longitudinal_handover: bool = longitudinal_revision and not longitudinal_rules and clock + dt + 0.0000001 >= RacingLine.START_SECONDS
@@ -908,7 +910,7 @@ func _advance(dt: float) -> void:
 		pace_metrics[int(old_car["id"])] = metrics
 	if Perf.enabled: Perf.end(&"race.pace_thermal_drs_kers",perf_pace)
 	var perf_space := Perf.begin() if Perf.enabled else 0
-	var space_plan := RaceSpace.plan(old_order,pace_metrics,dt,track,space_profile,current_weather,driver_traffic_enabled,driver_soul3_enabled,overtaking_rules,competitive_rules,clock,merge_rules,traffic_hotfix_rules,following_rules,completion_rules,independent_rules,aero_wake_rules,corrected_wake_rules,stability_rules,wet_line_rules,coordination_rules,corner_battle_rules,traffic_intelligence_rules,traffic_pack_rules)
+	var space_plan := RaceSpace.plan(old_order,pace_metrics,dt,track,space_profile,current_weather,driver_traffic_enabled,driver_soul3_enabled,overtaking_rules,competitive_rules,clock,merge_rules,traffic_hotfix_rules,following_rules,completion_rules,independent_rules,aero_wake_rules,corrected_wake_rules,stability_rules,wet_line_rules,coordination_rules,corner_battle_rules,traffic_intelligence_rules,traffic_pack_rules,preparation_rules)
 	if Perf.enabled: Perf.end(&"race.overtaking",perf_space)
 	var defenders: Dictionary = {}
 	var released_pit_positions: Array = []
@@ -921,6 +923,7 @@ func _advance(dt: float) -> void:
 			if tyre_grip_rules: car.erase(Tyre071.KEY)
 			if vehicle_dynamics_rules: car.erase(Vehicle072.KEY)
 			if aero_wake_rules: car.erase("aero_wake_032")
+			if preparation_rules: car.erase("overtaking_preparation_073")
 			if traffic_pack_rules and car.has(TrafficPack09201.KEY):car[TrafficPack09201.KEY]=TrafficPack09201.pit_reset(car)
 			if error_rules and car.has(DriverError0921.KEY):car[DriverError0921.KEY]=DriverError0921.pit_reset(car)
 			var exit_clear: bool = true

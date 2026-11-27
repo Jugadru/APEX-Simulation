@@ -64,12 +64,17 @@
         "scripts/core/race_space_0655.gd",
         "scripts/core/race_replay_0660.gd",
         "scripts/race_engine.gd",
-        "tests/overtaking_066912_test.gd"
+        "tests/overtaking_066912_test.gd",
+        "tests/overtaking_preparation_073_test.gd"
       ],
       "fast_tests": [
         {
           "script": "overtaking_066912_test.gd",
           "marker": "OVERTAKING_066912_PASS"
+        },
+        {
+          "script": "overtaking_preparation_073_test.gd",
+          "marker": "OVERTAKING_PREPARATION_073_PASS"
         }
       ],
       "checks": []

@@ -26,6 +26,7 @@ const GEARBOX_SIM_REVISION := "042_gearbox_torque_experimental_v1"
 const FUEL_SIM_REVISION := "043_fuel_mass_experimental_v1"
 const TYRE_GRIP_SIM_REVISION := "044_tyre_grip_load_experimental_v1"
 const VEHICLE_DYNAMICS_SIM_REVISION := "045_vehicle_dynamics_experimental_v1"
+const OVERTAKING_PREPARATION_SIM_REVISION := "046_overtaking_preparation_v1"
 const REVISIONS := [
 	OVERTAKING_SIM_REVISION,
 	START20_SIM_REVISION,
@@ -50,6 +51,7 @@ const REVISIONS := [
 	FUEL_SIM_REVISION,
 	TYRE_GRIP_SIM_REVISION,
 	VEHICLE_DYNAMICS_SIM_REVISION,
+	OVERTAKING_PREPARATION_SIM_REVISION,
 ]
 const OVERTAKING := 1 << 0
 const START20 := 1 << 1
@@ -75,7 +77,12 @@ const FUEL := 1 << 20
 const TYRE_GRIP := 1 << 21
 const VEHICLE_DYNAMICS := 1 << 22
 
+const OVERTAKING_PREPARATION := 1 << 23
+
 static func capability_mask(revision: String) -> int:
+	# 046 branches from the official 041, not experimental 042–045.
+	if revision == OVERTAKING_PREPARATION_SIM_REVISION:
+		return capability_mask(LONGITUDINAL_SIM_REVISION) | OVERTAKING_PREPARATION
 	var index: int = REVISIONS.find(revision)
 	if index < 0:
 		return 0
