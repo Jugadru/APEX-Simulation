@@ -1,17 +1,8 @@
 name: APEX - Traffic Mega 9.20.1 validation
+# Automatic coverage moved to apex-tactical-coordination.yml (same 12 scenarios).
+# This independent executor remains available for explicit diagnosis.
 on:
-  pull_request:
-    branches: [main]
-    types: [opened, synchronize, reopened, ready_for_review]
-    paths:
-      - 'scripts/core/race_traffic_pack_09201.gd'
-      - 'scripts/core/race_traffic_strategy_09201.gd'
-      - 'scripts/core/race_space_0655.gd'
-      - 'scripts/race_engine.gd'
-      - 'scripts/core/race_replay_0660.gd'
-      - 'tests/traffic_mega_09201_test.gd'
-      - 'tests/aero_wake_091711_test.gd'
-      - '.github/workflows/apex-traffic-mega-09201.yml'
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
@@ -24,12 +15,6 @@ jobs:
         track: [ITA, GBR, MON]
         climate: [Seco, Chuva intensa]
         seed: [42, 123]
-    env:
-      APEX_TRAFFIC_MEGA: '1'
-      APEX_AERO_TRACK: ${{ matrix.track }}
-      APEX_AERO_CLIMATE: ${{ matrix.climate }}
-      APEX_AERO_TICKS: '1800'
-      APEX_AERO_SEED: ${{ matrix.seed }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: chickensoft-games/setup-godot@ac93246ea68518a384c1c280a496e5989341f2f6 # v2.4.3
@@ -37,13 +22,27 @@ jobs:
           version: '4.7.2'
           use-dotnet: false
       - run: bash tools/apex_ci_import.sh import.log
-      - run: |
+      # This deterministic fixture does not read the matrix environment.
+      # Run once per workflow; all 12 sporting scenarios still run below.
+      - name: Fixed invariant fixture (once per matrix)
+        if: matrix.track == 'ITA' && matrix.climate == 'Seco' && matrix.seed == 42
+        run: |
           set -euo pipefail
           bash tools/apex_ci_isolated_test.sh traffic_mega_09201_test.gd 2>&1 | tee fixture.log
           grep -Fq TRAFFIC_MEGA_09201_PASS fixture.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' fixture.log
+      - name: Sporting scenario (each matrix combination)
+        env:
+          APEX_TRAFFIC_MEGA: '1'
+          APEX_AERO_TRACK: ${{ matrix.track }}
+          APEX_AERO_CLIMATE: ${{ matrix.climate }}
+          APEX_AERO_TICKS: '1800'
+          APEX_AERO_SEED: ${{ matrix.seed }}
+        run: |
+          set -euo pipefail
           bash tools/apex_ci_isolated_test.sh aero_wake_091711_test.gd 2>&1 | tee traffic_mega.log
           grep -Fq AERO_WAKE_091711_PASS traffic_mega.log
-          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' fixture.log traffic_mega.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' traffic_mega.log
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:

@@ -15,9 +15,17 @@ class ExitHost:
  func _record_pit_history(_car:Dictionary):records+=1
 var checks:=0
 var failures:Array[String]=[]
+# Experimental process-local cache; disabled in all existing invocations.
+var pilot_enabled:bool=false
+var pilot_cache:Dictionary={}
+var pilot_primary_calls:int=0
+var pilot_hits:int=0
+var trace_assertions:bool=false
+var assertion_trace:Array[String]=[]
 func _initialize():call_deferred("run")
 func check(ok:bool,label:String):
  checks+=1
+ if trace_assertions:assertion_trace.append(label+"="+str(ok))
  if not ok:failures.append(label);printerr("AERO_WAKE_FAIL ",label)
 func car(id:int,p:float,lane:float)->Dictionary:
  return {"id":id,"progress":p,"race_lane":lane,"finished":false,"pit_left":0.0}
@@ -195,10 +203,48 @@ func drive(data:Dictionary,track:Dictionary,revision:int,climate:String,ticks:in
   passes+=int(sorted[i].combat_passes)
   if int(initial[sorted[i].id])!=i+1:changed+=1
  return {"error_totals":error_totals,"pack_totals":pack_totals,"pack_modes":pack_modes,"steering_examples":steering_examples,"corner_reasons":corner_reasons,"hash":Codec.sporting_hash(race,{}),"tow_samples":tow,"dirty_samples":dirty,"max_tow":max_tow,"max_dirty":max_dirty,"stopped":stops,"reversals":reverse,"overlaps":overlaps,"straight_reversals":reverse_steer,"side":side,"passes":passes,"changed_grid":changed,"elapsed_us":Time.get_ticks_usec()-start,"engine_us":engine_us,"ticks":actual_ticks,"peak_static_bytes_sampled":peak_memory,"pits":pits,"finished":race.finished,"leader_finished":race.first_finish_at>=0.0,"classification":classification,"driver_reversals":by_driver,"rapid_driver_reversals":rapid_by_driver,"release_overlaps":release_overlaps,"examples":examples,"wet_min":wet_min,"wet_max":wet_max,"engine_us_per_tick":float(engine_us)/maxi(1,actual_ticks)}
+func primary_drive(data:Dictionary,track:Dictionary,revision:int,climate:String,ticks:int,seed:int)->Dictionary:
+ if not pilot_enabled:return drive(data,track,revision,climate,ticks,seed)
+ if pilot_cache.has(revision):
+  pilot_hits+=1
+  return pilot_cache[revision].duplicate(true)
+ var result:Dictionary=drive(data,track,revision,climate,ticks,seed)
+ pilot_primary_calls+=1
+ pilot_cache[revision]=result.duplicate(true)
+ return result
 func run():
+ trace_assertions=OS.get_environment("APEX_AERO_ASSERT_TRACE")=="1"
+ if OS.get_environment("APEX_AERO_GROUPED_PILOT")=="1":
+  run_grouped()
+  return
+ var passed:bool=run_case("")
+ quit(0 if passed else 1)
+func run_grouped():
+ # One process, one explicit scenario. No full GP, external cache, or mixed modes.
+ if OS.get_environment("APEX_AERO_TRACK") not in ["ITA","GBR","MON"] or OS.get_environment("APEX_AERO_CLIMATE") not in ["Seco","Chuva intensa"] or OS.get_environment("APEX_AERO_SEED") not in ["42","123"] or OS.get_environment("APEX_AERO_TICKS")!="1800" or OS.get_environment("APEX_AERO_FULL")=="1" or "--fixture-only" in OS.get_cmdline_user_args():
+  printerr("AERO_WAKE_GROUP_INVALID_INPUT");quit(1);return
+ for flag in ["APEX_COORDINATION","APEX_CORNER_BATTLE","APEX_DRIVER_TRAFFIC","APEX_TRAFFIC_MEGA","APEX_DRIVER_ERROR"]:
+  if OS.get_environment(flag)=="1":
+   printerr("AERO_WAKE_GROUP_CONFLICTING_MODE");quit(1);return
+ pilot_enabled=true
+ pilot_cache.clear()
+ pilot_primary_calls=0
+ pilot_hits=0
+ var all_ok:bool=true
+ for mode in ["coordination","corner","traffic","mega","error"]:
+  print("AERO_WAKE_GROUP_MODE ",mode)
+  if not run_case(str(mode)):all_ok=false
+ var complete:bool=pilot_primary_calls==6 and pilot_hits==4 and pilot_cache.size()==6
+ print("AERO_WAKE_GROUP_REPORT ",JSON.stringify({"primary_calls":pilot_primary_calls,"hits":pilot_hits,"complete":complete,"all_ok":all_ok}))
+ if complete and all_ok:print("AERO_WAKE_GROUP_PASS")
+ quit(0 if complete and all_ok else 1)
+func run_case(mode:String)->bool:
+ checks=0
+ failures.clear()
+ assertion_trace.clear()
  fixture()
  if "--fixture-only" in OS.get_cmdline_user_args():
-  print("AERO_WAKE_REPORT ",JSON.stringify({"checks":checks,"failures":failures}));quit(0 if failures.is_empty() else 1);return
+  print("AERO_WAKE_REPORT ",JSON.stringify({"checks":checks,"failures":failures}));return failures.is_empty()
  var data:Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://data/season_2012.json"))
  var code:String=OS.get_environment("APEX_AERO_TRACK") if OS.has_environment("APEX_AERO_TRACK") else "ITA"
  var climate:String=OS.get_environment("APEX_AERO_CLIMATE") if OS.has_environment("APEX_AERO_CLIMATE") else "Seco"
@@ -210,14 +256,14 @@ func run():
  var full:bool=OS.get_environment("APEX_AERO_FULL")=="1"
  if full:ticks=60000
  check(not track.is_empty(),"track found")
- if track.is_empty():quit(1);return
- var errors:bool=OS.get_environment("APEX_DRIVER_ERROR")=="1"
- var mega:bool=OS.get_environment("APEX_TRAFFIC_MEGA")=="1" and not errors
- var traffic:bool=OS.get_environment("APEX_DRIVER_TRAFFIC")=="1" and not mega and not errors
- var corner:bool=OS.get_environment("APEX_CORNER_BATTLE")=="1" and not traffic and not mega and not errors
- var coordinated:bool=OS.get_environment("APEX_COORDINATION")=="1" and not corner and not traffic and not mega and not errors
- var old=drive(data,track,39 if errors else (38 if mega else (37 if traffic else (36 if corner else (35 if coordinated else 31)))),climate,ticks,seed)
- var new=drive(data,track,40 if errors else (39 if mega else (38 if traffic else (37 if corner else (36 if coordinated else 35)))),climate,ticks,seed)
+ if track.is_empty():return false
+ var errors:bool=(mode=="error") if not mode.is_empty() else (OS.get_environment("APEX_DRIVER_ERROR")=="1")
+ var mega:bool=(mode=="mega") if not mode.is_empty() else (OS.get_environment("APEX_TRAFFIC_MEGA")=="1" and not errors)
+ var traffic:bool=(mode=="traffic") if not mode.is_empty() else (OS.get_environment("APEX_DRIVER_TRAFFIC")=="1" and not mega and not errors)
+ var corner:bool=(mode=="corner") if not mode.is_empty() else (OS.get_environment("APEX_CORNER_BATTLE")=="1" and not traffic and not mega and not errors)
+ var coordinated:bool=(mode=="coordination") if not mode.is_empty() else (OS.get_environment("APEX_COORDINATION")=="1" and not corner and not traffic and not mega and not errors)
+ var old=primary_drive(data,track,39 if errors else (38 if mega else (37 if traffic else (36 if corner else (35 if coordinated else 31)))),climate,ticks,seed)
+ var new=primary_drive(data,track,40 if errors else (39 if mega else (38 if traffic else (37 if corner else (36 if coordinated else 35)))),climate,ticks,seed)
  print("AERO_WAKE_AB ",JSON.stringify({"track":code,"climate":climate,"ticks":ticks,"seed":seed,"full":full,"old":old,"new":new}))
  check(new.tow_samples>0 and new.dirty_samples>0,"both effects exercised")
  if mega:check(not new.pack_modes.is_empty() and old.pack_modes.is_empty(),"039 traffic states actually exercised")
@@ -270,5 +316,6 @@ func run():
    check(play.load_data(rec.export_data()) and play.seek(350) and play.first_divergence<0,"archive "+rev)
    check(play.seek(170) and play.seek(350),"seek "+rev)
  print("AERO_WAKE_REPORT ",JSON.stringify({"checks":checks,"failures":failures}))
+ if trace_assertions:print("AERO_WAKE_ASSERT_TRACE ",JSON.stringify({"count":assertion_trace.size(),"sha256":JSON.stringify(assertion_trace).sha256_text()}))
  if failures.is_empty():print("AERO_WAKE_091711_PASS")
- quit(0 if failures.is_empty() else 1)
+ return failures.is_empty()
