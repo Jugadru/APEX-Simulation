@@ -50,12 +50,10 @@ permissions:
   contents: read
 jobs:
   coordination:
-    # Retain the existing coordination matrix check names; each job now
-    # validates all five adjacent sporting comparisons in one process.
+    # Eleven common scenarios grouped; historical anchor runs coordination only.
     if: (github.event_name == 'pull_request' && github.event.action != 'labeled') || (github.event_name == 'workflow_dispatch' && inputs.mode == 'grouped')
     runs-on: ubuntu-latest
-    # Anchor: five isolated fixture budgets + grouped 1200s + import/setup.
-    timeout-minutes: ${{ matrix.track == 'ITA' && matrix.climate == 'Seco' && matrix.seed == 42 && 50 || 20 }}
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
@@ -70,14 +68,18 @@ jobs:
           use-dotnet: false
       - run: bash tools/apex_ci_import.sh import.log
       - run: python3 tools/apex_ci_grouped_pilot.py --self-test
-      - name: Five sporting comparisons, grouped production
+      - name: Hybrid sporting production
         env:
           PILOT_TRACK: ${{ matrix.track }}
           PILOT_CLIMATE: ${{ matrix.climate }}
           PILOT_SEED: ${{ matrix.seed }}
         run: |
           set -euo pipefail
-          python3 tools/apex_ci_grouped_pilot.py --track "$PILOT_TRACK" --climate "$PILOT_CLIMATE" --seed "$PILOT_SEED" --grouped-only --output grouped-evidence
+          if [[ "$PILOT_TRACK" == ITA && "$PILOT_CLIMATE" == Seco && "$PILOT_SEED" == 42 ]]; then
+            python3 tools/apex_ci_grouped_pilot.py --track ITA --climate Seco --seed 42 --anchor-mode coordination --output grouped-evidence
+          else
+            python3 tools/apex_ci_grouped_pilot.py --track "$PILOT_TRACK" --climate "$PILOT_CLIMATE" --seed "$PILOT_SEED" --grouped-only --output grouped-evidence
+          fi
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
@@ -86,6 +88,59 @@ jobs:
             import.log
             grouped-evidence/
           retention-days: 14
+
+  historical-anchor:
+    if: (github.event_name == 'pull_request' && github.event.action != 'labeled') || (github.event_name == 'workflow_dispatch' && inputs.mode == 'grouped')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [corner, traffic, mega, error]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: chickensoft-games/setup-godot@ac93246ea68518a384c1c280a496e5989341f2f6 # v2.4.3
+        with:
+          version: '4.7.2'
+          use-dotnet: false
+      - run: bash tools/apex_ci_import.sh import.log
+      - run: python3 tools/apex_ci_grouped_pilot.py --self-test
+      - name: Independent historical comparison and fixture
+        env:
+          ANCHOR_MODE: ${{ matrix.mode }}
+        run: |
+          set -euo pipefail
+          python3 tools/apex_ci_grouped_pilot.py --track ITA --climate Seco --seed 42 --anchor-mode "$ANCHOR_MODE" --output grouped-evidence
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: apex-grouped-production-anchor-${{ matrix.mode }}
+          path: |
+            import.log
+            grouped-evidence/
+          retention-days: 14
+
+  hybrid-evidence:
+    needs: [coordination, historical-anchor]
+    if: ${{ always() && ((github.event_name == 'pull_request' && github.event.action != 'labeled') || (github.event_name == 'workflow_dispatch' && inputs.mode == 'grouped')) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require all native jobs
+        env:
+          GROUP_RESULT: ${{ needs.coordination.result }}
+          ANCHOR_RESULT: ${{ needs.historical-anchor.result }}
+        run: |
+          set -euo pipefail
+          test "$GROUP_RESULT" = success
+          test "$ANCHOR_RESULT" = success
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          pattern: apex-grouped-production-*
+          path: matrix-evidence
+          merge-multiple: false
+      - run: python3 tools/apex_ci_grouped_pilot.py --verify-production matrix-evidence
 
   legacy-coordination:
     if: github.event_name == 'workflow_dispatch' && inputs.mode == 'legacy-coordination'
