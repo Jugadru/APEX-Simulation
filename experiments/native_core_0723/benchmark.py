@@ -11,6 +11,7 @@ import sys
 import threading
 import time
 import tarfile
+import psutil
 
 COUNT=100800
 MODES=("gdscript","scalar","batch1","batch24","batch48","batch240","pure_cpp")
@@ -32,37 +33,20 @@ def stats(values):
 
 
 def rss_bytes(pid):
-    if sys.platform.startswith("linux"):
+    # Windows console wrapper spawns the real engine; observe descendants too.
+    # Sum RSS/working sets (shared pages may be counted more than once).
+    try:
+        parent=psutil.Process(pid)
+        processes=[parent,*parent.children(recursive=True)]
+    except (psutil.NoSuchProcess,psutil.AccessDenied):
+        return None
+    values=[]
+    for process in processes:
         try:
-            for line in Path(f"/proc/{pid}/status").read_text().splitlines():
-                if line.startswith("VmRSS:"):
-                    return int(line.split()[1])*1024
-        except (OSError, ProcessLookupError):
-            return None
-    elif sys.platform == "win32":
-        import ctypes
-        from ctypes import wintypes
-        class Counters(ctypes.Structure):
-            _fields_=[("cb",wintypes.DWORD),("PageFaultCount",wintypes.DWORD),
-                      *[(n,ctypes.c_size_t) for n in ("PeakWorkingSetSize","WorkingSetSize",
-                        "QuotaPeakPagedPoolUsage","QuotaPagedPoolUsage","QuotaPeakNonPagedPoolUsage",
-                        "QuotaNonPagedPoolUsage","PagefileUsage","PeakPagefileUsage")]]
-        k=ctypes.WinDLL("kernel32",use_last_error=True)
-        k.OpenProcess.argtypes=[wintypes.DWORD,wintypes.BOOL,wintypes.DWORD]
-        k.OpenProcess.restype=wintypes.HANDLE
-        k.CloseHandle.argtypes=[wintypes.HANDLE]
-        p=ctypes.WinDLL("psapi",use_last_error=True)
-        p.GetProcessMemoryInfo.argtypes=[wintypes.HANDLE,ctypes.POINTER(Counters),wintypes.DWORD]
-        handle=k.OpenProcess(0x1000|0x0010,False,pid)
-        if handle:
-            try:
-                c=Counters()
-                c.cb=ctypes.sizeof(c)
-                if p.GetProcessMemoryInfo(handle,ctypes.byref(c),c.cb):
-                    return int(c.WorkingSetSize)
-            finally:
-                k.CloseHandle(handle)
-    return None
+            values.append(process.memory_info().rss)
+        except (psutil.NoSuchProcess,psutil.AccessDenied):
+            pass
+    return sum(values) if values else None
 
 
 def measured_run(args, cwd, log, marker, timeout=300):
@@ -136,6 +120,8 @@ def run(godot, work, evidence, repo, platform_name):
     cfg.write_text(text.replace('config/custom_user_dir_name="APEX_0650_SOUL_STAFF"','config/custom_user_dir_name="APEX_0723_DISPOSABLE_BENCH"'),encoding="utf-8")
     shutil.copyfile(here/"macro.gd.in",baseline/"macro.gd")
     shutil.copytree(baseline,candidate)
+    ccfg=candidate/"project.godot"
+    ccfg.write_text(ccfg.read_text(encoding="utf-8").replace("APEX_0723_DISPOSABLE_BENCH","APEX_0723_DISPOSABLE_CANDIDATE"),encoding="utf-8")
     shutil.copytree(project/"bin",candidate/"bin")
     shutil.copyfile(project/"phase.gdextension",candidate/"phase.gdextension")
     # Exact one-function experimental substitution, only inside scratch tree.
@@ -149,13 +135,17 @@ def run(godot, work, evidence, repo, platform_name):
     patched=original[:start]+"static var _bench_backend: Object\n"+signature+"""
 \tif _bench_backend == null:
 \t\t_bench_backend = ClassDB.instantiate("ApexNativePhase0722")
-\treturn _bench_backend.call("phase",start_mps,target_mps,dt_s,mass_kg,road_n,max_drive_n,max_brake_n)
+\tvar result: Dictionary = _bench_backend.call("phase",start_mps,target_mps,dt_s,mass_kg,road_n,max_drive_n,max_brake_n)\n\tassert(result.size()==8,"native phase rejected in benchmark")\n\treturn result
 """+original[end:]
     vehicle.write_text(patched,encoding="utf-8")
     (evidence/"candidate-phase.gd.txt").write_text(patched,encoding="utf-8")
-    # Reuse actual Godot extension startup contract already validated in 0722.
-    (candidate/".godot").mkdir()
-    (candidate/".godot/extension_list.cfg").write_text("res://phase.gdextension\n",encoding="utf-8")
+    # Real editor import outside measured sections: reuse the proven 0722
+    # mitigation and verify the discovered extension before macro timing.
+    from run_probe import import_editor
+    macro_evidence=evidence/"macro-imports"
+    macro_evidence.mkdir()
+    import_editor(godot,baseline,work,macro_evidence,"macro-baseline")
+    import_editor(godot,candidate,work,macro_evidence,"native")
     pairs=[]
     for rep in range(5):
         order=[("gdscript",baseline),("scalar",candidate)]
