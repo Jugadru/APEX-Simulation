@@ -23,12 +23,6 @@ jobs:
         track: [ITA, GBR, MON]
         climate: [Seco, Chuva intensa]
         seed: [42, 123]
-    env:
-      APEX_DRIVER_ERROR: '1'
-      APEX_AERO_TRACK: ${{ matrix.track }}
-      APEX_AERO_CLIMATE: ${{ matrix.climate }}
-      APEX_AERO_TICKS: '1800'
-      APEX_AERO_SEED: ${{ matrix.seed }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: chickensoft-games/setup-godot@ac93246ea68518a384c1c280a496e5989341f2f6 # v2.4.3
@@ -36,13 +30,27 @@ jobs:
           version: '4.7.2'
           use-dotnet: false
       - run: bash tools/apex_ci_import.sh import.log
-      - run: |
+      # This deterministic fixture does not read the matrix environment.
+      # Run once per workflow; all 12 sporting scenarios still run below.
+      - name: Fixed invariant fixture (once per matrix)
+        if: matrix.track == 'ITA' && matrix.climate == 'Seco' && matrix.seed == 42
+        run: |
           set -euo pipefail
           bash tools/apex_ci_isolated_test.sh driver_error_0921_test.gd 2>&1 | tee fixture.log
           grep -Fq DRIVER_ERROR_0921_PASS fixture.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' fixture.log
+      - name: Sporting scenario (each matrix combination)
+        env:
+          APEX_DRIVER_ERROR: '1'
+          APEX_AERO_TRACK: ${{ matrix.track }}
+          APEX_AERO_CLIMATE: ${{ matrix.climate }}
+          APEX_AERO_TICKS: '1800'
+          APEX_AERO_SEED: ${{ matrix.seed }}
+        run: |
+          set -euo pipefail
           bash tools/apex_ci_isolated_test.sh aero_wake_091711_test.gd 2>&1 | tee driver_error.log
           grep -Fq AERO_WAKE_091711_PASS driver_error.log
-          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' fixture.log driver_error.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' driver_error.log
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
