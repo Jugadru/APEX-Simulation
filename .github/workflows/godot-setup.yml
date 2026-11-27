@@ -53,6 +53,12 @@ jobs:
       - name: Validate optional performance history contracts
         run: python3 -m unittest discover -s tools/tests -p 'test_apex_lab_perf_history.py' -v
 
+      - name: Validate Foundation and Asset Factory contracts
+        run: |
+          python3 -m unittest discover -s tools/tests -p 'test_apex_foundation.py' -v
+          python3 -m unittest discover -s tools/tests -p 'test_apex_asset_build.py' -v
+          python3 -m unittest discover -s tools/tests -p 'test_asset_factory.py' -v
+
       - name: Install Godot 4.7.2
         uses: chickensoft-games/setup-godot@ac93246ea68518a384c1c280a496e5989341f2f6 # v2.4.3
         with:
