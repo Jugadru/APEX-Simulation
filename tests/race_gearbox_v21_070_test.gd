@@ -4,7 +4,7 @@ const Race = preload("res://scripts/race_engine.gd")
 const Replay = preload("res://scripts/core/race_replay_0660.gd")
 func _initialize() -> void: call_deferred("run")
 func fail(reason: String) -> void:
-	printerr("GEARBOX_V21_FAIL ",reason)
+	printerr("GEARBOX_V21_070_FAIL ",reason)
 	quit(1)
 func run() -> void:
 	var data: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/season_2012.json"))
@@ -33,7 +33,7 @@ func run() -> void:
 		if int(car.stops)>initial_stops:
 			if not saw_v4 or own_lap!=21 or int(car.pit_scheduled_lap)!=0:
 				fail("unexpected entry lap %d" % own_lap);return
-			print("GEARBOX_V21_PASS ",JSON.stringify({"track":"GBR","initial_weather":"Chuva intensa","tick":session.tick,"entry_lap":own_lap,"elapsed_usec":Time.get_ticks_usec()-began,"cars":race.cars.size()}))
+			print("GEARBOX_V21_070_PASS ",JSON.stringify({"track":"GBR","initial_weather":"Chuva intensa","tick":session.tick,"entry_lap":own_lap,"elapsed_usec":Time.get_ticks_usec()-began,"cars":race.cars.size()}))
 			quit(0);return
 		if own_lap==4: saw_v4=true
 		if i>=3 and int(car.pit_scheduled_lap)!=21:
