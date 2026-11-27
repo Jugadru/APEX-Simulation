@@ -21,6 +21,53 @@ MODES = {
 NONSPORTING = {"elapsed_us", "engine_us", "peak_static_bytes_sampled", "engine_us_per_tick"}
 ERROR = re.compile(r"^ERROR:|SCRIPT ERROR:|Parse Error:", re.M | re.I)
 SCRIPT = "aero_wake_091711_test.gd"
+FIXTURES = {
+    "coordination": ("tactical_coordination_091712_test.gd", "COORDINATION_091712_PASS"),
+    "corner": ("corner_battle_0919_test.gd", "CORNER_BATTLE_0919_PASS"),
+    "traffic": ("driver_traffic_0920_test.gd", "DRIVER_TRAFFIC_0920_PASS"),
+    "mega": ("traffic_mega_09201_test.gd", "TRAFFIC_MEGA_09201_PASS"),
+    "error": ("driver_error_0921_test.gd", "DRIVER_ERROR_0921_PASS"),
+}
+CENTRAL_WORKFLOW = Path(".github/workflows/apex-tactical-coordination.yml")
+# Union of the five legacy path filters plus the directly loaded dependencies
+# and runner/import files. Keep this contract additive.
+REQUIRED_ROUTES = {
+    ".github/workflows/apex-corner-battle.yml",
+    ".github/workflows/apex-driver-error-0921.yml",
+    ".github/workflows/apex-driver-traffic-0920.yml",
+    ".github/workflows/apex-tactical-coordination.yml",
+    ".github/workflows/apex-traffic-mega-09201.yml",
+    "data/season_2012.json",
+    "project.godot",
+    "scripts/core/race_aero_wake_091711.gd",
+    "scripts/core/race_corner_battle_0919.gd",
+    "scripts/core/race_driver_error_0921.gd",
+    "scripts/core/race_driver_traffic_0920.gd",
+    "scripts/core/race_independent_racecraft_091710.gd",
+    "scripts/core/race_kers_2012.gd",
+    "scripts/core/race_merge_traffic_0669174.gd",
+    "scripts/core/race_performance.gd",
+    "scripts/core/race_pit_lane.gd",
+    "scripts/core/race_racing_line_091710.gd",
+    "scripts/core/race_replay_0660.gd",
+    "scripts/core/race_space_0655.gd",
+    "scripts/core/race_state_codec_0660.gd",
+    "scripts/core/race_tactical_coordination_091712.gd",
+    "scripts/core/race_traffic_pack_09201.gd",
+    "scripts/core/race_traffic_strategy_09201.gd",
+    "scripts/core/race_tyre_thermal.gd",
+    "scripts/core/race_weather_setup_15.gd",
+    "scripts/race_engine.gd",
+    "tests/aero_wake_091711_test.gd",
+    "tests/corner_battle_0919_test.gd",
+    "tests/driver_error_0921_test.gd",
+    "tests/driver_traffic_0920_test.gd",
+    "tests/tactical_coordination_091712_test.gd",
+    "tests/traffic_mega_09201_test.gd",
+    "tools/apex_ci_grouped_pilot.py",
+    "tools/apex_ci_import.sh",
+    "tools/apex_ci_isolated_test.sh",
+}
 
 
 def require(ok, message):
@@ -99,14 +146,14 @@ def native_failure(content, returncode, duration, budget):
     }
 
 
-def run_test(env, log_path):
-    budget = native_budget(env)
+def run_test(env, log_path, script=SCRIPT):
+    budget = native_budget(env) if script == SCRIPT else 240
     start = time.monotonic()
     returncode = None
     with log_path.open("w", encoding="utf-8") as log:
         try:
             completed = subprocess.run(
-                ["bash", "tools/apex_ci_isolated_test.sh", SCRIPT], env=env,
+                ["bash", "tools/apex_ci_isolated_test.sh", script], env=env,
                 stdout=log, stderr=subprocess.STDOUT, timeout=budget + 20,
             )
             returncode = completed.returncode
@@ -120,9 +167,38 @@ def run_test(env, log_path):
         (log_path.parent / (log_path.stem + "-failure.json")).write_text(
             json.dumps(evidence, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
         raise ValueError(f"failed native run: {log_path}; returncode={returncode}")
-    require(f"APEX_TEST_TIMEOUT script={SCRIPT} seconds={budget}" in content.splitlines(), "native timeout contract mismatch")
+    require(f"APEX_TEST_TIMEOUT script={script} seconds={budget}" in content.splitlines(), "native timeout contract mismatch")
     print(f"APEX_GROUPED_NATIVE_PASS file={log_path.name} seconds={duration:.2f} budget={budget}", flush=True)
     return content.splitlines(), duration
+
+
+def check_routing():
+    text = CENTRAL_WORKFLOW.read_text(encoding="utf-8")
+    paths = set(re.findall(r"^      - '([^']+)'$", text, re.M))
+    require(REQUIRED_ROUTES <= paths, f"missing central routes: {sorted(REQUIRED_ROUTES - paths)}")
+
+
+def validate_chain(candidate):
+    require(list(candidate) == list(MODES), "missing grouped modes")
+    cases = list(candidate.values())
+    for left, right in zip(cases, cases[1:]):
+        require(left["result"]["new"] == right["result"]["old"], "shared sporting result mismatch")
+
+
+def run_fixtures(env, output):
+    # Match the five old invariant gates. Never share their HOME/XDG or
+    # silently skip a fixture when a previous fixture fails.
+    passed = []
+    failures = []
+    for mode, (script, marker) in FIXTURES.items():
+        try:
+            lines, _ = run_test(env, output / f"fixture-{mode}.log", script)
+            require(lines.count(marker) == 1, f"{mode}: missing or repeated fixture PASS")
+            passed.append(mode)
+        except (OSError, ValueError, subprocess.SubprocessError) as error:
+            failures.append(f"{mode}: {error}")
+    require(not failures and passed == list(MODES), f"fixture failure: {failures}")
+    return passed
 
 
 def self_test():
@@ -158,6 +234,17 @@ def self_test():
     diagnostic = native_failure("AERO_WAKE_GROUP_MODE coordination\nAERO_WAKE_091711_PASS\nAERO_WAKE_GROUP_MODE corner\n", 124, 240, 240)
     require(diagnostic["timeout"] and diagnostic["last_mode"] == "corner" and diagnostic["completed_comparisons"] == 1, "timeout evidence contract")
     require(not native_failure("AERO_WAKE_FAIL example", 1, 3, 240)["timeout"], "sporting failure misclassified")
+    require(list(FIXTURES) == list(MODES), "fixture coverage mismatch")
+    chain = {mode: {"result": {"old": {"revision": i}, "new": {"revision": i + 1}}} for i, mode in enumerate(MODES)}
+    validate_chain(chain)
+    chain["corner"]["result"]["old"]["revision"] = -1
+    try:
+        validate_chain(chain)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("missed shared sporting mismatch")
+    check_routing()
     print("APEX_GROUPED_PILOT_SELF_TEST_PASS")
 
 
@@ -168,6 +255,7 @@ def main():
     parser.add_argument("--seed", type=int, choices=[42, 123])
     parser.add_argument("--output", type=Path)
     parser.add_argument("--self-test", action="store_true")
+    parser.add_argument("--grouped-only", action="store_true", help="production matrix: fixtures and five grouped comparisons, no redundant baselines")
     args = parser.parse_args()
     if args.self_test:
         self_test()
@@ -184,24 +272,40 @@ def main():
     try:
         baseline = {}
         baseline_seconds = {}
-        for mode, flag in MODES.items():
-            lines, duration = run_test(dict(env, **{flag: "1"}), args.output / f"legacy-{mode}.log")
-            baseline[mode] = read_case(lines, expected)
-            baseline_seconds[mode] = duration
+        fixture_modes = []
+        fixture_error = None
+        if args.grouped_only:
+            if (args.track, args.climate, args.seed) == ("ITA", "Seco", 42):
+                try:
+                    fixture_modes = run_fixtures(env, args.output)
+                except (OSError, ValueError, subprocess.SubprocessError) as error:
+                    fixture_error = str(error)
+        else:
+            for mode, flag in MODES.items():
+                lines, duration = run_test(dict(env, **{flag: "1"}), args.output / f"legacy-{mode}.log")
+                baseline[mode] = read_case(lines, expected)
+                baseline_seconds[mode] = duration
         lines, grouped_seconds = run_test(dict(env, APEX_AERO_GROUPED_PILOT="1"), args.output / "grouped.log")
         candidate = grouped_cases(lines, expected)
-        compare(baseline, candidate)
+        validate_chain(candidate)
+        if args.grouped_only:
+            require(fixture_error is None, fixture_error)
+        else:
+            compare(baseline, candidate)
         summary = {
             "scenario": expected, "status": "PASS", "comparisons": list(MODES),
-            "primary_calls": {"legacy": 10, "grouped": 6},
+            "primary_calls": {"legacy": 0 if args.grouped_only else 10, "grouped": 6},
             "legacy_seconds": baseline_seconds, "grouped_seconds": grouped_seconds,
-            "scope": "same job, native isolated processes, all reported sporting fields and assertion trace; not a controlled performance benchmark",
+            "fixture_modes": fixture_modes,
+            "scope": ("production grouped native assertions and shared result integrity"
+                      if args.grouped_only else
+                      "same job, native isolated processes, all reported sporting fields and assertion trace; not a controlled performance benchmark"),
             "excluded_volatile_fields": sorted(NONSPORTING),
             "checkout": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
             "godot": subprocess.check_output(["godot", "--version"], text=True).strip(),
         }
         (args.output / "summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
-        print("APEX_GROUPED_PILOT_PASS", json.dumps(summary, ensure_ascii=False))
+        print("APEX_GROUPED_PRODUCTION_PASS" if args.grouped_only else "APEX_GROUPED_PILOT_PASS", json.dumps(summary, ensure_ascii=False))
         return 0
     except (OSError, ValueError, subprocess.SubprocessError) as error:
         print(f"APEX_GROUPED_PILOT_FAIL: {error}", file=sys.stderr)

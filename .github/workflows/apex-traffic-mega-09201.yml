@@ -1,17 +1,8 @@
 name: APEX - Traffic Mega 9.20.1 validation
+# Automatic coverage moved to apex-tactical-coordination.yml (same 12 scenarios).
+# This independent executor remains available for explicit diagnosis.
 on:
-  pull_request:
-    branches: [main]
-    types: [opened, synchronize, reopened, ready_for_review]
-    paths:
-      - 'scripts/core/race_traffic_pack_09201.gd'
-      - 'scripts/core/race_traffic_strategy_09201.gd'
-      - 'scripts/core/race_space_0655.gd'
-      - 'scripts/race_engine.gd'
-      - 'scripts/core/race_replay_0660.gd'
-      - 'tests/traffic_mega_09201_test.gd'
-      - 'tests/aero_wake_091711_test.gd'
-      - '.github/workflows/apex-traffic-mega-09201.yml'
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:

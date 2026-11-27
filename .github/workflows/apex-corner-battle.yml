@@ -1,16 +1,8 @@
 name: APEX - Corner Battle validation
+# Automatic coverage moved to apex-tactical-coordination.yml (same 12 scenarios).
+# This independent executor remains available for explicit diagnosis.
 on:
-  pull_request:
-    branches: [main]
-    types: [opened, synchronize, reopened, ready_for_review]
-    paths:
-      - 'scripts/core/race_corner_battle_0919.gd'
-      - 'scripts/core/race_space_0655.gd'
-      - 'scripts/race_engine.gd'
-      - 'scripts/core/race_replay_0660.gd'
-      - 'tests/corner_battle_0919_test.gd'
-      - 'tests/aero_wake_091711_test.gd'
-      - '.github/workflows/apex-corner-battle.yml'
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
