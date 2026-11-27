@@ -6,6 +6,7 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+from tempfile import TemporaryDirectory
 from apex_quality_manifest import load_suites, fast_tests_for
 
 SHA = re.compile(r"[0-9a-fA-F]{40}\Z")
@@ -100,17 +101,20 @@ def categories_for(paths: list[str]) -> set[str]:
         categories.update(local)
     return categories
 
-def select(paths: list[str], root: Path) -> list[tuple[str, str]]:
+def select(paths: list[str], root: Path, trusted: Path | None = None) -> list[tuple[str, str]]:
     chosen = list(ALWAYS)
     for category in sorted(categories_for(paths)):
         script, marker = CASES[category]
-        if (root / "tests" / script).is_file() and (script, marker) not in chosen:
+        if (script, marker) not in chosen:
             chosen.append((script, marker))
-    for script, marker in fast_tests_for(paths, load_suites(root)):
+    for script, marker in fast_tests_for(paths, load_suites(root, trusted)):
         if not (root / 'tests' / script).is_file():
             raise ValueError('Missing mandatory FAST test: tests/' + script)
         if (script, marker) not in chosen:
             chosen.append((script, marker))
+    for script, marker in chosen:
+        if not (root / 'tests' / script).is_file():
+            raise ValueError('Missing mandatory FAST test: tests/' + script)
     return chosen
 
 def main() -> int:
@@ -122,7 +126,16 @@ def main() -> int:
     try:
         changed = changed_files(args.project, args.base_sha, args.head_sha)
         if not changed: raise ValueError("Empty PR diff; no bypass")
-        planned = select(changed, args.project)
+        # Preserve the approved baseline registry even if the candidate removes
+        # an entry. Both manifests are declarative data, never executable code.
+        with TemporaryDirectory(prefix="apex-baseline-qa-") as tmp:
+            trusted = Path(tmp)
+            registry = trusted / ".github/apex-quality-suites.json"
+            registry.parent.mkdir()
+            registry.write_bytes(subprocess.check_output(
+                ["git", "-C", str(args.project), "show",
+                 args.base_sha + ":.github/apex-quality-suites.json"], timeout=20))
+            planned = select(changed, args.project, trusted)
         for script, marker in planned:
             print(script + "|" + marker)
         print("APEX_CI_FAST_PLAN files=%d tests=%d domains=%s" % (
