@@ -16,6 +16,10 @@ static func track_profile(catalog_data: Dictionary, code: String) -> Dictionary:
 	var tracks: Dictionary = catalog_data.get("tracks", {})
 	var info: Dictionary = tracks.get(code, {})
 	if info.is_empty():
+		# LAB is a reserved synthetic CI circuit, not a historical nomination.
+		# Preserve the former fallback exactly; other missing circuits still warn.
+		if code == "LAB":
+			return {"dry": ["Médio", "Duro"], "severity": 1.0}
 		push_warning("APEX 2012: no tyre nomination for circuit %s" % code)
 		return {"dry": ["Médio", "Duro"], "severity": 1.0}
 	return info.duplicate(true)
