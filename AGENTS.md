@@ -159,6 +159,19 @@ O Lab é complementar ao FAST. Usar apenas o diagnóstico necessário
 não distribuir binários/assets sem autorização e verificação de direitos.
 Não estender indefinidamente a infraestrutura em detrimento do jogo.
 
+### 5.3. Prevenção de falhas antes do envio
+
+Antes de criar commits/push, preparar uma alteração coerente e executar
+`python3 tools/apex_preflight.py --base origin/main` com arquivos revisados
+no índice. Quando houver ambiente local, executar também `--native` com
+Godot 4.7.2 e regressões direcionadas. Verificar os contratos dos marcadores,
+a inicialização de fixtures, a separação entre versão e comportamento e a
+precisão da serialização. Revisar referências do inventário e usar o
+analisador existente quando pertinente. Declarar NOT_RUN ou BLOCKED se
+não houver ambiente de execução. O preflight local não substitui o FAST,
+não cria condição nova de merge e não autoriza reduzir cobertura.
+Referência: `docs/APEX_PREFLIGHT_DEVELOPMENT.md`.
+
 ## 6. DESEMPENHO
 
 Otimizar com medições reais.
