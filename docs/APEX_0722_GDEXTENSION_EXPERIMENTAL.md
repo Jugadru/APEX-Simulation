@@ -1,0 +1,16 @@
+# 0.7.2.2 — GDExtension Experimental (candidate)
+
+Base e118f6289753adbd151bd23e4e4b1cce8ac45bed, PR #193 integrada, FAST pós-merge 46031692201 PASS. Referência: APEX_0721_NATIVE_CORE_RESEARCH.md.
+
+## Escopo
+Somente Vehicle072.phase (sete doubles, oito campos SI) em C++ isolado. Mantidos constantes, ordem, clamps, coasting, freio e trabalho. MAX/MIN/CLAMP seguem comparação do Godot 4.7.2. Rejeição explícita de não finitos e overflow, sem mudar o GDScript original. Batch de até 4096 fases, atomicamente rejeitado se qualquer item inválido; retorno vazio para erro ou pedido vazio. Dictionary escalar e PackedFloat64Array (7→8). Não há acesso ao estado, RNG, engine, replay, save, UI, Lab ou Next Engine. Sem alteração de project.godot. Pasta .gdignore e sem descritor .gdextension no repositório: build e carga em projeto temporário fora da árvore oficial. Fallback demonstrativo no harness; não é integração no motor nem recuperação de crash nativo.
+
+## Compilação e validação
+O probe copia os sete blobs GDScript reais, verificando hashes Git, e usa o método original, não uma fórmula GDScript duplicada. Dump da API pelo Godot 4.7.2, godot-cpp 10.0.0-stable fixado por SHA 507ed9d840c01a3c5b2a39af8bb4000bfac30bf5, x86_64 precisão single do motor e double escalar. SCons, MSVC /fp:strict ou GCC -fno-fast-math -ffp-contract=off. Perfil reduzido a RefCounted e dependências automáticas. Workflow dirigido em runners hospedados Linux/Windows, separado do FAST existente, não FULL. Logs, fixture e identificação retidos; nenhum binário publicado. Não usar runner pessoal.
+
+Oráculos existentes coast/cruise/brake/stop/dt zero, valores fora dos limites, dt negativo, EPS, zero assinado, seed isolada 722 com 4096 casos adicionais, comparação de todos os campos e lotes 1/24/48/240, validação de comprimento, limite, erro atômico, NaN/Inf/overflow, fallback real após remoção do descritor e biblioteca. Tolerância exploratória 1e-10 + 1e-12*abs(ref), erros e diferenças de bits/ULP reportados (ULP para mesmo sinal, demais separados). Diferença de bits não é aprovação esportiva; não conectar motor. Nenhum benchmark de ganho nesta etapa; 0.7.2.3 fará medições e verificará equivalência esportiva antes de decisão.
+
+Execução manual em checkout limpo: instalar Godot 4.7.2 e SCons 4.10.1, compilador x86_64, executar python experiments/native_core_0722/run_probe.py --platform linux --work /tmp/apex-native-0722 --evidence /tmp/apex-native-evidence (diretório work deve não existir e estar fora do repo). Windows usar caminhos temporários e --platform windows. Não exige modificação do projeto oficial.
+
+## Evidência
+Preflight local BLOCKED: ambiente de execução indisponível. Código escrito/revisado estaticamente; compilação, carregamento, equivalência, fallback e FAST da candidata NOT_RUN até os workflows executarem. Não marcar PASS sem logs, e não integrar sem FAST exato mais ambos os probes dirigidos. Nenhum benchmark específico 045 ou C++ nesta entrega. Rollback: abandonar branch; se integrado, reverter somente arquivos desta versão. 0.7.2.3 aguarda validação; nenhuma ativação de backend, mesmo se o protótipo passar.

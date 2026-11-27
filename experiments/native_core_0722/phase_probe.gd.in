@@ -1,0 +1,158 @@
+extends SceneTree
+const V = preload("res://scripts/core/race_vehicle_dynamics_072.gd")
+const KEYS = ["speed_mps","distance_m","drive_force_n","brake_force_n",
+    "road_load_n","net_force_n","duration_s","drive_work_kj"]
+const CLASS_ID = "ApexNativePhase0722"
+var backend: Object
+var checks: int = 0
+var failures: int = 0
+var bit_diffs: int = 0
+var max_abs: float = 0.0
+var max_rel: float = 0.0
+var max_ulp: int = 0
+var cross_sign_diffs: int = 0
+var first_diff: Dictionary = {}
+
+func _initialize() -> void:
+    call_deferred("run")
+
+func check(ok: bool, label: String) -> void:
+    checks += 1
+    if not ok:
+        failures += 1
+        if failures <= 20:
+            printerr("APEX_NATIVE_0722_FAIL ", label)
+
+func reference(a: Array) -> Dictionary:
+    return V.phase(a[0],a[1],a[2],a[3],a[4],a[5],a[6])
+
+func valid_result(d: Dictionary) -> bool:
+    if d.size() != KEYS.size():
+        return false
+    for k in KEYS:
+        if not d.has(k) or typeof(d[k]) != TYPE_FLOAT or not is_finite(float(d[k])):
+            return false
+    return true
+
+# Isolated fallback demonstration, not a runtime adapter.
+# Nonfinite inputs rejected before calling either backend; finite rejected
+# native inputs use the original reference only if its output is finite.
+func dispatch(a: Array) -> Dictionary:
+    if a.size() != 7:
+        return {"source":"rejected","values":{}}
+    for v in a:
+        if not is_finite(float(v)):
+            return {"source":"rejected","values":{}}
+    if backend != null:
+        var native: Dictionary = backend.call("phase",a[0],a[1],a[2],a[3],a[4],a[5],a[6])
+        if valid_result(native):
+            return {"source":"native","values":native}
+    var fallback: Dictionary = reference(a)
+    if valid_result(fallback):
+        return {"source":"reference","values":fallback}
+    return {"source":"rejected","values":{}}
+
+func compare(expected: float, actual: float, label: String, input: Array) -> void:
+    if not is_finite(expected) or not is_finite(actual):
+        check(false,label + " nonfinite")
+        return
+    var err: float = absf(expected-actual)
+    max_abs = maxf(max_abs,err)
+    if expected != 0.0:
+        max_rel = maxf(max_rel,err/absf(expected))
+    var eb: PackedByteArray = PackedFloat64Array([expected]).to_byte_array()
+    var ab: PackedByteArray = PackedFloat64Array([actual]).to_byte_array()
+    if eb != ab:
+        bit_diffs += 1
+        if first_diff.is_empty():
+            first_diff = {"label":label,"input":input,"expected":expected,"actual":actual,
+                "expected_bits_le":eb.hex_encode(),"actual_bits_le":ab.hex_encode()}
+        var ei: int = eb.decode_s64(0)
+        var ai: int = ab.decode_s64(0)
+        if (ei < 0) == (ai < 0):
+            max_ulp = maxi(max_ulp,absi(ei-ai))
+        elif expected != actual:
+            cross_sign_diffs += 1
+    check(err <= 1e-10 + 1e-12*absf(expected),label)
+
+func run() -> void:
+    var fallback_only: bool = "--fallback-only" in OS.get_cmdline_user_args()
+    if ClassDB.class_exists(CLASS_ID):
+        backend = ClassDB.instantiate(CLASS_ID)
+    check((backend == null) == fallback_only,"expected extension availability")
+    if failures:
+        quit(1)
+        return
+    var cases: Array = [
+        [50.0,60.0,0.2,700.0,1400.0,0.0,10000.0],
+        [50.0,50.0,0.2,700.0,1400.0,8000.0,10000.0],
+        [50.0,40.0,0.2,700.0,1400.0,8000.0,4200.0],
+        [1.0,0.0,1.0,700.0,1400.0,0.0,14000.0],
+        [50.0,60.0,0.0,700.0,1400.0,8000.0,10000.0],
+        [50.0,60.0,-0.2,700.0,1400.0,8000.0,10000.0],
+        [-1.0,110.0,0.2,0.0,-1.0,-1.0,-1.0],
+        [99.0,120.0,2.0,1.0,0.0,1000.0,1000.0],
+        [50.0,50.0,0.2,1.0,0.999999999e-9,0.0,0.0],
+        [50.0,50.0,0.2,1.0,1e-9,0.0,0.0],
+        [50.0,50.0,0.2,1.0,1.000000001e-9,0.0,0.0],
+        [-0.0,0.0,-0.0,1.0,-0.0,-0.0,-0.0]]
+    var rng := RandomNumberGenerator.new()
+    rng.seed = 722
+    for i in range(4096):
+        cases.append([rng.randf_range(-20.0,120.0),rng.randf_range(-20.0,120.0),
+            rng.randf_range(-0.01,2.0),rng.randf_range(0.0,1200.0),
+            rng.randf_range(-10.0,5000.0),rng.randf_range(-10.0,20000.0),
+            rng.randf_range(-10.0,25000.0)])
+    var fixture := FileAccess.open("res://phase-fixtures.json",FileAccess.WRITE)
+    check(fixture != null,"fixture output")
+    if fixture != null:
+        fixture.store_string(JSON.stringify(cases,"",true,true))
+        fixture.close()
+    for i in range(cases.size()):
+        var a: Array = cases[i]
+        var expected: Dictionary = reference(a)
+        var selected: Dictionary = dispatch(a)
+        check(selected.source == ("reference" if fallback_only else "native"),"dispatch " + str(i))
+        var actual: Dictionary = selected.values
+        check(valid_result(expected) and valid_result(actual),"schema " + str(i))
+        if not valid_result(expected) or not valid_result(actual):
+            continue
+        for k in KEYS:
+            compare(float(expected[k]),float(actual[k]),"scalar %d %s" % [i,k],a)
+    if backend != null:
+        for size in [1,24,48,240]:
+            for offset in range(0,cases.size(),size):
+                var input := PackedFloat64Array()
+                var count: int = mini(size,cases.size()-offset)
+                for i in range(count):
+                    input.append_array(PackedFloat64Array(cases[offset+i]))
+                var result: PackedFloat64Array = backend.call("phase_batch",input)
+                check(result.size()==count*8,"batch length")
+                if result.size()!=count*8:
+                    continue
+                for i in range(count):
+                    var a: Array = cases[offset+i]
+                    var expected: Dictionary = reference(a)
+                    for j in range(8):
+                        compare(float(expected[KEYS[j]]),result[i*8+j],
+                            "batch %d %d %s" % [size,offset+i,KEYS[j]],a)
+        check(backend.call("phase_batch",PackedFloat64Array([1.0])).is_empty(),"bad batch length")
+        check(backend.call("phase_batch",PackedFloat64Array()).is_empty(),"empty batch")
+        var too_large := PackedFloat64Array()
+        too_large.resize(7*4097)
+        check(backend.call("phase_batch",too_large).is_empty(),"batch cap")
+        var mixed := PackedFloat64Array(cases[0])
+        mixed.append_array(PackedFloat64Array([NAN,1.0,1.0,1.0,1.0,1.0,1.0]))
+        check(backend.call("phase_batch",mixed).is_empty(),"atomic rejection")
+        check(backend.call("phase",INF,1.0,1.0,1.0,1.0,1.0,1.0).is_empty(),"nonfinite rejected")
+        check(backend.call("phase",0.0,100.0,0.2,1e308,1.0,1.0,1.0).is_empty(),"overflow rejected")
+    check(dispatch([NAN,1.0,1.0,1.0,1.0,1.0,1.0]).source=="rejected","invalid input")
+    check(dispatch([0.0,100.0,0.2,1e308,1.0,1.0,1.0]).source=="reference","finite overflow fallback")
+    var result: Dictionary = {"checks":checks,"failures":failures,"cases":cases.size(),
+        "bit_differences":bit_diffs,"max_abs":max_abs,"max_rel_nonzero":max_rel,
+        "max_ulp_same_sign":max_ulp,"cross_sign_nonzero_diffs":cross_sign_diffs,
+        "first_diff":first_diff,"fallback_only":fallback_only}
+    print("APEX_NATIVE_0722_RESULT ",JSON.stringify(result))
+    if failures == 0:
+        print("APEX_NATIVE_0722_FALLBACK_PASS" if fallback_only else "APEX_NATIVE_0722_PASS")
+    quit(0 if failures==0 else 1)

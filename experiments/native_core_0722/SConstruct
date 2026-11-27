@@ -1,0 +1,10 @@
+# Used ONLY in the temporary build directory.
+env = SConscript("godot-cpp/SConstruct", {"api_version": "4.7"})
+if env["platform"] == "windows":
+    if not env.get("is_msvc", False):
+        Exit("MSVC required for the Windows experiment")
+    env.Append(CXXFLAGS=["/fp:strict"])
+else:
+    env.Append(CXXFLAGS=["-fno-fast-math", "-ffp-contract=off"])
+lib = env.SharedLibrary(target="project/bin/apex_phase", source=["extension.cpp"])
+Default(lib)
