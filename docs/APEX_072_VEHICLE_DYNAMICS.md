@@ -12,3 +12,7 @@ Roadmap do responsável: integrar motor, freios, câmbio, pneus, aerodinâmica, 
 
 ## Testes e critérios
 Oráculos SI de força, coast, cruzeiro, frenagem, dt zero, energia/KERS, massa, chuva, estratégia, corte e solver; 24 carros Monza seco/Silverstone chuva, 330 ticks, gravação ON/OFF, hashes, RNG, seek, DNF forçado (fixture), ausência de novos campos em 044, manual V21; corrida contínua 045 BOX V21, regressões 041/042/043/044 direcionadas, FAST e Lab. Marcadores registrados no manifest. Candidato não homologado até FAST no SHA exato. GP completo 045, calibração física multi-seed, comparativo desempenho equivalente, GUI/HUD e ativação como padrão ainda pendentes; sem FULL automático, execução pessoal ou binários.
+
+## Correção de orçamento do CI
+
+FAST 45921878086 no SHA 81971f5be324ac86fe52c66fd534f49ea0d93e1f: 61 testes selecionados, VEHICLE_DYNAMICS_072_PASS checks=66945, Monza 5040 amostras/183 KERS, Silverstone 5040/201 KERS, modos Normal/Conservar/Atacar observados. O job foi cancelado no limite global de 20 min durante race_vehicle_dynamics_v21_072_test.gd (início 01:37:22 UTC, cancelamento 01:39:58 UTC), antes do limite individual de 240 s; seis workflows complementares PASS. BOX V21 045 e restante do FAST não homologados nessa execução. Aumentar apenas o orçamento global para 35 min preservando seleção, asserções, marcadores, timeout individual, Godot e Lab. Não alterar física nem considerar cancelamento aprovado. Exigir novo FAST completo no SHA corrigido; nenhuma afirmação de ganho de desempenho.
