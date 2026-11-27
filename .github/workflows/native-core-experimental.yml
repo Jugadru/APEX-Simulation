@@ -1,0 +1,57 @@
+name: APEX Native Core Experimental 0722
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'experiments/native_core_0722/**'
+      - '.github/workflows/native-core-experimental.yml'
+      - 'scripts/core/race_vehicle_dynamics_072.gd'
+      - 'scripts/core/race_longitudinal_069.gd'
+      - 'scripts/core/race_powertrain_070.gd'
+      - 'scripts/core/race_tyre_grip_071.gd'
+      - 'scripts/core/race_fuel_mass_0701.gd'
+      - 'scripts/core/race_kers_2012.gd'
+      - 'scripts/core/race_tyre_thermal.gd'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  isolated-probe:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+          - os: windows-latest
+            platform: windows
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: chickensoft-games/setup-godot@ac93246ea68518a384c1c280a496e5989341f2f6
+        with:
+          version: '4.7.2'
+          use-dotnet: false
+          # Windows cache stores only the GUI executable; require full archive.
+          cache: false
+      - name: Install SCons
+        run: python -m pip install scons==4.10.1
+      - name: Build and compare with original GDScript
+        shell: bash
+        run: |
+          set -euo pipefail
+          python experiments/native_core_0722/run_probe.py --platform ${{ matrix.platform }} --work "$RUNNER_TEMP/apex-native-0722" --evidence "ci-results/native-0722"
+      - name: Retain evidence only (no binaries)
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: apex-native-0722-${{ matrix.platform }}
+          path: ci-results/native-0722/
+          if-no-files-found: warn
+          retention-days: 7

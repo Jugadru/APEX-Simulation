@@ -1,5 +1,9 @@
 # Changelog — APEX Motorsport Manager Core 2
 
+## Unreleased — v0.7.2.2 GDExtension Experimental (isolated)
+
+- C++ phase prototype, scalar/batch API, isolated build and original GDScript oracle; targeted hosted Linux/Windows checks and fallback without binary. No sporting/runtime activation, benchmark gain or release. Candidate tests pending; local preflight BLOCKED. [Contract](docs/APEX_0722_GDEXTENSION_EXPERIMENTAL.md).
+
 ## Unreleased — v0.7.2.1 Native Core Research (documental)
 
 - Auditoria estática de 045, contrato de fase pura, dependência candidata godot-cpp fixada, protocolo de equivalência e benchmark. Sem alterações de runtime, C++ ou CI. FAST da candidata pendente; preflight local BLOCKED, perfil 045 e compilação NOT_RUN. [Pesquisa e contrato](docs/APEX_0721_NATIVE_CORE_RESEARCH.md).
