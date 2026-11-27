@@ -1,0 +1,119 @@
+
+## 0724 scratch-only experiment: all input preparation remains GDScript.
+## Coast and powered are separate barriers; no state writes or RNG here.
+static var _batch_backend: Object
+static var _batch_groups: int = 0
+static var _batch_calls: int = 0
+static var _batch_cars: int = 0
+static var _batch_max: int = 0
+
+static func batch_reset() -> void:
+	_batch_groups=0
+	_batch_calls=0
+	_batch_cars=0
+	_batch_max=0
+
+static func batch_stats() -> Dictionary:
+	return {"groups":_batch_groups,"calls":_batch_calls,"cars":_batch_cars,"max_group":_batch_max}
+
+static func propose_batch(jobs: Array, lap_m: float, weather: Dictionary) -> Array:
+	if jobs.is_empty():
+		return []
+	if _batch_backend == null:
+		_batch_backend = ClassDB.instantiate("ApexNativePhase0722")
+	assert(_batch_backend != null,"0724 backend missing")
+	var contexts: Array = []
+	var coast_inputs := PackedFloat64Array()
+	coast_inputs.resize(jobs.size()*7)
+	for i in range(jobs.size()):
+		var job: Dictionary = jobs[i]
+		var car: Dictionary = job.car
+		var curve: Dictionary = job.curve
+		var pace_s: float = float(job.pace)
+		var driving_dt: float = float(job.dt)
+		var envelope: Dictionary = L.motion_envelope(car,curve,pace_s,lap_m,weather)
+		var start: float = float(envelope.previous)
+		var target: float = float(envelope.target)
+		var mass: float = float(envelope.mass_kg)
+		var limits: Dictionary = envelope.limits
+		var tyre: Dictionary = envelope.tyre_state
+		var step: float = maxf(0.0,driving_dt)
+		var delivery: Dictionary = curve.get("power_delivery_070",{})
+		var offer: Dictionary = P.advance(car.get(P.KEY,{}),start,1.0,step,mass,delivery)
+		var road: float = float(offer.road_load_n)
+		var cut: float = float(offer.shift_cut_s)
+		var drive_dt: float = maxf(0.0,step-cut)
+		var brake_cap_n: float = mass*float(limits.brake)
+		contexts.append({"start":start,"target":target,"mass":mass,"limits":limits,"tyre":tyre,"step":step,"offer":offer,"road":road,"cut":cut,"drive_dt":drive_dt,"brake_cap_n":brake_cap_n})
+		var row: Array = [start,target,cut,mass,road,0.0,brake_cap_n]
+		for j in range(7):
+			coast_inputs[i*7+j]=float(row[j])
+	var coast_values: PackedFloat64Array = _batch_backend.call("phase_batch",coast_inputs)
+	assert(coast_values.size()==jobs.size()*8,"0724 coast batch rejected")
+	if coast_values.size()!=jobs.size()*8:
+		return []
+	var powered_inputs := PackedFloat64Array()
+	powered_inputs.resize(jobs.size()*7)
+	for i in range(jobs.size()):
+		var ctx: Dictionary = contexts[i]
+		var target: float = float(ctx.target)
+		var mass: float = float(ctx.mass)
+		var limits: Dictionary = ctx.limits
+		var tyre: Dictionary = ctx.tyre
+		var offer: Dictionary = ctx.offer
+		var road: float = float(ctx.road)
+		var drive_dt: float = float(ctx.drive_dt)
+		var brake_cap_n: float = float(ctx.brake_cap_n)
+		var tyre_drive_n: float = mass*float(tyre.get("accel_limit_mps2",limits.accel))
+		var ref_drive_n: float = road+mass*float(limits.accel)
+		# Bound work by the offered shaft energy over the powered phase. Use an
+		# upper bound on speed; at low speed the reference clutch is approximate.
+		var max_speed: float = maxf(1.0,maxf(float(coast_values[i*8]),minf(L.MAX_MPS,float(coast_values[i*8])+float(limits.accel)*drive_dt)))
+		var energy_force_n: float = float(offer.total_energy_offer_kj)*P.EFFICIENCY*1000.0/maxf(EPS,max_speed*drive_dt) if drive_dt>0.0 else 0.0
+		var drive_cap_n: float = minf(minf(float(offer.uncut_wheel_force_n),tyre_drive_n),minf(ref_drive_n,energy_force_n))
+		ctx["drive_cap_n"]=drive_cap_n
+		var row: Array = [coast_values[i*8],target,drive_dt,mass,road,drive_cap_n,brake_cap_n]
+		for j in range(7):
+			powered_inputs[i*7+j]=float(row[j])
+	var powered_values: PackedFloat64Array = _batch_backend.call("phase_batch",powered_inputs)
+	assert(powered_values.size()==jobs.size()*8,"0724 powered batch rejected")
+	if powered_values.size()!=jobs.size()*8:
+		return []
+	var results: Array = []
+	for i in range(jobs.size()):
+		var ctx: Dictionary = contexts[i]
+		var job: Dictionary = jobs[i]
+		var car: Dictionary = job.car
+		var pace_s: float = float(job.pace)
+		var start: float = float(ctx.start)
+		var target: float = float(ctx.target)
+		var mass: float = float(ctx.mass)
+		var tyre: Dictionary = ctx.tyre
+		var step: float = float(ctx.step)
+		var offer: Dictionary = ctx.offer
+		var road: float = float(ctx.road)
+		var cut: float = float(ctx.cut)
+		var brake_cap_n: float = float(ctx.brake_cap_n)
+		var drive_cap_n: float = float(ctx.drive_cap_n)
+		var distance: float = float(coast_values[i*8+1])+float(powered_values[i*8+1])
+		var shaft: float = minf(float(offer.total_energy_offer_kj),float(powered_values[i*8+7]))
+		var kers_share: float = float(offer.kers_energy_offer_kj)/maxf(EPS,float(offer.total_energy_offer_kj))
+		var kers: float = minf(float(offer.kers_energy_offer_kj),shaft*kers_share)
+		var state: Dictionary = {"start_speed_mps":start,"target_speed_mps":target,"proposed_speed_mps":float(powered_values[i*8]),
+			"proposed_distance_m":distance,"mass_before_kg":mass,"road_load_n":road,"drive_cap_n":drive_cap_n,"brake_cap_n":brake_cap_n,
+			"drive_force_n":float(powered_values[i*8+2]),"brake_force_n":float(powered_values[i*8+3]),"net_force_n":float(powered_values[i*8+5]),
+			"shift_net_force_n":float(coast_values[i*8+5]),"shift_cut_s":cut,"driving_dt_s":step,
+			"v8_offer_kj":float(offer.v8_energy_offer_kj),"kers_offer_kj":float(offer.kers_energy_offer_kj),"kers_allocated_kw":float(offer.kers_allocated_kw),
+			"proposed_v8_kj":shaft-kers,"proposed_kers_kj":kers,
+			"requested_pace_s":pace_s,"pace_mode":str(car.get("pace","Normal"))}
+		var result: Dictionary = {"speed_mps":float(powered_values[i*8]),"distance_m":distance}
+		result[P.KEY]=offer
+		if not tyre.is_empty(): result[T.KEY]=tyre
+		result[KEY]=state
+		results.append(result)
+
+	_batch_groups+=1
+	_batch_calls+=2
+	_batch_cars+=jobs.size()
+	_batch_max=maxi(_batch_max,jobs.size())
+	return results

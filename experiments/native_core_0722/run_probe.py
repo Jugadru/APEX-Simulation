@@ -96,10 +96,13 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--platform", choices=("linux", "windows"), required=True)
     p.add_argument("--godot", type=Path, help="Explicit Godot executable (console exe on Windows)")
+    p.add_argument("--batch-benchmark", action="store_true", help="Add 0724 scratch batch candidate")
     p.add_argument("--benchmark", action="store_true", help="Run 0723 bounded benchmark after 0722 gates")
     p.add_argument("--work", type=Path, required=True)
     p.add_argument("--evidence", type=Path, required=True)
     args = p.parse_args()
+    if args.batch_benchmark and not args.benchmark:
+        p.error("--batch-benchmark requires --benchmark")
     here = Path(__file__).resolve().parent
     repo = here.parents[1]
     work, evidence = args.work.resolve(), args.evidence.resolve()
@@ -218,7 +221,7 @@ def main():
     if args.benchmark:
         sys.path.insert(0, str(here.parent / "native_core_0723"))
         from benchmark import run as run_benchmark
-        run_benchmark(godot, work, evidence, repo, args.platform)
+        run_benchmark(godot, work, evidence, repo, args.platform, batch_enabled=args.batch_benchmark)
 
 
 if __name__ == "__main__":
