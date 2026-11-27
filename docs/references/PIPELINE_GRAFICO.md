@@ -19,3 +19,23 @@ blender --background --factory-startup --python-exit-code 1 --python tools/apex_
 ```
 
 A ferramenta de planejamento imprime JSON e não executa Blender, não baixa nada, não altera arquivos. O protótipo Blender cria uma geometria genérica original em um arquivo que não existe; requer versão com exportador glTF. Validar manualmente no Godot e registrar evidência; não importar automaticamente. Quando o ambiente de execução estiver disponível, conectar as etapas reais ao Lab, sem duplicá-lo.
+
+## Execução opcional da prova de conceito
+
+O orquestrador `tools/apex_asset_build.py` conecta um job original aprovado
+ao Blender local e valida estruturalmente o GLB retornado. Um workspace
+novo é obrigatório; nunca executa em assets de produção, nunca promove
+arquivos. Só suporta o carro geométrico original neste incremento.
+
+```sh
+python3 tools/apex_asset_build.py docs/references/asset_jobs.original.example.json --blender /caminho/para/blender --workspace /tmp/apex-asset-demo-novo
+```
+
+Saídas: staging/demo-car-001.glb, log do Blender e report.json com SHA256,
+orçamento de triângulos, status de exportação e QA pendente. Validação do
+GLB limita-se a contêiner, JSON, recursos embutidos e contagem de primitivas
+triangulares, não comprova fidelidade de modelo, texturas, pivôs, importação,
+nem renderização Godot. Jobs bloqueados não são executados. Não se
+instala nenhum serviço e não se faz download. Os demais tipos de assets
+continuam interfaces planejadas. A execução de teste deste orquestrador
+está NOT_RUN até evidência.

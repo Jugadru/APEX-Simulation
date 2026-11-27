@@ -217,3 +217,13 @@ sem destruir funcionalidades anteriores.
 
 Consultar o Plano Mestre Unificado 2.0
 e o código-fonte real para orientar decisões.
+
+## 10. CENTRAL DE CONHECIMENTO E FOUNDATION
+
+Consultar `docs/references/README.md`, biblioteca 198, catálogo 120,
+roadmap Hyper aprovado e contratos Foundation. A linha Hyper experimental
+não substitui o Roadmap Unificado do Core 2. Antes de utilizar fontes,
+revalidar licença e implementação; antes de criar módulos, auditar o
+código existente. Asset Factory é opt-in, usa staging e exige revisão
+visual/QA e PR antes de promover modelos. Não confundir scaffold com
+funcionalidade esportiva homologada.
