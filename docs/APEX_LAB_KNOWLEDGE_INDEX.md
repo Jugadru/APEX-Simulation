@@ -38,3 +38,7 @@ The new fixture exercises 90 fixed replay ticks on Monza dry and Silverstone hea
 For each meaningful feature, record its PR and exact validated SHA, modified system, intentional behavior change, regression fixture, actual result and unresolved limitation in the changelog or relevant design record. Link rather than duplicate code. Use existing roadmap and technical notes, and update this index only when ownership or test entry points change. Never claim a test passed from its filename or from an unexecuted plan.
 
 Graphics: hosted software-rendered UI checks on demand. See [native graphics review](APEX_NATIVE_GRAPHICS_REVIEW.md) for historical REV1 evidence, current NOT_RUN status and focused owner-authorized review procedure. Release Automation: verified test exports, checksums and separate official publication decision. Performance history: optional artifact-only verification, no new Godot benchmark.
+
+## Orchestration Foundation (candidate)
+
+See [Hub task contracts and limits](APEX_LAB_ORCHESTRATION.md). Extends the existing #141 bridge; not a new runner or mandatory game gate. Validation status must be checked on the exact PR SHA.

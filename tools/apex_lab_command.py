@@ -15,7 +15,7 @@ import urllib.request
 REPO = "Jugadru/APEX-Simulation"
 OWNER = "Jugadru"
 HUB = 141
-COMMANDS = ("fast", "audit", "diagnose", "racecraft", "strategy", "replay", "performance", "report", "simulation", "graphics", "build")
+COMMANDS = ("fast", "audit", "diagnose", "racecraft", "strategy", "replay", "performance", "report", "simulation", "graphics", "build", "orchestrate")
 SHA = re.compile(r"[0-9a-f]{40}\Z")
 COMMAND = re.compile(r"/lab (" + "|".join(COMMANDS) + r") ([0-9a-f]{40})\Z")
 BAD = re.compile(r"^ERROR:|SCRIPT ERROR:|Parse Error:", re.M)
@@ -171,6 +171,12 @@ def execute(command, base, head, root, out):
         (out / "report.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     save()
     try:
+        if command == "orchestrate":
+            from apex_lab_orchestrator import default_manifest, run
+            orchestration = run(default_manifest(), "read", root, out / "orchestration", head)
+            report["orchestration"] = {"status": orchestration["status"], "artifact": "orchestration/report.json"}
+            report["status"] = orchestration["status"]
+            return 0 if report["status"] == "PASS" else 1
         rows = select_tests(command, base, head, root)
         report["plan"] = [{"script": s, "marker": m} for s, m in rows]
         save()

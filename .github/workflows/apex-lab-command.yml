@@ -7,6 +7,8 @@ on:
     paths:
       - '.github/workflows/apex-lab-command.yml'
       - 'tools/apex_lab_command.py'
+      - 'tools/apex_lab_orchestrator.py'
+      - 'tools/tests/test_apex_lab_orchestrator.py'
       - 'tools/tests/test_apex_lab_command.py'
       - 'tools/apex_lab_diagnosis.py'
       - 'tools/tests/test_apex_lab_diagnosis.py'
@@ -74,7 +76,7 @@ jobs:
           [[ "$ISSUE" =~ ^[0-9]+$ ]]
           [[ "$HEAD" =~ ^[0-9a-f]{40}$ ]]
           case "$COMMAND" in
-            fast|audit|diagnose|racecraft|strategy|replay|performance|report|simulation|graphics|build) ;;
+            fast|audit|diagnose|racecraft|strategy|replay|performance|report|simulation|graphics|build|orchestrate) ;;
             *) exit 2 ;;
           esac
           body="$(printf 'APEX Lab request accepted: %s at %s. Hosted diagnostic only; official FAST remains required.\nRun: https://github.com/%s/actions/runs/%s\n' "$COMMAND" "$HEAD" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID")"
@@ -96,7 +98,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       - name: Install Godot 4.7.2
-        if: needs.authorize.outputs.command != 'audit' && needs.authorize.outputs.command != 'report'
+        if: needs.authorize.outputs.command != 'audit' && needs.authorize.outputs.command != 'report' && needs.authorize.outputs.command != 'orchestrate'
         uses: chickensoft-games/setup-godot@ac93246ea68518a384c1c280a496e5989341f2f6
         with:
           version: '4.7.2'

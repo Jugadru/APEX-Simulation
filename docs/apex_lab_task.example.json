@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "tasks": [
+    {
+      "id": "inventory",
+      "objective": "Check source inventory",
+      "scope": "exact checkout",
+      "priority": 90,
+      "depends_on": [],
+      "capability": "source.inventory",
+      "permissions": [
+        "read"
+      ],
+      "acceptance": "exit_zero",
+      "timeout_seconds": 90
+    },
+    {
+      "id": "architecture",
+      "objective": "Inspect architecture",
+      "scope": "exact checkout",
+      "priority": 50,
+      "depends_on": [
+        "inventory"
+      ],
+      "capability": "architecture.audit",
+      "permissions": [
+        "read"
+      ],
+      "acceptance": "exit_zero",
+      "timeout_seconds": 90
+    },
+    {
+      "id": "catalog",
+      "objective": "Validate Foundation catalog structure",
+      "scope": "exact checkout",
+      "priority": 40,
+      "depends_on": [
+        "inventory"
+      ],
+      "capability": "foundation.catalog",
+      "permissions": [
+        "read"
+      ],
+      "acceptance": "catalog_pass",
+      "timeout_seconds": 30
+    }
+  ]
+}
