@@ -1015,6 +1015,20 @@
         }
       ],
       "checks": []
+    },
+    {
+      "id": "hyper22_longitudinal_candidate",
+      "paths": [
+        "experimental/hyper22/longitudinal_adapter.gd",
+        "tests/hyper22_longitudinal_adapter_test.gd"
+      ],
+      "fast_tests": [
+        {
+          "script": "hyper22_longitudinal_adapter_test.gd",
+          "marker": "HYPER22_LONGITUDINAL_PASS"
+        }
+      ],
+      "checks": []
     }
   ]
 }
