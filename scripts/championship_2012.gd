@@ -70,7 +70,7 @@ func record_result(track: Dictionary, order: Array, elapsed: float) -> Dictionar
 		if name.is_empty() or unique.has(name) or not dp.has(name) or not cp.has(team):
 			return {"ok": false, "error": "Pilotos ou equipes invalidos no resultado."}
 		unique[name] = true
-		var pts: int = POINTS[i] if i < POINTS.size() and not bool(car.get("disqualified", false)) else 0
+		var pts: int = POINTS[i] if i < POINTS.size() and not bool(car.get("disqualified", false)) and not bool(car.get("fuel_dnf_0701",false)) else 0
 		dp[name] = int(dp[name]) + pts
 		cp[team] = int(cp[team]) + pts
 		awarded.append({"position": i + 1, "name": name, "team": team, "points": pts,

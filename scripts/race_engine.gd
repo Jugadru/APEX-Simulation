@@ -33,6 +33,8 @@ const LONGITUDINAL_SIM_REVISION := RevisionPolicy.LONGITUDINAL_SIM_REVISION
 const Longitudinal069 = preload("res://scripts/core/race_longitudinal_069.gd")
 const Powertrain070 = preload("res://scripts/core/race_powertrain_070.gd")
 const GEARBOX_SIM_REVISION := RevisionPolicy.GEARBOX_SIM_REVISION
+const Fuel0701 = preload("res://scripts/core/race_fuel_mass_0701.gd")
+const FUEL_SIM_REVISION := RevisionPolicy.FUEL_SIM_REVISION
 const DriverError0921=preload("res://scripts/core/race_driver_error_0921.gd")
 var driver_error_enabled:bool=true
 const TrafficPack09201=preload("res://scripts/core/race_traffic_pack_09201.gd")
@@ -774,6 +776,7 @@ func _advance(dt: float) -> void:
 	var longitudinal_rules: bool = false
 	var longitudinal_revision: bool = false
 	var gearbox_rules: bool = false
+	var fuel_rules: bool = false
 	if command_session != null:
 		var attached_session: Object = command_session.get_ref()
 		if attached_session != null:
@@ -800,6 +803,7 @@ func _advance(dt: float) -> void:
 			longitudinal_revision = following_rules and (revision_mask & RevisionPolicy.LONGITUDINAL) != 0
 			longitudinal_rules = longitudinal_revision and clock >= RacingLine.START_SECONDS
 			gearbox_rules = longitudinal_rules and (revision_mask & RevisionPolicy.GEARBOX) != 0
+			fuel_rules = (revision_mask & RevisionPolicy.FUEL) != 0
 	# Seed from the last actual legacy displacement, not a new target speed.
 	# The seed is stored in the sporting car state for deterministic seek.
 	var longitudinal_handover: bool = longitudinal_revision and not longitudinal_rules and clock + dt + 0.0000001 >= RacingLine.START_SECONDS
@@ -846,6 +850,10 @@ func _advance(dt: float) -> void:
 			float(context["gap"]), track, current_weather)
 		# Both consumers read the same frozen setup and weather in this tick.
 		# Do not carry the result across cars, ticks, weather or replay seeks.
+		if fuel_rules:
+			if not live_car.has(Fuel0701.KEY): live_car[Fuel0701.KEY]=Fuel0701.initial_state(lap_count,base_lap)
+			old_car[Fuel0701.KEY]=live_car[Fuel0701.KEY]
+			context["physical_fuel_0701"]=true
 		var setup_effect: Dictionary = WeatherSetup15.evaluate(old_car.get("race_setup_15", {}), current_weather)
 		var metrics: Dictionary = RacePerformance.evaluate(old_car, context, setup_effect)
 		if traffic_pack_rules:metrics["traffic_kers_skipped"]=kers_skipped
@@ -867,6 +875,7 @@ func _advance(dt: float) -> void:
 					metrics[Longitudinal069.KEY][Powertrain070.KEY]=true
 					# Read current authorization from live KERS/DRS, not last tick's snapshot.
 					metrics[Longitudinal069.KEY]["power_delivery_070"]={"kers_power_kw":float(context.kers_power_kw),"drs_active":bool(context.drs_active)}
+					if fuel_rules: metrics[Longitudinal069.KEY][Fuel0701.KEY]=Fuel0701.mass_kg(live_car[Fuel0701.KEY])
 			# A pit-bound car retains existing pit approach behavior.
 			var fraction: float = fposmod(old_progress,1.0)
 			if fraction>0.04 and fraction<0.93:
@@ -903,7 +912,12 @@ func _advance(dt: float) -> void:
 			var exit_clear: bool = true
 			if stability_rules:
 				exit_clear=RaceSpace.pit_exit_clear(float(car["pit_to"]),old_order,space_plan,released_pit_positions,float(space_profile.length))
+			if fuel_rules:
+				if not car.has(Fuel0701.KEY): car[Fuel0701.KEY]=Fuel0701.initial_state(lap_count,base_lap)
+				car[Fuel0701.KEY]=Fuel0701.advance(car[Fuel0701.KEY],str(car.pace),dt,0.0,0.0)
 			_advance_pit(car, dt, exit_clear)
+			# Keep FIFO/garage ownership intact; retire at safe release, not mid-service.
+			if fuel_rules and float(car.pit_left)<=0.0 and bool(car[Fuel0701.KEY].exhausted) and not bool(car.finished): _retire_fuel_0701(car)
 			if longitudinal_rules and float(car["pit_left"]) <= 0.0 and not bool(car["finished"]):
 				car[Longitudinal069.KEY] = Longitudinal069.PIT_EXIT_MPS
 			if stability_rules and float(car["pit_left"])<=0.0:
@@ -1000,6 +1014,12 @@ func _advance(dt: float) -> void:
 				if scheduled_lap == exact_lap:
 					_event("strategy", int(car["id"]), "BOX AGENDADO V%d | %s: executando na entrada correta, sem antecipação." % [exact_lap, str(car["name"])], 76)
 				car["progress"] = entry_progress
+				if fuel_rules:
+					_burn_fuel_0701(car,prev,dt)
+					if bool(car[Fuel0701.KEY].exhausted):
+						_record_lap_cross(car,prev)
+						_retire_fuel_0701(car)
+						continue
 				if longitudinal_rules: car.erase(Longitudinal069.KEY)
 				if gearbox_rules: car.erase(Powertrain070.KEY)
 				_begin_pit(car, entry_progress)
@@ -1012,7 +1032,14 @@ func _advance(dt: float) -> void:
 		car["wear"] = RacePerformance.wear_after(wear, float(metrics["wear_factor"])*wear_scale, dt, target)
 		# The thermal module writes tyre_heat on the live car. The old Core2
 		# heuristic is still returned for backwards compatibility only.
+		if fuel_rules: _burn_fuel_0701(car,prev,dt)
 		_record_lap_cross(car, prev)
+		# Crossing the finish line has priority over exhaustion at the end of the tick.
+		if fuel_rules and bool(car[Fuel0701.KEY].exhausted):
+			if int(car.laps_done)>maxi(0,int(floor(prev))) and (int(car.laps_done)>=lap_count or first_finish_at>=0.0):
+				_mark_finish(car)
+			else: _retire_fuel_0701(car)
+			continue
 		# Safety net: an AI car must not circulate for laps at 100% tyre wear.
 		# Normal decisions still happen at the lap line; this extra check is
 		# deliberately rare and uses no RNG or changes to pit-lane timing.
@@ -1078,7 +1105,7 @@ func _advance(dt: float) -> void:
 	if telemetry != null:
 		telemetry.observe(cars, clock, dt)
 		telemetry.record_weather(clock, current_weather)
-	if first_finish_at >= 0.0 and (_all_finished() or clock - first_finish_at >= maxf(130.0, base_lap * 1.8)):
+	if (fuel_rules and _all_finished()) or (first_finish_at >= 0.0 and (_all_finished() or clock - first_finish_at >= maxf(130.0, base_lap * 1.8))):
 		# Timeout does not invent a finish-line crossing for cars still circulating.
 		for car in cars:
 			if not bool(car["finished"]):
@@ -1427,6 +1454,37 @@ func _record_lap_cross(car: Dictionary, previous: float, choose_ai_strategy: boo
 	if choose_ai_strategy:
 		_on_lap_cross(car)
 
+## 043 only. Work from the actual authorized movement, not the free-air offer.
+func _burn_fuel_0701(car: Dictionary, previous_progress: float, dt: float) -> void:
+	var state: Dictionary = car.get(Fuel0701.KEY,Fuel0701.initial_state(lap_count,base_lap))
+	var distance_m: float = maxf(0.0,float(car.progress)-previous_progress)*float(track.get("lap_km",0.0))*1000.0
+	var mean_speed: float = distance_m/maxf(0.000001,dt)
+	var end_speed: float = float(car.get(Longitudinal069.KEY,mean_speed))
+	var drive: Dictionary = car.get(Powertrain070.KEY,{})
+	var road_load: float = Powertrain070.ROLLING_FORCE_N+Powertrain070.aerodynamic_drag_n(mean_speed,drive)
+	# Use the chosen 042 aero load when available, no second wake search.
+	road_load=float(drive.get("road_load_n",road_load))
+	var work_kj: float = Fuel0701.shaft_work_kj(Fuel0701.mass_kg(state),float(state.last_speed_mps),end_speed,distance_m,road_load,Powertrain070.EFFICIENCY,float(drive.get("kers_energy_offer_kj",0.0)))
+	car[Fuel0701.KEY]=Fuel0701.advance(state,str(car.pace),dt,work_kj,end_speed)
+
+func _retire_fuel_0701(car: Dictionary) -> void:
+	if bool(car.finished): return
+	car["finished"]=true
+	car["finish_laps"]=maxi(0,int(car.laps_done))
+	car["classified_no_finish"]=true
+	car["fuel_dnf_0701"]=true
+	car["finish_time"]=-1.0
+	car["gap_label"]="DNF"
+	car["interval_label"]="DNF"
+	car["kers_active"]=false
+	car["kers_power_kw"]=0.0
+	car["drs_active"]=false
+	car["pit_request"]=false
+	car["pit_scheduled_lap"]=0
+	car.erase(Longitudinal069.KEY)
+	car.erase(Powertrain070.KEY)
+	_event("incident",int(car.id),"ABANDONO | %s: combustível esgotado." % str(car.name),118)
+
 func _mark_finish(car: Dictionary) -> void:
 	if bool(car.get("finished", false)):
 		return
@@ -1478,6 +1536,9 @@ func _finalize_classification() -> void:
 				car["interval_label"] = "+%.2fs" % float(car["interval"])
 			else:
 				car["interval_label"] = "SC"
+		if bool(car.get("fuel_dnf_0701",false)):
+			car["gap_label"]="DNF"
+			car["interval_label"]="DNF"
 		_last_ranks[int(car["id"])] = i + 1
 	finish_results_validated = true
 
