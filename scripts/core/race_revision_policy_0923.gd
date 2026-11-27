@@ -1,5 +1,5 @@
 extends RefCounted
-## Exact replay capability policy for the sporting revisions 023..043.
+## Exact replay capability policy for the sporting revisions 023..044.
 ## No dependency on the engine, no state, no inference from numeric prefixes.
 ## Unknown/older revisions enable none of these features. Unattached live
 ## engines retain their independent flags; the caller applies those first.
@@ -24,6 +24,7 @@ const DRIVER_ERROR_SIM_REVISION := "040_driver_error_recovery_v1"
 const LONGITUDINAL_SIM_REVISION := "041_longitudinal_physics_v1"
 const GEARBOX_SIM_REVISION := "042_gearbox_torque_experimental_v1"
 const FUEL_SIM_REVISION := "043_fuel_mass_experimental_v1"
+const TYRE_GRIP_SIM_REVISION := "044_tyre_grip_load_experimental_v1"
 const REVISIONS := [
 	OVERTAKING_SIM_REVISION,
 	START20_SIM_REVISION,
@@ -46,6 +47,7 @@ const REVISIONS := [
 	LONGITUDINAL_SIM_REVISION,
 	GEARBOX_SIM_REVISION,
 	FUEL_SIM_REVISION,
+	TYRE_GRIP_SIM_REVISION,
 ]
 const OVERTAKING := 1 << 0
 const START20 := 1 << 1
@@ -68,6 +70,7 @@ const DRIVER_ERROR := 1 << 17
 const LONGITUDINAL := 1 << 18
 const GEARBOX := 1 << 19
 const FUEL := 1 << 20
+const TYRE_GRIP := 1 << 21
 
 static func capability_mask(revision: String) -> int:
 	var index: int = REVISIONS.find(revision)
