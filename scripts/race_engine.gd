@@ -31,6 +31,8 @@ const TRAFFIC_PACK_SIM_REVISION := RevisionPolicy.TRAFFIC_PACK_SIM_REVISION
 const DRIVER_ERROR_SIM_REVISION := RevisionPolicy.DRIVER_ERROR_SIM_REVISION
 const LONGITUDINAL_SIM_REVISION := RevisionPolicy.LONGITUDINAL_SIM_REVISION
 const Longitudinal069 = preload("res://scripts/core/race_longitudinal_069.gd")
+const Powertrain070 = preload("res://scripts/core/race_powertrain_070.gd")
+const GEARBOX_SIM_REVISION := RevisionPolicy.GEARBOX_SIM_REVISION
 const DriverError0921=preload("res://scripts/core/race_driver_error_0921.gd")
 var driver_error_enabled:bool=true
 const TrafficPack09201=preload("res://scripts/core/race_traffic_pack_09201.gd")
@@ -771,6 +773,7 @@ func _advance(dt: float) -> void:
 	# sessions explicitly select the new sporting revision.
 	var longitudinal_rules: bool = false
 	var longitudinal_revision: bool = false
+	var gearbox_rules: bool = false
 	if command_session != null:
 		var attached_session: Object = command_session.get_ref()
 		if attached_session != null:
@@ -796,6 +799,7 @@ func _advance(dt: float) -> void:
 			error_rules = error_rules and (revision_mask & RevisionPolicy.DRIVER_ERROR) != 0
 			longitudinal_revision = following_rules and (revision_mask & RevisionPolicy.LONGITUDINAL) != 0
 			longitudinal_rules = longitudinal_revision and clock >= RacingLine.START_SECONDS
+			gearbox_rules = longitudinal_rules and (revision_mask & RevisionPolicy.GEARBOX) != 0
 	# Seed from the last actual legacy displacement, not a new target speed.
 	# The seed is stored in the sporting car state for deterministic seek.
 	var longitudinal_handover: bool = longitudinal_revision and not longitudinal_rules and clock + dt + 0.0000001 >= RacingLine.START_SECONDS
@@ -859,6 +863,10 @@ func _advance(dt: float) -> void:
 			if longitudinal_rules:
 				var preview: Dictionary = RacingLine.sample(racing_line_profile,old_progress+Longitudinal069.PREVIEW_M/maxf(1.0,lap_km*1000.0),float(current_weather.get("wetness_factor",0.0)),float(old_car.get("skill",80.0)))
 				metrics[Longitudinal069.KEY] = {"legacy_factor":float(line.pace_factor),"load":float(line.load),"mean":float(racing_line_profile.mean),"ahead_load":float(preview.load),"progress":old_progress,"corners":racing_line_profile.get("corners",[])}
+				if gearbox_rules:
+					metrics[Longitudinal069.KEY][Powertrain070.KEY]=true
+					# Read current authorization from live KERS/DRS, not last tick's snapshot.
+					metrics[Longitudinal069.KEY]["power_delivery_070"]={"kers_power_kw":float(context.kers_power_kw),"drs_active":bool(context.drs_active)}
 			# A pit-bound car retains existing pit approach behavior.
 			var fraction: float = fposmod(old_progress,1.0)
 			if fraction>0.04 and fraction<0.93:
@@ -888,6 +896,7 @@ func _advance(dt: float) -> void:
 			continue
 		if float(car["pit_left"]) > 0.0:
 			if longitudinal_rules: car.erase(Longitudinal069.KEY)
+			if gearbox_rules: car.erase(Powertrain070.KEY)
 			if aero_wake_rules: car.erase("aero_wake_032")
 			if traffic_pack_rules and car.has(TrafficPack09201.KEY):car[TrafficPack09201.KEY]=TrafficPack09201.pit_reset(car)
 			if error_rules and car.has(DriverError0921.KEY):car[DriverError0921.KEY]=DriverError0921.pit_reset(car)
@@ -992,6 +1001,7 @@ func _advance(dt: float) -> void:
 					_event("strategy", int(car["id"]), "BOX AGENDADO V%d | %s: executando na entrada correta, sem antecipação." % [exact_lap, str(car["name"])], 76)
 				car["progress"] = entry_progress
 				if longitudinal_rules: car.erase(Longitudinal069.KEY)
+				if gearbox_rules: car.erase(Powertrain070.KEY)
 				_begin_pit(car, entry_progress)
 				continue
 		car["progress"] = maxf(prev, next)

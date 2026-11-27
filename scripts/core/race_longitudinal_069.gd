@@ -2,6 +2,7 @@ extends RefCounted
 ## First longitudinal model: physical SI units on declared lap distance.
 ## Experimental gameplay coefficients, not a calibrated 2012 vehicle model.
 ## No RNG, rendering, gearbox, tyre thermal or lateral solver ownership.
+const Powertrain070 = preload("res://scripts/core/race_powertrain_070.gd")
 const KEY := "longitudinal_069_mps"
 const PREVIEW_M := 60.0
 const PIT_EXIT_MPS := 80.0 / 3.6
@@ -67,6 +68,22 @@ static func propose(car: Dictionary, curve: Dictionary, pace_s: float, lap_m: fl
 	var limits := rates(previous,traction)
 	var target := minf(desired,braking_cap(future,float(limits.brake),PREVIEW_M))
 	target = minf(target,apex_braking_cap(curve,nominal,lap_m,traction,desired))
+	# 042 opt-in only. Braking and traffic remain authoritative.
+	# The existing KERS/DRS/wake pace remains the target ceiling; the
+	# powertrain only supplies a force limit, never adds speed to the target.
+	if bool(curve.get(Powertrain070.KEY,false)):
+		var drive: Dictionary = Powertrain070.advance(car.get(Powertrain070.KEY,{}),previous,1.0 if target>previous else 0.0,driving_dt,Powertrain070.REFERENCE_MASS_KG,curve.get("power_delivery_070",{}))
+		var movement: Dictionary
+		if target>previous:
+			var cut: float = float(drive.shift_cut_s)
+			var acceleration: float = minf(float(limits.accel),float(drive.uncut_accel_mps2))
+			var goal: float = previous if acceleration<=0.0 else target
+			movement = integrate(previous,goal,acceleration,float(limits.brake),maxf(0.0,driving_dt-cut))
+			movement.distance_m = float(movement.distance_m)+previous*cut
+		else:
+			movement = integrate(previous,target,float(limits.accel),float(limits.brake),driving_dt)
+		movement[Powertrain070.KEY]=drive
+		return movement
 	return integrate(previous,target,float(limits.accel),float(limits.brake),driving_dt)
 
 ## Legacy movement has no terminal velocity; the last observed mean is
