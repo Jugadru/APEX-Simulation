@@ -10,3 +10,20 @@ Reuse exact source and fixture transport, 0722 oracles, 0723 micro and scalar A/
 
 ## Directed pre-macro oracle
 Compare 68 complete ordered proposal dictionaries via var_to_bytes with original propose on dry/wet, batch sizes 1/2/7/24, mixed speed, pace, mass, shift, DRS/KERS, zero/partial/normal/long dt and reversed IDs; verify input dictionaries unchanged, empty batch and exact counters. Must pass on both hosted OSs before macro. No tolerance or canonicalization.
+
+
+## Measured decision — PR #196, original head 0ba1713
+Native run 46068901917 PASS on Linux (job 140740818461) and Windows (job 140740818215). FAST 46068901888 PASS with receipt for old base 524bd90, tree 319beae320db5613ccb440334366eaca540039dd. Both native jobs completed APEX_BATCH_0724_PASS, including directed oracle and per-tick sporting/RNG/event equivalence, no divergence in bounded scenarios. Micro batch24 speedup Linux 4.499x / Windows 4.732x; batch240 4.873x / 5.225x. Macro batch median time reduction (positive is faster):
+
+| 045 scenario | Linux | Windows |
+|---|---:|---:|
+| Monza dry | +0.022% | +0.636% |
+| Silverstone heavy rain | +0.790% | -0.846% |
+| LAB dry | +0.897% | -0.326% |
+| LAB heavy rain | -1.369% | +1.623% |
+| Monza replay | +0.626% | +0.972% |
+
+No 045 scenario meets the predeclared >=10% macro target. Reject both tested scalar and batch phase adapters for official activation; retain GDScript and experimental source for future investigation of larger measured bottlenecks. This is an execution PASS, not a performance promotion PASS. No need to run expanded promotion matrix for a rejected candidate. Recommend continuing 0.7.3 Overtaking Preparation after experimental PR is integrated and post-merge FAST passes. No FPS/GPU claim.
+
+## Concurrent base synchronization
+Main advanced to 561b19d105b3c1c4d19254ee158538095bf5b30f (Foundation Metadata Adapter; six changed files, no overlap with this PR and no changes to official runtime or pinned benchmark inputs). Its FAST 46071563713 PASS. Synchronize without rewriting history, keep both branches' files and record this historical result. New head requires fresh FAST receipt and native validation before merge. No tests waived. Local preflight remains BLOCKED.

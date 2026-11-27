@@ -66,6 +66,14 @@ jobs:
       - name: Validate optional performance history contracts
         run: python3 -m unittest discover -s tools/tests -p 'test_apex_lab_perf_history.py' -v
 
+      - name: Validate and export Foundation metadata (read only)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ci-results
+          python3 -m unittest discover -s tools/tests -p 'test_apex_foundation_metadata.py' -v
+          python3 tools/apex_foundation_metadata.py > ci-results/foundation-core2-metadata.json
+
       - name: Install Godot 4.7.2
         uses: chickensoft-games/setup-godot@ac93246ea68518a384c1c280a496e5989341f2f6 # v2.4.3
         with:
@@ -257,6 +265,7 @@ jobs:
             ci-results/*.log
             ci-results/fast-plan.tsv
             ci-results/source-inventory.json
+            ci-results/foundation-core2-metadata.json
             ci-results/test-plan.txt
             ci-results/premerge-*.json
             ci-results/lab-perf/

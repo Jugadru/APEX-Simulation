@@ -1061,6 +1061,24 @@
         }
       ],
       "checks": []
+    },
+    {
+      "id": "foundation_metadata_adapter",
+      "paths": [
+        "tools/apex_foundation_metadata.py",
+        "tools/tests/test_apex_foundation_metadata.py",
+        "tests/foundation_metadata_adapter_test.gd",
+        "data/season_2012.json",
+        "data/teams.json",
+        "scripts/apex_session_settings.gd"
+      ],
+      "fast_tests": [
+        {
+          "script": "foundation_metadata_adapter_test.gd",
+          "marker": "APEX_FOUNDATION_METADATA_PASS"
+        }
+      ],
+      "checks": []
     }
   ]
 }
