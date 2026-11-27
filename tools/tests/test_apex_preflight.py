@@ -6,7 +6,13 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from apex_preflight import indentation_findings, marker_findings, contracts
-from apex_ci_tiers import ALWAYS
+from apex_ci_tiers import ALWAYS, CASES
+
+
+def populate(root):
+    (root / "tests").mkdir(exist_ok=True)
+    for script, _ in (*ALWAYS, *CASES.values()):
+        (root / "tests" / script).touch()
 
 
 class PreflightTests(unittest.TestCase):
@@ -33,6 +39,7 @@ class PreflightTests(unittest.TestCase):
     def test_direct_manifest_fixture_edit(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
+            populate(root)
             (root / ".github").mkdir()
             (root / ".github/apex-quality-suites.json").write_text(
                 '{"schema":1,"suites":[{"id":"sample","paths":["scripts/sample.gd"],'
@@ -50,6 +57,7 @@ class PreflightTests(unittest.TestCase):
     def test_manifest_edit_does_not_run_entire_registry(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
+            populate(root)
             (root / ".github").mkdir()
             (root / ".github/apex-quality-suites.json").write_text(
                 '{"schema":1,"suites":[{"id":"sample","paths":["scripts/sample.gd"],'
@@ -61,7 +69,9 @@ class PreflightTests(unittest.TestCase):
 
     def test_docs_keeps_baseline(self):
         with tempfile.TemporaryDirectory() as tmp:
-            self.assertEqual(contracts(Path(tmp), ["README.md"]), list(ALWAYS))
+            root = Path(tmp)
+            populate(root)
+            self.assertEqual(contracts(root, ["README.md"]), list(ALWAYS))
 
 
 if __name__ == "__main__":
