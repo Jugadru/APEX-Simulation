@@ -76,16 +76,52 @@ def compare(baseline, candidate):
             require(baseline[mode][key] == candidate[mode][key], f"{mode}: mismatch in {key}")
 
 
+def native_budget(env):
+    anchor = {
+        "APEX_AERO_GROUPED_PILOT": "1", "APEX_AERO_ASSERT_TRACE": "1",
+        "APEX_AERO_TRACK": "ITA", "APEX_AERO_CLIMATE": "Seco",
+        "APEX_AERO_SEED": "42", "APEX_AERO_TICKS": "1800",
+    }
+    return 1200 if all(env.get(k) == v for k, v in anchor.items()) and env.get("APEX_AERO_FULL") != "1" else 240
+
+
+def native_failure(content, returncode, duration, budget):
+    lines = content.splitlines()
+    modes = [line.split(" ", 1)[1] for line in lines if line.startswith("AERO_WAKE_GROUP_MODE ")]
+    errors = [line[:500] for line in lines if ERROR.search(line) or "AERO_WAKE_FAIL" in line or "AERO_WAKE_GROUP_INVALID" in line]
+    return {
+        "returncode": returncode, "seconds": round(duration, 2), "native_budget_s": budget,
+        "timeout": returncode == 124 or returncode == "outer-timeout",
+        "last_mode": modes[-1] if modes else None,
+        "completed_comparisons": lines.count("AERO_WAKE_091711_PASS"),
+        "errors": errors[-10:],
+        "group_summary": [line[:500] for line in lines if line.startswith("AERO_WAKE_GROUP_REPORT ")][-1:],
+    }
+
+
 def run_test(env, log_path):
+    budget = native_budget(env)
     start = time.monotonic()
+    returncode = None
     with log_path.open("w", encoding="utf-8") as log:
-        completed = subprocess.run(
-            ["bash", "tools/apex_ci_isolated_test.sh", SCRIPT], env=env,
-            stdout=log, stderr=subprocess.STDOUT, timeout=260,
-        )
+        try:
+            completed = subprocess.run(
+                ["bash", "tools/apex_ci_isolated_test.sh", SCRIPT], env=env,
+                stdout=log, stderr=subprocess.STDOUT, timeout=budget + 20,
+            )
+            returncode = completed.returncode
+        except subprocess.TimeoutExpired:
+            returncode = "outer-timeout"
     duration = time.monotonic() - start
     content = log_path.read_text(encoding="utf-8", errors="replace")
-    require(completed.returncode == 0 and not ERROR.search(content), f"failed native run: {log_path}")
+    if returncode != 0 or ERROR.search(content):
+        evidence = native_failure(content, returncode, duration, budget)
+        print("APEX_GROUPED_NATIVE_FAILURE", json.dumps(evidence, ensure_ascii=False), flush=True)
+        (log_path.parent / (log_path.stem + "-failure.json")).write_text(
+            json.dumps(evidence, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        raise ValueError(f"failed native run: {log_path}; returncode={returncode}")
+    require(f"APEX_TEST_TIMEOUT script={SCRIPT} seconds={budget}" in content.splitlines(), "native timeout contract mismatch")
+    print(f"APEX_GROUPED_NATIVE_PASS file={log_path.name} seconds={duration:.2f} budget={budget}", flush=True)
     return content.splitlines(), duration
 
 
@@ -110,6 +146,18 @@ def self_test():
         pass
     else:
         raise AssertionError("missed missing mode")
+    anchor = {"APEX_AERO_GROUPED_PILOT": "1", "APEX_AERO_ASSERT_TRACE": "1",
+              "APEX_AERO_TRACK": "ITA", "APEX_AERO_CLIMATE": "Seco",
+              "APEX_AERO_SEED": "42", "APEX_AERO_TICKS": "1800"}
+    require(native_budget(anchor) == 1200, "wrong historical grouped budget")
+    for key in anchor:
+        changed = dict(anchor)
+        changed.pop(key)
+        require(native_budget(changed) == 240, f"budget incorrectly extended without {key}")
+    require(native_budget(dict(anchor, APEX_AERO_FULL="1")) == 240, "full GP budget leak")
+    diagnostic = native_failure("AERO_WAKE_GROUP_MODE coordination\nAERO_WAKE_091711_PASS\nAERO_WAKE_GROUP_MODE corner\n", 124, 240, 240)
+    require(diagnostic["timeout"] and diagnostic["last_mode"] == "corner" and diagnostic["completed_comparisons"] == 1, "timeout evidence contract")
+    require(not native_failure("AERO_WAKE_FAIL example", 1, 3, 240)["timeout"], "sporting failure misclassified")
     print("APEX_GROUPED_PILOT_SELF_TEST_PASS")
 
 

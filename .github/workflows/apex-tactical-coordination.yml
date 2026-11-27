@@ -68,7 +68,9 @@ jobs:
     # Opt-in evidence only. Existing production comparisons stay active.
     if: github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'ci:grouped-pilot') && (github.event.action != 'labeled' || github.event.label.name == 'ci:grouped-pilot'))
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # Anchor worst-case: five independent 240s baselines + grouped 1200s
+    # + clean import/setup/artifact handling. Other cases retain 30 minutes.
+    timeout-minutes: ${{ matrix.track == 'ITA' && matrix.climate == 'Seco' && matrix.seed == 42 && 50 || 30 }}
     strategy:
       fail-fast: false
       matrix:

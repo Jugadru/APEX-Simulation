@@ -37,6 +37,21 @@ case "$script" in
         LIBGL_ALWAYS_SOFTWARE=1 timeout 240s xvfb-run -a -s "-screen 0 1920x1080x24" godot --audio-driver Dummy --rendering-method gl_compatibility --single-threaded-scene --path . --script "res://tests/$script"
         ;;
     *)
-        timeout 240s godot --headless --single-threaded-scene --path . --script "res://tests/$script"
+        # The grouped historical anchor executes five complete A/B checks,
+        # including five independent determinism/replay suites. Its budget is
+        # the sum of five ordinary 240s budgets, not a retry or a relaxed test.
+        limit=240
+        if [[ "$script" == "aero_wake_091711_test.gd" &&
+              "${APEX_AERO_GROUPED_PILOT:-}" == "1" &&
+              "${APEX_AERO_ASSERT_TRACE:-}" == "1" &&
+              "${APEX_AERO_TRACK:-}" == "ITA" &&
+              "${APEX_AERO_CLIMATE:-}" == "Seco" &&
+              "${APEX_AERO_SEED:-}" == "42" &&
+              "${APEX_AERO_TICKS:-}" == "1800" &&
+              "${APEX_AERO_FULL:-}" != "1" ]]; then
+            limit=1200
+        fi
+        echo "APEX_TEST_TIMEOUT script=$script seconds=$limit"
+        timeout "${limit}s" godot --headless --single-threaded-scene --path . --script "res://tests/$script"
         ;;
 esac
