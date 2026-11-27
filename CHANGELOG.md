@@ -1,5 +1,9 @@
 # Changelog — APEX Motorsport Manager Core 2
 
+## Unreleased — v0.7.2.4 Native Batch Optimization Experimental
+
+- Scratch-only two-barrier coast/powered phase batches; original physics and solver authority preserved. Three-arm A/B/C comparison with exact sporting traces, counters and prior 0723 coverage. No runtime activation or claim before CI. [Scope](docs/APEX_0724_NATIVE_BATCH_EXPERIMENTAL.md).
+
 ## Unreleased — v0.7.2.3 Native Core Benchmark (bounded candidate)
 
 - Reuse 0722 native workflow; measure original GDScript, scalar bridge, batches 1/24/48/240 and standalone C++, plus exact-source disposable 045/legacy race A/B with per-tick hashes/RNG/events. No activation, no performance claim before measurements. [Protocol and scope](docs/APEX_0723_NATIVE_CORE_BENCHMARK.md).
