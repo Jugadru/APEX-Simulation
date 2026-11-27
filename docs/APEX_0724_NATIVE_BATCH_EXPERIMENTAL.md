@@ -27,3 +27,9 @@ No 045 scenario meets the predeclared >=10% macro target. Reject both tested sca
 
 ## Concurrent base synchronization
 Main advanced to 561b19d105b3c1c4d19254ee158538095bf5b30f (Foundation Metadata Adapter; six changed files, no overlap with this PR and no changes to official runtime or pinned benchmark inputs). Its FAST 46071563713 PASS. Synchronize without rewriting history, keep both branches' files and record this historical result. New head requires fresh FAST receipt and native validation before merge. No tests waived. Local preflight remains BLOCKED.
+
+
+## Confirmation — synchronized head 35ff580
+FAST 46073184123 PASS, receipt base 561b19d105b3c1c4d19254ee158538095bf5b30f, head 35ff5807eee2527d6c7cfd8f634b7910f6ee56c5, merge 77814de94d20abc2202f063911842c992625c432, tree bbd4a123f2814570831bf18b0dd6c58ed9912ae6, attempt 1, tests 5. Native 46073184174 PASS both platforms, APEX_BATCH_0724_PASS. 045 batch median time reductions: Linux Monza dry -0.376%, Silverstone wet -1.440%, LAB dry -0.992%, LAB wet -0.069%, Monza replay -1.309%; Windows +0.805%, -0.232%, -0.081%, -0.616%, -2.785% respectively. Windows P99 ratios for Monza replay 1.0624 and 044 wet control 1.0900 exceeded 1.05. No sporting divergence, but performance promotion rejected. No official backend activation. Preserve experiment, continue 073 after integration and postmerge FAST.
+
+Main advanced again to e5936445279b38fe02a4c2f0d4b219d570b930d7, three Foundation Metadata Adapter files only, no overlap and no runtime/pinned input changes. FAST for that main commit 46076386269 was in progress at synchronization. Synchronize preserving both histories and exact file contents. Previous receipt is historical, not approval for the changed base. Require fresh exact integration FAST and native jobs; local preflight BLOCKED. No waived tests or policy changes.

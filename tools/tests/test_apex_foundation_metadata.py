@@ -1,6 +1,8 @@
 import copy
 import hashlib
 import json
+import os
+from unittest.mock import patch
 from pathlib import Path
 import subprocess
 import sys
@@ -63,6 +65,47 @@ class MetadataTests(unittest.TestCase):
             season["tracks"][0]["laps"]=value
             with self.assertRaises(ValueError):
                 m.build(season,season["teams"])
+
+    def test_inherited_git_environment_ignored(self):
+        with patch.dict(os.environ,{"GIT_DIR":"/nonexistent/git","GIT_WORK_TREE":"/nonexistent",
+                                    "GIT_CONFIG_COUNT":"1","GIT_CONFIG_KEY_0":"core.bare",
+                                    "GIT_CONFIG_VALUE_0":"true"}):
+            self.assertEqual(m.export(),self.report)
+
+    def test_replacement_ref_and_nonregular_tree_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            def raw_git(*args):
+                return subprocess.check_output(["git","-C",str(root),*args]).decode().strip()
+            def commit(message):
+                raw_git("add","data")
+                raw_git("-c","user.name=Fixture","-c","user.email=fixture@example.invalid","commit","-qm",message)
+            raw_git("init","-q")
+            for path in m.PATHS:
+                target=root/path
+                target.parent.mkdir(parents=True,exist_ok=True)
+                target.write_bytes((m.ROOT/path).read_bytes())
+            commit("original")
+            baseline=m.export(root)
+            revision=baseline["body"]["revision"]
+            target=root/m.PATHS[0]
+            original=target.read_bytes()
+            target.write_bytes(original+b"\n")
+            commit("replacement")
+            replacement=raw_git("rev-parse","HEAD")
+            raw_git("checkout","-q","--detach",revision)
+            raw_git("replace",revision,replacement)
+            self.assertNotEqual(raw_git("rev-parse",revision+":"+m.PATHS[0]),baseline["body"]["sources"][0]["git_blob"])
+            self.assertEqual(m.export(root),baseline)
+            target.write_bytes(original+b"\n")
+            with self.assertRaises(ValueError):
+                m.export(root)
+            raw_git("replace","-d",revision)
+            target.unlink()
+            target.symlink_to("teams.json")
+            commit("nonregular")
+            with self.assertRaisesRegex(ValueError,"regular source blob"):
+                m.export(root)
 
     def test_checkout_tamper_and_symlink(self):
         with tempfile.TemporaryDirectory() as tmp:
