@@ -20,7 +20,7 @@ REFERENCE = {
 }
 
 
-def run(args, cwd, log=None, timeout=1800):
+def run(args, cwd, log=None, timeout=1800, allow_import_crash=False):
     print("+", *map(str, args), flush=True)
     if log is None:
         subprocess.run(args, cwd=cwd, check=True, timeout=timeout)
@@ -30,9 +30,25 @@ def run(args, cwd, log=None, timeout=1800):
     log.write_bytes(result.stdout)
     output = result.stdout.decode("utf-8", errors="replace")
     print(output, flush=True)
+    if allow_import_crash and result.returncode in (-6, -11, 134, 139) and not any(s in output for s in ("SCRIPT ERROR:", "Parse Error:", "ERROR:")):
+        return None  # bounded editor-only retry; runtime crashes always fail
     if result.returncode or any(s in output for s in ("SCRIPT ERROR:", "Parse Error:", "ERROR:")):
         raise RuntimeError(f"Godot probe failed: {log} (exit={result.returncode})")
     return output
+
+
+def import_editor(godot, project, work, evidence, label):
+    command = [godot, "--headless", "--single-threaded-scene", "--path", str(project), "--import"]
+    # Match the existing Core 2 policy: one controlled retry only for
+    # native editor crashes, never for parse/resource errors.
+    result = run(command, work, evidence / (label + "-import-attempt1.log"), 240,
+                 allow_import_crash=True)
+    if result is None:
+        print("Native editor abort; retrying once with a clean editor cache", flush=True)
+        cache = project / ".godot"
+        if cache.exists():
+            shutil.rmtree(cache)
+        run(command, work, evidence / (label + "-import-attempt2.log"), 240)
 
 
 def main():
@@ -115,23 +131,36 @@ def main():
     descriptor.write_text('[configuration]\nentry_symbol = "apex_phase_0722_init"\n'
         'compatibility_minimum = "4.7"\n\n[libraries]\n'
         f'{args.platform}.debug.x86_64 = "res://bin/{filename}"\n', encoding="utf-8")
-    run([godot, "--headless", "--path", str(project), "--import"], work,
-        evidence / "native-import.log", 180)
-    result = run([godot, "--headless", "--path", str(project), "--script", "res://phase_probe.gd"],
+    # Godot 4.7.2 GDExtensionManager::load_extensions reads this file at
+    # startup. This isolated project has no imported assets. Exercise real
+    # runtime loading and numerical oracles before the separate editor scan.
+    cache = project / ".godot"
+    cache.mkdir()
+    (cache / "extension_list.cfg").write_text("res://phase.gdextension\n", encoding="utf-8")
+    result = run([godot, "--headless", "--single-threaded-scene", "--path", str(project),
+                  "--script", "res://phase_probe.gd"],
                  work, evidence / "native-probe.log", 180)
     if "APEX_NATIVE_0722_PASS" not in result:
         raise RuntimeError("native PASS marker missing")
     shutil.copyfile(project / "phase-fixtures.json", evidence / "phase-fixtures.json")
+    saved_descriptor = descriptor.read_bytes()
+    saved_bin = work / "native-bin-backup"
+    shutil.copytree(project / "bin", saved_bin)
     descriptor.unlink()
     shutil.rmtree(project / "bin")
     shutil.rmtree(project / ".godot")
-    run([godot, "--headless", "--path", str(project), "--import"], work,
-        evidence / "fallback-import.log", 180)
-    result = run([godot, "--headless", "--path", str(project), "--script",
+    result = run([godot, "--headless", "--single-threaded-scene", "--path", str(project), "--script",
                   "res://phase_probe.gd", "--", "--fallback-only"],
                  work, evidence / "fallback-probe.log", 180)
     if "APEX_NATIVE_0722_FALLBACK_PASS" not in result:
         raise RuntimeError("fallback PASS marker missing")
+    # Keep both editor imports mandatory, even if the runtime probes pass.
+    import_editor(godot, project, work, evidence, "fallback")
+    if (project / ".godot").exists():
+        shutil.rmtree(project / ".godot")
+    shutil.copytree(saved_bin, project / "bin")
+    descriptor.write_bytes(saved_descriptor)
+    import_editor(godot, project, work, evidence, "native")
     print("APEX_NATIVE_0722_HOSTED_PASS")
 
 

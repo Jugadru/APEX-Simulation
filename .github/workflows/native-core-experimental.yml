@@ -38,6 +38,8 @@ jobs:
         with:
           version: '4.7.2'
           use-dotnet: false
+          # Windows cache stores only the GUI executable; require full archive.
+          cache: false
       - name: Install SCons
         run: python -m pip install scons==4.10.1
       - name: Build and compare with original GDScript
