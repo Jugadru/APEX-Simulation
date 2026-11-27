@@ -1,0 +1,57 @@
+extends SceneTree
+const V = preload("res://scripts/core/race_vehicle_dynamics_072.gd")
+const L = preload("res://scripts/core/race_longitudinal_069.gd")
+const P = preload("res://scripts/core/race_powertrain_070.gd")
+const T = preload("res://scripts/core/race_tyre_grip_071.gd")
+const F = preload("res://scripts/core/race_fuel_mass_0701.gd")
+
+func _initialize() -> void:
+    call_deferred("run")
+
+func fail(reason: String) -> void:
+    printerr("APEX_BATCH_ORACLE_FAIL ",reason)
+    quit(1)
+
+func run() -> void:
+    if not ClassDB.class_exists("ApexNativePhase0722"):
+        fail("missing backend")
+        return
+    V.batch_reset()
+    if not V.propose_batch([],6000.0,{}).is_empty() or int(V.batch_stats().calls)!=0:
+        fail("empty batch")
+        return
+    var cases: int = 0
+    for weather in [{"grip_factor":1.0,"wetness_factor":0.0},{"grip_factor":0.70,"wetness_factor":1.0}]:
+        for count in [1,2,7,24]:
+            var jobs: Array = []
+            var expected: Array = []
+            for i in range(count):
+                var car: Dictionary = {"id":100-i,"tire":"Médio","wear":float(i%5)*0.1,"tyre_surface_c":95.0,"pace":["Normal","Conservar","Atacar"][i%3]}
+                car[L.KEY]=float(i%8)*11.0
+                car[P.KEY]={"gear":1+i%7,"shift_remaining_s":0.06 if i%2 else 0.0}
+                var curve: Dictionary = {"legacy_factor":1.0,"load":float(i%4)*0.1,"mean":0.15,"ahead_load":0.1,"progress":0.1,"ahead_progress":0.11}
+                curve[P.KEY]=true
+                curve[F.KEY]=700.0+float(i)*3.0
+                curve[T.KEY]=true
+                curve[V.KEY]=true
+                curve["power_delivery_070"]={"kers_power_kw":60.0 if i%2 else 0.0,"drs_active":i%3==0,"tow_fraction":0.1,"dirty_fraction":0.0}
+                var pace_s: float = 60.0+float(i%5)*25.0
+                var dt_s: float = [0.0,0.03,0.2,0.8][i%4]
+                jobs.append({"id":100-i,"car":car,"curve":curve,"pace":pace_s,"dt":dt_s})
+                expected.append(V.propose(car,curve,pace_s,6000.0,dt_s,weather))
+            var snapshot: PackedByteArray = var_to_bytes(jobs)
+            var actual: Array = V.propose_batch(jobs,6000.0,weather)
+            if actual.size()!=expected.size() or var_to_bytes(jobs)!=snapshot:
+                fail("shape or mutated input")
+                return
+            for i in range(count):
+                if var_to_bytes(actual[i])!=var_to_bytes(expected[i]):
+                    fail("whole proposal bytes differ count=%d index=%d expected=%s actual=%s" % [count,i,str(expected[i]),str(actual[i])])
+                    return
+                cases+=1
+    var observed: Dictionary = V.batch_stats()
+    if cases!=68 or int(observed.groups)!=8 or int(observed.calls)!=16 or int(observed.cars)!=68 or int(observed.max_group)!=24:
+        fail("counter mismatch")
+        return
+    print("APEX_BATCH_ORACLE_PASS cases=",cases," stats=",observed)
+    quit(0)

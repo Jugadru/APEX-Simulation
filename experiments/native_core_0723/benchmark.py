@@ -265,6 +265,7 @@ def run(godot, work, evidence, repo, platform_name, batch_enabled=False):
         batch_imports=evidence/"batch-imports"
         batch_imports.mkdir()
         import_editor(godot,batch_path,work,batch_imports,"native")
+        measured_run([godot,"--headless","--single-threaded-scene","--path",str(batch_path),"--script","res://batch_oracle.gd"],work,evidence/"batch-oracle.log","APEX_BATCH_ORACLE_PASS",180)
     pairs=[]
     for rep in range(5):
         order=[("gdscript",baseline),("scalar",candidate)]

@@ -62,6 +62,7 @@ def prepare(baseline, native_project, work, evidence):
     cfg.write_bytes(replace_once(cfg.read_text(encoding="utf-8"),"APEX_0723_DISPOSABLE_BENCH","APEX_0724_DISPOSABLE_BATCH").encode("utf-8"))
     shutil.copytree(native_project/"bin",target/"bin")
     shutil.copyfile(native_project/"phase.gdextension",target/"phase.gdextension")
+    shutil.copyfile(HERE/"batch_oracle.gd.in",target/"batch_oracle.gd")
     for rel,name in ((VEHICLE,"batch-vehicle.gd.txt"),(SPACE,"batch-space.gd.txt"),("macro.gd","batch-macro.gd.txt")):
         shutil.copyfile(target/rel,evidence/name)
     return target
