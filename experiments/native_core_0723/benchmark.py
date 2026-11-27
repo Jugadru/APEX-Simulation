@@ -188,7 +188,7 @@ def measured_run(args, cwd, log, marker, timeout=300):
     return text, max((v["bytes"] for v in rss),default=None)
 
 
-def run(godot, work, evidence, repo, platform_name):
+def run(godot, work, evidence, repo, platform_name, batch_enabled=False):
     here=Path(__file__).resolve().parent
     project=work/"project"
     bench=work/"pure_benchmark"
@@ -232,6 +232,11 @@ def run(godot, work, evidence, repo, platform_name):
     ccfg.write_text(ccfg.read_text(encoding="utf-8").replace("APEX_0723_DISPOSABLE_BENCH","APEX_0723_DISPOSABLE_CANDIDATE"),encoding="utf-8")
     shutil.copytree(project/"bin",candidate/"bin")
     shutil.copyfile(project/"phase.gdextension",candidate/"phase.gdextension")
+    batch_path=None
+    if batch_enabled:
+        sys.path.insert(0,str(here.parent/"native_core_0724"))
+        from batch_candidate import prepare
+        batch_path=prepare(baseline,project,work,evidence)
     # Exact one-function experimental substitution, only inside scratch tree.
     vehicle=candidate/"scripts/core/race_vehicle_dynamics_072.gd"
     original_bytes=vehicle.read_bytes()
@@ -256,9 +261,15 @@ def run(godot, work, evidence, repo, platform_name):
     macro_evidence.mkdir()
     import_editor(godot,baseline,work,macro_evidence,"macro-baseline")
     import_editor(godot,candidate,work,macro_evidence,"native")
+    if batch_path is not None:
+        batch_imports=evidence/"batch-imports"
+        batch_imports.mkdir()
+        import_editor(godot,batch_path,work,batch_imports,"native")
     pairs=[]
     for rep in range(5):
         order=[("gdscript",baseline),("scalar",candidate)]
+        if batch_path is not None:
+            order.append(("batch",batch_path))
         if rep%2:
             order.reverse()
         results={}
@@ -269,32 +280,37 @@ def run(godot, work, evidence, repo, platform_name):
                 raise RuntimeError("macro incomplete")
             results[mode]=(runs,rss)
             print(f"APEX_MACRO_PROCESS_PASS rep={rep} mode={mode} scenarios={len(runs)} rss={rss}",flush=True)
-        aa,ar=results["gdscript"];bb,br=results["scalar"]
-        for a,b in zip(aa,bb):
-            if a["scenario"]!=b["scenario"] or a["revision"]!=b["revision"] or a["vehicle_samples"]!=b["vehicle_samples"]:
-                raise RuntimeError("different workload")
-            for tick,(x,y) in enumerate(zip(a["trace"],b["trace"]),1):
-                if x!=y:
-                    (evidence/"first-divergence.json").write_text(json.dumps({"scenario":a["scenario"],"rep":rep,"tick":tick,"baseline":x,"candidate":y}),encoding="utf-8")
-                    raise RuntimeError("sporting divergence")
-            pairs.append({"scenario":a["scenario"],"rep":rep,"baseline":stats(a["samples_us"]),
-                "candidate":stats(b["samples_us"]),"baseline_total_us":sum(a["samples_us"]),
-                "candidate_total_us":sum(b["samples_us"]),"baseline_static":a["peak_static_bytes"],
-                "candidate_static":b["peak_static_bytes"],"baseline_process_peak_rss":ar,
-                "candidate_process_peak_rss":br,"trace_equal":True})
+        for variant in ("scalar","batch") if batch_enabled else ("scalar",):
+            aa,ar=results["gdscript"];bb,br=results[variant]
+            for a,b in zip(aa,bb):
+                if variant=="batch" and not isinstance(b.get("batch_stats"),dict):
+                    raise RuntimeError("batch coverage missing")
+                if a["scenario"]!=b["scenario"] or a["revision"]!=b["revision"] or a["vehicle_samples"]!=b["vehicle_samples"]:
+                    raise RuntimeError("different workload")
+                for tick,(x,y) in enumerate(zip(a["trace"],b["trace"]),1):
+                    if x!=y:
+                        (evidence/"first-divergence.json").write_text(json.dumps({"variant":variant,"scenario":a["scenario"],"rep":rep,"tick":tick,"baseline":x,"candidate":y}),encoding="utf-8")
+                        raise RuntimeError("sporting divergence")
+                pairs.append({"variant":variant,"scenario":a["scenario"],"rep":rep,"batch_stats":b.get("batch_stats"),"baseline":stats(a["samples_us"]),
+                    "candidate":stats(b["samples_us"]),"baseline_total_us":sum(a["samples_us"]),
+                    "candidate_total_us":sum(b["samples_us"]),"baseline_static":a["peak_static_bytes"],
+                    "candidate_static":b["peak_static_bytes"],"baseline_process_peak_rss":ar,
+                    "candidate_process_peak_rss":br,"trace_equal":True})
     scenarios=[]
-    for scenario in [p["scenario"] for p in pairs if p["rep"]==0]:
-        group=[p for p in pairs if p["scenario"]==scenario]
+    for variant,scenario in [(p["variant"],p["scenario"]) for p in pairs if p["rep"]==0]:
+        group=[p for p in pairs if p["scenario"]==scenario and p["variant"]==variant]
         baseline_us=statistics.median(p["baseline_total_us"] for p in group)
         candidate_us=statistics.median(p["candidate_total_us"] for p in group)
-        scenarios.append({"scenario":scenario,"baseline_total_median_us":baseline_us,
+        scenarios.append({"variant":variant,"scenario":scenario,"baseline_total_median_us":baseline_us,
             "candidate_total_median_us":candidate_us,"reduction":1-candidate_us/baseline_us,
             "p99_ratio":statistics.median(p["candidate"]["p99"]/p["baseline"]["p99"] for p in group)})
     summary={"schema":1,"status":"MEASURED_BOUNDED","base":BASE,"candidate_checkout":subprocess.check_output(["git","rev-parse","HEAD"],cwd=repo,text=True).strip(),
         "platform":platform.platform(),"cpu":platform.processor(),"cpu_count":os.cpu_count(),
         "micro_rows":rows,"micro_us_per_phase":micro_stats,"micro_process_peak_rss":micro_rss,
         "pure_process_peak_rss":pure_rss,"macro_pairs":pairs,"macro_scenarios":scenarios,
-        "limitations":"Hosted debug build, bounded 7 scenarios; RSS sampled per process (not per scenario), no GPU/FPS; no batch engine adapter, no full GP/save cross-load; no integration approval."}
+        "limitations":"Hosted debug build, bounded 7 scenarios; RSS sampled per process (not per scenario), no GPU/FPS; scratch-only batch adapter if enabled, no full GP/save cross-load; no integration approval."}
     (evidence/"benchmark-summary.json").write_text(json.dumps(summary,indent=2),encoding="utf-8")
     print("APEX_BENCHMARK_0723_RESULT",json.dumps({"micro":micro_stats,"macro":scenarios}),flush=True)
     print("APEX_BENCHMARK_0723_PASS",flush=True)
+    if batch_enabled:
+        print("APEX_BATCH_0724_PASS",flush=True)
