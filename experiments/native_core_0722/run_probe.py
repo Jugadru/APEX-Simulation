@@ -2,6 +2,7 @@
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -37,6 +38,7 @@ def run(args, cwd, log=None, timeout=1800):
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--platform", choices=("linux", "windows"), required=True)
+    p.add_argument("--godot", type=Path, help="Explicit Godot executable (console exe on Windows)")
     p.add_argument("--work", type=Path, required=True)
     p.add_argument("--evidence", type=Path, required=True)
     args = p.parse_args()
@@ -47,6 +49,26 @@ def main():
         raise ValueError("build directory must be outside the official project")
     work.mkdir(parents=True, exist_ok=False)
     evidence.mkdir(parents=True, exist_ok=True)
+    # setup-godot on Windows installs an extensionless symlink, which
+    # CreateProcess cannot resolve by a bare executable name. Use the real
+    # console executable from the official archive, including its .exe suffix.
+    if args.godot:
+        executable = args.godot.resolve()
+    elif args.platform == "windows":
+        installed = Path(os.environ["USERPROFILE"]) / "godot" / "Godot_v4.7.2-stable_win64_console.exe"
+        configured = os.environ.get("GODOT")
+        resolved = Path(configured).resolve() if configured else installed
+        executable = installed if installed.is_file() else resolved
+    else:
+        configured = os.environ.get("GODOT") or shutil.which("godot")
+        if not configured:
+            raise FileNotFoundError("Godot executable not found; pass --godot")
+        executable = Path(configured).resolve()
+    if not executable.is_file() or (args.platform == "windows" and executable.suffix.lower() != ".exe"):
+        raise FileNotFoundError(f"Godot executable not found: {executable}; pass --godot")
+    godot = str(executable)
+    print("Godot executable:", godot, flush=True)
+    (evidence / "executable.txt").write_text(godot + "\n", encoding="utf-8")
     project = work / "project"
     core = project / "scripts" / "core"
     core.mkdir(parents=True)
@@ -58,17 +80,17 @@ def main():
         if sha != expected:
             raise ValueError(f"reference changed: {name} {sha}, re-audit required")
         (core / name).write_bytes(data)
-    for name in ("phase.hpp", "extension.cpp", "SConstruct", "build_profile.json"):
+    for name in ("phase.hpp", "extension.cpp", "SConstruct"):
         shutil.copyfile(here / name, work / name)
     shutil.copyfile(here / "phase_probe.gd.in", project / "phase_probe.gd")
     (project / "project.godot").write_text(
         '[application]\nconfig/name="APEX Native 0722 isolated"\n'
         '[rendering]\nrenderer/rendering_method="gl_compatibility"\n', encoding="utf-8")
-    version = subprocess.check_output(["godot", "--version"], cwd=work, text=True).strip()
+    version = subprocess.check_output([godot, "--version"], cwd=work, text=True).strip()
     print("Godot:", version)
     if not version.startswith("4.7.2.stable") or "double" in version.lower():
         raise RuntimeError("expected standard Godot 4.7.2 stable")
-    run(["godot", "--headless", "--dump-extension-api"], work, evidence / "api.log", 120)
+    run([godot, "--headless", "--dump-extension-api"], work, evidence / "api.log", 120)
     api = json.loads((work / "extension_api.json").read_text(encoding="utf-8"))
     header = api["header"]
     if (header["version_major"], header["version_minor"], header["version_patch"]) != (4, 7, 2):
@@ -84,8 +106,8 @@ def main():
         raise RuntimeError("godot-cpp SHA mismatch")
     run([sys.executable, "-m", "SCons", "-j4", "platform=" + args.platform,
          "arch=x86_64", "target=template_debug", "precision=single",
-         "custom_api_file=" + (work / "extension_api.json").as_posix(),
-         "build_profile=" + (work / "build_profile.json").as_posix()], work)
+         "custom_api_file=" + (work / "extension_api.json").as_posix()], work,
+        evidence / "build.log", 1800)
     filename = "libapex_phase.so" if args.platform == "linux" else "apex_phase.dll"
     if not (project / "bin" / filename).is_file():
         raise RuntimeError(f"missing expected binary {filename}")
@@ -93,9 +115,9 @@ def main():
     descriptor.write_text('[configuration]\nentry_symbol = "apex_phase_0722_init"\n'
         'compatibility_minimum = "4.7"\n\n[libraries]\n'
         f'{args.platform}.debug.x86_64 = "res://bin/{filename}"\n', encoding="utf-8")
-    run(["godot", "--headless", "--path", str(project), "--import"], work,
+    run([godot, "--headless", "--path", str(project), "--import"], work,
         evidence / "native-import.log", 180)
-    result = run(["godot", "--headless", "--path", str(project), "--script", "res://phase_probe.gd"],
+    result = run([godot, "--headless", "--path", str(project), "--script", "res://phase_probe.gd"],
                  work, evidence / "native-probe.log", 180)
     if "APEX_NATIVE_0722_PASS" not in result:
         raise RuntimeError("native PASS marker missing")
@@ -103,9 +125,9 @@ def main():
     descriptor.unlink()
     shutil.rmtree(project / "bin")
     shutil.rmtree(project / ".godot")
-    run(["godot", "--headless", "--path", str(project), "--import"], work,
+    run([godot, "--headless", "--path", str(project), "--import"], work,
         evidence / "fallback-import.log", 180)
-    result = run(["godot", "--headless", "--path", str(project), "--script",
+    result = run([godot, "--headless", "--path", str(project), "--script",
                   "res://phase_probe.gd", "--", "--fallback-only"],
                  work, evidence / "fallback-probe.log", 180)
     if "APEX_NATIVE_0722_FALLBACK_PASS" not in result:
