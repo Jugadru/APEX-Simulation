@@ -1017,6 +1017,21 @@
       "checks": []
     },
     {
+      "id": "project_build_identity",
+      "paths": [
+        "project.godot",
+        "tests/project_identity_test.gd",
+        "tests/wet_strategy_06698_test.gd"
+      ],
+      "fast_tests": [
+        {
+          "script": "project_identity_test.gd",
+          "marker": "PROJECT_IDENTITY_PASS"
+        }
+      ],
+      "checks": []
+    },
+    {
       "id": "hyper22_longitudinal_candidate",
       "paths": [
         "experimental/hyper22/longitudinal_adapter.gd",
