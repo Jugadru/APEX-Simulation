@@ -8,3 +8,7 @@
 ## Complemento de automação
 - Link permanente em AGENTS.md; orquestrador local opt-in para Blender, staging externo, verificação estrutural GLB, limites e logs. Sem promoção.
 - Exemplo original aprovado apenas para geometria demonstrativa; fontes externas continuam bloqueadas. Testes Python, Blender real e importação Godot ainda NOT_RUN.
+
+## Asset Factory v0.1.0 — candidato
+
+- Request schema, gerador de monoposto original parametrizado, staging Godot, relatório, registro e captura real local. Ver [evidências e limites](ASSET_FACTORY_010.md). Sem mudança esportiva ou asset de produção. FAST da revisão candidata e aprovação ainda pendentes.
