@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 from pathlib import Path
 import re
 import subprocess
@@ -86,18 +87,33 @@ def build(season, teams):
     return {"season": 2012, "teams": team_rows, "drivers": driver_rows, "circuits": track_rows}
 
 def git(root, *args):
-    return subprocess.check_output(["git", "-C", str(root), *args], timeout=20)
+    # Resolve the actual committed tree, never replacement refs or inherited Git redirects.
+    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+    env.update(GIT_ALLOW_PROTOCOL="", GIT_NO_LAZY_FETCH="1", GIT_OPTIONAL_LOCKS="0",
+               GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull, GIT_TERMINAL_PROMPT="0")
+    return subprocess.check_output(["git", "--no-replace-objects", "-C", str(root), *args],
+                                   env=env, timeout=20)
+
+def committed_blob(root, revision, path):
+    raw = git(root, "ls-tree", "-z", revision, "--", path)
+    match = re.fullmatch(rb"100(?:644|755) blob ([0-9a-f]{40})\t" +
+                         re.escape(path.encode("ascii")) + rb"\x00", raw)
+    if not match:
+        raise ValueError("expected committed regular source blob")
+    return match.group(1).decode("ascii")
 
 def export(root=ROOT):
+    root = Path(root).resolve(strict=True)
+    top = Path(git(root, "rev-parse", "--show-toplevel").decode("utf-8").strip()).resolve()
+    if top != root:
+        raise ValueError("expected exact checkout root")
     # HEAD is the actual checked-out commit (synthetic merge on PR CI).
     revision = git(root, "rev-parse", "--verify", "HEAD^{commit}").decode("ascii").strip()
     if not SHA.fullmatch(revision):
         raise ValueError("expected exact SHA-1 commit")
     sources, values = [], []
     for path in PATHS:
-        blob = git(root, "rev-parse", "--verify", revision + ":" + path).decode("ascii").strip()
-        if not SHA.fullmatch(blob):
-            raise ValueError("invalid Git blob identity")
+        blob = committed_blob(root, revision, path)
         size = int(git(root, "cat-file", "-s", blob))
         if not 0 < size <= MAX_BYTES:
             raise ValueError("source exceeds size bound")
@@ -109,7 +125,9 @@ def export(root=ROOT):
         local = root / path
         if any(x.is_symlink() for x in (local, local.parent)) or not local.is_file() or local.stat().st_size != size:
             raise ValueError("checkout source identity mismatch")
-        if local.read_bytes() != raw:
+        with local.open("rb") as handle:
+            checkout_raw = handle.read(MAX_BYTES + 1)
+        if checkout_raw != raw:
             raise ValueError("checkout data differs from exact revision")
         sources.append({"path": path, "git_blob": blob, "sha256": hashlib.sha256(raw).hexdigest(),
                         "size_bytes": size})
