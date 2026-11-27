@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'experiments/native_core_0722/**'
+      - 'experiments/native_core_0723/**'
       - '.github/workflows/native-core-experimental.yml'
       - 'scripts/core/race_vehicle_dynamics_072.gd'
       - 'scripts/core/race_longitudinal_069.gd'
@@ -29,7 +30,7 @@ jobs:
           - os: windows-latest
             platform: windows
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 35
+    timeout-minutes: 50
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -46,7 +47,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python experiments/native_core_0722/run_probe.py --platform ${{ matrix.platform }} --work "$RUNNER_TEMP/apex-native-0722" --evidence "ci-results/native-0722"
+          python experiments/native_core_0722/run_probe.py --platform ${{ matrix.platform }} --work "$RUNNER_TEMP/apex-native-0722" --evidence "ci-results/native-0722" --benchmark
       - name: Retain evidence only (no binaries)
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9

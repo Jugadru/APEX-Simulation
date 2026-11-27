@@ -8,3 +8,7 @@ else:
     env.Append(CXXFLAGS=["-fno-fast-math", "-ffp-contract=off"])
 lib = env.SharedLibrary(target="project/bin/apex_phase", source=["extension.cpp"])
 Default(lib)
+if File("pure.cpp").exists():
+    pure = env.Program(target="pure_benchmark", source=["pure.cpp"])
+    Default(pure)
+

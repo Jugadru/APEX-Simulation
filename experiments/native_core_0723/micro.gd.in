@@ -1,0 +1,77 @@
+extends SceneTree
+const V = preload("res://scripts/core/race_vehicle_dynamics_072.gd")
+const KEYS = ["speed_mps","distance_m","drive_force_n","brake_force_n","road_load_n","net_force_n","duration_s","drive_work_kj"]
+const COUNT := 100800
+const WARM := 10000
+const REPS := 10
+const MODES = ["gdscript","scalar","batch1","batch24","batch48","batch240"]
+var backend: Object
+var cases: Array
+func _initialize() -> void:
+    call_deferred("run")
+
+func sample(mode: String, count: int) -> Dictionary:
+    var checksum: float = 0.0
+    var begin: int = Time.get_ticks_usec()
+    if mode == "gdscript" or mode == "scalar":
+        for i in range(count):
+            var a: Array = cases[i % cases.size()]
+            var d: Dictionary
+            if mode == "gdscript":
+                d = V.phase(a[0],a[1],a[2],a[3],a[4],a[5],a[6])
+            else:
+                d = backend.call("phase",a[0],a[1],a[2],a[3],a[4],a[5],a[6])
+            if d.size() != 8:
+                return {}
+            for k in KEYS:
+                checksum += float(d[k])
+    else:
+        var size: int = int(mode.trim_prefix("batch"))
+        for offset in range(0,count,size):
+            var n: int = mini(size,count-offset)
+            var input := PackedFloat64Array()
+            for i in range(n):
+                input.append_array(PackedFloat64Array(cases[(offset+i) % cases.size()]))
+            var output: PackedFloat64Array = backend.call("phase_batch",input)
+            if output.size() != n*8:
+                return {}
+            # Consume all eight outputs, in identical order.
+            for v in output:
+                checksum += v
+    return {"mode":mode,"phases":count,"elapsed_us":maxi(1,Time.get_ticks_usec()-begin),
+        "checksum":checksum,"static_bytes":int(Performance.get_monitor(Performance.MEMORY_STATIC))}
+
+func run() -> void:
+    cases = JSON.parse_string(FileAccess.get_file_as_string("res://phase-fixtures.json"))
+    if cases.size() != 4108 or not ClassDB.class_exists("ApexNativePhase0722"):
+        printerr("APEX_MICRO_FAIL invalid fixtures or missing backend")
+        quit(1)
+        return
+    backend = ClassDB.instantiate("ApexNativePhase0722")
+    for mode in MODES:
+        if sample(mode,WARM).is_empty():
+            quit(1)
+            return
+    var rows: Array = []
+    var expected: float = 0.0
+    for rep in range(REPS):
+        var order: Array = MODES.duplicate()
+        if rep % 2:
+            order.reverse()
+        for mode in order:
+            var row: Dictionary = sample(mode,COUNT)
+            if row.is_empty():
+                printerr("APEX_MICRO_FAIL empty result")
+                quit(1)
+                return
+            if rows.is_empty():
+                expected = float(row.checksum)
+            if float(row.checksum) != expected or not is_finite(float(row.checksum)):
+                printerr("APEX_MICRO_FAIL checksum ",mode)
+                quit(1)
+                return
+            row["rep"] = rep
+            rows.append(row)
+            print("APEX_MICRO_ROW ",JSON.stringify(row,"",true,true))
+    print("APEX_MICRO_PASS rows=",rows.size())
+    quit(0)

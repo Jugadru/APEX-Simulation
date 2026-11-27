@@ -1,0 +1,104 @@
+extends SceneTree
+const Race = preload("res://scripts/race_engine.gd")
+const Replay = preload("res://scripts/core/race_replay_0660.gd")
+const Codec = preload("res://scripts/core/race_state_codec_0660.gd")
+const V = preload("res://scripts/core/race_vehicle_dynamics_072.gd")
+const WARM := 100
+const TICKS := 500
+# Predeclared bounded initial battery. Recording ON and legacy controls
+# are separate cases, not substitutes for the 045 recording-OFF measurement.
+const CASES = [
+    ["ITA","Seco",42,"045",false],
+    ["GBR","Chuva intensa",42,"045",false],
+    ["LAB","Seco",991420,"045",false],
+    ["LAB","Chuva intensa",991420,"045",false],
+    ["ITA","Seco",42,"045",true],
+    ["ITA","Seco",42,"041",false],
+    ["GBR","Chuva intensa",42,"044",false]]
+func _initialize() -> void:
+    call_deferred("run")
+func fail(reason: String) -> void:
+    printerr("APEX_MACRO_FAIL ",reason)
+    quit(1)
+
+func run() -> void:
+    var args: PackedStringArray = OS.get_cmdline_user_args()
+    if args.size() != 2:
+        fail("mode and repetition required")
+        return
+    var mode: String = args[0]
+    var rep: int = int(args[1])
+    if ClassDB.class_exists("ApexNativePhase0722") != (mode == "scalar"):
+        fail("wrong backend availability")
+        return
+    var data: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/season_2012.json"))
+    for spec in CASES:
+        var track: Dictionary = {}
+        if spec[0] == "LAB":
+            track = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/apex_lab_track.json"))
+            track["laps"] = 30
+            track["race_km"] = 30.0*float(track.lap_km)
+        else:
+            for item in data.tracks:
+                if item.code == spec[0]:
+                    track = item
+                    break
+        if track.is_empty():
+            fail("track missing")
+            return
+        var race = Race.new(data.teams,"Ferrari",int(spec[2]),{},track,{})
+        race.configure_weather(str(spec[1]))
+        var session = Replay.new()
+        session.attach(race,{}, {},bool(spec[4]))
+        session.racecraft_audit_enabled=false
+        if spec[3] == "045":
+            session.recorded_simulation_revision=Replay.VEHICLE_DYNAMICS_EXPERIMENTAL_SIMULATION_REVISION
+        elif spec[3] == "044":
+            session.recorded_simulation_revision=Replay.TYRE_GRIP_EXPERIMENTAL_SIMULATION_REVISION
+        else:
+            session.recorded_simulation_revision=Replay.SIMULATION_REVISION
+        if race.cars.size()!=24:
+            fail("24 cars required")
+            return
+        var actor: int = int(race.player_cars()[0].id)
+        if not session.enqueue("schedule_pit",[actor,race.available_pit_compounds()[0],21],3) or not session.enqueue("set_pace",[actor,"Conservar"],135) or not session.enqueue("set_pace",[actor,"Atacar"],235):
+            fail("commands rejected")
+            return
+        var samples: Array[int] = []
+        var trace: Array = []
+        var peak_static: int = 0
+        var vehicle_samples: int = 0
+        for i in range(WARM+TICKS):
+            var begin: int = Time.get_ticks_usec()
+            var ok: bool = session.step_tick()
+            var elapsed: int = maxi(1,Time.get_ticks_usec()-begin)
+            if not ok or race.finished:
+                fail("incomplete race window")
+                return
+            if i>=WARM:
+                samples.append(elapsed)
+                peak_static=maxi(peak_static,int(Performance.get_monitor(Performance.MEMORY_STATIC)))
+            # Hash and ordered events are outside the tick timer.
+            trace.append([Codec.sporting_hash(race,session.policy),str(race.rng.state),Codec.digest(race.events)])
+            for car in race.cars:
+                if car.has(V.KEY):
+                    vehicle_samples+=1
+        if (vehicle_samples>0)!=(spec[3]=="045") or session.tick!=WARM+TICKS:
+            fail("wrong sporting revision or tick count")
+            return
+        var seek_ok: bool = true
+        if bool(spec[4]):
+            var archive = Replay.new()
+            seek_ok = archive.load_data(session.export_data()) and archive.seek(600) and archive.seek(150) and archive.seek(600) and archive.first_divergence<0
+        if not seek_ok:
+            fail("replay seek")
+            return
+        if int(race.player_cars()[0].pit_scheduled_lap)!=21:
+            fail("manual V21 lost")
+            return
+        print("APEX_MACRO_ROW ",JSON.stringify({"mode":mode,"rep":rep,"scenario":spec,
+            "revision":session.recorded_simulation_revision,"samples_us":samples,
+            "trace":trace,"vehicle_samples":vehicle_samples,"peak_static_bytes":peak_static,
+            "seek_ok":seek_ok},"",true,true))
+    print("APEX_MACRO_PASS")
+    quit(0)
