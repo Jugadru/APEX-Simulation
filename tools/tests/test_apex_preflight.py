@@ -40,6 +40,25 @@ class PreflightTests(unittest.TestCase):
                 encoding="utf-8")
             self.assertIn(("sample.gd", "SAMPLE_PASS"), contracts(root, ["tests/sample.gd"]))
 
+    def test_marker_identifier_boundary(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "tests").mkdir()
+            (root / "tests/test.gd").write_text('print("SAMPLE_PASS_EXTRA")', encoding="utf-8")
+            self.assertEqual(len(marker_findings(root, [("test.gd", "SAMPLE_PASS")])[1]), 1)
+
+    def test_manifest_edit_does_not_run_entire_registry(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".github").mkdir()
+            (root / ".github/apex-quality-suites.json").write_text(
+                '{"schema":1,"suites":[{"id":"sample","paths":["scripts/sample.gd"],'
+                '"fast_tests":[{"script":"sample.gd","marker":"SAMPLE_PASS"}],"checks":[]}]}',
+                encoding="utf-8")
+            paths = [".github/apex-quality-suites.json"]
+            self.assertNotIn(("sample.gd", "SAMPLE_PASS"), contracts(root, paths))
+            self.assertIn(("sample.gd", "SAMPLE_PASS"), contracts(root, paths, audit_all=True))
+
     def test_docs_keeps_baseline(self):
         with tempfile.TemporaryDirectory() as tmp:
             self.assertEqual(contracts(Path(tmp), ["README.md"]), list(ALWAYS))
