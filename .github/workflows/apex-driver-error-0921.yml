@@ -1,16 +1,8 @@
 name: APEX - Driver Error 9.21 validation
+# Automatic coverage moved to apex-tactical-coordination.yml (same 12 scenarios).
+# This independent executor remains available for explicit diagnosis.
 on:
-  pull_request:
-    branches: [main]
-    types: [opened, synchronize, reopened, ready_for_review]
-    paths:
-      - 'scripts/core/race_driver_error_0921.gd'
-      - 'scripts/core/race_space_0655.gd'
-      - 'scripts/race_engine.gd'
-      - 'scripts/core/race_replay_0660.gd'
-      - 'tests/driver_error_0921_test.gd'
-      - 'tests/aero_wake_091711_test.gd'
-      - '.github/workflows/apex-driver-error-0921.yml'
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
