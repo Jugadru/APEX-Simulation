@@ -39,3 +39,7 @@ nem renderização Godot. Jobs bloqueados não são executados. Não se
 instala nenhum serviço e não se faz download. Os demais tipos de assets
 continuam interfaces planejadas. A execução de teste deste orquestrador
 está NOT_RUN até evidência.
+
+## Asset Factory v0.1.0
+
+Consulte [contrato, execução, evidências e roadmap](ASSET_FACTORY_010.md). O novo CLI em tools/asset_factory/build.py usa os contratos Foundation e Graphics Lab; mantém o scaffold anterior e não promove assets.

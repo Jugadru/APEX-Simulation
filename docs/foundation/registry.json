@@ -67,14 +67,20 @@
     {
       "id": "asset-factory",
       "name": "Asset Factory",
-      "version": null,
+      "version": "0.1.0",
       "maturity": "experimental",
       "state_owner": "Staging artifacts only",
       "dependencies": [
-        "foundation"
+        "foundation",
+        "graphics-lab",
+        "blender",
+        "godot",
+        "python"
       ],
       "entrypoints": [
-        "tools/apex_asset_build.py"
+        "tools/apex_asset_build.py",
+        "tools/asset_factory/build.py",
+        "tools/asset_factory/request.schema.json"
       ]
     },
     {
@@ -388,6 +394,33 @@
       ],
       "restrictions": [
         "No publication"
+      ]
+    },
+    {
+      "id": "asset.build.original",
+      "module": "asset-factory",
+      "version": "0.1.0",
+      "inputs": [
+        "approved original vehicle request",
+        "trusted Blender 5.3 executable",
+        "trusted Godot 4.7.2 executable",
+        "new workspace outside repository"
+      ],
+      "outputs": [
+        "GLB staging",
+        "report and registry receipts",
+        "optional PNG"
+      ],
+      "method": "python3 tools/asset_factory/build.py REQUEST --blender BLENDER --godot GODOT --workspace NEW_WORKSPACE [--capture]",
+      "permissions": [
+        "read.local",
+        "write.staging"
+      ],
+      "restrictions": [
+        "No external asset sources",
+        "No production promotion",
+        "No authorization from metadata",
+        "Exact-pair compatibility remains unverified by shared registry"
       ]
     }
   ],
