@@ -108,6 +108,15 @@ func run() -> void:
     if fixture != null:
         fixture.store_string(JSON.stringify(cases,"",true,true))
         fixture.close()
+    # Exact binary64 fixture, produced before any text round-trip.
+    var binary := FileAccess.open("res://phase-fixtures.f64",FileAccess.WRITE)
+    check(binary != null,"binary fixture output")
+    if binary != null:
+        var packed := PackedFloat64Array()
+        for row in cases:
+            packed.append_array(PackedFloat64Array(row))
+        binary.store_buffer(packed.to_byte_array())
+        binary.close()
     for i in range(cases.size()):
         var a: Array = cases[i]
         var expected: Dictionary = reference(a)

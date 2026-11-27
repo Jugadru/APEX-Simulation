@@ -6,6 +6,8 @@ from pathlib import Path
 import platform
 import shutil
 import statistics
+import struct
+import math
 import subprocess
 import sys
 import threading
@@ -30,6 +32,39 @@ def percentile(values, q):
 def stats(values):
     return {"mean":statistics.mean(values),"median":statistics.median(values),
             "p95":percentile(values,.95),"p99":percentile(values,.99),"max":max(values)}
+
+
+def validate_oracles(expected, actual, evidence):
+    size=4108*8*8
+    if len(expected)!=size or len(actual)!=size:
+        raise RuntimeError(f"oracle length mismatch: {len(expected)} / {len(actual)} expected {size}")
+    if expected!=actual:
+        for offset in range(0,size,8):
+            a,b=expected[offset:offset+8],actual[offset:offset+8]
+            if a!=b:
+                detail={"case":offset//64,"field":offset//8%8,"expected_le":a.hex(),"actual_le":b.hex(),
+                        "expected":repr(struct.unpack("<d",a)[0]),"actual":repr(struct.unpack("<d",b)[0])}
+                (evidence/"micro-first-divergence.json").write_text(json.dumps(detail),encoding="utf-8")
+                print("APEX_MICRO_ORACLE_FAIL",json.dumps(detail),flush=True)
+                raise RuntimeError("pure C++ oracle differs at exact binary64 field")
+    print("APEX_MICRO_ORACLE_PASS fields=32864",flush=True)
+
+
+def validate_checksums(rows, evidence):
+    expected={(m,rep) for m in MODES for rep in range(10)}
+    if len(rows)!=70 or {(r["mode"],r["rep"]) for r in rows}!=expected or any(r["phases"]!=COUNT or not math.isfinite(r["elapsed_us"]) or r["elapsed_us"]<=0 for r in rows):
+        raise RuntimeError("micro incomplete")
+    for r in rows:
+        bits=bytes.fromhex(r["checksum_bits"])
+        if len(bits)!=8 or not r["checksum_finite"] or not math.isfinite(struct.unpack("<d",bits)[0]):
+            raise RuntimeError("invalid checksum")
+    first=rows[0]["checksum_bits"]
+    if any(r["checksum_bits"]!=first for r in rows):
+        detail=[{"mode":r["mode"],"rep":r["rep"],"bits":r["checksum_bits"],
+                 "decoded":repr(struct.unpack("<d",bytes.fromhex(r["checksum_bits"]))[0])} for r in rows]
+        (evidence/"micro-checksum-mismatch.json").write_text(json.dumps(detail,indent=2),encoding="utf-8")
+        print("APEX_MICRO_CHECKSUM_FAIL",json.dumps(detail),flush=True)
+        raise RuntimeError("micro binary checksum mismatch across interfaces")
 
 
 def rss_bytes(pid):
@@ -90,20 +125,25 @@ def run(godot, work, evidence, repo, platform_name):
     if not bench.is_file():
         raise RuntimeError("missing standalone C++ benchmark")
     (project/"micro.gd").write_bytes((here/"micro.gd.in").read_bytes())
-    fixture=json.loads((project/"phase-fixtures.json").read_text(encoding="utf-8"))
-    inputs=work/"phase-input.txt"
-    inputs.write_text("".join(" ".join(repr(float(v)) for v in row)+"\n" for row in fixture),encoding="utf-8")
+    inputs=project/"phase-fixtures.f64"
+    fixture=inputs.read_bytes()
+    if len(fixture)!=4108*7*8:
+        raise RuntimeError("invalid binary fixture length")
+    if fixture!=(evidence/"phase-fixtures.f64").read_bytes():
+        raise RuntimeError("fixture changed between native probes")
     micro,micro_rss=measured_run([godot,"--headless","--single-threaded-scene","--path",str(project),"--script","res://micro.gd"],work,evidence/"micro.log","APEX_MICRO_PASS",600)
-    pure,pure_rss=measured_run([str(bench),str(inputs)],work,evidence/"pure.log","APEX_PURE_PASS")
+    pure_oracle=evidence/"pure-oracle.f64"
+    pure,pure_rss=measured_run([str(bench),str(inputs),str(pure_oracle)],work,evidence/"pure.log","APEX_PURE_PASS")
+    gd_oracle=evidence/"gdscript-oracle.f64"
+    shutil.copyfile(project/"phase-oracle.f64",gd_oracle)
+    validate_oracles(gd_oracle.read_bytes(),pure_oracle.read_bytes(),evidence)
     rows=parse_rows(micro,"APEX_MICRO_ROW ")+parse_rows(pure,"APEX_MICRO_ROW ")
-    expected={(m,rep) for m in MODES for rep in range(10)}
-    if len(rows)!=70 or {(r["mode"],r["rep"]) for r in rows}!=expected or any(r["phases"]!=COUNT or r["elapsed_us"]<=0 for r in rows):
-        raise RuntimeError("micro incomplete")
-    if len({r["checksum"] for r in rows})!=1:
-        raise RuntimeError("micro checksum mismatch across interfaces")
+    validate_checksums(rows,evidence)
     micro_stats={m:stats([r["elapsed_us"]/COUNT for r in rows if r["mode"]==m]) for m in MODES}
     for m in MODES:
         micro_stats[m]["speedup_vs_gdscript"]=micro_stats["gdscript"]["median"]/micro_stats[m]["median"]
+    (evidence/"micro-summary.json").write_text(json.dumps({"rows":rows,"micro_us_per_phase":micro_stats,"fixture_sha256":hashlib.sha256(fixture).hexdigest()},indent=2),encoding="utf-8")
+    print("APEX_MICRO_ALL_PASS",json.dumps(micro_stats),flush=True)
     # Use exact base source, not an instrumented baseline or the checkout's
     # editor cache. Extract only runtime resources to two disposable projects.
     archive=work/"runtime.tar"

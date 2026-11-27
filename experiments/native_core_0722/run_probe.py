@@ -188,6 +188,7 @@ def main():
     if "APEX_NATIVE_0722_PASS" not in result:
         raise RuntimeError("native PASS marker missing")
     shutil.copyfile(project / "phase-fixtures.json", evidence / "phase-fixtures.json")
+    shutil.copyfile(project / "phase-fixtures.f64", evidence / "phase-fixtures.f64")
     saved_descriptor = descriptor.read_bytes()
     saved_bin = work / "native-bin-backup"
     shutil.copytree(project / "bin", saved_bin)
