@@ -78,3 +78,45 @@ static func refine(attacker: Dictionary, defender: Dictionary, grid: Array,
 	tactic["blocked"] = true
 	tactic["overtaking_reason"] = "third_car_corridor_blocked"
 	return tactic
+
+
+# 046: preparation is a judgement over frozen observations, not a pace or
+# trajectory modifier. Keep the 023 refine() contract for historical sessions.
+const PREPARATION_KEY := "overtaking_preparation_073"
+const Combat = preload("res://scripts/core/race_combat.gd")
+
+static func prepare(car: Dictionary, rival: Dictionary, gap: float, advantage: float,
+		pace: float, track: Dictionary, weather: Dictionary, dt: float) -> Dictionary:
+	var prior: Dictionary = car.get(PREPARATION_KEY, {})
+	var target: int = int(rival.id)
+	var same: bool = int(prior.get("target", -1)) == target
+	var wet: float = clampf(float(weather.get("wetness_factor", 0.0)), 0.0, 1.0)
+	var risk: float = clampf(float(car.get("risk_tolerance", 55.0)), 0.0, 100.0)
+	var horizon: float = lerpf(2.8, 1.5, risk / 100.0)
+	var stable: float = minf(5.0, float(prior.get("stable_s", 0.0)) + dt) if same and advantage > 0.04 else 0.0
+	var relative: float = lerpf(float(prior.get("relative_pace_s", advantage)), advantage, clampf(dt / 0.8, 0.0, 1.0)) if same else advantage
+	var current: bool = Combat.in_passing_zone(float(car.progress), track)
+	var soon: bool = current
+	for step in [0.5, 1.0, 1.5, 2.0]:
+		if Combat.in_passing_zone(float(car.progress) + float(step) / maxf(1.0, pace), track):
+			soon = true
+	var wake: Dictionary = car.get("aero_wake_032", {})
+	var drafting: bool = int(wake.get("source_id", -1)) == target and float(wake.get("tow_fraction", 0.0)) > 0.001
+	var established: bool = str(car.get("combat_state", "")) in ["preparing", "attacking", "duel"] and int(car.get("combat_target_id", -1)) == target
+	var ready: bool = established or (current and stable >= horizon * 0.4 + wet * 0.35 and relative > 0.04)
+	var reason: String = "ready"
+	if established: reason = "established"
+	elif not soon: reason = "wait_zone"
+	elif not current: reason = "approach_zone"
+	elif relative <= 0.04: reason = "no_relative_pace"
+	elif not ready: reason = "build_evidence"
+	return {"target":target,"stable_s":stable,"relative_pace_s":relative,
+		"ready":ready,"soon":soon,"drafting":drafting,"gap_units":gap,"reason":reason}
+
+static func preparation_allows(plan: Dictionary, tactic: Dictionary, wet: float) -> bool:
+	if str(plan.get("reason", "")) == "established": return true
+	if not bool(plan.get("ready", false)): return false
+	# Tow is already included in the physical wake model. No second bonus.
+	# Require observed pace to sustain the existing driver-specific threshold.
+	var reserve: float = 0.025 * clampf(wet, 0.0, 1.0)
+	return float(plan.get("relative_pace_s", 0.0)) > float(tactic.get("threshold_s", 0.12)) + reserve
