@@ -1,0 +1,90 @@
+name: APEX - Overtaking Preparation 073 validation
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/core/race_overtaking_intelligence_066912.gd'
+      - 'scripts/core/race_space_0655.gd'
+      - 'scripts/core/race_replay_0660.gd'
+      - 'scripts/core/race_revision_policy_0923.gd'
+      - 'scripts/race_engine.gd'
+      - 'tests/overtaking_preparation_073_validation.gd'
+      - '.github/workflows/apex-overtaking-preparation-073.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  matrix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        track: [ITA, GBR, MON, BEL, SIN]
+        climate: [Seco, Chuva intensa]
+        seed: [42, 123]
+    env:
+      APEX_073_TRACK: ${{ matrix.track }}
+      APEX_073_CLIMATE: ${{ matrix.climate }}
+      APEX_073_SEED: ${{ matrix.seed }}
+      APEX_073_MODE: matrix
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: chickensoft-games/setup-godot@ac93246ea68518a384c1c280a496e5989341f2f6
+        with:
+          version: '4.7.2'
+          use-dotnet: false
+      - run: bash tools/apex_ci_import.sh import.log
+      - name: 041 versus 046 plus replay roundtrip
+        run: |
+          set -euo pipefail
+          bash tools/apex_ci_isolated_test.sh overtaking_preparation_073_validation.gd 2>&1 | tee 073.log
+          grep -Fq OVERTAKING_PREPARATION_073_VALIDATION_PASS 073.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' 073.log
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        if: always()
+        with:
+          name: 073-matrix-${{ matrix.track }}-${{ matrix.climate }}-${{ matrix.seed }}
+          path: |
+            import.log
+            073.log
+          retention-days: 14
+  endurance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {track: ITA, climate: Seco, seed: 42, mode: full}
+          - {track: GBR, climate: Chuva intensa, seed: 42, mode: v21}
+    env:
+      APEX_073_TRACK: ${{ matrix.track }}
+      APEX_073_CLIMATE: ${{ matrix.climate }}
+      APEX_073_SEED: ${{ matrix.seed }}
+      APEX_073_MODE: ${{ matrix.mode }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: chickensoft-games/setup-godot@ac93246ea68518a384c1c280a496e5989341f2f6
+        with:
+          version: '4.7.2'
+          use-dotnet: false
+      - run: bash tools/apex_ci_import.sh import.log
+      - name: Fixed 0.2s ticks, full GP or V21 actual entry
+        run: |
+          set -euo pipefail
+          sandbox="$(mktemp -d)"
+          trap 'rm -rf "$sandbox"' EXIT
+          export HOME="$sandbox/home" XDG_DATA_HOME="$sandbox/data" XDG_CONFIG_HOME="$sandbox/config" XDG_CACHE_HOME="$sandbox/cache" XDG_STATE_HOME="$sandbox/state"
+          mkdir -p "$HOME" "$XDG_DATA_HOME" "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME" "$XDG_STATE_HOME"
+          timeout 1800s godot --headless --single-threaded-scene --path . --script res://tests/overtaking_preparation_073_validation.gd 2>&1 | tee 073.log
+          grep -Fq OVERTAKING_PREPARATION_073_VALIDATION_PASS 073.log
+          ! grep -Eiq '(^ERROR:|SCRIPT ERROR:|Parse Error:)' 073.log
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        if: always()
+        with:
+          name: 073-endurance-${{ matrix.mode }}
+          path: |
+            import.log
+            073.log
+          retention-days: 14
